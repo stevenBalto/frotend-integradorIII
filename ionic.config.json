@@ -1,0 +1,7 @@
+{
+  "name": "rooster-tmp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
