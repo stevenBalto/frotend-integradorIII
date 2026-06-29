@@ -1,2 +1,29 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// Tema Rooster Pizza & Grill
+// Identidad visual: ver documentacion/front-document/ReglasUX.md y guiaMDFrontend.md
+
+:root {
+  /* Paleta de marca (app cliente) */
+  --rooster-red: #e13642;
+  --rooster-orange: #f58220;
+  --rooster-gold: #f2b134;
+  --rooster-brown: #a8895e;
+  --rooster-dark: #1e1e1e;
+  --rooster-bg: #faf7f2;
+  --rooster-border: #d1d1d1;
+
+  /* Tipografias */
+  --rooster-font-serif: 'Playfair Display', serif;
+  --rooster-font-sans: 'Nunito', sans-serif;
+
+  /* Ionic: primary = rojo de marca, fuente base = Nunito */
+  --ion-color-primary: #e13642;
+  --ion-color-primary-rgb: 225, 54, 66;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #c63039;
+  --ion-color-primary-tint: #e44a54;
+
+  --ion-font-family: 'Nunito', sans-serif;
+  --ion-background-color: #faf7f2;
+  --ion-background-color-rgb: 250, 247, 242;
+}
