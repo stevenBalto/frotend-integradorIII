@@ -1,0 +1,14 @@
+export interface Usuario {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  puntos_balance: number;
+  sucursal_id: number | null;
+  rol: string;
+}
+
+export interface AuthResponse {
+  data: Usuario;
+  token: string;
+}
