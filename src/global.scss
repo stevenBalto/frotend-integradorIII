@@ -34,4 +34,215 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* ── Pantallas de autenticacion (login + register) ─────────────────────────── */
+.auth-content {
+  --background: var(--rooster-bg);
+}
+/* Centrado robusto: el scroll de ion-content es flex column; .auth-center llena el
+   alto disponible (flex:1 + min-height:100%) y .auth-wrap usa margin:auto para
+   centrarse. Si el contenido excede el alto, hace scroll con padding simetrico. */
+.auth-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+}
+.auth-center {
+  flex: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  box-sizing: border-box;
+}
+.auth-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(100% - 32px);
+  max-width: 440px;
+  margin: auto;
+  padding: 28px 28px 28px;
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  font-family: var(--rooster-font-sans);
+}
+.auth-wrap .logo {
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+.auth-wrap .logo--lg { width: 120px; height: 120px; }
+.auth-wrap .logo--sm { width: 72px; height: 72px; }
+.auth-wrap .brand {
+  font-family: var(--rooster-font-serif);
+  font-weight: 700;
+  font-size: 30px;
+  color: var(--rooster-red);
+  margin: 0 0 4px;
+}
+.auth-wrap .tagline {
+  color: var(--rooster-brown);
+  font-size: 14px;
+  text-align: center;
+  margin: 0 0 16px;
+}
+.auth-wrap .auth-form { width: 100%; }
+.auth-wrap .field { width: 100%; margin-bottom: 14px; }
+.auth-wrap .field__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.auth-wrap .field__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rooster-dark);
+  display: block;
+  margin-bottom: 4px;
+}
+.auth-wrap .input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid var(--rooster-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+.auth-wrap .input:focus-within { border-color: var(--rooster-red); }
+.auth-wrap .input ion-icon {
+  font-size: 16px;
+  color: var(--rooster-brown);
+  flex-shrink: 0;
+}
+.auth-wrap .input:focus-within ion-icon { color: var(--rooster-red); }
+.auth-wrap .input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  color: var(--rooster-dark);
+}
+.auth-wrap .input--error { border-color: var(--rooster-orange); }
+.auth-wrap .input--error ion-icon { color: var(--rooster-orange); }
+.auth-wrap .eye {
+  background: none;
+  border: none;
+  display: flex;
+  color: var(--rooster-brown);
+  cursor: pointer;
+}
+.auth-wrap .field__hint {
+  font-size: 12px;
+  color: var(--rooster-orange);
+  margin: 6px 0 0;
+}
+.auth-wrap .link {
+  background: none;
+  border: none;
+  font-family: var(--rooster-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rooster-red);
+  cursor: pointer;
+}
+.auth-wrap .switch .link { font-size: 14px; }
+.auth-wrap .link--bold { font-weight: 700; }
+.auth-wrap .btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-family: var(--rooster-font-sans);
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  min-height: 56px;
+}
+.auth-wrap .btn ion-icon { font-size: 18px; }
+.auth-wrap .btn:disabled { opacity: 0.7; }
+.auth-wrap .btn--primary {
+  background: var(--rooster-red);
+  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+  margin-bottom: 16px;
+}
+.auth-wrap .btn--dark { background: var(--rooster-dark); }
+.auth-wrap .switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--rooster-brown);
+}
+.auth-wrap .divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+.auth-wrap .divider::before,
+.auth-wrap .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e5e5e5;
+}
+.auth-wrap .divider span {
+  font-size: 12px;
+  color: var(--rooster-brown);
+}
+.auth-wrap .back {
+  width: 100%;
+  display: flex;
+  margin-bottom: 8px;
+}
+.auth-wrap .back button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--rooster-brown);
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Responsive por ALTURA: en pantallas/zoom bajos el card se compacta para
+   seguir cabiendo y centrado, sin scroll. Esto adapta a cualquier viewport. ── */
+@media (max-height: 780px) {
+  .auth-center { padding: 12px 0; }
+  .auth-wrap { padding: 22px 26px; }
+  .auth-wrap .logo--lg { width: 92px; height: 92px; }
+  .auth-wrap .logo--sm { width: 60px; height: 60px; }
+  .auth-wrap .logo { margin-bottom: 4px; }
+  .auth-wrap .brand { font-size: 26px; }
+  .auth-wrap .tagline { margin-bottom: 12px; }
+  .auth-wrap .field { margin-bottom: 12px; }
+  .auth-wrap .btn { min-height: 50px; padding: 13px; }
+  .auth-wrap .btn--primary { margin-bottom: 12px; }
+  .auth-wrap .switch,
+  .auth-wrap .divider { margin-bottom: 12px; }
+}
+@media (max-height: 640px) {
+  .auth-wrap .logo--lg { width: 64px; height: 64px; }
+  .auth-wrap .logo--sm { width: 48px; height: 48px; }
+  .auth-wrap .brand { font-size: 22px; }
+  .auth-wrap .tagline { display: none; }
+  .auth-wrap .field { margin-bottom: 10px; }
+  .auth-wrap .input { padding: 10px 14px; }
+}

@@ -1,0 +1,84 @@
+<ion-content class="auth-content">
+  <div class="auth-center">
+  <div class="auth-wrap">
+    <div class="back">
+      <button type="button" (click)="irLogin()">
+        <ion-icon name="arrow-back-outline"></ion-icon> Volver
+      </button>
+    </div>
+
+    <img src="assets/logo/rooster-logo.png" alt="Rooster logo" class="logo logo--sm" />
+    <h1 class="brand">Rooster</h1>
+    <p class="tagline">Crea tu cuenta y empieza a pedir.</p>
+
+    <form [formGroup]="form" (ngSubmit)="registrar()" class="auth-form">
+      <div class="field">
+        <label class="field__label">Nombre completo</label>
+        <div class="input">
+          <ion-icon name="person-outline"></ion-icon>
+          <input type="text" formControlName="nombre" placeholder="Tu nombre" autocomplete="name" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">Correo electrónico</label>
+        <div class="input">
+          <ion-icon name="mail-outline"></ion-icon>
+          <input type="email" formControlName="email" placeholder="ejemplo@correo.com" autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">Contraseña</label>
+        <div class="input">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          />
+          <button type="button" class="eye" (click)="showPassword = !showPassword">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <p
+          class="field__hint"
+          *ngIf="form.controls['password'].touched && form.controls['password'].errors?.['weak']"
+        >
+          Mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo.
+        </p>
+      </div>
+
+      <div class="field">
+        <label class="field__label">Confirmar contraseña</label>
+        <div class="input" [class.input--error]="!passwordsCoinciden()">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <input
+            [type]="showConfirm ? 'text' : 'password'"
+            formControlName="confirm"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          />
+          <button type="button" class="eye" (click)="showConfirm = !showConfirm">
+            <ion-icon [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <p class="field__hint" *ngIf="!passwordsCoinciden()">Las contraseñas no coinciden</p>
+      </div>
+
+      <button type="submit" class="btn btn--primary" [disabled]="cargando">
+        <ng-container *ngIf="!cargando">
+          Crear cuenta <ion-icon name="arrow-forward-outline"></ion-icon>
+        </ng-container>
+        <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+      </button>
+    </form>
+
+    <div class="switch">
+      <span>¿Ya tienes cuenta?</span>
+      <a class="link link--bold" (click)="irLogin()">Iniciar sesión</a>
+    </div>
+  </div>
+  </div>
+</ion-content>
