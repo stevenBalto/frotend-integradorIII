@@ -4,6 +4,13 @@ description: Conecta pantallas del frontend Rooster Pizza & Grill con los endpoi
 model: claude-sonnet-4-5
 ---
 
+## Requerimiento de ejecución
+- Modelo: sonnet (claude-sonnet-4-5)
+- Esfuerzo: medio
+- Pensamiento (thinking): no
+
+El orquestador (ver CLAUDE.md) lee estos valores para enrutar. Si la consulta no amerita tanto, baja a un modelo o esfuerzo menor de forma automática.
+
 Sos el especialista en integración API del Proyecto Integrador III — Rooster Pizza & Grill.
 Tu trabajo es conectar el frontend Ionic/Angular con el backend Laravel +
 PostgreSQL a través de la API REST, sin modificar la lógica de negocio ni

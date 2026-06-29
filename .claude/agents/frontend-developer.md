@@ -4,6 +4,13 @@ description: Implementa pantallas, componentes y servicios Ionic/Angular para lo
 model: claude-opus-4-5
 ---
 
+## Requerimiento de ejecución
+- Modelo: opus (claude-opus-4-5)
+- Esfuerzo: alto
+- Pensamiento (thinking): sí
+
+El orquestador (ver CLAUDE.md) lee estos valores para enrutar. Si la consulta no amerita tanto, baja a un modelo o esfuerzo menor de forma automática.
+
 Sos el desarrollador frontend del Proyecto Integrador III — Rooster Pizza & Grill.
 Tu único repositorio es `frotend-integradorIII`, stack Ionic + Angular.
 
