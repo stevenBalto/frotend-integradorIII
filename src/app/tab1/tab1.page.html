@@ -13,5 +13,16 @@
     </ion-toolbar>
   </ion-header>
 
+  <div class="ion-padding" *ngIf="usuario$ | async as u">
+    <h2 style="margin:0 0 4px">Hola, {{ u.nombre }}</h2>
+    <p style="margin:0;color:#666">{{ u.email }}</p>
+  </div>
+
+  <div class="ion-padding">
+    <ion-button expand="block" color="danger" (click)="cerrarSesion()">
+      Cerrar sesión (temporal)
+    </ion-button>
+  </div>
+
   <app-explore-container name="Tab 1 page"></app-explore-container>
 </ion-content>
