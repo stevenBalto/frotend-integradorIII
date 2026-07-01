@@ -56,7 +56,7 @@ export class RegisterPage {
       .subscribe({
         next: () => {
           this.cargando = false;
-          void this.router.navigateByUrl('/tabs/tab1');
+          void this.router.navigateByUrl('/tabs/home');
         },
         error: (err: HttpErrorResponse) => {
           this.cargando = false;

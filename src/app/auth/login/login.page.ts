@@ -38,7 +38,7 @@ export class LoginPage {
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.cargando = false;
-        void this.router.navigateByUrl('/tabs/tab1');
+        void this.router.navigateByUrl('/tabs/home');
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;
@@ -52,7 +52,7 @@ export class LoginPage {
   }
 
   entrarInvitado(): void {
-    void this.router.navigateByUrl('/tabs/tab1');
+    void this.router.navigateByUrl('/tabs/home');
   }
 
   private async notificar(mensaje: string): Promise<void> {
