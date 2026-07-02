@@ -1,1 +1,18 @@
+ion-tab-bar {
+  --background: #ffffff;
+  --border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  height: 60px;
+}
 
+ion-tab-button {
+  --color: var(--rooster-brown);
+  --color-selected: var(--rooster-red);
+  font-family: var(--rooster-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+
+  &.tab-selected {
+    font-weight: 700;
+  }
+}

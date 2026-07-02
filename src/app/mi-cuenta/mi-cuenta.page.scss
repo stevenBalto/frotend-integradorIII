@@ -1,1 +1,209 @@
-/* Estilos para Mi cuenta - por ahora vacio */
+.cuenta-content {
+  --background: var(--rooster-bg);
+}
+
+/* ── Encabezado ─────────────────────────────────────────────────────────────── */
+.cuenta-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 24px;
+
+  @media (min-width: 768px) {
+    padding: 32px 32px 32px;
+    max-width: 768px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-family: var(--rooster-font-serif);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--rooster-dark);
+    margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 30px;
+    }
+  }
+
+  &__logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+
+    @media (min-width: 1024px) {
+      display: none;
+    }
+  }
+}
+
+/* ── Perfil ──────────────────────────────────────────────────────────────────── */
+.cuenta-perfil {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 0 20px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  @media (min-width: 768px) {
+    max-width: 728px;
+    margin: 0 auto 24px;
+  }
+
+  &__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: #fff1f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 28px;
+      color: var(--rooster-red);
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-family: var(--rooster-font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--rooster-dark);
+    margin: 0 0 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__email {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    color: var(--rooster-brown);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__edit {
+    flex-shrink: 0;
+    background: #fff1f2;
+    border: 1px solid rgba(225, 54, 66, 0.15);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rooster-red);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+/* ── Secciones ───────────────────────────────────────────────────────────────── */
+.cuenta-section {
+  padding: 0 20px 20px;
+
+  @media (min-width: 768px) {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 0 20px 24px;
+  }
+
+  &__title {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rooster-brown);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0 0 8px 4px;
+  }
+}
+
+.cuenta-group {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ── Fila de cuenta ─────────────────────────────────────────────────────────── */
+.cuenta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: #f9f9f9; }
+  &--last { border-bottom: none; }
+
+  &__icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 16px;
+      color: var(--rooster-brown);
+    }
+
+    &--danger {
+      background: #fff1f2;
+      ion-icon { color: var(--rooster-red); }
+    }
+  }
+
+  &__label {
+    flex: 1;
+    font-family: var(--rooster-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rooster-dark);
+    text-align: left;
+
+    &--danger { color: var(--rooster-red); }
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+  }
+}
+
+/* ── Version ─────────────────────────────────────────────────────────────────── */
+.cuenta-version {
+  font-family: var(--rooster-font-sans);
+  font-size: 12px;
+  color: var(--rooster-brown);
+  text-align: center;
+  padding: 8px 0 32px;
+  margin: 0;
+}

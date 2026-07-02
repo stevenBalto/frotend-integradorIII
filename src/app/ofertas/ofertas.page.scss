@@ -1,1 +1,260 @@
-/* Estilos para Ofertas - por ahora vacio */
+.ofertas-content {
+  --background: var(--rooster-bg);
+}
+
+/* ── Encabezado ─────────────────────────────────────────────────────────────── */
+.ofertas-header {
+  padding: 16px 20px 4px;
+
+  @media (min-width: 768px) {
+    padding: 32px 32px 8px;
+  }
+
+  &__title {
+    font-family: var(--rooster-font-serif);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--rooster-dark);
+    margin: 0 0 4px;
+
+    @media (min-width: 768px) {
+      font-size: 30px;
+      margin-bottom: 4px;
+    }
+  }
+
+  &__sub {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    color: var(--rooster-brown);
+    margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 14px;
+    }
+  }
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────────── */
+.ofertas-tabs {
+  display: flex;
+  border-bottom: 1px solid #ebebeb;
+  margin: 16px 20px 0;
+
+  @media (min-width: 768px) {
+    margin: 16px 32px 0;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: none;
+  }
+}
+
+.ofertas-tab {
+  flex: 1;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rooster-brown);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: capitalize;
+
+  @media (min-width: 1024px) {
+    flex: none;
+    padding: 14px 32px;
+  }
+
+  &--active {
+    color: var(--rooster-red);
+    border-bottom-color: var(--rooster-red);
+  }
+}
+
+/* ── Grid de ofertas ────────────────────────────────────────────────────────── */
+.ofertas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 16px 20px 24px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px 32px 32px;
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Tarjeta de oferta ──────────────────────────────────────────────────────── */
+.oferta-card {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  &__illus {
+    width: 96px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 16px;
+    gap: 4px;
+    flex: 1;
+  }
+
+  &__name {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--rooster-red);
+    text-transform: uppercase;
+    line-height: 1.3;
+    letter-spacing: 0.3px;
+    margin: 0 0 6px;
+  }
+
+  &__badge {
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--rooster-orange);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  &__price {
+    font-family: var(--rooster-font-sans);
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--rooster-dark);
+    margin: 4px 0 0;
+  }
+}
+
+/* ── Tarjetas de cupon (para tab Cupones - comentado porque solo mostramos Ofertas) ── */
+.cupones-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 16px 20px 24px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px 32px 32px;
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.cupon-card {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px dashed rgba(225, 54, 66, 0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  &__illus {
+    width: 90px;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__divider {
+    width: 1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 0;
+
+    span {
+      width: 1px;
+      height: 6px;
+      background: var(--rooster-red);
+    }
+  }
+
+  &__body {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  &__code {
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+  }
+
+  &__btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  &__desc {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--rooster-dark);
+    line-height: 1.4;
+    margin: 0 0 6px;
+  }
+
+  &__expira {
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    color: var(--rooster-brown);
+    margin: 0;
+  }
+}

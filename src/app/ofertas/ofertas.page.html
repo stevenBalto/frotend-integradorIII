@@ -1,17 +1,103 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Ofertas</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="ofertas-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Ofertas</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="ion-padding ion-text-center">
-    <p style="color:#888">Proximamente: ofertas y cupones disponibles...</p>
+  <!-- Encabezado -->
+  <div class="ofertas-header">
+    <h2 class="ofertas-header__title">Ofertas y cupones</h2>
+    <p class="ofertas-header__sub">Aprovecha estas promociones exclusivas</p>
   </div>
+
+  <!-- Tabs Ofertas / Cupones -->
+  <div class="ofertas-tabs">
+    <button class="ofertas-tab ofertas-tab--active">Ofertas</button>
+    <button class="ofertas-tab">Cupones</button>
+  </div>
+
+  <!-- Tarjetas de ofertas -->
+  <div class="ofertas-grid">
+
+    <!-- Combo Pizza Personal + Bebida -->
+    <div class="oferta-card">
+      <div class="oferta-card__illus" style="background: #E13642;">
+        <!-- Ilustracion Combo -->
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="26" fill="#F0FFF8"/>
+          <path d="M42 26 L44 50 L54 50 L56 26 Z" fill="#F2B134"/>
+          <rect x="50" y="14" width="2.5" height="18" rx="1.2" fill="#E13642"/>
+          <path d="M20 48 L32 24 L44 48 Z" fill="#F2B134"/>
+          <path d="M20 48 L32 24 L44 48 Z" fill="none" stroke="#E13642" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="32" cy="38" r="2.5" fill="#E13642"/>
+        </svg>
+      </div>
+      <div class="oferta-card__body">
+        <p class="oferta-card__name">COMBO PIZZA PERSONAL + BEBIDA</p>
+        <p class="oferta-card__badge">PRECIO ESPECIAL</p>
+        <p class="oferta-card__price">$155</p>
+      </div>
+    </div>
+
+    <!-- Combo Costillas + Papas -->
+    <div class="oferta-card">
+      <div class="oferta-card__illus" style="background: #F58220;">
+        <!-- Ilustracion Grill -->
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="26" fill="#FFF5EE"/>
+          <path d="M22 34 Q36 26 50 34 L50 42 Q36 48 22 42 Z" fill="#F58220"/>
+          <path d="M22 34 Q36 26 50 34" stroke="#E13642" stroke-width="1.5" fill="none"/>
+          <rect x="48" y="28" width="6" height="16" rx="3" fill="#F2EBE3"/>
+          <circle cx="51" cy="26" r="3" fill="#F2EBE3"/>
+          <circle cx="51" cy="46" r="3" fill="#F2EBE3"/>
+        </svg>
+      </div>
+      <div class="oferta-card__body">
+        <p class="oferta-card__name">COMBO COSTILLAS + PAPAS</p>
+        <p class="oferta-card__badge">PRECIO ESPECIAL</p>
+        <p class="oferta-card__price">$290</p>
+      </div>
+    </div>
+
+    <!-- 2x1 Pizzas Medianas -->
+    <div class="oferta-card">
+      <div class="oferta-card__illus" style="background: #A8895E;">
+        <!-- Ilustracion 2x1 Pizza -->
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="26" fill="#FFF5EE"/>
+          <circle cx="28" cy="38" r="13" fill="#F2B134" opacity="0.3"/>
+          <circle cx="44" cy="38" r="13" fill="#F2B134" opacity="0.3"/>
+          <circle cx="25" cy="36" r="2" fill="#E13642"/>
+          <circle cx="30" cy="41" r="2" fill="#E13642"/>
+          <circle cx="41" cy="36" r="2" fill="#E13642"/>
+          <circle cx="46" cy="41" r="2" fill="#E13642"/>
+          <rect x="28" y="18" width="20" height="12" rx="6" fill="#E13642"/>
+          <text x="38" y="27.5" text-anchor="middle" fill="white" font-size="8" font-weight="800" font-family="sans-serif">2x1</text>
+        </svg>
+      </div>
+      <div class="oferta-card__body">
+        <p class="oferta-card__name">2x1 PIZZAS MEDIANAS</p>
+        <p class="oferta-card__badge">SOLO LOS MARTES</p>
+        <p class="oferta-card__price">$280</p>
+      </div>
+    </div>
+
+    <!-- Pasta + Postre -->
+    <div class="oferta-card">
+      <div class="oferta-card__illus" style="background: #F2B134;">
+        <!-- Ilustracion Pasta -->
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="26" fill="#FFFBF0"/>
+          <path d="M18 36 Q20 56 36 56 Q52 56 54 36" stroke="#A8895E" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <line x1="18" y1="36" x2="54" y2="36" stroke="#A8895E" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 36 Q26 28 30 32 Q34 36 36 28 Q38 20 42 28 Q44 32 48 36" stroke="#F2B134" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="30" cy="33" r="3" fill="#E13642" opacity="0.85"/>
+          <circle cx="40" cy="30" r="2.5" fill="#E13642" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="oferta-card__body">
+        <p class="oferta-card__name">PASTA + POSTRE</p>
+        <p class="oferta-card__badge">PRECIO ESPECIAL</p>
+        <p class="oferta-card__price">$210</p>
+      </div>
+    </div>
+
+  </div>
+
 </ion-content>

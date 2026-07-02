@@ -1,28 +1,147 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Home</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="home-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Home</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="ion-padding" *ngIf="usuario$ | async as u">
-    <h2 style="margin:0 0 4px">Hola, {{ u.nombre }}</h2>
-    <p style="margin:0;color:#666">{{ u.email }}</p>
+  <!-- Encabezado de bienvenida -->
+  <div class="home-header">
+    <div>
+      <p class="home-header__sub">Bienvenido</p>
+      <h2 class="home-header__title">Que vas a pedir hoy?</h2>
+    </div>
+    <img src="assets/logo/rooster-logo.png" alt="Rooster" class="home-header__logo" />
   </div>
 
-  <div class="ion-padding">
-    <ion-button expand="block" color="danger" (click)="cerrarSesion()">
-      Cerrar sesion (temporal)
-    </ion-button>
+  <!-- Categorias -->
+  <div class="home-section">
+    <div class="home-section__row">
+      <span class="home-section__label">Categorias</span>
+      <button class="home-section__link">Ver todas</button>
+    </div>
+    <div class="categories-scroll">
+
+      <button class="category-item category-item--active">
+        <div class="category-item__img-wrap category-item__img-wrap--active">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&auto=format" alt="Todos" />
+        </div>
+        <span class="category-item__label category-item__label--active">Todos</span>
+      </button>
+
+      <button class="category-item">
+        <div class="category-item__img-wrap">
+          <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop&auto=format" alt="Pizza" />
+        </div>
+        <span class="category-item__label">Pizza</span>
+      </button>
+
+      <button class="category-item">
+        <div class="category-item__img-wrap">
+          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop&auto=format" alt="Grill" />
+        </div>
+        <span class="category-item__label">Grill</span>
+      </button>
+
+      <button class="category-item">
+        <div class="category-item__img-wrap">
+          <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=200&h=200&fit=crop&auto=format" alt="Pasta" />
+        </div>
+        <span class="category-item__label">Pasta</span>
+      </button>
+
+    </div>
   </div>
 
-  <div class="ion-padding ion-text-center">
-    <p style="color:#888">Proximamente: bebidas, pizzas, pastas, grill, descuentos...</p>
+  <!-- Platillos populares -->
+  <div class="home-section">
+    <div class="home-section__row">
+      <span class="home-section__label">Platillos populares</span>
+      <button class="filter-btn">
+        <ion-icon name="options-outline"></ion-icon>
+        Filtrar
+      </button>
+    </div>
+
+    <div class="dish-grid">
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&auto=format" alt="Pizza Pepperoni" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Pizza Pepperoni</span>
+          <span class="dish-card__desc">Masa artesanal, salsa de tomate y pepperoni premium</span>
+          <span class="dish-card__price">$155</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop&auto=format" alt="Pizza 4 Quesos" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Pizza 4 Quesos</span>
+          <span class="dish-card__desc">Mozzarella, gouda, parmesano y gorgonzola</span>
+          <span class="dish-card__price">$165</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop&auto=format" alt="Pizza Margarita" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Pizza Margarita</span>
+          <span class="dish-card__desc">Salsa de tomate fresco, mozzarella y albahaca</span>
+          <span class="dish-card__price">$140</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format" alt="Costillas BBQ" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Costillas BBQ</span>
+          <span class="dish-card__desc">Costillas de cerdo con salsa BBQ ahumada y papas</span>
+          <span class="dish-card__price">$210</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=300&fit=crop&auto=format" alt="Filete a la Parrilla" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Filete a la Parrilla</span>
+          <span class="dish-card__desc">Filete de res angus con mantequilla de hierbas</span>
+          <span class="dish-card__price">$245</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c3?w=400&h=300&fit=crop&auto=format" alt="Pollo a las Brasas" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Pollo a las Brasas</span>
+          <span class="dish-card__desc">Pollo entero marinado con especias de la casa</span>
+          <span class="dish-card__price">$178</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop&auto=format" alt="Pasta Carbonara" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Pasta Carbonara</span>
+          <span class="dish-card__desc">Spaghetti, panceta, yema de huevo y parmesano</span>
+          <span class="dish-card__price">$138</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop&auto=format" alt="Fettuccine Alfredo" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Fettuccine Alfredo</span>
+          <span class="dish-card__desc">Fettuccine en salsa cremosa de mantequilla y queso</span>
+          <span class="dish-card__price">$132</span>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop&auto=format" alt="Penne Arrabbiata" class="dish-card__img" />
+        <div class="dish-card__body">
+          <span class="dish-card__name">Penne Arrabbiata</span>
+          <span class="dish-card__desc">Penne con salsa de tomate picante y ajo</span>
+          <span class="dish-card__price">$125</span>
+        </div>
+      </div>
+
+    </div>
   </div>
+
 </ion-content>

@@ -1,17 +1,131 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Mi cuenta</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="cuenta-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Mi cuenta</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="ion-padding ion-text-center">
-    <p style="color:#888">Proximamente: perfil, puntos, pedidos, metodos de pago, configuracion...</p>
+  <!-- Encabezado -->
+  <div class="cuenta-header">
+    <h2 class="cuenta-header__title">Mi cuenta</h2>
+    <img src="assets/logo/rooster-logo.png" alt="Rooster" class="cuenta-header__logo" />
   </div>
+
+  <!-- Perfil -->
+  <div class="cuenta-perfil">
+    <div class="cuenta-perfil__avatar">
+      <ion-icon name="person-circle-outline"></ion-icon>
+    </div>
+    <div class="cuenta-perfil__info">
+      <p class="cuenta-perfil__name">Nombre de usuario</p>
+      <p class="cuenta-perfil__email">usuario@correo.com</p>
+    </div>
+    <button class="cuenta-perfil__edit">Editar</button>
+  </div>
+
+  <!-- Seccion: Tu cuenta -->
+  <div class="cuenta-section">
+    <p class="cuenta-section__title">Tu cuenta</p>
+    <div class="cuenta-group">
+
+      <button class="cuenta-row">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="cart-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Mis pedidos</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="card-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Metodos de pago</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row cuenta-row--last">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="help-circle-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Preguntas frecuentes</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Seccion: Rooster -->
+  <div class="cuenta-section">
+    <p class="cuenta-section__title">Rooster</p>
+    <div class="cuenta-group">
+
+      <button class="cuenta-row">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="restaurant-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Productos</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Quienes somos</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="document-text-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Terminos y condiciones</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Privacidad y proteccion de datos</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row cuenta-row--last">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="phone-portrait-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Sobre la app</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Cerrar sesion -->
+  <div class="cuenta-section">
+    <div class="cuenta-group">
+      <button class="cuenta-row cuenta-row--danger cuenta-row--last">
+        <div class="cuenta-row__icon-wrap cuenta-row__icon-wrap--danger">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label cuenta-row__label--danger">Cerrar sesion</span>
+      </button>
+    </div>
+  </div>
+
+  <p class="cuenta-version">Rooster App - version 1.0.0</p>
+
 </ion-content>
