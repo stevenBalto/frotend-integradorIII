@@ -1,0 +1,238 @@
+/* Shell del panel admin: layout full-bleed (sidebar + main). Breakpoint 1024px. */
+
+.admin-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-width: 0;
+  min-height: 0;
+  background: var(--admin-panel);
+  font-family: var(--rooster-font-sans);
+  overflow: hidden;
+}
+
+/* ── Overlay móvil ─────────────────────────────────────────────────────────── */
+.admin-shell__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+@media (min-width: 1024px) {
+  .admin-shell__overlay { display: none; }
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────────────────── */
+.admin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 220px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: var(--admin-sidebar);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+.admin-sidebar--open { transform: translateX(0); }
+
+@media (min-width: 1024px) {
+  .admin-sidebar {
+    position: relative;
+    transform: none;
+    z-index: auto;
+  }
+}
+
+.admin-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-sidebar__logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.admin-sidebar__brand-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+.admin-sidebar__close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  display: flex;
+  cursor: pointer;
+}
+.admin-sidebar__close ion-icon { font-size: 14px; color: #aaa; }
+@media (min-width: 1024px) {
+  .admin-sidebar__close { display: none; }
+}
+
+.admin-sidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  scrollbar-width: none;
+}
+.admin-sidebar__nav::-webkit-scrollbar { display: none; }
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border-left: 3px solid transparent;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-nav-item ion-icon { font-size: 15px; color: #9ca3af; flex-shrink: 0; }
+.admin-nav-item__label { font-size: 12px; font-weight: 500; color: #d1d5db; }
+.admin-nav-item__badge {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--admin-accent);
+  font-size: 8px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-nav-item--active {
+  background: var(--admin-accent);
+  border-left-color: rgba(255, 255, 255, 0.4);
+}
+.admin-nav-item--active ion-icon { color: #fff; }
+.admin-nav-item--active .admin-nav-item__label { color: #fff; font-weight: 700; }
+
+.admin-sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.admin-sidebar__logout:hover { background: rgba(255, 255, 255, 0.05); }
+.admin-sidebar__logout ion-icon { font-size: 15px; color: #666; }
+.admin-sidebar__logout span { font-size: 12px; color: #888; }
+
+/* ── Main ──────────────────────────────────────────────────────────────────── */
+.admin-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  flex-shrink: 0;
+  background: var(--admin-card);
+  border-bottom: 1px solid var(--admin-border);
+}
+@media (min-width: 768px) {
+  .admin-header { padding: 16px 24px; }
+}
+.admin-header__left { display: flex; align-items: center; gap: 12px; }
+.admin-header__burger {
+  display: flex;
+  padding: 6px;
+  border-radius: 8px;
+  border: none;
+  background: var(--admin-panel);
+  cursor: pointer;
+}
+.admin-header__burger ion-icon { font-size: 18px; color: var(--admin-text); }
+@media (min-width: 1024px) {
+  .admin-header__burger { display: none; }
+}
+.admin-header__greeting {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin: 0;
+}
+.admin-header__meta {
+  font-size: 10px;
+  color: var(--admin-text-muted);
+  margin: 0;
+}
+
+.admin-header__right { display: flex; align-items: center; gap: 12px; }
+.admin-header__bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--admin-panel);
+}
+.admin-header__bell ion-icon { font-size: 16px; color: var(--admin-text); }
+.admin-header__bell-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--admin-accent);
+}
+.admin-header__user { display: flex; align-items: center; gap: 8px; }
+.admin-header__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--admin-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-header__user-info { display: none; }
+@media (min-width: 640px) {
+  .admin-header__user-info { display: block; }
+}
+.admin-header__user-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin: 0;
+}
+.admin-header__user-role {
+  font-size: 9px;
+  color: var(--admin-text-muted);
+  margin: 0;
+}
+
+/* ── Outlet de páginas hijas ───────────────────────────────────────────────── */
+.admin-outlet {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}

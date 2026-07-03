@@ -1,0 +1,67 @@
+<div class="admin-shell">
+
+  <!-- Overlay móvil -->
+  <div class="admin-shell__overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" [class.admin-sidebar--open]="sidebarOpen">
+    <div class="admin-sidebar__brand">
+      <img src="assets/logo/rooster-logo.png" alt="Rooster" class="admin-sidebar__logo" />
+      <span class="admin-sidebar__brand-name">Rooster Admin</span>
+      <button type="button" class="admin-sidebar__close" (click)="closeSidebar()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <nav class="admin-sidebar__nav">
+      <a
+        *ngFor="let item of navItems"
+        class="admin-nav-item"
+        [routerLink]="['/admin', item.id]"
+        routerLinkActive="admin-nav-item--active"
+        (click)="closeSidebar()"
+      >
+        <ion-icon [name]="item.icon"></ion-icon>
+        <span class="admin-nav-item__label">{{ item.label }}</span>
+        <span class="admin-nav-item__badge" *ngIf="item.badge">{{ item.badge }}</span>
+      </a>
+    </nav>
+
+    <button type="button" class="admin-sidebar__logout" (click)="salirAlApp()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      <span>Salir al app</span>
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header__left">
+        <button type="button" class="admin-header__burger" (click)="sidebarOpen = true">
+          <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        <div>
+          <p class="admin-header__greeting">Buenas tardes, Admin</p>
+          <p class="admin-header__meta">Sucursal Liberia · martes 24 de junio</p>
+        </div>
+      </div>
+
+      <div class="admin-header__right">
+        <div class="admin-header__bell">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <span class="admin-header__bell-dot"></span>
+        </div>
+        <div class="admin-header__user">
+          <div class="admin-header__avatar">A</div>
+          <div class="admin-header__user-info">
+            <p class="admin-header__user-name">Admin Rooster</p>
+            <p class="admin-header__user-role">Superadmin</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <ion-router-outlet class="admin-outlet"></ion-router-outlet>
+  </div>
+
+</div>

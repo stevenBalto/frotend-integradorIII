@@ -10,6 +10,11 @@ const routes: Routes = [
     path: 'register',
     loadChildren: () => import('./auth/register/register.module').then((m) => m.RegisterPageModule),
   },
+  {
+    // Panel admin (base visual). Acceso temporal sin guard de rol: ver HiloActualFront.
+    path: 'admin',
+    loadChildren: () => import('./admin/admin-shell/admin-shell.module').then((m) => m.AdminShellPageModule),
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
     path: '',
