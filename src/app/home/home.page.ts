@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { Usuario } from '../core/models/usuario.model';
@@ -13,15 +12,7 @@ import { Usuario } from '../core/models/usuario.model';
 export class HomePage {
   readonly usuario$: Observable<Usuario | null>;
 
-  constructor(private auth: AuthService, private router: Router) {
+  constructor(private auth: AuthService) {
     this.usuario$ = this.auth.usuarioActual$;
-  }
-
-  /** Boton temporal: cierra sesion en backend + local y vuelve al login. */
-  cerrarSesion(): void {
-    this.auth.logout().subscribe({
-      next: () => this.router.navigateByUrl('/login', { replaceUrl: true }),
-      error: () => this.router.navigateByUrl('/login', { replaceUrl: true }),
-    });
   }
 }
