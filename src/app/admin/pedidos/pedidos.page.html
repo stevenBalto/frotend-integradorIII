@@ -1,0 +1,155 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Pedidos" subtitle="Dashboard / Pedidos de clientes">
+      <admin-search-input header-right placeholder="Buscar pedido..."></admin-search-input>
+    </admin-page-header>
+
+    <!-- Stats -->
+    <div class="admin-grid-4">
+      <admin-kpi-card label="Pedidos totales" [value]="200"
+        icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="En proceso" [value]="12"
+        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+      <admin-kpi-card label="Completados" [value]="182"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Cancelados" [value]="6"
+        icon="close-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="ped-charts">
+      <div class="ped-charts__main">
+        <admin-section-card title="Pedidos por día — Esta semana">
+          <span card-action class="ped-charts__badge">211 total · ↑ 8%</span>
+          <bar-chart [data]="weekly" [height]="150"></bar-chart>
+        </admin-section-card>
+      </div>
+      <admin-section-card title="Modalidad hoy">
+        <div class="ped-modality">
+          <donut-chart [pct]="56" label="Comer aquí" [size]="100"></donut-chart>
+          <div class="ped-modality__legend">
+            <div class="ped-legend" *ngFor="let l of legend" [style.background]="l.bg">
+              <span class="ped-legend__dot" [style.background]="l.c"></span>
+              <span class="ped-legend__label">{{ l.label }}</span>
+              <span class="ped-legend__n" [style.color]="l.c">{{ l.n }}</span>
+            </div>
+          </div>
+        </div>
+      </admin-section-card>
+    </div>
+
+    <!-- Tabla -->
+    <admin-section-card>
+      <div class="ped-toolbar">
+        <div class="ped-toolbar__tabs">
+          <filter-tab *ngFor="let f of filters" [label]="f.label"
+            [active]="activeFilter === f.id" (select)="activeFilter = f.id"></filter-tab>
+        </div>
+        <span class="ped-toolbar__range">Esta semana ▾</span>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID Pedido</th><th>Fecha</th><th>Cliente</th><th>Modalidad</th>
+              <th>Cant.</th><th>Total</th><th>Estado</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of orders" class="ped-row" (click)="openModal()">
+              <td class="admin-table__strong">{{ o.id }}</td>
+              <td class="admin-table__muted">{{ o.date }}</td>
+              <td class="admin-table__semi">{{ o.client }}</td>
+              <td><modality-pill [mode]="o.mode"></modality-pill></td>
+              <td>{{ o.qty }}</td>
+              <td class="admin-table__strong">{{ o.total }}</td>
+              <td><status-badge [type]="o.status"></status-badge></td>
+              <td><button type="button" class="ped-row__view">Ver →</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-pagination">
+        <span class="admin-pagination__info">Mostrando 4 de 200</span>
+        <div class="admin-pagination__pages">
+          <span class="admin-pagination__page admin-pagination__page--active">1</span>
+          <span class="admin-pagination__page">2</span>
+          <span class="admin-pagination__page">3</span>
+        </div>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>
+
+<!-- ── Modal detalle de pedido (toggle visual) ─────────────────────────── -->
+<div class="order-modal" *ngIf="modalOpen">
+  <div class="order-modal__backdrop" (click)="closeModal()"></div>
+    <div class="order-modal__panel">
+      <div class="order-modal__head">
+        <div>
+          <p class="order-modal__title">Pedido #1042</p>
+          <p class="order-modal__sub">23/06/2026 · 12:41 · Sucursal Liberia</p>
+        </div>
+        <div class="order-modal__head-right">
+          <status-badge type="cooking"></status-badge>
+          <button type="button" class="order-modal__close" (click)="closeModal()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="order-modal__body">
+        <div class="order-cust">
+          <div class="order-cust__avatar">M</div>
+          <div>
+            <p class="order-cust__name">Mechones Barquero</p>
+            <p class="order-cust__mode">Comer aquí</p>
+          </div>
+        </div>
+
+        <p class="order-modal__label">Productos</p>
+
+        <div class="order-prod">
+          <div class="order-prod__row">
+            <span class="order-prod__name">1x Pizza Pepperoni (Mediana)</span>
+            <span class="order-prod__price">₡7.800</span>
+          </div>
+          <div class="order-prod__mods">
+            <p class="order-prod__mod">+ Masa tradicional</p>
+            <div class="order-prod__mod-row"><span>+ Extra queso</span><span class="order-prod__extra">₡900</span></div>
+            <div class="order-prod__mod-row"><span>+ Jalapeño</span><span class="order-prod__extra">₡500</span></div>
+          </div>
+          <div class="order-prod__note">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <span>"Sin cebolla, bien cocida"</span>
+          </div>
+        </div>
+
+        <div class="order-prod">
+          <div class="order-prod__row">
+            <span class="order-prod__name">1x Costillas BBQ</span>
+            <span class="order-prod__price">₡8.500</span>
+          </div>
+          <div class="order-prod__mods">
+            <p class="order-prod__mod">+ Término medio</p>
+            <p class="order-prod__mod">+ Acompañamiento: Papas fritas</p>
+            <div class="order-prod__mod-row"><span>+ Salsa BBQ extra</span><span class="order-prod__extra">₡600</span></div>
+          </div>
+        </div>
+
+        <div class="order-summary">
+          <div class="order-summary__row"><span>Subtotal</span><span>₡17.800</span></div>
+          <div class="order-summary__row order-summary__row--green"><span>Descuento (ROOSTER20)</span><span>-₡2.000</span></div>
+          <div class="order-summary__row"><span>IVA (13%)</span><span>₡2.054</span></div>
+          <div class="order-summary__divider"></div>
+          <div class="order-summary__total"><span>Total</span><span>₡17.854</span></div>
+        </div>
+
+        <button type="button" class="order-modal__cta">Marcar como listo</button>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,116 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Ofertas y cupones" subtitle="Dashboard / Ofertas y cupones">
+      <admin-btn header-right>
+        <ion-icon name="add-outline"></ion-icon>
+        {{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupón' }}
+      </admin-btn>
+    </admin-page-header>
+
+    <!-- Tabs -->
+    <div class="of-tabs">
+      <button type="button" class="of-tab" [class.of-tab--active]="tab === 'ofertas'" (click)="tab = 'ofertas'">Ofertas (combos)</button>
+      <button type="button" class="of-tab" [class.of-tab--active]="tab === 'cupones'" (click)="tab = 'cupones'">Cupones (códigos)</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="admin-grid-4" *ngIf="tab === 'ofertas'">
+      <admin-kpi-card label="Ofertas totales" [value]="9"
+        icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Activas" [value]="6"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Por vencer (7 días)" [value]="2"
+        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+      <admin-kpi-card label="Vencidas" [value]="1"
+        icon="alert-circle-outline" iconBg="#9CA3AF26" iconColor="#374151"></admin-kpi-card>
+    </div>
+    <div class="admin-grid-4" *ngIf="tab === 'cupones'">
+      <admin-kpi-card label="Cupones totales" [value]="12"
+        icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Activos" [value]="8"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Usos totales" [value]="280"
+        icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Agotados" [value]="1"
+        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+    </div>
+
+    <!-- Combos -->
+    <admin-section-card title="Combos activos" *ngIf="tab === 'ofertas'">
+      <admin-search-input card-action placeholder="Buscar oferta..."></admin-search-input>
+      <div class="of-table-wrap">
+        <table class="of-table">
+          <thead>
+            <tr>
+              <th></th><th>Oferta</th><th>Productos</th><th>Tipo desc.</th>
+              <th>Vigencia</th><th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of combos" [class.of-row--off]="!c.active">
+              <td>
+                <div class="of-combo-icon" [style.background]="c.active ? '#E13642' : '#1E1E1E'">
+                  <ion-icon name="restaurant-outline"></ion-icon>
+                </div>
+              </td>
+              <td>
+                <p class="of-combo__name">{{ c.name }}</p>
+                <p class="of-combo__price">{{ c.price }}</p>
+              </td>
+              <td class="of-muted">{{ c.products }}</td>
+              <td class="of-muted">{{ c.discount }}</td>
+              <td [class.of-urgent]="c.urgent" class="of-muted">{{ c.expires }}</td>
+              <td><status-badge [type]="c.active ? 'active' : 'expired'"></status-badge></td>
+              <td>
+                <div class="of-actions">
+                  <button type="button" class="of-action of-action--edit"><ion-icon name="create-outline"></ion-icon></button>
+                  <button type="button" class="of-action of-action--del"><ion-icon name="trash-outline"></ion-icon></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+    <!-- Cupones -->
+    <admin-section-card title="Cupones de descuento" *ngIf="tab === 'cupones'">
+      <admin-search-input card-action placeholder="Buscar código..."></admin-search-input>
+      <div class="of-table-wrap">
+        <table class="of-table">
+          <thead>
+            <tr>
+              <th>Código</th><th>Tipo</th><th>Valor</th><th>Mín. compra</th>
+              <th>Vigencia</th><th>Usos</th><th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of coupons" [class.of-row--off]="!c.active">
+              <td class="of-code">{{ c.code }}</td>
+              <td class="of-muted">{{ c.type }}</td>
+              <td class="of-value">{{ c.value }}</td>
+              <td class="of-muted">{{ c.min }}</td>
+              <td class="of-muted">{{ c.expires }}</td>
+              <td>
+                <p class="of-uses" [class.of-uses--red]="!c.active">{{ c.usesLabel }}</p>
+                <div class="of-usebar" *ngIf="c.showBar">
+                  <div class="of-usebar__fill" [style.width.%]="c.barPct"
+                    [style.background]="c.barFull ? '#E13642' : '#F58220'"></div>
+                </div>
+              </td>
+              <td><status-badge [type]="c.active ? 'active' : 'cancelled'"></status-badge></td>
+              <td>
+                <div class="of-actions">
+                  <button type="button" class="of-action of-action--edit"><ion-icon name="create-outline"></ion-icon></button>
+                  <button type="button" class="of-action of-action--del"><ion-icon name="trash-outline"></ion-icon></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>

@@ -1,0 +1,81 @@
+.an-range-btn {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fff;
+  color: #1e1e1e;
+  border: 0.5px solid rgba(168, 137, 94, 0.25);
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+}
+
+.an-charts-5 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .an-charts-5 { grid-template-columns: repeat(5, 1fr); }
+  .an-charts-5__main { grid-column: span 3; }
+  .an-charts-5__side { grid-column: span 2; }
+}
+
+.an-charts-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .an-charts-2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+.an-note { font-size: 10px; font-weight: 700; color: var(--admin-text-muted); }
+.an-note--green { color: var(--admin-green); }
+
+/* ── Productos más vendidos ────────────────────────────────────────────────── */
+.an-top { display: flex; flex-direction: column; gap: 16px; }
+.an-top__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.an-top__name-wrap { display: flex; align-items: center; gap: 8px; }
+.an-top__rank {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.an-top__name { font-size: 11px; color: #1e1e1e; font-weight: 600; }
+.an-top__units { font-size: 11px; font-weight: 700; }
+
+/* ── Modalidad ─────────────────────────────────────────────────────────────── */
+.an-modality {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+@media (min-width: 640px) {
+  .an-modality { flex-direction: row; }
+}
+.an-modality__legend { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.an-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 10px;
+}
+.an-legend__dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.an-legend__info { flex: 1; min-width: 0; }
+.an-legend__label { font-size: 11px; color: var(--admin-text); font-weight: 600; }
+.an-legend__value { font-size: 9px; color: var(--admin-text-muted); margin: 0; }
+.an-legend__pct { font-size: 13px; font-weight: 800; }

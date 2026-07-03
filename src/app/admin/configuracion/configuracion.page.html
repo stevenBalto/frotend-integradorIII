@@ -1,0 +1,85 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Configuración general" subtitle="Dashboard / Configuración"></admin-page-header>
+
+    <div class="cfg-grid">
+
+      <!-- Información general -->
+      <div class="cfg-card">
+        <p class="cfg-card__title">Información general</p>
+        <div class="cfg-card__fields">
+          <div class="cfg-field" *ngFor="let f of generalFields">
+            <p class="cfg-field__label">{{ f.label }}</p>
+            <div class="cfg-input">
+              <ion-icon *ngIf="f.icon" [name]="f.icon"></ion-icon>
+              <input [value]="f.value" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Horario y operación -->
+      <div class="cfg-card">
+        <p class="cfg-card__title">Horario y operación</p>
+        <div class="cfg-card__fields">
+          <div class="cfg-hours">
+            <div class="cfg-field">
+              <p class="cfg-field__label">Hora de apertura</p>
+              <div class="cfg-input"><ion-icon name="time-outline"></ion-icon><input value="11:00" /></div>
+            </div>
+            <div class="cfg-field">
+              <p class="cfg-field__label">Hora de cierre</p>
+              <div class="cfg-input"><ion-icon name="time-outline"></ion-icon><input value="22:00" /></div>
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">IVA (%)</p>
+            <div class="cfg-input"><input value="13" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notificaciones -->
+      <div class="cfg-card">
+        <p class="cfg-card__title">Notificaciones</p>
+        <div class="cfg-card__fields">
+          <div class="cfg-notif" *ngFor="let n of notifToggles">
+            <div>
+              <p class="cfg-notif__label">{{ n.label }}</p>
+              <p class="cfg-notif__sub">{{ n.sub }}</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="n.on">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sucursales -->
+      <div class="cfg-card">
+        <p class="cfg-card__title">Sucursales</p>
+        <div class="cfg-branch" *ngFor="let b of branches">
+          <div>
+            <p class="cfg-branch__name">{{ b.name }}</p>
+            <p class="cfg-branch__addr">{{ b.address }}</p>
+          </div>
+          <span class="cfg-branch__badge" [class.cfg-branch__badge--active]="b.active">
+            {{ b.active ? 'Activa' : 'Inactiva' }}
+          </span>
+        </div>
+        <admin-btn [small]="true" [outline]="true">
+          <ion-icon name="add-outline"></ion-icon> Agregar sucursal
+        </admin-btn>
+      </div>
+
+    </div>
+
+    <div class="cfg-footer">
+      <admin-btn>
+        <ion-icon name="checkmark-circle-outline"></ion-icon> Guardar cambios
+      </admin-btn>
+    </div>
+
+  </div>
+</ion-content>

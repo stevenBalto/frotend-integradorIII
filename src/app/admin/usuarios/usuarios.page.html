@@ -1,0 +1,137 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Usuarios y roles" subtitle="Dashboard / Usuarios y roles">
+      <admin-btn header-right (clicked)="openCreate()">
+        <ion-icon name="person-add-outline"></ion-icon> Crear usuario
+      </admin-btn>
+    </admin-page-header>
+
+    <!-- Stats -->
+    <div class="admin-grid-3">
+      <admin-kpi-card label="Usuarios totales" [value]="316"
+        icon="people-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Superadministradores" [value]="4"
+        icon="shield-checkmark-outline" iconBg="#E136421a" iconColor="#E13642"></admin-kpi-card>
+      <admin-kpi-card label="Usuarios (clientes)" [value]="312"
+        icon="person-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+    </div>
+
+    <admin-section-card>
+      <div class="usr-toolbar">
+        <div class="usr-toolbar__tabs">
+          <filter-tab *ngFor="let f of filters" [label]="f.label"
+            [active]="activeFilter === f.id" (select)="activeFilter = f.id"></filter-tab>
+        </div>
+        <admin-search-input placeholder="Buscar usuario..."></admin-search-input>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th></th><th>Nombre</th><th>Email</th><th>Rol</th>
+              <th>Sucursal</th><th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users" [class.usr-row--off]="!u.active">
+              <td>
+                <div class="usr-avatar" [style.background]="u.role === 'superadmin' ? '#E13642' : '#6B7280'">{{ u.name[0] }}</div>
+              </td>
+              <td class="admin-table__strong" style="font-size: 12px;">{{ u.name }}</td>
+              <td class="admin-table__muted">{{ u.email }}</td>
+              <td>
+                <span class="usr-role" [class.usr-role--super]="u.role === 'superadmin'">
+                  <span class="usr-role__dot"></span>
+                  {{ u.role === 'superadmin' ? 'Superadmin' : 'Usuario' }}
+                </span>
+              </td>
+              <td class="admin-table__muted">{{ u.branch }}</td>
+              <td><status-badge [type]="u.active ? 'active' : 'inactive'"></status-badge></td>
+              <td>
+                <div class="usr-actions">
+                  <button type="button" class="usr-action"><ion-icon name="create-outline"></ion-icon></button>
+                  <button type="button" class="usr-action usr-action--danger"
+                    [class.usr-action--locked]="u.role === 'superadmin' && u.id === 1">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-pagination">
+        <span class="admin-pagination__info">Mostrando 4 de 316</span>
+        <div class="admin-pagination__pages">
+          <span class="admin-pagination__page admin-pagination__page--active">1</span>
+          <span class="admin-pagination__page">2</span>
+        </div>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>
+
+<!-- ── Modal crear usuario (toggle visual) ─────────────────────────────────── -->
+<div class="usr-modal" *ngIf="showCreate">
+  <div class="usr-modal__backdrop" (click)="closeCreate()"></div>
+  <div class="usr-modal__panel">
+    <div class="usr-modal__head">
+      <span class="usr-modal__title">Crear usuario</span>
+      <button type="button" class="usr-modal__close" (click)="closeCreate()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="usr-modal__body">
+      <div class="usr-field">
+        <p class="usr-field__label">Nombre completo</p>
+        <input class="usr-input" placeholder="Ej: Bryan Vega Ordoñez" />
+      </div>
+      <div class="usr-field">
+        <p class="usr-field__label">Correo electrónico</p>
+        <input class="usr-input" placeholder="correo@rooster.com" />
+      </div>
+      <div class="usr-field">
+        <p class="usr-field__label">Teléfono (opcional)</p>
+        <input class="usr-input" placeholder="8888-8888" />
+      </div>
+
+      <div class="usr-field">
+        <p class="usr-field__label">Contraseña temporal</p>
+        <div class="usr-pass">
+          <span class="usr-pass__dots">••••••••</span>
+          <button type="button" class="usr-pass__refresh"><ion-icon name="refresh-outline"></ion-icon></button>
+        </div>
+        <p class="usr-field__hint">Se enviará por correo, el usuario deberá cambiarla</p>
+      </div>
+
+      <div class="usr-field">
+        <p class="usr-field__label">Rol</p>
+        <div class="usr-roles">
+          <button type="button" class="usr-role-opt" [class.usr-role-opt--active]="modalRole === 'user'" (click)="modalRole = 'user'">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Usuario</span>
+          </button>
+          <button type="button" class="usr-role-opt" [class.usr-role-opt--active]="modalRole === 'admin'" (click)="modalRole = 'admin'">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Superadministrador</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="usr-field" *ngIf="modalRole === 'admin'">
+        <p class="usr-field__label">Sucursal asignada</p>
+        <div class="usr-select">
+          <span>Sucursal Liberia</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </div>
+      </div>
+
+      <button type="button" class="usr-modal__cta">Crear usuario</button>
+    </div>
+  </div>
+</div>

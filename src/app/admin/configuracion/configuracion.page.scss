@@ -1,0 +1,95 @@
+.cfg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 1024px) {
+  .cfg-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.cfg-card {
+  border-radius: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 0.5px solid rgba(168, 137, 94, 0.25);
+}
+.cfg-card__title { font-size: 13px; font-weight: 700; color: #1e1e1e; margin: 0 0 16px; }
+.cfg-card__fields { display: flex; flex-direction: column; gap: 16px; }
+
+.cfg-field__label { font-size: 11px; color: var(--rooster-brown); margin: 0 0 4px; }
+.cfg-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 0.5px solid rgba(168, 137, 94, 0.25);
+}
+.cfg-input ion-icon { font-size: 14px; color: var(--rooster-brown); flex-shrink: 0; }
+.cfg-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--rooster-font-sans);
+  color: #1e1e1e;
+  font-size: 14px;
+  min-width: 0;
+}
+
+.cfg-hours { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.cfg-notif {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cfg-notif__label { font-size: 12px; font-weight: 600; color: #1e1e1e; margin: 0; }
+.cfg-notif__sub { font-size: 10px; color: var(--rooster-brown); margin: 0; }
+
+.cfg-toggle {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  padding: 0 3px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.cfg-toggle--on { background: var(--rooster-red); }
+.cfg-toggle__knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.cfg-toggle--on .cfg-toggle__knob { transform: translateX(18px); }
+
+.cfg-branch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--rooster-bg);
+  border: 0.5px solid rgba(168, 137, 94, 0.25);
+}
+.cfg-branch__name { font-size: 12px; font-weight: 600; color: #1e1e1e; margin: 0; }
+.cfg-branch__addr { font-size: 10px; color: var(--rooster-brown); margin: 0; }
+.cfg-branch__badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--rooster-brown);
+  background: rgba(168, 137, 94, 0.1);
+}
+.cfg-branch__badge--active { color: #2e9e4f; background: rgba(46, 158, 79, 0.1); }
+
+.cfg-footer { display: flex; justify-content: flex-end; }

@@ -1,0 +1,55 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Reseñas y calificaciones">
+      <span header-subtitle class="res-sub">Calificación promedio: <strong>4.6 ★</strong> · 312 reseñas</span>
+    </admin-page-header>
+
+    <!-- Resumen -->
+    <div class="admin-grid-3">
+      <admin-kpi-card label="Calificación promedio" value="4.6 ★"
+        icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+      <admin-kpi-card label="Total reseñas" [value]="312"
+        icon="chatbubble-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Sin responder" [value]="3"
+        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+    </div>
+
+    <!-- Filtros -->
+    <div class="res-filters">
+      <filter-tab *ngFor="let f of filters" [label]="f.label"
+        [active]="activeFilter === f.id" (select)="activeFilter = f.id"></filter-tab>
+    </div>
+
+    <!-- Reseñas -->
+    <div class="res-list">
+      <div class="res-card" *ngFor="let r of reviews">
+        <div class="res-card__head">
+          <div class="res-card__user">
+            <div class="res-card__avatar">{{ r.client[0] }}</div>
+            <div>
+              <p class="res-card__name">{{ r.client }}</p>
+              <p class="res-card__date">{{ r.date }}</p>
+            </div>
+          </div>
+          <div class="res-card__stars">
+            <span *ngFor="let s of stars" class="res-star" [class.res-star--on]="s <= r.rating">★</span>
+          </div>
+        </div>
+
+        <p class="res-card__text">{{ r.text }}</p>
+
+        <div class="res-card__footer">
+          <span class="res-status" [class.res-status--replied]="r.replied">
+            <ion-icon [name]="r.replied ? 'checkmark-circle-outline' : 'time-outline'"></ion-icon>
+            {{ r.replied ? 'Respondida' : 'Pendiente' }}
+          </span>
+          <admin-btn *ngIf="!r.replied" [small]="true" [outline]="true">
+            <ion-icon name="chatbubble-outline"></ion-icon> Responder
+          </admin-btn>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

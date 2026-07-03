@@ -1,0 +1,77 @@
+.of-tabs { display: flex; gap: 8px; }
+.of-tab {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: var(--rooster-font-sans);
+  background: #fff;
+  color: #1e1e1e;
+  border: 0.5px solid rgba(168, 137, 94, 0.25);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.of-tab--active {
+  background: var(--rooster-red);
+  color: #fff;
+  border-color: var(--rooster-red);
+}
+
+/* ── Tablas (paleta cálida) ────────────────────────────────────────────────── */
+.of-table-wrap { overflow-x: auto; }
+.of-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--rooster-font-sans);
+}
+.of-table thead tr { border-bottom: 0.5px solid rgba(168, 137, 94, 0.25); }
+.of-table th {
+  text-align: left;
+  padding: 0 12px 8px 0;
+  font-size: 9px;
+  color: var(--rooster-brown);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.of-table td { padding: 12px 12px 12px 0; vertical-align: middle; white-space: nowrap; }
+.of-table tbody tr { border-bottom: 0.5px solid rgba(168, 137, 94, 0.1); }
+.of-row--off { opacity: 0.55; }
+
+.of-muted { font-size: 10px; color: #6b6b6b; }
+.of-urgent { color: var(--rooster-red) !important; font-weight: 600; }
+
+.of-combo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.of-combo-icon ion-icon { font-size: 16px; color: #fff; }
+.of-combo__name { font-size: 12px; font-weight: 700; color: #1e1e1e; margin: 0; }
+.of-combo__price { font-size: 9px; color: var(--rooster-red); font-weight: 600; margin: 0; }
+
+.of-code { font-size: 11px; font-weight: 700; color: #1e1e1e; }
+.of-value { font-size: 11px; color: #1e1e1e; }
+.of-uses { font-size: 10px; color: #1e1e1e; margin: 0; }
+.of-uses--red { color: var(--rooster-red); }
+.of-usebar { width: 60px; height: 4px; background: #eee; border-radius: 2px; margin-top: 3px; }
+.of-usebar__fill { height: 4px; border-radius: 2px; }
+
+.of-actions { display: flex; gap: 8px; }
+.of-action {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.of-action ion-icon { font-size: 13px; }
+.of-action--edit { background: rgba(168, 137, 94, 0.1); }
+.of-action--edit ion-icon { color: var(--rooster-brown); }
+.of-action--del { background: rgba(225, 54, 66, 0.08); }
+.of-action--del ion-icon { color: var(--rooster-red); }

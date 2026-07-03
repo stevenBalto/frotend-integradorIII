@@ -1,0 +1,22 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Notificaciones" subtitle="3 sin leer">
+      <button type="button" header-right class="notif-mark">Marcar todas como leídas</button>
+    </admin-page-header>
+
+    <div class="notif-list">
+      <div class="notif" *ngFor="let n of notifs" [class.notif--unread]="!n.read">
+        <div class="notif__icon" [style.background]="n.iconBg">
+          <ion-icon [name]="n.icon" [style.color]="n.iconColor"></ion-icon>
+        </div>
+        <div class="notif__body">
+          <p class="notif__text" [class.notif__text--unread]="!n.read">{{ n.text }}</p>
+          <p class="notif__time">{{ n.time }}</p>
+        </div>
+        <div class="notif__dot" *ngIf="!n.read"></div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

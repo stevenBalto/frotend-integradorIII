@@ -1,0 +1,79 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Menú / Catálogo" subtitle="Dashboard / Menú">
+      <admin-btn header-right>
+        <ion-icon name="add-outline"></ion-icon> Nuevo producto
+      </admin-btn>
+    </admin-page-header>
+
+    <!-- Stats -->
+    <div class="admin-grid-4">
+      <admin-kpi-card label="Productos totales" [value]="38"
+        icon="cube-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Disponibles" [value]="34"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Agotados" [value]="4"
+        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+      <admin-kpi-card label="Destacados" [value]="6"
+        icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+    </div>
+
+    <admin-section-card>
+      <div class="menu-toolbar">
+        <div class="menu-toolbar__tabs">
+          <filter-tab *ngFor="let c of categories" [label]="c"
+            [active]="activeCat === c" (select)="activeCat = c"></filter-tab>
+        </div>
+        <admin-search-input placeholder="Buscar producto..."></admin-search-input>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th></th><th>Producto</th><th>Categoría</th><th>Precio base</th>
+              <th>Destacado</th><th>Disponible</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of products" [class.menu-row--off]="!p.available">
+              <td>
+                <div class="menu-thumb"><ion-icon name="restaurant-outline"></ion-icon></div>
+              </td>
+              <td class="admin-table__strong" style="font-size: 12px;">{{ p.name }}</td>
+              <td><span class="menu-cat">{{ p.cat }}</span></td>
+              <td class="admin-table__semi" style="font-size: 12px;">{{ p.price }}</td>
+              <td>
+                <span class="menu-star" [class.menu-star--on]="p.featured">{{ p.featured ? '★' : '☆' }}</span>
+              </td>
+              <td>
+                <div class="menu-avail">
+                  <span class="menu-switch" [class.menu-switch--on]="p.available">
+                    <span class="menu-switch__knob"></span>
+                  </span>
+                  <span class="menu-avail__label" *ngIf="!p.available">Agotado</span>
+                </div>
+              </td>
+              <td>
+                <div class="menu-actions">
+                  <button type="button" class="menu-action"><ion-icon name="create-outline"></ion-icon></button>
+                  <button type="button" class="menu-action menu-action--danger"><ion-icon name="trash-outline"></ion-icon></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-pagination">
+        <span class="admin-pagination__info">Mostrando 5 de 38</span>
+        <div class="admin-pagination__pages">
+          <span class="admin-pagination__page admin-pagination__page--active">1</span>
+          <span class="admin-pagination__page">2</span>
+        </div>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>

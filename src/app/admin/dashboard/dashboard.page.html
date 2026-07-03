@@ -1,0 +1,91 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Dashboard" subtitle="Resumen del día · Sucursal Liberia"></admin-page-header>
+
+    <!-- KPIs -->
+    <div class="admin-grid-4">
+      <admin-kpi-card label="Pedidos hoy" [value]="47" sub="↑ 12% vs ayer" subColor="#16A34A"
+        icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Ventas hoy" value="₡412.300" sub="↑ 8% vs ayer" subColor="#16A34A"
+        icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Ticket promedio" value="₡8.770"
+        icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+      <admin-kpi-card label="Pedidos activos" [value]="6" sub="en preparación" subColor="#6B7280"
+        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+    </div>
+
+    <!-- Gráfico + pedidos nuevos -->
+    <div class="dash-charts">
+      <div class="dash-charts__main">
+        <admin-section-card title="Ventas de la semana">
+          <dropdown-btn card-action label="Esta semana"></dropdown-btn>
+          <area-chart [data]="areaData" [peakIdx]="6" peakValue="92.5%"></area-chart>
+        </admin-section-card>
+      </div>
+
+      <!-- Card pedidos nuevos -->
+      <div class="new-orders">
+        <div class="new-orders__head">
+          <div class="new-orders__title-wrap">
+            <div class="new-orders__bell">
+              <ion-icon name="notifications-outline"></ion-icon>
+              <span class="new-orders__ping"></span>
+            </div>
+            <span class="new-orders__title">Pedidos nuevos</span>
+          </div>
+          <span class="new-orders__count">{{ newOrders.length }} nuevos</span>
+        </div>
+
+        <div class="new-orders__list">
+          <button type="button" class="new-order" *ngFor="let o of newOrders" (click)="irAPedidos()">
+            <div class="new-order__left">
+              <div class="new-order__icon">
+                <ion-icon name="clipboard-outline"></ion-icon>
+              </div>
+              <div class="new-order__info">
+                <p class="new-order__id">{{ o.id }} <span>· {{ o.client }}</span></p>
+                <div class="new-order__meta">
+                  <span class="new-order__time"><ion-icon name="time-outline"></ion-icon> {{ o.time }}</span>
+                  <span class="new-order__sep">·</span>
+                  <span class="new-order__total">{{ o.total }}</span>
+                </div>
+              </div>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="new-order__chevron"></ion-icon>
+          </button>
+        </div>
+
+        <button type="button" class="new-orders__cta" (click)="irAPedidos()">
+          Ver todos los pedidos
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Últimos pedidos -->
+    <admin-section-card title="Últimos pedidos">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID Pedido</th><th>Fecha</th><th>Cliente</th>
+              <th>Modalidad</th><th>Total</th><th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of orders">
+              <td class="admin-table__strong">{{ o.id }}</td>
+              <td class="admin-table__muted">{{ o.date }}</td>
+              <td class="admin-table__semi">{{ o.client }}</td>
+              <td><modality-pill [mode]="o.mode"></modality-pill></td>
+              <td class="admin-table__strong">{{ o.total }}</td>
+              <td><status-badge [type]="o.status"></status-badge></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>
