@@ -26,4 +26,22 @@
   --ion-font-family: 'Nunito', sans-serif;
   --ion-background-color: #faf7f2;
   --ion-background-color-rgb: 250, 247, 242;
+
+  /* Panel admin (esquema SaaS neutral 70-20-10 + acento rojo) */
+  --admin-panel: #f7f5f2;
+  --admin-card: #ffffff;
+  --admin-border: #e5e7eb;
+  --admin-text: #1e1e1e;
+  --admin-text-muted: #6b7280;
+  --admin-text-soft: #9ca3af;
+  --admin-sidebar: #1e1e1e;
+  --admin-accent: #e13642; /* mismo valor que --rooster-red */
+  --admin-green: #16a34a;
+  --admin-amber: #f59e0b;
+  --admin-red-alt: #dc2626;
+  /* Neutros de apoyo (grises del panel) */
+  --admin-neutral1: #e5e7eb;
+  --admin-neutral2: #9ca3af;
+  --admin-neutral3: #6b7280;
+  --admin-neutral4: #374151;
 }

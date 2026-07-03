@@ -36,6 +36,106 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
+/* ── Panel admin: contenedor de cada pagina hija (scroll interno) ──────────── */
+.admin-page-content {
+  --background: var(--admin-panel);
+}
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+}
+@media (min-width: 768px) {
+  .admin-page { padding: 24px; }
+}
+/* Grids KPI reutilizables (2 cols -> 4 en >=1024px; 1 -> 3 en >=640px) */
+.admin-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 1024px) {
+  .admin-grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+.admin-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .admin-grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Panel admin: tablas reutilizables ─────────────────────────────────────── */
+.admin-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(168, 137, 94, 0.25);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--rooster-font-sans);
+}
+.admin-table thead tr {
+  background: var(--admin-panel);
+  border-bottom: 1px solid var(--admin-border);
+}
+.admin-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 9px;
+  color: var(--admin-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.admin-table tbody tr {
+  border-bottom: 1px solid var(--admin-border);
+  transition: background 0.15s;
+}
+.admin-table tbody tr:last-child { border-bottom: none; }
+.admin-table tbody tr:hover { background: #f9fafb; }
+.admin-table td {
+  padding: 12px;
+  font-size: 11px;
+  color: var(--admin-text);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.admin-table__strong { font-weight: 700; }
+.admin-table__semi { font-weight: 600; }
+.admin-table__muted { font-size: 9px; color: #6b6b6b; }
+
+/* ── Panel admin: paginación reutilizable ──────────────────────────────────── */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+.admin-pagination__info { font-size: 10px; color: var(--rooster-brown); }
+.admin-pagination__pages { display: flex; gap: 6px; }
+.admin-pagination__page {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 9px;
+  color: var(--admin-text);
+  border: 0.5px solid rgba(168, 137, 94, 0.25);
+  background: transparent;
+}
+.admin-pagination__page--active {
+  background: var(--rooster-red);
+  color: #fff;
+  border: none;
+}
+
 /* ── Pantallas de autenticacion (login + register) ─────────────────────────── */
 .auth-content {
   --background: var(--rooster-bg);
