@@ -20,6 +20,10 @@
   justify-content: center;
 }
 .menu-thumb ion-icon { font-size: 16px; color: var(--admin-neutral4); }
+.menu-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+
+.menu-row--clickable { cursor: pointer; }
+.menu-row--clickable:hover { background: var(--admin-neutral1); }
 
 .menu-cat {
   border-radius: 9999px;
@@ -72,3 +76,124 @@
 .menu-action ion-icon { font-size: 13px; color: var(--admin-neutral4); }
 .menu-action--danger { background: rgba(220, 38, 38, 0.08); }
 .menu-action--danger ion-icon { color: var(--admin-red-alt); }
+
+.menu-error { color: var(--admin-red-alt); font-size: 12px; margin: 4px 0 12px; }
+.menu-loading { color: var(--admin-text-muted); font-size: 12px; margin: 4px 0 12px; }
+.menu-empty { text-align: center; color: var(--admin-text-muted); font-size: 12px; padding: 20px 0; }
+
+.menu-form { display: flex; flex-direction: column; gap: 14px; }
+.menu-form__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+}
+.menu-form__input {
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  color: var(--admin-text);
+}
+.menu-form__row { display: flex; gap: 20px; }
+
+.menu-form__photo { display: flex; align-items: center; gap: 12px; }
+.menu-form__photo-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--admin-neutral1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.menu-form__photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.menu-form__photo-preview ion-icon { font-size: 24px; color: var(--admin-neutral4); }
+.menu-form__file {
+  font-family: var(--rooster-font-sans);
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}
+.menu-form__check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+/* ── Modal Nuevo/Editar producto (mismo patrón que pedidos.page.scss) ───────── */
+.order-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.order-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
+.order-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 448px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--rooster-bg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.order-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #1e1e1e;
+}
+.order-modal__title { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
+.order-modal__head-right { display: flex; align-items: center; gap: 12px; }
+.order-modal__close { background: none; border: none; display: flex; cursor: pointer; }
+.order-modal__close ion-icon { font-size: 18px; color: #fff; }
+.order-modal__body { padding: 20px; overflow-y: auto; max-height: 70vh; }
+
+.order-modal__cta {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+  transition: transform 0.1s;
+}
+.order-modal__cta:active { transform: scale(0.95); }
+.order-modal__cta:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Modal Detalle de producto ───────────────────────────────────────────── */
+.menu-detail__img {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--admin-neutral1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.menu-detail__img img { width: 100%; height: 100%; object-fit: cover; }
+.menu-detail__img ion-icon { font-size: 40px; color: var(--admin-neutral4); }
+.menu-detail__row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.menu-detail__desc { font-size: 12px; color: var(--admin-text-muted); line-height: 1.5; margin: 0 0 16px; }
+.menu-detail__price-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.menu-detail__price { font-size: 20px; font-weight: 700; color: var(--rooster-red); }

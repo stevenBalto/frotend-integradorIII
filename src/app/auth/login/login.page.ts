@@ -29,13 +29,6 @@ export class LoginPage {
   }
 
   login(): void {
-    const email = ((this.form.get('email')?.value ?? '') as string).trim().toLowerCase();
-    const password = (this.form.get('password')?.value ?? '') as string;
-    if (email === 'admin' && password === '123') {
-      void this.router.navigateByUrl('/admin');
-      return;
-    }
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       void this.notificar('Completá correo y contraseña.');
@@ -43,9 +36,10 @@ export class LoginPage {
     }
     this.cargando = true;
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => {
+      next: (res) => {
         this.cargando = false;
-        void this.router.navigateByUrl('/tabs/home');
+        const esAdmin = res.data.rol === 'super_admin' || res.data.rol === 'admin_sede';
+        void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;

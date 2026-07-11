@@ -197,6 +197,7 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -275,4 +276,142 @@
       font-size: 18px;
     }
   }
+
+  &__img--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--rooster-bg);
+
+    ion-icon {
+      font-size: 28px;
+      color: var(--rooster-brown);
+    }
+  }
+}
+
+.home-section__error,
+.home-section__loading {
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  color: var(--rooster-brown);
+  padding: 8px 0;
+}
+
+/* ── Modal Detalle de platillo ──────────────────────────────────────────────── */
+.dish-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  @media (min-width: 768px) {
+    align-items: center;
+    padding: 16px;
+  }
+}
+.dish-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+.dish-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 88vh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  background: #fff;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+
+  @media (min-width: 768px) {
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+}
+.dish-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon { font-size: 18px; color: #fff; }
+}
+.dish-modal__img {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rooster-bg);
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+  ion-icon { font-size: 48px; color: var(--rooster-brown); }
+}
+.dish-modal__body { padding: 20px; }
+.dish-modal__cat {
+  display: inline-block;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--rooster-brown);
+  background: var(--rooster-bg);
+  margin-bottom: 8px;
+}
+.dish-modal__name {
+  font-family: var(--rooster-font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--rooster-dark);
+  margin: 0 0 8px;
+}
+.dish-modal__desc {
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  color: var(--rooster-brown);
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.dish-modal__price {
+  display: block;
+  font-family: var(--rooster-font-sans);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--rooster-red);
+  margin-bottom: 18px;
+}
+.dish-modal__cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+  transition: transform 0.1s;
+
+  ion-icon { font-size: 18px; }
+
+  &:active { transform: scale(0.97); }
 }

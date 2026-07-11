@@ -2,20 +2,20 @@
   <div class="admin-page">
 
     <admin-page-header title="Menú / Catálogo" subtitle="Dashboard / Menú">
-      <admin-btn header-right>
+      <admin-btn header-right (clicked)="abrirNuevo()">
         <ion-icon name="add-outline"></ion-icon> Nuevo producto
       </admin-btn>
     </admin-page-header>
 
     <!-- Stats -->
     <div class="admin-grid-4">
-      <admin-kpi-card label="Productos totales" [value]="38"
+      <admin-kpi-card label="Productos totales" [value]="productos.length"
         icon="cube-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
-      <admin-kpi-card label="Disponibles" [value]="34"
+      <admin-kpi-card label="Disponibles" [value]="totalDisponibles"
         icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
-      <admin-kpi-card label="Agotados" [value]="4"
+      <admin-kpi-card label="Agotados" [value]="totalAgotados"
         icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
-      <admin-kpi-card label="Destacados" [value]="6"
+      <admin-kpi-card label="Destacados" [value]="totalDestacados"
         icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
     </div>
 
@@ -28,7 +28,10 @@
         <admin-search-input placeholder="Buscar producto..."></admin-search-input>
       </div>
 
-      <div class="admin-table-wrap">
+      <p *ngIf="error" class="menu-error">{{ error }}</p>
+      <p *ngIf="cargando" class="menu-loading">Cargando catálogo...</p>
+
+      <div class="admin-table-wrap" *ngIf="!cargando">
         <table class="admin-table">
           <thead>
             <tr>
@@ -37,43 +40,156 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of products" [class.menu-row--off]="!p.available">
+            <tr *ngFor="let p of productosFiltrados" [class.menu-row--off]="!p.disponible"
+              class="menu-row--clickable" (click)="abrirDetalle(p)">
               <td>
-                <div class="menu-thumb"><ion-icon name="restaurant-outline"></ion-icon></div>
+                <div class="menu-thumb">
+                  <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" />
+                  <ion-icon *ngIf="!p.imagen_url" name="restaurant-outline"></ion-icon>
+                </div>
               </td>
-              <td class="admin-table__strong" style="font-size: 12px;">{{ p.name }}</td>
-              <td><span class="menu-cat">{{ p.cat }}</span></td>
-              <td class="admin-table__semi" style="font-size: 12px;">{{ p.price }}</td>
+              <td class="admin-table__strong" style="font-size: 12px;">{{ p.nombre }}</td>
+              <td><span class="menu-cat">{{ p.categoria }}</span></td>
+              <td class="admin-table__semi" style="font-size: 12px;">{{ p.precio_base | crcCurrency }}</td>
               <td>
-                <span class="menu-star" [class.menu-star--on]="p.featured">{{ p.featured ? '★' : '☆' }}</span>
+                <span class="menu-star" [class.menu-star--on]="p.destacado">{{ p.destacado ? '★' : '☆' }}</span>
               </td>
               <td>
                 <div class="menu-avail">
-                  <span class="menu-switch" [class.menu-switch--on]="p.available">
+                  <span class="menu-switch" [class.menu-switch--on]="p.disponible">
                     <span class="menu-switch__knob"></span>
                   </span>
-                  <span class="menu-avail__label" *ngIf="!p.available">Agotado</span>
+                  <span class="menu-avail__label" *ngIf="!p.disponible">Agotado</span>
                 </div>
               </td>
               <td>
                 <div class="menu-actions">
-                  <button type="button" class="menu-action"><ion-icon name="create-outline"></ion-icon></button>
-                  <button type="button" class="menu-action menu-action--danger"><ion-icon name="trash-outline"></ion-icon></button>
+                  <button type="button" class="menu-action" (click)="abrirEditar(p); $event.stopPropagation()">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="menu-action menu-action--danger" (click)="eliminar(p); $event.stopPropagation()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
                 </div>
               </td>
             </tr>
+            <tr *ngIf="productosFiltrados.length === 0">
+              <td colspan="7" class="menu-empty">No hay productos en esta categoría.</td>
+            </tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="admin-pagination">
-        <span class="admin-pagination__info">Mostrando 5 de 38</span>
-        <div class="admin-pagination__pages">
-          <span class="admin-pagination__page admin-pagination__page--active">1</span>
-          <span class="admin-pagination__page">2</span>
-        </div>
       </div>
     </admin-section-card>
 
   </div>
 </ion-content>
+
+<!-- ── Modal Nuevo/Editar producto ─────────────────────────────────────── -->
+<div class="order-modal" *ngIf="modalOpen">
+  <div class="order-modal__backdrop" (click)="cerrarModal()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ editando ? 'Editar producto' : 'Nuevo producto' }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="menu-form">
+        <label class="menu-form__label">
+          Foto del producto
+          <div class="menu-form__photo">
+            <div class="menu-form__photo-preview">
+              <img *ngIf="imagenPreview" [src]="imagenPreview" alt="Preview" />
+              <ion-icon *ngIf="!imagenPreview" name="image-outline"></ion-icon>
+            </div>
+            <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagen($event)" class="menu-form__file" />
+          </div>
+        </label>
+
+        <label class="menu-form__label">
+          Nombre
+          <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Pizza Pepperoni" />
+        </label>
+
+        <label class="menu-form__label">
+          Categoría
+          <select formControlName="categoria_id" class="menu-form__input">
+            <option [ngValue]="null" disabled>Seleccioná una categoría</option>
+            <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
+          </select>
+        </label>
+
+        <label class="menu-form__label">
+          Descripción
+          <textarea formControlName="descripcion" class="menu-form__input" rows="2" placeholder="Opcional"></textarea>
+        </label>
+
+        <label class="menu-form__label">
+          Precio base (₡)
+          <input type="number" min="0" step="1" formControlName="precio_base" class="menu-form__input" placeholder="Ej. 4900" />
+        </label>
+
+        <div class="menu-form__row">
+          <label class="menu-form__check">
+            <input type="checkbox" formControlName="destacado" /> Destacado
+          </label>
+          <label class="menu-form__check">
+            <input type="checkbox" formControlName="disponible" /> Disponible
+          </label>
+        </div>
+
+        <p *ngIf="formError" class="menu-error">{{ formError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear producto') }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Detalle de producto ────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="detalleAbierto && productoDetalle">
+  <div class="order-modal__backdrop" (click)="cerrarDetalle()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ productoDetalle.nombre }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarDetalle()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="menu-detail__img">
+        <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" />
+        <ion-icon *ngIf="!productoDetalle.imagen_url" name="restaurant-outline"></ion-icon>
+      </div>
+
+      <div class="menu-detail__row">
+        <span class="menu-cat">{{ productoDetalle.categoria }}</span>
+        <span class="menu-star menu-star--on" *ngIf="productoDetalle.destacado">★ Destacado</span>
+      </div>
+
+      <p class="menu-detail__desc">{{ productoDetalle.descripcion || 'Sin descripción.' }}</p>
+
+      <div class="menu-detail__price-row">
+        <span class="menu-detail__price">{{ productoDetalle.precio_base | crcCurrency }}</span>
+        <span class="menu-avail__label" *ngIf="!productoDetalle.disponible">Agotado</span>
+      </div>
+
+      <button type="button" class="order-modal__cta" (click)="editarDesdeDetalle()">
+        Editar producto
+      </button>
+    </div>
+  </div>
+</div>
