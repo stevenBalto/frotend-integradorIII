@@ -1,5 +1,6 @@
 .ofertas-content {
   --background: var(--rooster-bg);
+  color: var(--rooster-dark);
 }
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
@@ -75,6 +76,27 @@
   }
 }
 
+.ofertas-panel,
+.cupones-panel {
+  padding-bottom: 24px;
+}
+
+.ofertas-empty {
+  margin: 16px 20px 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(168, 137, 94, 0.18);
+  color: var(--rooster-brown);
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+
+  &--error {
+    border-color: rgba(225, 54, 66, 0.2);
+    color: var(--rooster-red);
+  }
+}
+
 /* ── Grid de ofertas ────────────────────────────────────────────────────────── */
 .ofertas-grid {
   display: grid;
@@ -113,6 +135,11 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+  }
+
+  &__icon {
+    font-size: 38px;
+    color: #ffffff;
   }
 
   &__body {
@@ -154,7 +181,7 @@
   }
 }
 
-/* ── Tarjetas de cupon (para tab Cupones - comentado porque solo mostramos Ofertas) ── */
+/* ── Tarjetas de cupon ─────────────────────────────────────────────────────── */
 .cupones-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -179,14 +206,20 @@
   overflow: hidden;
   border: 1.5px dashed rgba(225, 54, 66, 0.3);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  min-height: 104px;
 
   &__illus {
-    width: 90px;
-    min-height: 90px;
+    width: 96px;
+    min-height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+  }
+
+  &__icon {
+    font-size: 34px;
+    color: #ffffff;
   }
 
   &__divider {
@@ -206,7 +239,7 @@
 
   &__body {
     flex: 1;
-    padding: 12px;
+    padding: 14px 14px 14px 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -228,7 +261,7 @@
 
   &__btn {
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
     font-family: var(--rooster-font-sans);
     font-size: 11px;
