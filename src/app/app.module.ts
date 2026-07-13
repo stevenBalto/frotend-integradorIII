@@ -9,6 +9,7 @@ import { IonicStorageModule } from '@ionic/storage-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthService } from './core/services/auth.service';
+import { SuperAdminAuthService } from './core/services/superadmin-auth.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 @NgModule({
@@ -27,6 +28,12 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
       provide: APP_INITIALIZER,
       useFactory: (auth: AuthService) => () => auth.init(),
       deps: [AuthService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (sa: SuperAdminAuthService) => () => sa.init(),
+      deps: [SuperAdminAuthService],
       multi: true,
     },
   ],

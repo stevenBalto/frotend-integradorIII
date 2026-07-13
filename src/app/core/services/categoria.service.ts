@@ -16,4 +16,11 @@ export class CategoriaService {
       .get<ApiCollection<Categoria>>(`${this.base}/categorias`)
       .pipe(map((res) => res.data));
   }
+
+  /** Categorías del panel admin: AISLADAS a la instancia del admin autenticado. */
+  listarAdmin(): Observable<Categoria[]> {
+    return this.http
+      .get<ApiCollection<Categoria>>(`${this.base}/admin/categorias`)
+      .pipe(map((res) => res.data));
+  }
 }

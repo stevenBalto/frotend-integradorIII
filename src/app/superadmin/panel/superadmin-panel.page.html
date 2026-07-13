@@ -1,0 +1,153 @@
+<ion-header class="sa-header">
+  <ion-toolbar>
+    <ion-title>
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      Superadministración
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Salir
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="sa-panel">
+  <div class="sa-inner">
+    <!-- Navegación entre los dos CRUD -->
+    <div class="sa-nav">
+      <a class="sa-nav__link" routerLink="/superadmin/panel" routerLinkActive="sa-nav__link--active">
+        <ion-icon name="shield-checkmark-outline"></ion-icon> Superadministradores
+      </a>
+      <a class="sa-nav__link" routerLink="/superadmin/instancias" routerLinkActive="sa-nav__link--active">
+        <ion-icon name="business-outline"></ion-icon> Instancias
+      </a>
+    </div>
+
+    <!-- Encabezado de seccion -->
+    <div class="sec-head">
+      <div>
+        <h2>Superadministradores</h2>
+        <p>Gestión global. Solo un superadministrador puede crear a otro.</p>
+      </div>
+      <button class="btn btn--primary" (click)="abrirCrear()">
+        <ion-icon name="add-outline"></ion-icon> Nuevo
+      </button>
+    </div>
+
+    <!-- Formulario crear/editar -->
+    <div class="card form-card" *ngIf="mostrarForm">
+      <div class="form-card__head">
+        <span>{{ editandoId ? 'Editar superadministrador' : 'Nuevo superadministrador' }}</span>
+        <button type="button" (click)="cerrarForm()"><ion-icon name="close-outline"></ion-icon></button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="grid">
+          <div class="field">
+            <label>Nombre completo</label>
+            <input type="text" formControlName="nombre" placeholder="Ej. Ana Root" />
+          </div>
+          <div class="field">
+            <label>Usuario</label>
+            <input type="text" formControlName="usuario" placeholder="anaroot" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label>Correo</label>
+            <input type="email" formControlName="email" placeholder="ana@rooster.com" autocomplete="off" />
+          </div>
+          <div class="field" *ngIf="!editandoId">
+            <label>Contraseña (mín. 12, mayús/minús/número/símbolo)</label>
+            <div class="pass">
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="new-password" />
+              <button type="button" (click)="showPassword = !showPassword">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </div>
+          </div>
+          <div class="field" *ngIf="!editandoId">
+            <label>Confirmar contraseña</label>
+            <input type="password" formControlName="password_confirmation" placeholder="••••••••••••" autocomplete="new-password" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn--primary btn--block" [disabled]="guardando">
+          <ng-container *ngIf="!guardando">{{ editandoId ? 'Guardar cambios' : 'Crear superadministrador' }}</ng-container>
+          <ion-spinner *ngIf="guardando" name="crescent"></ion-spinner>
+        </button>
+      </form>
+    </div>
+
+    <!-- Lista -->
+    <div class="card" *ngIf="cargando">
+      <div class="empty"><ion-spinner name="crescent"></ion-spinner> Cargando…</div>
+    </div>
+
+    <div class="card list" *ngIf="!cargando">
+      <div class="row row--head">
+        <span class="c-nombre">Nombre</span>
+        <span class="c-usuario">Usuario</span>
+        <span class="c-email">Correo</span>
+        <span class="c-estado">Estado</span>
+        <span class="c-acc">Acciones</span>
+      </div>
+      <div class="row" *ngFor="let sa of superadmins">
+        <span class="c-nombre">{{ sa.nombre }}<em class="yo" *ngIf="esYoMismo(sa)"> (vos)</em></span>
+        <span class="c-usuario">{{ sa.usuario }}</span>
+        <span class="c-email">{{ sa.email }}</span>
+        <span class="c-estado">
+          <span class="pill" [class.pill--on]="sa.activo" [class.pill--off]="!sa.activo">
+            {{ sa.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </span>
+        <span class="c-acc">
+          <button type="button" class="icon-btn" (click)="abrirEditar(sa)" title="Editar">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+          <button type="button" class="icon-btn" (click)="abrirReset(sa)" title="Restablecer contraseña">
+            <ion-icon name="key-outline"></ion-icon>
+          </button>
+          <button type="button" class="icon-btn" (click)="toggleActivo(sa)"
+            [disabled]="esYoMismo(sa)" [title]="sa.activo ? 'Desactivar' : 'Activar'">
+            <ion-icon [name]="sa.activo ? 'pause-outline' : 'play-outline'"></ion-icon>
+          </button>
+          <button type="button" class="icon-btn icon-btn--danger" (click)="eliminar(sa)"
+            [disabled]="esYoMismo(sa)" title="Eliminar">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </span>
+      </div>
+      <div class="empty" *ngIf="superadmins.length === 0">No hay superadministradores.</div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Modal restablecer contraseña -->
+<div class="sa-modal" *ngIf="resetId">
+  <div class="sa-modal__backdrop" (click)="cerrarReset()"></div>
+  <div class="sa-modal__panel">
+    <div class="sa-modal__head">
+      <span><ion-icon name="key-outline"></ion-icon> Restablecer contraseña</span>
+      <button type="button" (click)="cerrarReset()"><ion-icon name="close-outline"></ion-icon></button>
+    </div>
+    <form class="sa-modal__body" [formGroup]="resetForm" (ngSubmit)="guardarReset()">
+      <p class="reset-sub">Nueva contraseña para <b>{{ resetNombre }}</b>.</p>
+      <div class="field">
+        <label>Nueva contraseña (mín. 12, mayús/minús/número/símbolo)</label>
+        <div class="pass">
+          <input [type]="showResetPass ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="new-password" />
+          <button type="button" (click)="showResetPass = !showResetPass">
+            <ion-icon [name]="showResetPass ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confirmar contraseña</label>
+        <input type="password" formControlName="password_confirmation" placeholder="••••••••••••" autocomplete="new-password" />
+      </div>
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="reseteando">
+        <ng-container *ngIf="!reseteando">Restablecer</ng-container>
+        <ion-spinner *ngIf="reseteando" name="crescent"></ion-spinner>
+      </button>
+    </form>
+  </div>
+</div>

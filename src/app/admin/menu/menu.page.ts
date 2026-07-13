@@ -71,7 +71,7 @@ export class AdminMenuPage implements OnInit {
   }
 
   cargarCategorias(): void {
-    this.categoriaService.listarActivas().subscribe({
+    this.categoriaService.listarAdmin().subscribe({
       next: (categorias) => {
         this.categorias = categorias;
         this.categories = ['Todos', ...categorias.map((c) => c.nombre)];

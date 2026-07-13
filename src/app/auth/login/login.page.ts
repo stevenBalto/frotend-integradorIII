@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
+import { SuperAdminAuthService } from '../../core/services/superadmin-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ export class LoginPage {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
+    private superAuth: SuperAdminAuthService,
     private router: Router,
     private toast: ToastController,
   ) {
@@ -35,9 +37,22 @@ export class LoginPage {
       return;
     }
     this.cargando = true;
-    this.auth.login(this.form.getRawValue()).subscribe({
+    this.auth.loginUnificado(this.form.getRawValue()).subscribe({
       next: (res) => {
         this.cargando = false;
+        if (res.tipo === 'superadmin') {
+          // Superadmin: sesión aislada + panel de superadmin.
+          this.superAuth.adoptarSesion({ data: res.data, token: res.token });
+          void this.router.navigateByUrl('/superadmin/panel');
+          return;
+        }
+        // Usuario normal: sesión normal + panel según rol.
+        this.auth.adoptarSesion({ data: res.data, token: res.token });
+        // Contraseña temporal / cambio obligatorio → primero cambiarla.
+        if (res.data.must_change_password) {
+          void this.router.navigateByUrl('/cambiar-password');
+          return;
+        }
         const esAdmin = res.data.rol === 'super_admin' || res.data.rol === 'admin_sede';
         void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
       },
@@ -50,6 +65,10 @@ export class LoginPage {
 
   irRegistro(): void {
     void this.router.navigateByUrl('/register');
+  }
+
+  irRecuperar(): void {
+    void this.router.navigateByUrl('/forgot-password');
   }
 
   entrarInvitado(): void {

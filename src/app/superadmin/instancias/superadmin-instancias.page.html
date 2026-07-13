@@ -1,0 +1,140 @@
+<ion-header class="sa-header">
+  <ion-toolbar>
+    <ion-title>
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      Superadministración
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Salir
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="sa-panel">
+  <div class="sa-inner">
+    <!-- Navegación entre los dos CRUD -->
+    <div class="sa-nav">
+      <a class="sa-nav__link" routerLink="/superadmin/panel" routerLinkActive="sa-nav__link--active">
+        <ion-icon name="shield-checkmark-outline"></ion-icon> Superadministradores
+      </a>
+      <a class="sa-nav__link" routerLink="/superadmin/instancias" routerLinkActive="sa-nav__link--active">
+        <ion-icon name="business-outline"></ion-icon> Instancias
+      </a>
+    </div>
+
+    <div class="sec-head">
+      <div>
+        <h2>Instancias</h2>
+        <p>Cada instancia es una cuenta independiente. Al crearla se genera su administrador con credenciales temporales.</p>
+      </div>
+      <button class="btn btn--primary" (click)="abrirCrear()">
+        <ion-icon name="add-outline"></ion-icon> Nueva
+      </button>
+    </div>
+
+    <div class="card" *ngIf="cargando">
+      <div class="empty"><ion-spinner name="crescent"></ion-spinner> Cargando…</div>
+    </div>
+
+    <div class="card list" *ngIf="!cargando">
+      <div class="row row--head">
+        <span class="c-nombre">Instancia</span>
+        <span class="c-correo">Correo principal</span>
+        <span class="c-users">Usuarios</span>
+        <span class="c-estado">Estado</span>
+        <span class="c-acc">Acciones</span>
+      </div>
+      <div class="row" *ngFor="let i of instancias">
+        <span class="c-nombre">{{ i.nombre }}</span>
+        <span class="c-correo">{{ i.correo_principal || '—' }}</span>
+        <span class="c-users">{{ i.usuarios_count }}</span>
+        <span class="c-estado">
+          <span class="pill" [class.pill--on]="i.estado === 'activa'" [class.pill--off]="i.estado !== 'activa'">
+            {{ i.estado }}
+          </span>
+        </span>
+        <span class="c-acc">
+          <button type="button" class="icon-btn" (click)="toggleEstado(i)"
+            [title]="i.estado === 'activa' ? 'Desactivar' : 'Activar'">
+            <ion-icon [name]="i.estado === 'activa' ? 'pause-outline' : 'play-outline'"></ion-icon>
+          </button>
+          <button type="button" class="icon-btn" (click)="abrirEditar(i)" title="Editar">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+          <button type="button" class="icon-btn icon-btn--danger" (click)="eliminar(i)" title="Eliminar">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </span>
+      </div>
+      <div class="empty" *ngIf="instancias.length === 0">No hay instancias todavía.</div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Modal crear/editar instancia -->
+<div class="sa-modal" *ngIf="showModal">
+  <div class="sa-modal__backdrop" (click)="cerrarModal()"></div>
+  <div class="sa-modal__panel">
+    <div class="sa-modal__head">
+      <span>{{ editandoId ? 'Editar instancia' : 'Nueva instancia' }}</span>
+      <button type="button" (click)="cerrarModal()"><ion-icon name="close-outline"></ion-icon></button>
+    </div>
+    <form class="sa-modal__body" [formGroup]="form" (ngSubmit)="guardar()">
+      <div class="field">
+        <label>Nombre de la instancia</label>
+        <input formControlName="nombre" placeholder="Ej: Liberia" />
+      </div>
+      <div class="field">
+        <label>Correo principal</label>
+        <input formControlName="correo_principal" placeholder="liberia@negocio.com" autocomplete="off" />
+        <p class="hint" *ngIf="!editandoId">Será el correo del administrador inicial que se crea automáticamente.</p>
+      </div>
+      <div class="field" *ngIf="editandoId">
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option value="activa">Activa</option>
+          <option value="inactiva">Inactiva</option>
+          <option value="suspendida">Suspendida</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="guardando">
+        <ng-container *ngIf="!guardando">{{ editandoId ? 'Guardar cambios' : 'Crear instancia' }}</ng-container>
+        <ion-spinner *ngIf="guardando" name="crescent"></ion-spinner>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Credenciales temporales (mostrar UNA vez) -->
+<div class="sa-modal" *ngIf="credenciales">
+  <div class="sa-modal__backdrop"></div>
+  <div class="sa-modal__panel">
+    <div class="sa-modal__head sa-modal__head--ok">
+      <span><ion-icon name="key-outline"></ion-icon> Credenciales de "{{ instanciaCreada }}"</span>
+    </div>
+    <div class="sa-modal__body">
+      <p class="cred-warn">
+        <ion-icon name="warning-outline"></ion-icon>
+        Guardá estas credenciales ahora. <b>No se volverán a mostrar.</b> El administrador deberá cambiarlas en su primer inicio de sesión.
+      </p>
+      <div class="cred-row">
+        <div>
+          <span class="cred-label">Usuario</span>
+          <span class="cred-value">{{ credenciales.usuario }}</span>
+        </div>
+        <button type="button" class="icon-btn" (click)="copiar(credenciales.usuario)"><ion-icon name="copy-outline"></ion-icon></button>
+      </div>
+      <div class="cred-row">
+        <div>
+          <span class="cred-label">Contraseña temporal</span>
+          <span class="cred-value">{{ credenciales.password }}</span>
+        </div>
+        <button type="button" class="icon-btn" (click)="copiar(credenciales.password)"><ion-icon name="copy-outline"></ion-icon></button>
+      </div>
+      <button type="button" class="btn btn--primary btn--block" (click)="cerrarCredenciales()">Entendido, ya las guardé</button>
+    </div>
+  </div>
+</div>

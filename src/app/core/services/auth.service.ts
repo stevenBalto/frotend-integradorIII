@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, finalize, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, Usuario } from '../models/usuario.model';
+import { AuthResponse, LoginResultado, Usuario } from '../models/usuario.model';
 import { TokenStorageService } from './token-storage.service';
 
 export interface RegistroBody {
@@ -45,6 +45,10 @@ export class AuthService {
     return this.tokenMem;
   }
 
+  get usuario(): Usuario | null {
+    return this.usuarioSubject.value;
+  }
+
   get estaAutenticado(): boolean {
     return this.tokenMem !== null;
   }
@@ -59,6 +63,19 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${this.base}/login`, body)
       .pipe(tap((res) => this.persistir(res)));
+  }
+
+  /**
+   * Login UNIFICADO: NO persiste todavía (el caller decide dónde guardar la
+   * sesión según `tipo`, porque un superadmin va a su propio storage aislado).
+   */
+  loginUnificado(body: LoginBody): Observable<LoginResultado> {
+    return this.http.post<LoginResultado>(`${this.base}/login`, body);
+  }
+
+  /** Adopta una sesión de usuario normal ya obtenida (la persiste en memoria + storage). */
+  adoptarSesion(res: AuthResponse): void {
+    this.persistir(res);
   }
 
   logout(): Observable<unknown> {
