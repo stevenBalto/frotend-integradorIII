@@ -2,44 +2,50 @@
   <div class="admin-page">
 
     <admin-page-header title="Ofertas y cupones" subtitle="Dashboard / Ofertas y cupones">
-      <admin-btn header-right>
+      <admin-btn header-right (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
         <ion-icon name="add-outline"></ion-icon>
-        {{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupón' }}
+        {{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupon' }}
       </admin-btn>
     </admin-page-header>
 
     <!-- Tabs -->
     <div class="of-tabs">
       <button type="button" class="of-tab" [class.of-tab--active]="tab === 'ofertas'" (click)="tab = 'ofertas'">Ofertas (combos)</button>
-      <button type="button" class="of-tab" [class.of-tab--active]="tab === 'cupones'" (click)="tab = 'cupones'">Cupones (códigos)</button>
+      <button type="button" class="of-tab" [class.of-tab--active]="tab === 'cupones'" (click)="tab = 'cupones'">Cupones (codigos)</button>
     </div>
 
-    <!-- Stats -->
+    <!-- Stats Ofertas -->
     <div class="admin-grid-4" *ngIf="tab === 'ofertas'">
-      <admin-kpi-card label="Ofertas totales" [value]="9"
+      <admin-kpi-card label="Ofertas totales" [value]="totalOfertas"
         icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
-      <admin-kpi-card label="Activas" [value]="6"
+      <admin-kpi-card label="Activas" [value]="ofertasActivas"
         icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
-      <admin-kpi-card label="Por vencer (7 días)" [value]="2"
+      <admin-kpi-card label="Por vencer (7 dias)" [value]="ofertasPorVencer"
         icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
-      <admin-kpi-card label="Vencidas" [value]="1"
+      <admin-kpi-card label="Vencidas" [value]="ofertasVencidas"
         icon="alert-circle-outline" iconBg="#9CA3AF26" iconColor="#374151"></admin-kpi-card>
     </div>
+
+    <!-- Stats Cupones -->
     <div class="admin-grid-4" *ngIf="tab === 'cupones'">
-      <admin-kpi-card label="Cupones totales" [value]="12"
+      <admin-kpi-card label="Cupones totales" [value]="totalCupones"
         icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
-      <admin-kpi-card label="Activos" [value]="8"
+      <admin-kpi-card label="Activos" [value]="cuponesActivos"
         icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
-      <admin-kpi-card label="Usos totales" [value]="280"
+      <admin-kpi-card label="Usos totales" [value]="usosTotales"
         icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
-      <admin-kpi-card label="Agotados" [value]="1"
+      <admin-kpi-card label="Agotados" [value]="cuponesAgotados"
         icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
     </div>
 
-    <!-- Combos -->
+    <!-- Tabla Ofertas -->
     <admin-section-card title="Combos activos" *ngIf="tab === 'ofertas'">
       <admin-search-input card-action placeholder="Buscar oferta..."></admin-search-input>
-      <div class="of-table-wrap">
+
+      <p *ngIf="errorOfertas" class="of-error">{{ errorOfertas }}</p>
+      <p *ngIf="cargandoOfertas" class="of-loading">Cargando ofertas...</p>
+
+      <div class="of-table-wrap" *ngIf="!cargandoOfertas">
         <table class="of-table">
           <thead>
             <tr>
@@ -48,64 +54,82 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of combos" [class.of-row--off]="!c.active">
+            <tr *ngFor="let o of ofertas" [class.of-row--off]="!o.activa">
               <td>
-                <div class="of-combo-icon" [style.background]="c.active ? '#E13642' : '#1E1E1E'">
+                <div class="of-combo-icon" [style.background]="o.activa ? '#E13642' : '#1E1E1E'">
                   <ion-icon name="restaurant-outline"></ion-icon>
                 </div>
               </td>
               <td>
-                <p class="of-combo__name">{{ c.name }}</p>
-                <p class="of-combo__price">{{ c.price }}</p>
+                <p class="of-combo__name">{{ o.nombre }}</p>
+                <p class="of-combo__price">{{ formatValorOferta(o) }}</p>
               </td>
-              <td class="of-muted">{{ c.products }}</td>
-              <td class="of-muted">{{ c.discount }}</td>
-              <td [class.of-urgent]="c.urgent" class="of-muted">{{ c.expires }}</td>
-              <td><status-badge [type]="c.active ? 'active' : 'expired'"></status-badge></td>
+              <td class="of-muted">{{ o.productos_count }} producto{{ o.productos_count !== 1 ? 's' : '' }}</td>
+              <td class="of-muted">{{ formatTipoDescuento(o.tipo_descuento) }}</td>
+              <td [class.of-urgent]="isOfertaUrgent(o)" class="of-muted">{{ formatVigencia(o.fecha_fin) }}</td>
+              <td><status-badge [type]="getOfertaBadgeType(o)"></status-badge></td>
               <td>
                 <div class="of-actions">
-                  <button type="button" class="of-action of-action--edit"><ion-icon name="create-outline"></ion-icon></button>
-                  <button type="button" class="of-action of-action--del"><ion-icon name="trash-outline"></ion-icon></button>
+                  <button type="button" class="of-action of-action--edit" (click)="abrirEditarOferta(o)">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="of-action of-action--del" (click)="eliminarOferta(o)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
                 </div>
               </td>
+            </tr>
+            <tr *ngIf="ofertas.length === 0 && !cargandoOfertas">
+              <td colspan="7" class="of-empty">No hay ofertas registradas.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </admin-section-card>
 
-    <!-- Cupones -->
+    <!-- Tabla Cupones -->
     <admin-section-card title="Cupones de descuento" *ngIf="tab === 'cupones'">
-      <admin-search-input card-action placeholder="Buscar código..."></admin-search-input>
-      <div class="of-table-wrap">
+      <admin-search-input card-action placeholder="Buscar codigo..."></admin-search-input>
+
+      <p *ngIf="errorCupones" class="of-error">{{ errorCupones }}</p>
+      <p *ngIf="cargandoCupones" class="of-loading">Cargando cupones...</p>
+
+      <div class="of-table-wrap" *ngIf="!cargandoCupones">
         <table class="of-table">
           <thead>
             <tr>
-              <th>Código</th><th>Tipo</th><th>Valor</th><th>Mín. compra</th>
+              <th>Codigo</th><th>Tipo</th><th>Valor</th><th>Min. compra</th>
               <th>Vigencia</th><th>Usos</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of coupons" [class.of-row--off]="!c.active">
-              <td class="of-code">{{ c.code }}</td>
-              <td class="of-muted">{{ c.type }}</td>
-              <td class="of-value">{{ c.value }}</td>
-              <td class="of-muted">{{ c.min }}</td>
-              <td class="of-muted">{{ c.expires }}</td>
+            <tr *ngFor="let c of cupones" [class.of-row--off]="!c.activo">
+              <td class="of-code">{{ c.codigo }}</td>
+              <td class="of-muted">{{ formatTipoCupon(c.tipo) }}</td>
+              <td class="of-value">{{ formatValorCupon(c) }}</td>
+              <td class="of-muted">{{ formatMontoMinimo(c.monto_minimo) }}</td>
+              <td class="of-muted">{{ formatVigencia(c.fecha_fin) }}</td>
               <td>
-                <p class="of-uses" [class.of-uses--red]="!c.active">{{ c.usesLabel }}</p>
-                <div class="of-usebar" *ngIf="c.showBar">
-                  <div class="of-usebar__fill" [style.width.%]="c.barPct"
-                    [style.background]="c.barFull ? '#E13642' : '#F58220'"></div>
+                <p class="of-uses" [class.of-uses--red]="isUsosBarFull(c)">{{ formatUsosLabel(c) }}</p>
+                <div class="of-usebar" *ngIf="c.usos_max !== null">
+                  <div class="of-usebar__fill" [style.width.%]="getUsosBarPct(c)"
+                    [style.background]="isUsosBarFull(c) ? '#E13642' : '#F58220'"></div>
                 </div>
               </td>
-              <td><status-badge [type]="c.active ? 'active' : 'cancelled'"></status-badge></td>
+              <td><status-badge [type]="getCuponBadgeType(c)"></status-badge></td>
               <td>
                 <div class="of-actions">
-                  <button type="button" class="of-action of-action--edit"><ion-icon name="create-outline"></ion-icon></button>
-                  <button type="button" class="of-action of-action--del"><ion-icon name="trash-outline"></ion-icon></button>
+                  <button type="button" class="of-action of-action--edit" (click)="abrirEditarCupon(c)">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="of-action of-action--del" (click)="eliminarCupon(c)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
                 </div>
               </td>
+            </tr>
+            <tr *ngIf="cupones.length === 0 && !cargandoCupones">
+              <td colspan="8" class="of-empty">No hay cupones registrados.</td>
             </tr>
           </tbody>
         </table>
@@ -114,3 +138,153 @@
 
   </div>
 </ion-content>
+
+<!-- Modal Nueva/Editar Oferta -->
+<div class="order-modal" *ngIf="modalOfertaOpen">
+  <div class="order-modal__backdrop" (click)="cerrarModalOferta()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ editandoOferta ? 'Editar oferta' : 'Nueva oferta' }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarModalOferta()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="formOferta" (ngSubmit)="guardarOferta()" class="of-form">
+        <label class="of-form__label">
+          Nombre
+          <input type="text" formControlName="nombre" class="of-form__input" placeholder="Ej. Combo Pizza + Bebida" />
+        </label>
+
+        <label class="of-form__label">
+          Descripcion
+          <textarea formControlName="descripcion" class="of-form__input" rows="2" placeholder="Opcional"></textarea>
+        </label>
+
+        <div class="of-form__row">
+          <label class="of-form__label of-form__label--half">
+            Tipo de descuento
+            <select formControlName="tipo_descuento" class="of-form__input">
+              <option value="porcentaje">Porcentaje (%)</option>
+              <option value="precio_fijo">Precio fijo</option>
+            </select>
+          </label>
+          <label class="of-form__label of-form__label--half">
+            Valor
+            <input type="number" min="0" step="1" formControlName="valor" class="of-form__input" placeholder="Ej. 20" />
+          </label>
+        </div>
+
+        <div class="of-form__row">
+          <label class="of-form__label of-form__label--half">
+            Fecha inicio
+            <input type="date" formControlName="fecha_inicio" class="of-form__input" />
+          </label>
+          <label class="of-form__label of-form__label--half">
+            Fecha fin
+            <input type="date" formControlName="fecha_fin" class="of-form__input" />
+          </label>
+        </div>
+
+        <label class="of-form__label">
+          Productos incluidos
+          <div class="of-form__products">
+            <div *ngFor="let p of productos" class="of-form__product-item"
+              [class.of-form__product-item--selected]="isProductoSelected(p.id)"
+              (click)="toggleProducto(p.id)">
+              <span class="of-form__product-check">{{ isProductoSelected(p.id) ? '&#10003;' : '' }}</span>
+              {{ p.nombre }}
+            </div>
+            <p *ngIf="productos.length === 0" class="of-form__no-products">No hay productos disponibles.</p>
+          </div>
+        </label>
+
+        <label class="of-form__check">
+          <input type="checkbox" formControlName="activa" /> Activa
+        </label>
+
+        <p *ngIf="formOfertaError" class="of-error">{{ formOfertaError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardandoOferta">
+          {{ guardandoOferta ? 'Guardando...' : (editandoOferta ? 'Guardar cambios' : 'Crear oferta') }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo/Editar Cupon -->
+<div class="order-modal" *ngIf="modalCuponOpen">
+  <div class="order-modal__backdrop" (click)="cerrarModalCupon()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ editandoCupon ? 'Editar cupon' : 'Nuevo cupon' }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarModalCupon()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="formCupon" (ngSubmit)="guardarCupon()" class="of-form">
+        <label class="of-form__label">
+          Codigo
+          <input type="text" formControlName="codigo" class="of-form__input" placeholder="Ej. ROOSTER20" />
+        </label>
+
+        <div class="of-form__row">
+          <label class="of-form__label of-form__label--half">
+            Tipo
+            <select formControlName="tipo" class="of-form__input">
+              <option value="porcentaje">Porcentaje (%)</option>
+              <option value="monto_fijo">Monto fijo</option>
+            </select>
+          </label>
+          <label class="of-form__label of-form__label--half">
+            Valor
+            <input type="number" min="0" step="1" formControlName="valor" class="of-form__input" placeholder="Ej. 20" />
+          </label>
+        </div>
+
+        <label class="of-form__label">
+          Monto minimo de compra
+          <input type="number" min="0" step="1" formControlName="monto_minimo" class="of-form__input" placeholder="Dejar vacio para sin minimo" />
+        </label>
+
+        <div class="of-form__row">
+          <label class="of-form__label of-form__label--half">
+            Fecha inicio
+            <input type="date" formControlName="fecha_inicio" class="of-form__input" />
+          </label>
+          <label class="of-form__label of-form__label--half">
+            Fecha fin
+            <input type="date" formControlName="fecha_fin" class="of-form__input" />
+          </label>
+        </div>
+
+        <label class="of-form__label">
+          Usos maximos
+          <input type="number" min="0" step="1" formControlName="usos_max" class="of-form__input" placeholder="Dejar vacio para ilimitados" />
+        </label>
+
+        <label class="of-form__check">
+          <input type="checkbox" formControlName="activo" /> Activo
+        </label>
+
+        <p *ngIf="formCuponError" class="of-error">{{ formCuponError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardandoCupon">
+          {{ guardandoCupon ? 'Guardando...' : (editandoCupon ? 'Guardar cambios' : 'Crear cupon') }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

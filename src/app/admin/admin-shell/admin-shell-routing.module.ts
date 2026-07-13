@@ -20,6 +20,10 @@ const routes: Routes = [
         loadChildren: () => import('../menu/menu.module').then(m => m.AdminMenuPageModule),
       },
       {
+        path: 'inventario',
+        loadChildren: () => import('../inventario/inventario.module').then(m => m.AdminInventarioPageModule),
+      },
+      {
         path: 'ofertas',
         loadChildren: () => import('../ofertas/ofertas.module').then(m => m.AdminOfertasPageModule),
       },

@@ -1,13 +1,18 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-/** Input de búsqueda del panel (solo visual, sin lógica de filtrado todavía). */
+/** Input de búsqueda del panel, con filtrado en vivo via [(value)]. */
 @Component({
   selector: 'admin-search-input',
   standalone: false,
   template: `
     <div class="search">
       <ion-icon name="search-outline"></ion-icon>
-      <input [placeholder]="placeholder" />
+      <input
+        [placeholder]="placeholder"
+        [value]="value"
+        maxlength="100"
+        (input)="onInput($event)"
+      />
     </div>
   `,
   styles: [`
@@ -34,4 +39,11 @@ import { Component, Input } from '@angular/core';
 })
 export class SearchInputComponent {
   @Input() placeholder = '';
+  @Input() value = '';
+  @Output() valueChange = new EventEmitter<string>();
+
+  onInput(event: Event): void {
+    const texto = (event.target as HTMLInputElement).value;
+    this.valueChange.emit(texto);
+  }
 }

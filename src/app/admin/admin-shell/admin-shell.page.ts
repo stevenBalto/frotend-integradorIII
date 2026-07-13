@@ -25,6 +25,7 @@ export class AdminShellPage {
     { id: 'dashboard',      label: 'Dashboard',         icon: 'grid-outline' },
     { id: 'pedidos',        label: 'Pedidos',           icon: 'clipboard-outline' },
     { id: 'menu',           label: 'Menú',              icon: 'restaurant-outline' },
+    { id: 'inventario',     label: 'Inventario',        icon: 'cube-outline' },
     { id: 'ofertas',        label: 'Ofertas y cupones', icon: 'pricetag-outline' },
     { id: 'usuarios',       label: 'Usuarios y roles',  icon: 'shield-checkmark-outline' },
     { id: 'analiticas',     label: 'Analíticas',        icon: 'bar-chart-outline' },

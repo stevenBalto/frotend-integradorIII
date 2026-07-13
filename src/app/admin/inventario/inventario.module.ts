@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 
 import { AdminSharedModule } from '../shared/admin-shared.module';
-import { AdminOfertasPage } from './ofertas.page';
+import { AdminInventarioPage } from './inventario.page';
 
 @NgModule({
   imports: [
@@ -14,8 +14,8 @@ import { AdminOfertasPage } from './ofertas.page';
     ReactiveFormsModule,
     IonicModule,
     AdminSharedModule,
-    RouterModule.forChild([{ path: '', component: AdminOfertasPage }]),
+    RouterModule.forChild([{ path: '', component: AdminInventarioPage }]),
   ],
-  declarations: [AdminOfertasPage],
+  declarations: [AdminInventarioPage],
 })
-export class AdminOfertasPageModule {}
+export class AdminInventarioPageModule {}
