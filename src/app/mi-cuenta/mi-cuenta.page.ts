@@ -11,11 +11,21 @@ import { AuthService } from '../core/services/auth.service';
 export class MiCuentaPage {
   constructor(private auth: AuthService, private router: Router) {}
 
-  /** Temporal: cierra sesion en backend + local y vuelve al login. */
+  /** Cierra sesion en backend + local y vuelve al login. */
   cerrarSesion(): void {
     this.auth.logout().subscribe({
-      next: () => this.router.navigateByUrl('/login', { replaceUrl: true }),
-      error: () => this.router.navigateByUrl('/login', { replaceUrl: true }),
+      next: () => this.irAlLogin(),
+      error: () => this.irAlLogin(),
     });
+  }
+
+  /**
+   * Limpia la sesion ANTES de navegar. Sin esto, el guestGuard del login ve la
+   * sesion todavia activa (el finalize de logout() corre despues del next) y
+   * rebota a /tabs/home — por eso "no salia el login".
+   */
+  private irAlLogin(): void {
+    this.auth.limpiarSesion();
+    void this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }
