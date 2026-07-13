@@ -1,0 +1,234 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Inventario" subtitle="Dashboard / Inventario">
+      <admin-btn header-right (clicked)="abrirNuevo()">
+        <ion-icon name="add-outline"></ion-icon> Nuevo insumo
+      </admin-btn>
+    </admin-page-header>
+
+    <!-- Stats / filtros -->
+    <div class="admin-grid-4">
+      <admin-kpi-card label="Insumos totales" [value]="totalInsumos"
+        icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>
+      <admin-kpi-card label="Bajo stock" [value]="totalBajoStock"
+        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"
+        [clickable]="true" [active]="filtro === 'bajo_stock'" (cardClick)="setFiltro('bajo_stock')"></admin-kpi-card>
+      <admin-kpi-card label="Stock normal" [value]="totalNormal"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtro === 'normal'" (cardClick)="setFiltro('normal')"></admin-kpi-card>
+      <admin-kpi-card label="Sin mínimo definido" [value]="totalSinMinimo"
+        icon="help-circle-outline" iconBg="#9CA3AF26" iconColor="#374151"
+        [clickable]="true" [active]="filtro === 'sin_minimo'" (cardClick)="setFiltro('sin_minimo')"></admin-kpi-card>
+    </div>
+
+    <admin-section-card title="Insumos e ingredientes">
+      <admin-search-input card-action placeholder="Buscar insumo por nombre..." [(value)]="busqueda"></admin-search-input>
+
+      <p *ngIf="error" class="inv-error">{{ error }}</p>
+      <p *ngIf="cargando" class="inv-loading">Cargando inventario...</p>
+
+      <div class="admin-table-wrap" *ngIf="!cargando">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Insumo</th><th>Cantidad actual</th><th>Stock mínimo</th>
+              <th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let i of insumosFiltrados" [class.inv-row--low]="i.bajo_stock">
+              <td class="admin-table__strong" style="font-size: 12px;">{{ i.nombre }}</td>
+              <td class="admin-table__semi" style="font-size: 12px;">{{ formatCantidad(i) }}</td>
+              <td class="inv-muted">{{ formatStockMinimo(i) }}</td>
+              <td><status-badge [type]="getBadgeType(i)"></status-badge></td>
+              <td>
+                <div class="inv-actions">
+                  <button type="button" class="inv-action inv-action--edit" title="Editar"
+                    (click)="abrirEditar(i)">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="inv-action inv-action--count" title="Toma física"
+                    (click)="abrirToma(i)">
+                    <ion-icon name="clipboard-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="inv-action inv-action--history" title="Historial de tomas físicas"
+                    *ngIf="i.tiene_movimientos" (click)="abrirHistorial(i)">
+                    <ion-icon name="time-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="inv-action inv-action--del" title="Eliminar"
+                    (click)="eliminar(i)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="insumosFiltrados.length === 0 && !cargando">
+              <td colspan="5" class="inv-empty">
+                {{ insumos.length === 0 ? 'No hay insumos registrados.' : 'Ningún insumo coincide con la búsqueda/filtro.' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>
+
+<!-- ── Modal Nuevo/Editar insumo ────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="modalOpen">
+  <div class="order-modal__backdrop" (click)="cerrarModal()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ editando ? 'Editar insumo' : 'Nuevo insumo' }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="inv-form">
+        <label class="inv-form__label">
+          Nombre
+          <input type="text" formControlName="nombre" maxlength="120"
+            class="inv-form__input" placeholder="Ej. Queso mozzarella" />
+        </label>
+
+        <label class="inv-form__label">
+          Unidad de medida
+          <input type="text" list="inv-unidades" formControlName="unidad_medida" maxlength="20"
+            class="inv-form__input" placeholder="Ej. kg" />
+          <datalist id="inv-unidades">
+            <option *ngFor="let u of unidades" [value]="u"></option>
+          </datalist>
+        </label>
+
+        <label class="inv-form__label" *ngIf="!editando">
+          Cantidad inicial
+          <input type="number" min="0" max="999999" step="any" formControlName="cantidad_actual"
+            class="inv-form__input" placeholder="Ej. 12.5" />
+        </label>
+
+        <div class="inv-form__readonly" *ngIf="editando">
+          <span class="inv-form__readonly-label">Cantidad actual</span>
+          <span class="inv-form__readonly-value">{{ formatCantidad(editando) }}</span>
+          <span class="inv-form__readonly-hint">Solo se modifica con una toma física.</span>
+        </div>
+
+        <label class="inv-form__label">
+          Stock mínimo (opcional)
+          <input type="number" min="0" max="999999" step="any" formControlName="stock_minimo"
+            class="inv-form__input" placeholder="Dejar vacío para no definir" />
+        </label>
+
+        <p *ngIf="formError" class="inv-error">{{ formError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear insumo') }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Toma física ────────────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="tomaOpen && tomaInsumo">
+  <div class="order-modal__backdrop" (click)="cerrarToma()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Toma física</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarToma()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="tomaForm" (ngSubmit)="guardarToma()" class="inv-form">
+        <div class="inv-toma__insumo">
+          <p class="inv-toma__name">{{ tomaInsumo.nombre }}</p>
+          <p class="inv-toma__system">
+            Sistema: <strong>{{ formatCantidad(tomaInsumo) }}</strong>
+          </p>
+        </div>
+
+        <label class="inv-form__label">
+          Cantidad contada ({{ tomaInsumo.unidad_medida }})
+          <input type="number" min="0" max="999999" step="any" formControlName="cantidad_contada"
+            class="inv-form__input" placeholder="Ej. 11.8" />
+        </label>
+
+        <div class="inv-toma__diff" *ngIf="tomaDiferencia !== null">
+          <span class="inv-toma__diff-label">Diferencia</span>
+          <span class="inv-toma__diff-value"
+            [class.inv-toma__diff-value--pos]="tomaDiferencia > 0"
+            [class.inv-toma__diff-value--neg]="tomaDiferencia < 0">
+            {{ tomaDiferencia > 0 ? '+' : '' }}{{ tomaDiferencia }} {{ tomaInsumo.unidad_medida }}
+          </span>
+        </div>
+
+        <label class="inv-form__label">
+          Nota (opcional)
+          <textarea formControlName="nota" maxlength="255" class="inv-form__input" rows="2"
+            placeholder="Motivo del ajuste, quién contó, etc."></textarea>
+        </label>
+
+        <p *ngIf="tomaError" class="inv-error">{{ tomaError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardandoToma">
+          {{ guardandoToma ? 'Guardando...' : 'Guardar toma física' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Historial de tomas físicas ─────────────────────────────────── -->
+<div class="order-modal" *ngIf="historialOpen && historialInsumo">
+  <div class="order-modal__backdrop" (click)="cerrarHistorial()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Historial — {{ historialInsumo.nombre }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarHistorial()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <p *ngIf="historialError" class="inv-error">{{ historialError }}</p>
+      <p *ngIf="cargandoHistorial" class="inv-loading">Cargando historial...</p>
+
+      <div class="inv-historial" *ngIf="!cargandoHistorial">
+        <div class="inv-historial__item" *ngFor="let m of historialMovimientos">
+          <div class="inv-historial__row">
+            <span class="inv-historial__fecha">{{ m.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
+            <span class="inv-historial__diff"
+              [class.inv-toma__diff-value--pos]="m.diferencia > 0"
+              [class.inv-toma__diff-value--neg]="m.diferencia < 0">
+              {{ m.diferencia > 0 ? '+' : '' }}{{ m.diferencia }} {{ historialInsumo.unidad_medida }}
+            </span>
+          </div>
+          <p class="inv-historial__detalle">
+            {{ m.cantidad_anterior }} → {{ m.cantidad_nueva }} {{ historialInsumo.unidad_medida }}
+            <span *ngIf="m.usuario"> · {{ m.usuario.nombre }}</span>
+          </p>
+          <p class="inv-historial__nota" *ngIf="m.nota">{{ m.nota }}</p>
+        </div>
+        <p *ngIf="historialMovimientos.length === 0" class="inv-empty">Sin movimientos registrados.</p>
+      </div>
+    </div>
+  </div>
+</div>
