@@ -2,7 +2,8 @@ import { Component, Input, OnChanges } from '@angular/core';
 
 type StatusType =
   | 'completed' | 'process' | 'cancelled'
-  | 'active' | 'inactive' | 'expired' | 'cooking';
+  | 'active' | 'inactive' | 'expired' | 'cooking'
+  | 'stock_bajo' | 'stock_ok';
 
 interface StatusStyle { bg: string; dot: string; c: string; label: string; }
 
@@ -48,6 +49,8 @@ export class StatusBadgeComponent implements OnChanges {
     inactive:  { bg: '#F3F4F6', dot: '#6B7280', c: '#374151', label: 'Inactivo' },
     expired:   { bg: '#F3F4F6', dot: '#6B7280', c: '#374151', label: 'Vencida' },
     cooking:   { bg: '#FEF3C7', dot: '#F59E0B', c: '#92400E', label: 'En cocina' },
+    stock_bajo: { bg: '#FEE2E2', dot: '#DC2626', c: '#991B1B', label: 'Bajo stock' },
+    stock_ok:   { bg: '#DCFCE7', dot: '#16A34A', c: '#15803D', label: 'Stock normal' },
   };
 
   ngOnChanges(): void {

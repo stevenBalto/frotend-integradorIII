@@ -1,11 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-/** Tarjeta KPI del panel admin (label + valor + subtexto opcional + icono). */
+/** Tarjeta KPI del panel admin (label + valor + subtexto opcional + icono). Opcionalmente clickeable (filtro). */
 @Component({
   selector: 'admin-kpi-card',
   standalone: false,
   template: `
-    <div class="kpi">
+    <div class="kpi" [class.kpi--clickable]="clickable" [class.kpi--active]="active" (click)="onClick()">
       <div
         class="kpi__icon"
         *ngIf="icon"
@@ -24,10 +24,12 @@ import { Component, Input } from '@angular/core';
       border: 1px solid var(--admin-border);
       border-radius: 12px;
       padding: 16px;
-      transition: box-shadow 0.2s;
+      transition: box-shadow 0.2s, border-color 0.2s;
       font-family: var(--rooster-font-sans);
     }
     .kpi:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06); }
+    .kpi--clickable { cursor: pointer; }
+    .kpi--active { border-color: var(--admin-accent); box-shadow: 0 0 0 1px var(--admin-accent); }
     .kpi__icon {
       width: 34px;
       height: 34px;
@@ -68,4 +70,15 @@ export class AdminKpiCardComponent {
   @Input() iconBg?: string;
   @Input() iconColor?: string;
   @Input() accent = false;
+  /** Si es true, se muestra como clickeable (cursor pointer) y emite (cardClick). */
+  @Input() clickable = false;
+  /** Resalta la tarjeta como filtro activo (borde de acento). */
+  @Input() active = false;
+  @Output() cardClick = new EventEmitter<void>();
+
+  onClick(): void {
+    if (this.clickable) {
+      this.cardClick.emit();
+    }
+  }
 }
