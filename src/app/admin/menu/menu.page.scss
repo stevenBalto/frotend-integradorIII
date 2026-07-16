@@ -197,3 +197,136 @@
 .menu-detail__desc { font-size: 12px; color: var(--admin-text-muted); line-height: 1.5; margin: 0 0 16px; }
 .menu-detail__price-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .menu-detail__price { font-size: 20px; font-weight: 700; color: var(--rooster-red); }
+
+/* ── Secciones del formulario (tamanos, extras) ── */
+.menu-form__section {
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+.menu-form__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.menu-form__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+}
+.menu-form__add-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--rooster-red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+
+  ion-icon { font-size: 14px; }
+}
+.menu-form__tamanos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.menu-form__tamano {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.menu-form__input--sm {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.menu-form__remove-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(220, 38, 38, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 14px; color: var(--admin-red-alt); }
+}
+.menu-form__hint {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+/* ── Extras ── */
+.menu-form__extras {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.menu-form__extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--admin-neutral1);
+}
+.menu-form__extra-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+.menu-form__extra-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rooster-red);
+}
+.menu-form__extra-status {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #DCFCE7;
+  color: #15803D;
+
+  &--off {
+    background: #F3F4F6;
+    color: #6B7280;
+  }
+}
+.menu-form__extra-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: var(--admin-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon { font-size: 12px; color: var(--admin-text-muted); }
+
+  &--danger {
+    background: rgba(220, 38, 38, 0.08);
+    ion-icon { color: var(--admin-red-alt); }
+  }
+}
+
+/* ── Modal pequeno ── */
+.order-modal__panel--small {
+  max-width: 360px;
+}

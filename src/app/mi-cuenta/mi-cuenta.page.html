@@ -23,11 +23,21 @@
     <p class="cuenta-section__title">Tu cuenta</p>
     <div class="cuenta-group">
 
-      <button class="cuenta-row">
+      <button class="cuenta-row" routerLink="/mis-pedidos">
         <div class="cuenta-row__icon-wrap">
           <ion-icon name="cart-outline"></ion-icon>
         </div>
         <span class="cuenta-row__label">Mis pedidos</span>
+        <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
+          <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="cuenta-row" (click)="abrirBuscarPedido()">
+        <div class="cuenta-row__icon-wrap">
+          <ion-icon name="search-outline"></ion-icon>
+        </div>
+        <span class="cuenta-row__label">Buscar mi pedido</span>
         <svg class="cuenta-row__arrow" width="7" height="12" viewBox="0 0 7 12" fill="none">
           <path d="M1 1L6 6L1 11" stroke="#A8895E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -129,3 +139,61 @@
   <p class="cuenta-version">Rooster App - version 1.0.0</p>
 
 </ion-content>
+
+<!-- ── Modal Buscar mi pedido ───────────────────────────────────────────────── -->
+<div class="buscar-modal" *ngIf="buscarModalAbierto">
+  <div class="buscar-modal__backdrop" (click)="cerrarBuscarPedido()"></div>
+  <div class="buscar-modal__panel">
+    <div class="buscar-modal__header">
+      <h3 class="buscar-modal__title">Buscar mi pedido</h3>
+      <button type="button" class="buscar-modal__close" (click)="cerrarBuscarPedido()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="buscar-modal__body">
+      <p class="buscar-modal__desc">Ingresa el código de tu pedido para ver su estado.</p>
+
+      <input type="text" class="buscar-modal__input"
+        placeholder="Ej. ABCD-1234"
+        [(ngModel)]="codigoBusqueda"
+        (keyup.enter)="buscarPedido()" />
+
+      <p *ngIf="buscarError" class="buscar-modal__error">{{ buscarError }}</p>
+
+      <button type="button" class="buscar-modal__btn"
+        [disabled]="buscandoPedido || !codigoBusqueda.trim()"
+        (click)="buscarPedido()">
+        {{ buscandoPedido ? 'Buscando...' : 'Buscar pedido' }}
+      </button>
+
+      <!-- Resultado -->
+      <div class="buscar-resultado" *ngIf="pedidoEncontrado">
+        <div class="buscar-resultado__row">
+          <span class="buscar-resultado__label">Código</span>
+          <span class="buscar-resultado__value">{{ pedidoEncontrado.codigo }}</span>
+        </div>
+        <div class="buscar-resultado__row">
+          <span class="buscar-resultado__label">Estado</span>
+          <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoEncontrado.estado)">
+            {{ getEstadoLabel(pedidoEncontrado.estado) }}
+          </span>
+        </div>
+        <div class="buscar-resultado__row">
+          <span class="buscar-resultado__label">Modalidad</span>
+          <span class="buscar-resultado__value">
+            {{ pedidoEncontrado.modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar' }}
+          </span>
+        </div>
+        <div class="buscar-resultado__row">
+          <span class="buscar-resultado__label">Sucursal</span>
+          <span class="buscar-resultado__value">{{ pedidoEncontrado.sucursal }}</span>
+        </div>
+        <div class="buscar-resultado__row" *ngIf="pedidoEncontrado.hora_estimada">
+          <span class="buscar-resultado__label">Hora estimada</span>
+          <span class="buscar-resultado__value">{{ pedidoEncontrado.hora_estimada }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

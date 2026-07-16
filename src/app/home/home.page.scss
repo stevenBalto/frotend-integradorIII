@@ -393,6 +393,72 @@
   color: var(--rooster-red);
   margin-bottom: 18px;
 }
+/* ── Secciones del modal (tamanos, extras) ──────────────────────────────────── */
+.dish-modal__section {
+  margin-bottom: 16px;
+}
+.dish-modal__section-title {
+  font-family: var(--rooster-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rooster-dark);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.dish-modal__required {
+  color: var(--rooster-red);
+}
+.dish-modal__options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dish-modal__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--rooster-border);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--rooster-font-sans);
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &--active {
+    border-color: var(--rooster-red);
+    background: rgba(225, 54, 66, 0.05);
+  }
+}
+.dish-modal__option-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ion-icon {
+    font-size: 20px;
+    color: var(--rooster-brown);
+  }
+}
+.dish-modal__option--active .dish-modal__option-check ion-icon {
+  color: var(--rooster-red);
+}
+.dish-modal__option-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rooster-dark);
+}
+.dish-modal__option-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rooster-red);
+}
+
 .dish-modal__cta {
   width: 100%;
   display: flex;
@@ -414,4 +480,10 @@
   ion-icon { font-size: 18px; }
 
   &:active { transform: scale(0.97); }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
 }

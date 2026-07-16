@@ -1,159 +1,308 @@
 <ion-content [fullscreen]="true" class="pedir-content">
 
-  <!-- Encabezado -->
-  <div class="pedir-header">
-    <div>
-      <h2 class="pedir-header__title">Menu</h2>
-      <p class="pedir-header__sub">Elige tu platillo favorito</p>
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <!-- VISTA: MENU -->
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="vista === 'menu'">
+    <!-- Encabezado -->
+    <div class="pedir-header">
+      <div>
+        <h2 class="pedir-header__title">Menu</h2>
+        <p class="pedir-header__sub">Elige tu platillo favorito</p>
+      </div>
+      <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-header__logo" />
     </div>
-    <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-header__logo" />
-  </div>
 
-  <!-- Busqueda -->
-  <div class="pedir-search-wrap">
-    <div class="pedir-search">
-      <ion-icon name="search-outline"></ion-icon>
-      <input type="text" placeholder="Buscar platillo..." />
-    </div>
-  </div>
-
-  <!-- Categorias (tabs) -->
-  <div class="pedir-cats">
-    <button class="pedir-cat pedir-cat--active">Todos</button>
-    <button class="pedir-cat">Pizza</button>
-    <button class="pedir-cat">Grill</button>
-    <button class="pedir-cat">Pasta</button>
-  </div>
-
-  <!-- Listado de platillos -->
-  <div class="pedir-list">
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&auto=format" alt="Pizza Pepperoni" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pizza Pepperoni</span>
-          <span class="menu-card__desc">Masa artesanal, salsa de tomate y pepperoni premium</span>
-          <span class="menu-card__price">$155</span>
+    <!-- Selector de sucursal y modalidad -->
+    <div class="pedir-config">
+      <div class="pedir-config__row">
+        <label class="pedir-config__label">Sucursal</label>
+        <select class="pedir-config__select"
+          [ngModel]="carritoService.datos.sucursalId"
+          (ngModelChange)="seleccionarSucursal($event)">
+          <option [ngValue]="null" disabled>Selecciona sucursal</option>
+          <option *ngFor="let s of sucursales" [ngValue]="s.id">{{ s.nombre }}</option>
+        </select>
+      </div>
+      <div class="pedir-config__row">
+        <label class="pedir-config__label">Modalidad</label>
+        <div class="pedir-config__toggles">
+          <button type="button" class="pedir-config__toggle"
+            [class.pedir-config__toggle--active]="modalidad === 'comer_aqui'"
+            (click)="setModalidad('comer_aqui')">
+            <ion-icon name="restaurant-outline"></ion-icon> Comer aquí
+          </button>
+          <button type="button" class="pedir-config__toggle"
+            [class.pedir-config__toggle--active]="modalidad === 'para_llevar'"
+            (click)="setModalidad('para_llevar')">
+            <ion-icon name="bag-handle-outline"></ion-icon> Para llevar
+          </button>
         </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
       </div>
     </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop&auto=format" alt="Pizza 4 Quesos" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pizza 4 Quesos</span>
-          <span class="menu-card__desc">Mozzarella, gouda, parmesano y gorgonzola</span>
-          <span class="menu-card__price">$165</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
+    <!-- Busqueda -->
+    <div class="pedir-search-wrap">
+      <div class="pedir-search">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="Buscar platillo..." [(ngModel)]="busqueda" />
       </div>
     </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop&auto=format" alt="Pizza Margarita" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pizza Margarita</span>
-          <span class="menu-card__desc">Salsa de tomate fresco, mozzarella y albahaca</span>
-          <span class="menu-card__price">$140</span>
+    <!-- Categorias (tabs) -->
+    <div class="pedir-cats">
+      <button class="pedir-cat" [class.pedir-cat--active]="activeCat === null"
+        (click)="seleccionarCategoria(null)">Todos</button>
+      <button class="pedir-cat" *ngFor="let c of categorias"
+        [class.pedir-cat--active]="activeCat === c.id"
+        (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
+    </div>
+
+    <!-- Estados de carga/error -->
+    <p *ngIf="cargandoProductos" class="pedir-status">Cargando menú...</p>
+    <p *ngIf="errorProductos" class="pedir-status pedir-status--error">{{ errorProductos }}</p>
+
+    <!-- Listado de platillos -->
+    <div class="pedir-list" *ngIf="!cargandoProductos">
+      <div class="menu-card" *ngFor="let p of productosFiltrados" (click)="abrirDetalle(p)">
+        <div class="menu-card__img menu-card__img--placeholder" *ngIf="!p.imagen_url">
+          <ion-icon name="restaurant-outline"></ion-icon>
         </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
+        <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="menu-card__img" />
+        <div class="menu-card__body">
+          <div class="menu-card__info">
+            <span class="menu-card__name">{{ p.nombre }}</span>
+            <span class="menu-card__desc">{{ p.descripcion }}</span>
+            <span class="menu-card__price">{{ p.precio_base | crcCurrency }}</span>
+          </div>
+          <button class="menu-card__add" (click)="abrirDetalle(p); $event.stopPropagation()">
+            <ion-icon name="add"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="productosFiltrados.length === 0 && !cargandoProductos" class="pedir-status">
+        No hay productos disponibles.
+      </p>
+    </div>
+
+    <!-- Boton flotante del carrito -->
+    <button type="button" class="pedir-fab" *ngIf="(cantidadItems$ | async) as qty" (click)="irACarrito()">
+      <ion-icon name="cart"></ion-icon>
+      <span class="pedir-fab__badge">{{ qty }}</span>
+      <span class="pedir-fab__total">{{ total$ | async | crcCurrency }}</span>
+    </button>
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <!-- VISTA: CARRITO -->
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="vista === 'carrito'">
+    <div class="pedir-header">
+      <button type="button" class="pedir-header__back" (click)="irAMenu()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+      <div>
+        <h2 class="pedir-header__title">Tu carrito</h2>
+        <p class="pedir-header__sub">{{ sucursalSeleccionada?.nombre || 'Sin sucursal' }} - {{ modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar' }}</p>
       </div>
     </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format" alt="Costillas BBQ" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Costillas BBQ</span>
-          <span class="menu-card__desc">Costillas de cerdo con salsa BBQ ahumada y papas</span>
-          <span class="menu-card__price">$210</span>
+    <div class="cart-list" *ngIf="(lineas$ | async) as lineas">
+      <div class="cart-item" *ngFor="let l of lineas; let i = index">
+        <div class="cart-item__img">
+          <img *ngIf="l.producto.imagen_url" [src]="l.producto.imagen_url" [alt]="l.producto.nombre" />
+          <ion-icon *ngIf="!l.producto.imagen_url" name="restaurant-outline"></ion-icon>
         </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
+        <div class="cart-item__info">
+          <p class="cart-item__name">{{ l.producto.nombre }}</p>
+          <p class="cart-item__tamano" *ngIf="l.tamano">{{ l.tamano.nombre }}</p>
+          <p class="cart-item__extras" *ngIf="l.extras.length > 0">
+            <span *ngFor="let e of l.extras; let last = last">+{{ e.nombre }}{{ last ? '' : ', ' }}</span>
+          </p>
+          <p class="cart-item__price">{{ calcularPrecioLinea(l) | crcCurrency }} c/u</p>
+        </div>
+        <div class="cart-item__actions">
+          <div class="cart-item__qty">
+            <button type="button" (click)="actualizarCantidad(i, -1)">
+              <ion-icon name="remove"></ion-icon>
+            </button>
+            <span>{{ l.cantidad }}</span>
+            <button type="button" (click)="actualizarCantidad(i, 1)">
+              <ion-icon name="add"></ion-icon>
+            </button>
+          </div>
+          <button type="button" class="cart-item__remove" (click)="quitarLinea(i)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="lineas.length === 0" class="cart-empty">
+        Tu carrito está vacío. Agrega productos desde el menú.
+      </p>
+    </div>
+
+    <div class="cart-footer" *ngIf="(lineas$ | async)?.length">
+      <div class="cart-footer__row">
+        <span>Total</span>
+        <span class="cart-footer__total">{{ total$ | async | crcCurrency }}</span>
+      </div>
+      <button type="button" class="cart-footer__btn" (click)="irACheckout()">
+        Continuar al pago
+      </button>
+      <button type="button" class="cart-footer__clear" (click)="vaciarCarrito()">
+        Vaciar carrito
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <!-- VISTA: CHECKOUT -->
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="vista === 'checkout'">
+    <div class="pedir-header">
+      <button type="button" class="pedir-header__back" (click)="irACarrito()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+      <div>
+        <h2 class="pedir-header__title">Confirmar pedido</h2>
+        <p class="pedir-header__sub">{{ sucursalSeleccionada?.nombre }}</p>
       </div>
     </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=300&fit=crop&auto=format" alt="Filete a la Parrilla" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Filete a la Parrilla</span>
-          <span class="menu-card__desc">Filete de res angus con mantequilla de hierbas</span>
-          <span class="menu-card__price">$245</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
+    <div class="checkout-form">
+      <div class="checkout-section">
+        <label class="checkout-label">A nombre de quien?</label>
+        <input type="text" class="checkout-input" placeholder="Tu nombre" [(ngModel)]="nombreCliente" />
       </div>
-    </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c3?w=400&h=300&fit=crop&auto=format" alt="Pollo a las Brasas" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pollo a las Brasas</span>
-          <span class="menu-card__desc">Pollo entero marinado con especias de la casa</span>
-          <span class="menu-card__price">$178</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
+      <div class="checkout-section">
+        <label class="checkout-label">Notas (opcional)</label>
+        <textarea class="checkout-input checkout-input--textarea" rows="3"
+          placeholder="Alergias, instrucciones especiales..." [(ngModel)]="notasPedido"></textarea>
       </div>
-    </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop&auto=format" alt="Pasta Carbonara" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pasta Carbonara</span>
-          <span class="menu-card__desc">Spaghetti, panceta, yema de huevo y parmesano</span>
-          <span class="menu-card__price">$138</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
+      <div class="checkout-section">
+        <p class="checkout-notice">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Vas a pagar en caja al recoger tu pedido.
+        </p>
       </div>
-    </div>
 
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop&auto=format" alt="Fettuccine Alfredo" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Fettuccine Alfredo</span>
-          <span class="menu-card__desc">Fettuccine en salsa cremosa de mantequilla y queso</span>
-          <span class="menu-card__price">$132</span>
+      <div class="checkout-summary">
+        <div class="checkout-summary__row" *ngFor="let l of (lineas$ | async)">
+          <span>{{ l.cantidad }}x {{ l.producto.nombre }}{{ l.tamano ? ' (' + l.tamano.nombre + ')' : '' }}</span>
+          <span>{{ calcularPrecioLinea(l) * l.cantidad | crcCurrency }}</span>
         </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop&auto=format" alt="Penne Arrabbiata" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Penne Arrabbiata</span>
-          <span class="menu-card__desc">Penne con salsa de tomate picante y ajo</span>
-          <span class="menu-card__price">$125</span>
+        <div class="checkout-summary__divider"></div>
+        <div class="checkout-summary__total">
+          <span>Total a pagar</span>
+          <span>{{ total$ | async | crcCurrency }}</span>
         </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
       </div>
-    </div>
 
-  </div>
+      <p *ngIf="errorPedido" class="checkout-error">{{ errorPedido }}</p>
+
+      <button type="button" class="checkout-btn" [disabled]="!puedeEnviarPedido" (click)="enviarPedido()">
+        {{ enviandoPedido ? 'Enviando...' : 'Confirmar pedido' }}
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <!-- VISTA: CONFIRMACION -->
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="vista === 'confirmacion' && pedidoConfirmado">
+    <div class="confirm-page">
+      <div class="confirm-icon">
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </div>
+      <h2 class="confirm-title">Pedido confirmado!</h2>
+      <p class="confirm-sub">Tu pedido ha sido recibido</p>
+
+      <div class="confirm-code">
+        <span class="confirm-code__label">Código de pedido</span>
+        <span class="confirm-code__value">{{ pedidoConfirmado.codigo }}</span>
+      </div>
+
+      <div class="confirm-info">
+        <div class="confirm-info__row">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>{{ pedidoConfirmado.sucursal.nombre }}</span>
+        </div>
+        <div class="confirm-info__row" *ngIf="pedidoConfirmado.hora_estimada">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>Tiempo estimado: {{ pedidoConfirmado.hora_estimada }}</span>
+        </div>
+        <div class="confirm-info__row">
+          <ion-icon name="receipt-outline"></ion-icon>
+          <span>Total: {{ pedidoConfirmado.total | crcCurrency }}</span>
+        </div>
+      </div>
+
+      <button type="button" class="confirm-btn" (click)="volverAlInicio()">
+        Volver al inicio
+      </button>
+    </div>
+  </ng-container>
 
 </ion-content>
+
+<!-- ── Modal Detalle de platillo ─────────────────────────────────────────── -->
+<div class="dish-modal" *ngIf="detalleAbierto && productoDetalle">
+  <div class="dish-modal__backdrop" (click)="cerrarDetalle()"></div>
+  <div class="dish-modal__panel">
+    <button type="button" class="dish-modal__close" (click)="cerrarDetalle()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+
+    <div class="dish-modal__img">
+      <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" />
+      <ion-icon *ngIf="!productoDetalle.imagen_url" name="restaurant-outline"></ion-icon>
+    </div>
+
+    <div class="dish-modal__body">
+      <span class="dish-modal__cat">{{ productoDetalle.categoria }}</span>
+      <h3 class="dish-modal__name">{{ productoDetalle.nombre }}</h3>
+      <p class="dish-modal__desc">{{ productoDetalle.descripcion || 'Sin descripcion.' }}</p>
+
+      <!-- Selector de tamano -->
+      <div class="dish-modal__section" *ngIf="productoDetalle.tamanos && productoDetalle.tamanos.length > 0">
+        <p class="dish-modal__section-title">Tamano <span class="dish-modal__required">*</span></p>
+        <div class="dish-modal__options">
+          <button type="button" class="dish-modal__option"
+            *ngFor="let t of productoDetalle.tamanos"
+            [class.dish-modal__option--active]="tamanoSeleccionado?.id === t.id"
+            (click)="seleccionarTamano(t)">
+            <span class="dish-modal__option-name">{{ t.nombre }}</span>
+            <span class="dish-modal__option-price">{{ t.precio | crcCurrency }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de extras -->
+      <div class="dish-modal__section" *ngIf="productoDetalle.extras && productoDetalle.extras.length > 0">
+        <p class="dish-modal__section-title">Extras</p>
+        <div class="dish-modal__options">
+          <button type="button" class="dish-modal__option dish-modal__option--check"
+            *ngFor="let e of productoDetalle.extras"
+            [class.dish-modal__option--active]="extraSeleccionado(e)"
+            (click)="toggleExtra(e)">
+            <span class="dish-modal__option-check">
+              <ion-icon [name]="extraSeleccionado(e) ? 'checkbox' : 'square-outline'"></ion-icon>
+            </span>
+            <span class="dish-modal__option-name">{{ e.nombre }}</span>
+            <span class="dish-modal__option-price">+{{ e.precio | crcCurrency }}</span>
+          </button>
+        </div>
+      </div>
+
+      <span class="dish-modal__price">{{ precioCalculado | crcCurrency }}</span>
+
+      <button type="button" class="dish-modal__cta" [disabled]="!puedeAgregar" (click)="agregarAlCarrito()">
+        <ion-icon name="cart-outline"></ion-icon> Anadir al carrito
+      </button>
+    </div>
+  </div>
+</div>

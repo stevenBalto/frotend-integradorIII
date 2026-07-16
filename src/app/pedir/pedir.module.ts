@@ -1,16 +1,19 @@
 import { IonicModule } from '@ionic/angular';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PedirPage } from './pedir.page';
 import { PedirPageRoutingModule } from './pedir-routing.module';
+import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
 
 @NgModule({
   imports: [
     IonicModule,
     CommonModule,
     FormsModule,
-    PedirPageRoutingModule
+    ReactiveFormsModule,
+    PedirPageRoutingModule,
+    CrcCurrencyPipe,
   ],
   declarations: [PedirPage]
 })

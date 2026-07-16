@@ -4,8 +4,9 @@ import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 import { CategoriaService } from '../core/services/categoria.service';
 import { ProductoService } from '../core/services/producto.service';
+import { CarritoService, LineaCarrito } from '../core/services/carrito.service';
 import { Usuario } from '../core/models/usuario.model';
-import { Categoria, Producto } from '../core/models/producto.model';
+import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
 
 /** Foto decorativa por categoria (placeholder hasta integrar Cloudinary). */
 const IMAGEN_CATEGORIA: Record<string, string> = {
@@ -35,10 +36,16 @@ export class HomePage implements OnInit {
   detalleAbierto = false;
   productoDetalle: Producto | null = null;
 
+  // Selecciones del modal de detalle
+  tamanoSeleccionado: ProductoTamano | null = null;
+  extrasSeleccionados: ExtraDisponible[] = [];
+  cantidadDetalle = 1;
+
   constructor(
     private auth: AuthService,
     private categoriaService: CategoriaService,
     private productoService: ProductoService,
+    private carritoService: CarritoService,
     private toast: ToastController,
   ) {
     this.usuario$ = this.auth.usuarioActual$;
@@ -68,6 +75,10 @@ export class HomePage implements OnInit {
 
   abrirDetalle(producto: Producto): void {
     this.productoDetalle = producto;
+    // Resetear selecciones
+    this.tamanoSeleccionado = null;
+    this.extrasSeleccionados = [];
+    this.cantidadDetalle = 1;
     this.detalleAbierto = true;
   }
 
@@ -76,12 +87,68 @@ export class HomePage implements OnInit {
     this.productoDetalle = null;
   }
 
+  /** Selecciona un tamano (radio button). */
+  seleccionarTamano(tamano: ProductoTamano): void {
+    this.tamanoSeleccionado = tamano;
+  }
+
+  /** Alterna un extra (checkbox). */
+  toggleExtra(extra: ExtraDisponible): void {
+    const index = this.extrasSeleccionados.findIndex((e) => e.id === extra.id);
+    if (index >= 0) {
+      this.extrasSeleccionados = this.extrasSeleccionados.filter((e) => e.id !== extra.id);
+    } else {
+      this.extrasSeleccionados = [...this.extrasSeleccionados, extra];
+    }
+  }
+
+  /** Verifica si un extra esta seleccionado. */
+  extraSeleccionado(extra: ExtraDisponible): boolean {
+    return this.extrasSeleccionados.some((e) => e.id === extra.id);
+  }
+
+  /** Calcula el precio del producto con tamano y extras seleccionados. */
+  get precioCalculado(): number {
+    if (!this.productoDetalle) {
+      return 0;
+    }
+    const precioBase = this.tamanoSeleccionado?.precio ?? this.productoDetalle.precio_base;
+    const precioExtras = this.extrasSeleccionados.reduce((acc, e) => acc + e.precio, 0);
+    return (precioBase + precioExtras) * this.cantidadDetalle;
+  }
+
+  /** Verifica si se puede agregar al carrito (tamano requerido si hay tamanos). */
+  get puedeAgregar(): boolean {
+    if (!this.productoDetalle) {
+      return false;
+    }
+    // Si el producto tiene tamanos, debe seleccionarse uno
+    if (this.productoDetalle.tamanos && this.productoDetalle.tamanos.length > 0) {
+      return this.tamanoSeleccionado !== null;
+    }
+    return true;
+  }
+
   async agregarAlCarrito(): Promise<void> {
+    if (!this.productoDetalle || !this.puedeAgregar) {
+      return;
+    }
+
+    const linea: LineaCarrito = {
+      producto: this.productoDetalle,
+      tamano: this.tamanoSeleccionado,
+      extras: this.extrasSeleccionados,
+      cantidad: this.cantidadDetalle,
+    };
+
+    this.carritoService.agregar(linea);
+    this.cerrarDetalle();
+
     const t = await this.toast.create({
-      message: 'El carrito todavía no está disponible. ¡Muy pronto!',
+      message: `${this.productoDetalle.nombre} agregado al carrito`,
       duration: 2000,
       position: 'bottom',
-      color: 'medium',
+      color: 'success',
     });
     await t.present();
   }

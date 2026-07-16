@@ -131,9 +131,61 @@
         </label>
 
         <label class="menu-form__label">
-          Precio base (₡)
+          Precio base
           <input type="number" min="0" step="1" formControlName="precio_base" class="menu-form__input" placeholder="Ej. 4900" />
         </label>
+
+        <!-- Tamanos -->
+        <div class="menu-form__section">
+          <div class="menu-form__section-header">
+            <span class="menu-form__section-title">Tamanos (opcional)</span>
+            <button type="button" class="menu-form__add-btn" (click)="agregarTamano()">
+              <ion-icon name="add-outline"></ion-icon> Agregar
+            </button>
+          </div>
+          <div class="menu-form__tamanos" formArrayName="tamanos">
+            <div class="menu-form__tamano" *ngFor="let t of tamanos.controls; let i = index" [formGroupName]="i">
+              <input type="text" formControlName="nombre" class="menu-form__input menu-form__input--sm"
+                placeholder="Nombre (ej. Mediana)" />
+              <input type="number" formControlName="precio" class="menu-form__input menu-form__input--sm"
+                placeholder="Precio" min="0" />
+              <button type="button" class="menu-form__remove-btn" (click)="quitarTamano(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <p class="menu-form__hint" *ngIf="tamanos.length === 0">
+              Sin tamanos. El producto usara el precio base.
+            </p>
+          </div>
+        </div>
+
+        <!-- Extras de la categoria -->
+        <div class="menu-form__section" *ngIf="form.get('categoria_id')?.value">
+          <div class="menu-form__section-header">
+            <span class="menu-form__section-title">Acompañamientos de esta categoria</span>
+            <button type="button" class="menu-form__add-btn" (click)="abrirNuevoExtra()">
+              <ion-icon name="add-outline"></ion-icon> Nuevo
+            </button>
+          </div>
+          <div class="menu-form__extras">
+            <div class="menu-form__extra" *ngFor="let e of extrasFiltrados">
+              <span class="menu-form__extra-name">{{ e.nombre }}</span>
+              <span class="menu-form__extra-price">{{ e.precio | crcCurrency }}</span>
+              <span class="menu-form__extra-status" [class.menu-form__extra-status--off]="!e.disponible">
+                {{ e.disponible ? 'Activo' : 'Inactivo' }}
+              </span>
+              <button type="button" class="menu-form__extra-btn" (click)="abrirEditarExtra(e); $event.stopPropagation()">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+              <button type="button" class="menu-form__extra-btn menu-form__extra-btn--danger" (click)="eliminarExtra(e); $event.stopPropagation()">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <p class="menu-form__hint" *ngIf="extrasFiltrados.length === 0">
+              No hay extras para esta categoria. Agrega uno nuevo.
+            </p>
+          </div>
+        </div>
 
         <div class="menu-form__row">
           <label class="menu-form__check">
@@ -190,6 +242,47 @@
       <button type="button" class="order-modal__cta" (click)="editarDesdeDetalle()">
         Editar producto
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Nuevo/Editar extra ────────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="extraModalOpen">
+  <div class="order-modal__backdrop" (click)="cerrarExtraModal()"></div>
+  <div class="order-modal__panel order-modal__panel--small">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ editandoExtra ? 'Editar extra' : 'Nuevo extra' }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarExtraModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="extraForm" (ngSubmit)="guardarExtra()" class="menu-form">
+        <label class="menu-form__label">
+          Nombre del extra
+          <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Extra queso" />
+        </label>
+
+        <label class="menu-form__label">
+          Precio
+          <input type="number" min="0" step="1" formControlName="precio" class="menu-form__input" placeholder="Ej. 500" />
+        </label>
+
+        <label class="menu-form__check">
+          <input type="checkbox" formControlName="disponible" /> Disponible
+        </label>
+
+        <p *ngIf="extraError" class="menu-error">{{ extraError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardandoExtra">
+          {{ guardandoExtra ? 'Guardando...' : (editandoExtra ? 'Guardar cambios' : 'Crear extra') }}
+        </button>
+      </form>
     </div>
   </div>
 </div>

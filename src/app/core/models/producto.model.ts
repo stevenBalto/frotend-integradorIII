@@ -1,3 +1,18 @@
+/** Tamano de producto (ej. Personal, Mediana, Familiar). */
+export interface ProductoTamano {
+  id: number;
+  nombre: string;
+  precio: number;
+  orden: number;
+}
+
+/** Extra disponible para un producto (ej. Extra queso). */
+export interface ExtraDisponible {
+  id: number;
+  nombre: string;
+  precio: number;
+}
+
 export interface Producto {
   id: number;
   categoria_id: number;
@@ -10,6 +25,10 @@ export interface Producto {
   disponible: boolean;
   created_at: string | null;
   updated_at: string | null;
+  /** Tamanos disponibles (vacio si no aplica a este producto). */
+  tamanos: ProductoTamano[];
+  /** Extras disponibles (vacio si no aplica a este producto). */
+  extras: ExtraDisponible[];
 }
 
 export interface Categoria {
@@ -19,6 +38,12 @@ export interface Categoria {
   orden: number;
 }
 
+/** Payload para crear/editar un tamano (sin id). */
+export interface TamanoPayload {
+  nombre: string;
+  precio: number;
+}
+
 export interface ProductoPayload {
   categoria_id: number;
   nombre: string;
@@ -26,6 +51,8 @@ export interface ProductoPayload {
   precio_base: number;
   destacado?: boolean;
   disponible?: boolean;
+  /** Tamanos a guardar (se reemplazan todos). */
+  tamanos?: TamanoPayload[];
 }
 
 export interface ApiCollection<T> {

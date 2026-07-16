@@ -1,0 +1,93 @@
+<ion-content [fullscreen]="true" class="mispedidos-content">
+
+  <!-- Header -->
+  <div class="mispedidos-header">
+    <button type="button" class="mispedidos-header__back" routerLink="/tabs/mi-cuenta">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+    <h2 class="mispedidos-header__title">Mis pedidos</h2>
+  </div>
+
+  <!-- Estados -->
+  <p *ngIf="cargando" class="mispedidos-status">Cargando pedidos...</p>
+  <p *ngIf="error" class="mispedidos-status mispedidos-status--error">{{ error }}</p>
+
+  <!-- Lista de pedidos -->
+  <div class="mispedidos-list" *ngIf="!cargando && !error">
+    <div class="pedido-card" *ngFor="let p of pedidos" (click)="toggleDetalle(p.id)">
+      <div class="pedido-card__header">
+        <div class="pedido-card__info">
+          <span class="pedido-card__codigo">{{ p.codigo }}</span>
+          <span class="pedido-card__fecha">{{ formatFecha(p.created_at) }}</span>
+        </div>
+        <span class="pedido-card__estado" [ngClass]="getEstadoClass(p.estado)">
+          {{ getEstadoLabel(p.estado) }}
+        </span>
+      </div>
+
+      <div class="pedido-card__row">
+        <span class="pedido-card__sucursal">
+          <ion-icon name="location-outline"></ion-icon>
+          {{ p.sucursal.nombre }}
+        </span>
+        <span class="pedido-card__modalidad">
+          {{ p.modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar' }}
+        </span>
+      </div>
+
+      <div class="pedido-card__footer">
+        <span class="pedido-card__total">{{ p.total | crcCurrency }}</span>
+        <ion-icon [name]="pedidoExpandido === p.id ? 'chevron-up-outline' : 'chevron-down-outline'"
+          class="pedido-card__expand"></ion-icon>
+      </div>
+
+      <!-- Detalle expandido -->
+      <div class="pedido-card__detalle" *ngIf="pedidoExpandido === p.id" (click)="$event.stopPropagation()">
+        <p class="pedido-card__detalle-title">Productos</p>
+        <div class="pedido-card__item" *ngFor="let item of p.items">
+          <div class="pedido-card__item-info">
+            <span class="pedido-card__item-qty">{{ item.cantidad }}x</span>
+            <span class="pedido-card__item-name">
+              {{ item.producto_nombre }}
+              <span *ngIf="item.tamano_nombre">({{ item.tamano_nombre }})</span>
+            </span>
+          </div>
+          <span class="pedido-card__item-price">{{ item.subtotal | crcCurrency }}</span>
+        </div>
+
+        <div class="pedido-card__extras" *ngFor="let item of p.items">
+          <div *ngIf="item.extras && item.extras.length > 0">
+            <span class="pedido-card__extra" *ngFor="let e of item.extras">
+              + {{ e.nombre }} ({{ e.precio | crcCurrency }})
+            </span>
+          </div>
+        </div>
+
+        <div class="pedido-card__summary">
+          <div class="pedido-card__summary-row">
+            <span>Subtotal</span>
+            <span>{{ p.subtotal | crcCurrency }}</span>
+          </div>
+          <div class="pedido-card__summary-row pedido-card__summary-row--discount" *ngIf="p.descuento > 0">
+            <span>Descuento</span>
+            <span>-{{ p.descuento | crcCurrency }}</span>
+          </div>
+          <div class="pedido-card__summary-row pedido-card__summary-row--total">
+            <span>Total</span>
+            <span>{{ p.total | crcCurrency }}</span>
+          </div>
+        </div>
+
+        <p class="pedido-card__puntos" *ngIf="p.puntos_ganados > 0">
+          <ion-icon name="star"></ion-icon>
+          +{{ p.puntos_ganados }} puntos ganados
+        </p>
+      </div>
+    </div>
+
+    <p *ngIf="pedidos.length === 0" class="mispedidos-empty">
+      Todavía no tienes pedidos. Haz tu primer pedido desde el menú.
+    </p>
+  </div>
+
+</ion-content>

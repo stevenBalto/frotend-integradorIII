@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Categoria, Producto } from '../../core/models/producto.model';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Categoria, Producto, TamanoPayload } from '../../core/models/producto.model';
+import { Extra, ExtraPayload } from '../../core/models/extra.model';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { ProductoService } from '../../core/services/producto.service';
+import { ExtraService } from '../../core/services/extra.service';
 
 /** Gestión de menú / catálogo, conectada a la API real. */
 @Component({
@@ -31,6 +33,14 @@ export class AdminMenuPage implements OnInit {
   imagenSeleccionada: File | null = null;
   imagenPreview: string | null = null;
 
+  // Extras (acompañamientos) - gestion por categoria
+  extras: Extra[] = [];
+  cargandoExtras = false;
+  extraModalOpen = false;
+  editandoExtra: Extra | null = null;
+  guardandoExtra = false;
+  extraError: string | null = null;
+
   readonly form: FormGroup = this.fb.group({
     categoria_id: [null, [Validators.required]],
     nombre: ['', [Validators.required, Validators.maxLength(120)]],
@@ -38,17 +48,55 @@ export class AdminMenuPage implements OnInit {
     precio_base: [null, [Validators.required, Validators.min(0)]],
     destacado: [false],
     disponible: [true],
+    tamanos: this.fb.array([]),
+  });
+
+  readonly extraForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(60)]],
+    precio: [null, [Validators.required, Validators.min(0)]],
+    disponible: [true],
   });
 
   constructor(
     private fb: FormBuilder,
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
+    private extraService: ExtraService,
   ) {}
 
   ngOnInit(): void {
     this.cargarCategorias();
     this.cargarProductos();
+    this.cargarExtras();
+  }
+
+  // ── Tamanos FormArray ──
+
+  get tamanos(): FormArray {
+    return this.form.get('tamanos') as FormArray;
+  }
+
+  agregarTamano(): void {
+    this.tamanos.push(this.fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(30)]],
+      precio: [null, [Validators.required, Validators.min(0)]],
+    }));
+  }
+
+  quitarTamano(index: number): void {
+    this.tamanos.removeAt(index);
+  }
+
+  private resetTamanos(tamanosDatos?: TamanoPayload[]): void {
+    this.tamanos.clear();
+    if (tamanosDatos) {
+      tamanosDatos.forEach((t) => {
+        this.tamanos.push(this.fb.group({
+          nombre: [t.nombre, [Validators.required, Validators.maxLength(30)]],
+          precio: [t.precio, [Validators.required, Validators.min(0)]],
+        }));
+      });
+    }
   }
 
   get productosFiltrados(): Producto[] {
@@ -116,6 +164,7 @@ export class AdminMenuPage implements OnInit {
     this.editando = null;
     this.formError = null;
     this.limpiarImagen();
+    this.resetTamanos();
     this.form.reset({
       categoria_id: this.categorias[0]?.id ?? null,
       nombre: '',
@@ -132,6 +181,12 @@ export class AdminMenuPage implements OnInit {
     this.formError = null;
     this.limpiarImagen();
     this.imagenPreview = producto.imagen_url;
+    // Cargar tamanos existentes
+    const tamanosExistentes = producto.tamanos?.map((t) => ({
+      nombre: t.nombre,
+      precio: t.precio,
+    })) ?? [];
+    this.resetTamanos(tamanosExistentes);
     this.form.reset({
       categoria_id: producto.categoria_id,
       nombre: producto.nombre,
@@ -178,7 +233,18 @@ export class AdminMenuPage implements OnInit {
 
     this.guardando = true;
     this.formError = null;
-    const payload = this.form.value;
+
+    // Construir payload con tamanos
+    const formValue = this.form.value;
+    const payload = {
+      categoria_id: formValue.categoria_id,
+      nombre: formValue.nombre,
+      descripcion: formValue.descripcion,
+      precio_base: formValue.precio_base,
+      destacado: formValue.destacado,
+      disponible: formValue.disponible,
+      tamanos: formValue.tamanos as TamanoPayload[],
+    };
 
     const request$ = this.editando
       ? this.productoService.actualizar(this.editando.id, payload, this.imagenSeleccionada)
@@ -193,13 +259,13 @@ export class AdminMenuPage implements OnInit {
       },
       error: () => {
         this.guardando = false;
-        this.formError = 'No se pudo guardar el producto. Revisá los datos e intentá de nuevo.';
+        this.formError = 'No se pudo guardar el producto. Revisa los datos e intenta de nuevo.';
       },
     });
   }
 
   eliminar(producto: Producto): void {
-    const confirmado = window.confirm(`¿Eliminar "${producto.nombre}" del catálogo?`);
+    const confirmado = window.confirm(`Eliminar "${producto.nombre}" del catalogo?`);
     if (!confirmado) {
       return;
     }
@@ -209,6 +275,127 @@ export class AdminMenuPage implements OnInit {
       error: () => {
         this.error = 'No se pudo eliminar el producto.';
       },
+    });
+  }
+
+  // ── Extras (acompañamientos) ──
+
+  cargarExtras(): void {
+    this.cargandoExtras = true;
+    this.extraService.listarTodos().subscribe({
+      next: (extras) => {
+        this.extras = extras;
+        this.cargandoExtras = false;
+      },
+      error: () => {
+        this.cargandoExtras = false;
+      },
+    });
+  }
+
+  /** Extras filtrados por la categoria seleccionada en el form de producto. */
+  get extrasFiltrados(): Extra[] {
+    const catId = this.form.get('categoria_id')?.value;
+    if (!catId) {
+      return this.extras;
+    }
+    return this.extras.filter((e) => e.categoria_id === catId);
+  }
+
+  abrirNuevoExtra(): void {
+    const catId = this.form.get('categoria_id')?.value;
+    if (!catId) {
+      return;
+    }
+    this.editandoExtra = null;
+    this.extraError = null;
+    this.extraForm.reset({
+      nombre: '',
+      precio: null,
+      disponible: true,
+    });
+    this.extraModalOpen = true;
+  }
+
+  abrirEditarExtra(extra: Extra): void {
+    this.editandoExtra = extra;
+    this.extraError = null;
+    this.extraForm.reset({
+      nombre: extra.nombre,
+      precio: extra.precio,
+      disponible: extra.disponible,
+    });
+    this.extraModalOpen = true;
+  }
+
+  cerrarExtraModal(): void {
+    this.extraModalOpen = false;
+    this.editandoExtra = null;
+  }
+
+  guardarExtra(): void {
+    if (this.extraForm.invalid) {
+      this.extraForm.markAllAsTouched();
+      return;
+    }
+
+    const catId = this.form.get('categoria_id')?.value;
+    if (!catId) {
+      return;
+    }
+
+    this.guardandoExtra = true;
+    this.extraError = null;
+
+    const payload: ExtraPayload = {
+      categoria_id: catId,
+      nombre: this.extraForm.value.nombre,
+      precio: this.extraForm.value.precio,
+      disponible: this.extraForm.value.disponible,
+    };
+
+    const request$ = this.editandoExtra
+      ? this.extraService.actualizar(this.editandoExtra.id, payload)
+      : this.extraService.crear(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.guardandoExtra = false;
+        this.cerrarExtraModal();
+        this.cargarExtras();
+      },
+      error: () => {
+        this.guardandoExtra = false;
+        this.extraError = 'No se pudo guardar el extra.';
+      },
+    });
+  }
+
+  eliminarExtra(extra: Extra): void {
+    const confirmado = window.confirm(`Eliminar el extra "${extra.nombre}"?`);
+    if (!confirmado) {
+      return;
+    }
+
+    this.extraService.eliminar(extra.id).subscribe({
+      next: () => this.cargarExtras(),
+      error: (err) => {
+        // Si ya fue usado en un pedido, mostrar mensaje y sugerir desactivar
+        const mensaje = err?.error?.message || 'No se pudo eliminar el extra.';
+        window.alert(mensaje + ' Puedes desactivarlo en lugar de eliminarlo.');
+      },
+    });
+  }
+
+  toggleExtraDisponible(extra: Extra): void {
+    const payload: ExtraPayload = {
+      categoria_id: extra.categoria_id,
+      nombre: extra.nombre,
+      precio: extra.precio,
+      disponible: !extra.disponible,
+    };
+    this.extraService.actualizar(extra.id, payload).subscribe({
+      next: () => this.cargarExtras(),
     });
   }
 }

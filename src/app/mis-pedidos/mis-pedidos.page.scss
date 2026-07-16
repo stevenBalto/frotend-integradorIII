@@ -1,0 +1,311 @@
+.mispedidos-content {
+  --background: var(--rooster-bg);
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+.mispedidos-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+
+  @media (min-width: 768px) {
+    padding: 32px 32px 24px;
+  }
+
+  &__back {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: none;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    ion-icon {
+      font-size: 20px;
+      color: var(--rooster-dark);
+    }
+  }
+
+  &__title {
+    font-family: var(--rooster-font-serif);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--rooster-dark);
+    margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 28px;
+    }
+  }
+}
+
+/* ── Status messages ─────────────────────────────────────────────────────────── */
+.mispedidos-status {
+  padding: 20px;
+  text-align: center;
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  color: var(--rooster-brown);
+
+  &--error {
+    color: var(--rooster-red);
+  }
+}
+
+.mispedidos-empty {
+  padding: 40px 20px;
+  text-align: center;
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  color: var(--rooster-brown);
+}
+
+/* ── Lista de pedidos ────────────────────────────────────────────────────────── */
+.mispedidos-list {
+  padding: 0 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    padding: 0 32px 32px;
+    max-width: 600px;
+  }
+}
+
+.pedido-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.99);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__codigo {
+    font-family: var(--rooster-font-sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--rooster-dark);
+  }
+
+  &__fecha {
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    color: var(--rooster-brown);
+  }
+
+  &__estado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-family: var(--rooster-font-sans);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  &__sucursal {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    color: var(--rooster-dark);
+
+    ion-icon {
+      font-size: 14px;
+      color: var(--rooster-brown);
+    }
+  }
+
+  &__modalidad {
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    color: var(--rooster-brown);
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--rooster-bg);
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__total {
+    font-family: var(--rooster-font-sans);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--rooster-red);
+  }
+
+  &__expand {
+    font-size: 20px;
+    color: var(--rooster-brown);
+  }
+
+  /* ── Detalle expandido ── */
+  &__detalle {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rooster-border);
+  }
+
+  &__detalle-title {
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--rooster-brown);
+    text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+  }
+
+  &__item-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__item-qty {
+    font-family: var(--rooster-font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--rooster-red);
+    min-width: 24px;
+  }
+
+  &__item-name {
+    font-family: var(--rooster-font-sans);
+    font-size: 13px;
+    color: var(--rooster-dark);
+  }
+
+  &__item-price {
+    font-family: var(--rooster-font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rooster-dark);
+  }
+
+  &__extras {
+    padding-left: 32px;
+    margin-bottom: 8px;
+  }
+
+  &__extra {
+    display: block;
+    font-family: var(--rooster-font-sans);
+    font-size: 11px;
+    color: var(--rooster-brown);
+    padding: 2px 0;
+  }
+
+  &__summary {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rooster-border);
+  }
+
+  &__summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--rooster-font-sans);
+    font-size: 13px;
+    color: var(--rooster-dark);
+    padding: 4px 0;
+
+    &--discount {
+      color: #16A34A;
+    }
+
+    &--total {
+      font-weight: 700;
+      font-size: 15px;
+      padding-top: 8px;
+
+      span:last-child {
+        color: var(--rooster-red);
+      }
+    }
+  }
+
+  &__puntos {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0 0;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.1);
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: #D97706;
+
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+/* ── Estado badges ───────────────────────────────────────────────────────────── */
+.estado--pendiente {
+  background: #F3F4F6;
+  color: #374151;
+}
+
+.estado--proceso {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.estado--listo {
+  background: #DBEAFE;
+  color: #1D4ED8;
+}
+
+.estado--entregado {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.estado--cancelado {
+  background: #FEE2E2;
+  color: #991B1B;
+}

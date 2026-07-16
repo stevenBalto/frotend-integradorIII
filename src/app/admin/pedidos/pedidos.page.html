@@ -1,155 +1,239 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Pedidos" subtitle="Dashboard / Pedidos de clientes">
-      <admin-search-input header-right placeholder="Buscar pedido..."></admin-search-input>
+    <admin-page-header title="Pedidos" subtitle="Dashboard / Gestion de pedidos">
+      <admin-search-input header-right placeholder="Buscar pedido o cliente..."
+        [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
     </admin-page-header>
 
-    <!-- Stats -->
+    <!-- KPIs / Filtros -->
     <div class="admin-grid-4">
-      <admin-kpi-card label="Pedidos totales" [value]="200"
-        icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
-      <admin-kpi-card label="En proceso" [value]="12"
-        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
-      <admin-kpi-card label="Completados" [value]="182"
-        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
-      <admin-kpi-card label="Cancelados" [value]="6"
-        icon="close-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
-    </div>
-
-    <!-- Gráficos -->
-    <div class="ped-charts">
-      <div class="ped-charts__main">
-        <admin-section-card title="Pedidos por día — Esta semana">
-          <span card-action class="ped-charts__badge">211 total · ↑ 8%</span>
-          <bar-chart [data]="weekly" [height]="150"></bar-chart>
-        </admin-section-card>
-      </div>
-      <admin-section-card title="Modalidad hoy">
-        <div class="ped-modality">
-          <donut-chart [pct]="56" label="Comer aquí" [size]="100"></donut-chart>
-          <div class="ped-modality__legend">
-            <div class="ped-legend" *ngFor="let l of legend" [style.background]="l.bg">
-              <span class="ped-legend__dot" [style.background]="l.c"></span>
-              <span class="ped-legend__label">{{ l.label }}</span>
-              <span class="ped-legend__n" [style.color]="l.c">{{ l.n }}</span>
-            </div>
-          </div>
-        </div>
-      </admin-section-card>
+      <admin-kpi-card label="Pedidos totales" [value]="totalPedidos"
+        icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="filtroEstado === 'todos'" (cardClick)="setFiltroEstado('todos')"></admin-kpi-card>
+      <admin-kpi-card label="Pendientes" [value]="totalPendientes"
+        icon="hourglass-outline" iconBg="#6B72801a" iconColor="#6B7280"
+        [clickable]="true" [active]="filtroEstado === 'pendiente'" (cardClick)="setFiltroEstado('pendiente')"></admin-kpi-card>
+      <admin-kpi-card label="En preparacion" [value]="totalEnProceso"
+        icon="flame-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"
+        [clickable]="true" [active]="filtroEstado === 'en_proceso'" (cardClick)="setFiltroEstado('en_proceso')"></admin-kpi-card>
+      <admin-kpi-card label="Listos" [value]="totalListos"
+        icon="checkmark-done-outline" iconBg="#3B82F61a" iconColor="#3B82F6"
+        [clickable]="true" [active]="filtroEstado === 'listo'" (cardClick)="setFiltroEstado('listo')"></admin-kpi-card>
     </div>
 
     <!-- Tabla -->
-    <admin-section-card>
-      <div class="ped-toolbar">
-        <div class="ped-toolbar__tabs">
-          <filter-tab *ngFor="let f of filters" [label]="f.label"
-            [active]="activeFilter === f.id" (select)="activeFilter = f.id"></filter-tab>
-        </div>
-        <span class="ped-toolbar__range">Esta semana ▾</span>
-      </div>
+    <admin-section-card title="Pedidos recientes">
+      <p *ngIf="error" class="ped-error">{{ error }}</p>
+      <p *ngIf="cargando" class="ped-loading">Cargando pedidos...</p>
 
-      <div class="admin-table-wrap">
+      <div class="admin-table-wrap" *ngIf="!cargando">
         <table class="admin-table">
           <thead>
             <tr>
-              <th>ID Pedido</th><th>Fecha</th><th>Cliente</th><th>Modalidad</th>
-              <th>Cant.</th><th>Total</th><th>Estado</th><th></th>
+              <th>Codigo</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Modalidad</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Pago</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let o of orders" class="ped-row" (click)="openModal()">
-              <td class="admin-table__strong">{{ o.id }}</td>
-              <td class="admin-table__muted">{{ o.date }}</td>
-              <td class="admin-table__semi">{{ o.client }}</td>
-              <td><modality-pill [mode]="o.mode"></modality-pill></td>
-              <td>{{ o.qty }}</td>
-              <td class="admin-table__strong">{{ o.total }}</td>
-              <td><status-badge [type]="o.status"></status-badge></td>
-              <td><button type="button" class="ped-row__view">Ver →</button></td>
+            <tr *ngFor="let p of pedidosFiltrados" class="ped-row" (click)="abrirDetalle(p)">
+              <td class="admin-table__strong">{{ p.codigo }}</td>
+              <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>
+              <td class="admin-table__semi">{{ p.cliente.nombre }}</td>
+              <td><modality-pill [mode]="p.modalidad === 'comer_aqui' ? 'aqui' : 'llevar'"></modality-pill></td>
+              <td>{{ p.items.length }}</td>
+              <td class="admin-table__strong">{{ p.total | crcCurrency }}</td>
+              <td><status-badge [type]="estadoToStatusType(p.estado)"></status-badge></td>
+              <td>
+                <span class="ped-pago" [class.ped-pago--si]="p.pagado">
+                  {{ p.pagado ? 'Pagado' : 'Pendiente' }}
+                </span>
+              </td>
+              <td><button type="button" class="ped-row__view">Ver</button></td>
+            </tr>
+            <tr *ngIf="pedidosFiltrados.length === 0 && !cargando">
+              <td colspan="9" class="ped-empty">
+                {{ pedidos.length === 0 ? 'No hay pedidos registrados.' : 'Ningun pedido coincide con el filtro.' }}
+              </td>
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="admin-pagination">
-        <span class="admin-pagination__info">Mostrando 4 de 200</span>
-        <div class="admin-pagination__pages">
-          <span class="admin-pagination__page admin-pagination__page--active">1</span>
-          <span class="admin-pagination__page">2</span>
-          <span class="admin-pagination__page">3</span>
-        </div>
       </div>
     </admin-section-card>
 
   </div>
 </ion-content>
 
-<!-- ── Modal detalle de pedido (toggle visual) ─────────────────────────── -->
-<div class="order-modal" *ngIf="modalOpen">
-  <div class="order-modal__backdrop" (click)="closeModal()"></div>
-    <div class="order-modal__panel">
-      <div class="order-modal__head">
+<!-- ── Modal detalle de pedido ─────────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="modalOpen && pedidoSeleccionado">
+  <div class="order-modal__backdrop" (click)="cerrarModal()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Pedido {{ pedidoSeleccionado.codigo }}</p>
+        <p class="order-modal__sub">{{ formatFecha(pedidoSeleccionado.created_at) }} - {{ pedidoSeleccionado.sucursal.nombre }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <status-badge [type]="estadoToStatusType(pedidoSeleccionado.estado)"></status-badge>
+        <button type="button" class="order-modal__close" (click)="cerrarModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <!-- Cliente -->
+      <div class="order-cust">
+        <div class="order-cust__avatar">{{ getClienteInicial(pedidoSeleccionado.cliente.nombre) }}</div>
         <div>
-          <p class="order-modal__title">Pedido #1042</p>
-          <p class="order-modal__sub">23/06/2026 · 12:41 · Sucursal Liberia</p>
+          <p class="order-cust__name">{{ pedidoSeleccionado.cliente.nombre }}</p>
+          <p class="order-cust__mode">{{ formatModalidad(pedidoSeleccionado.modalidad) }}</p>
         </div>
-        <div class="order-modal__head-right">
-          <status-badge type="cooking"></status-badge>
-          <button type="button" class="order-modal__close" (click)="closeModal()">
-            <ion-icon name="close-outline"></ion-icon>
-          </button>
+        <span class="order-cust__pago" [class.order-cust__pago--si]="pedidoSeleccionado.pagado">
+          {{ pedidoSeleccionado.pagado ? 'Pagado' : 'Pendiente de pago' }}
+        </span>
+      </div>
+
+      <!-- Productos -->
+      <p class="order-modal__label">Productos</p>
+
+      <div class="order-prod" *ngFor="let item of pedidoSeleccionado.items">
+        <div class="order-prod__row">
+          <span class="order-prod__name">{{ item.cantidad }}x {{ item.producto_nombre }}{{ item.tamano_nombre ? ' (' + item.tamano_nombre + ')' : '' }}</span>
+          <span class="order-prod__price">{{ item.subtotal | crcCurrency }}</span>
+        </div>
+        <div class="order-prod__mods" *ngIf="item.extras && item.extras.length > 0">
+          <div class="order-prod__mod-row" *ngFor="let e of item.extras">
+            <span>+ {{ e.nombre }}</span>
+            <span class="order-prod__extra">{{ e.precio | crcCurrency }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="order-modal__body">
-        <div class="order-cust">
-          <div class="order-cust__avatar">M</div>
-          <div>
-            <p class="order-cust__name">Mechones Barquero</p>
-            <p class="order-cust__mode">Comer aquí</p>
-          </div>
+      <!-- Notas del pedido -->
+      <div class="order-prod__note" *ngIf="pedidoSeleccionado.notas">
+        <ion-icon name="chatbubble-outline"></ion-icon>
+        <span>"{{ pedidoSeleccionado.notas }}"</span>
+      </div>
+
+      <!-- Resumen -->
+      <div class="order-summary">
+        <div class="order-summary__row">
+          <span>Subtotal</span>
+          <span>{{ pedidoSeleccionado.subtotal | crcCurrency }}</span>
         </div>
-
-        <p class="order-modal__label">Productos</p>
-
-        <div class="order-prod">
-          <div class="order-prod__row">
-            <span class="order-prod__name">1x Pizza Pepperoni (Mediana)</span>
-            <span class="order-prod__price">₡7.800</span>
-          </div>
-          <div class="order-prod__mods">
-            <p class="order-prod__mod">+ Masa tradicional</p>
-            <div class="order-prod__mod-row"><span>+ Extra queso</span><span class="order-prod__extra">₡900</span></div>
-            <div class="order-prod__mod-row"><span>+ Jalapeño</span><span class="order-prod__extra">₡500</span></div>
-          </div>
-          <div class="order-prod__note">
-            <ion-icon name="chatbubble-outline"></ion-icon>
-            <span>"Sin cebolla, bien cocida"</span>
-          </div>
+        <div class="order-summary__row order-summary__row--green" *ngIf="pedidoSeleccionado.descuento > 0">
+          <span>Descuento</span>
+          <span>-{{ pedidoSeleccionado.descuento | crcCurrency }}</span>
         </div>
-
-        <div class="order-prod">
-          <div class="order-prod__row">
-            <span class="order-prod__name">1x Costillas BBQ</span>
-            <span class="order-prod__price">₡8.500</span>
-          </div>
-          <div class="order-prod__mods">
-            <p class="order-prod__mod">+ Término medio</p>
-            <p class="order-prod__mod">+ Acompañamiento: Papas fritas</p>
-            <div class="order-prod__mod-row"><span>+ Salsa BBQ extra</span><span class="order-prod__extra">₡600</span></div>
-          </div>
+        <div class="order-summary__divider"></div>
+        <div class="order-summary__total">
+          <span>Total</span>
+          <span>{{ pedidoSeleccionado.total | crcCurrency }}</span>
         </div>
+      </div>
 
-        <div class="order-summary">
-          <div class="order-summary__row"><span>Subtotal</span><span>₡17.800</span></div>
-          <div class="order-summary__row order-summary__row--green"><span>Descuento (ROOSTER20)</span><span>-₡2.000</span></div>
-          <div class="order-summary__row"><span>IVA (13%)</span><span>₡2.054</span></div>
-          <div class="order-summary__divider"></div>
-          <div class="order-summary__total"><span>Total</span><span>₡17.854</span></div>
+      <!-- Historial de estados -->
+      <div class="order-historial" *ngIf="pedidoSeleccionado.historial && pedidoSeleccionado.historial.length > 0">
+        <p class="order-modal__label">Historial</p>
+        <div class="order-historial__item" *ngFor="let h of pedidoSeleccionado.historial">
+          <span class="order-historial__estado">{{ getEstadoLabel(h.estado) }}</span>
+          <span class="order-historial__fecha">{{ formatFecha(h.creado_en) }}</span>
+          <span class="order-historial__comentario" *ngIf="h.comentario">{{ h.comentario }}</span>
         </div>
+      </div>
 
-        <button type="button" class="order-modal__cta">Marcar como listo</button>
+      <!-- Error de accion -->
+      <p *ngIf="accionError" class="ped-error">{{ accionError }}</p>
+
+      <!-- Botones de accion -->
+      <div class="order-actions">
+        <!-- Transiciones validas segun estado actual -->
+        <button type="button" class="order-modal__cta order-modal__cta--secondary"
+          *ngIf="puedeTransicionar('en_proceso')"
+          [disabled]="cambiandoEstado"
+          (click)="abrirCambioEstado('en_proceso')">
+          <ion-icon name="flame-outline"></ion-icon> Iniciar preparacion
+        </button>
+
+        <button type="button" class="order-modal__cta order-modal__cta--secondary"
+          *ngIf="puedeTransicionar('listo')"
+          [disabled]="cambiandoEstado"
+          (click)="abrirCambioEstado('listo')">
+          <ion-icon name="checkmark-done-outline"></ion-icon> Marcar como listo
+        </button>
+
+        <button type="button" class="order-modal__cta"
+          *ngIf="puedeTransicionar('entregado')"
+          [disabled]="cambiandoEstado"
+          (click)="abrirCambioEstado('entregado')">
+          <ion-icon name="bag-check-outline"></ion-icon> Marcar como entregado
+        </button>
+
+        <button type="button" class="order-modal__cta order-modal__cta--danger"
+          *ngIf="puedeTransicionar('cancelado')"
+          [disabled]="cambiandoEstado"
+          (click)="abrirCambioEstado('cancelado')">
+          <ion-icon name="close-circle-outline"></ion-icon> Cancelar pedido
+        </button>
+
+        <button type="button" class="order-modal__cta order-modal__cta--pago"
+          *ngIf="puedeRegistrarPago"
+          [disabled]="registrandoPago"
+          (click)="registrarPago()">
+          <ion-icon name="cash-outline"></ion-icon>
+          {{ registrandoPago ? 'Registrando...' : 'Registrar pago' }}
+        </button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- ── Modal confirmar cambio de estado ────────────────────────────────────── -->
+<div class="order-modal" *ngIf="modalEstadoOpen && nuevoEstado">
+  <div class="order-modal__backdrop" (click)="cerrarCambioEstado()"></div>
+  <div class="order-modal__panel order-modal__panel--small">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Cambiar estado</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarCambioEstado()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <p class="estado-confirm__text">
+        Cambiar el estado del pedido a <strong>{{ getEstadoLabel(nuevoEstado) }}</strong>?
+      </p>
+
+      <label class="estado-confirm__label">
+        Comentario (opcional)
+        <textarea class="estado-confirm__input" rows="2"
+          placeholder="Motivo del cambio..."
+          [(ngModel)]="comentarioEstado"></textarea>
+      </label>
+
+      <div class="estado-confirm__buttons">
+        <button type="button" class="order-modal__cta order-modal__cta--secondary"
+          (click)="cerrarCambioEstado()">
+          Cancelar
+        </button>
+        <button type="button" class="order-modal__cta"
+          [disabled]="cambiandoEstado"
+          (click)="confirmarCambioEstado()">
+          {{ cambiandoEstado ? 'Cambiando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

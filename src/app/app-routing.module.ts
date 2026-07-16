@@ -26,6 +26,11 @@ const routes: Routes = [
       import('./auth/cambiar-password/cambiar-password.module').then((m) => m.CambiarPasswordPageModule),
   },
   {
+    path: 'mis-pedidos',
+    loadChildren: () =>
+      import('./mis-pedidos/mis-pedidos.module').then((m) => m.MisPedidosPageModule),
+  },
+  {
     // Panel admin (base visual). Acceso temporal sin guard de rol: ver HiloActualFront.
     path: 'admin',
     loadChildren: () => import('./admin/admin-shell/admin-shell.module').then((m) => m.AdminShellPageModule),

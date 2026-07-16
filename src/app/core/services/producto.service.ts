@@ -57,6 +57,8 @@ export class ProductoService {
     formData.append('precio_base', String(payload.precio_base));
     formData.append('destacado', payload.destacado ? '1' : '0');
     formData.append('disponible', payload.disponible ? '1' : '0');
+    // Tamanos: siempre enviar como JSON array (vacio si no hay)
+    formData.append('tamanos', JSON.stringify(payload.tamanos ?? []));
     if (imagen) {
       formData.append('imagen', imagen);
     }

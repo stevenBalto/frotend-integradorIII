@@ -207,3 +207,207 @@
   padding: 8px 0 32px;
   margin: 0;
 }
+
+/* ── Modal Buscar pedido ─────────────────────────────────────────────────────── */
+.buscar-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  @media (min-width: 768px) {
+    align-items: center;
+    padding: 16px;
+  }
+}
+
+.buscar-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.buscar-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 20px 20px 0 0;
+  background: #fff;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+
+  @media (min-width: 768px) {
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.buscar-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--rooster-border);
+}
+
+.buscar-modal__title {
+  font-family: var(--rooster-font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--rooster-dark);
+  margin: 0;
+}
+
+.buscar-modal__close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--rooster-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 18px;
+    color: var(--rooster-dark);
+  }
+}
+
+.buscar-modal__body {
+  padding: 20px;
+}
+
+.buscar-modal__desc {
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  color: var(--rooster-brown);
+  margin: 0 0 16px;
+}
+
+.buscar-modal__input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--rooster-border);
+  background: #fff;
+  font-family: var(--rooster-font-sans);
+  font-size: 16px;
+  color: var(--rooster-dark);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+
+  &::placeholder {
+    text-transform: none;
+    letter-spacing: 0;
+    color: #bbb;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--rooster-red);
+  }
+}
+
+.buscar-modal__error {
+  color: var(--rooster-red);
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.buscar-modal__btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+  margin-bottom: 16px;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* ── Resultado de busqueda ── */
+.buscar-resultado {
+  background: var(--rooster-bg);
+  border-radius: 16px;
+  padding: 16px;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__label {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    color: var(--rooster-brown);
+  }
+
+  &__value {
+    font-family: var(--rooster-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rooster-dark);
+  }
+
+  &__estado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-family: var(--rooster-font-sans);
+    font-size: 10px;
+    font-weight: 700;
+  }
+}
+
+/* ── Estado badges (mismos de mis-pedidos) ── */
+.estado--pendiente {
+  background: #F3F4F6;
+  color: #374151;
+}
+
+.estado--proceso {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.estado--listo {
+  background: #DBEAFE;
+  color: #1D4ED8;
+}
+
+.estado--entregado {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.estado--cancelado {
+  background: #FEE2E2;
+  color: #991B1B;
+}

@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 
 import { AdminSharedModule } from '../shared/admin-shared.module';
 import { AdminPedidosPage } from './pedidos.page';
+import { CrcCurrencyPipe } from '../../shared/pipes/crc-currency.pipe';
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { AdminPedidosPage } from './pedidos.page';
     FormsModule,
     IonicModule,
     AdminSharedModule,
+    CrcCurrencyPipe,
     RouterModule.forChild([{ path: '', component: AdminPedidosPage }]),
   ],
   declarations: [AdminPedidosPage],

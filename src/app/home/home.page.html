@@ -79,11 +79,44 @@
     <div class="dish-modal__body">
       <span class="dish-modal__cat">{{ productoDetalle.categoria }}</span>
       <h3 class="dish-modal__name">{{ productoDetalle.nombre }}</h3>
-      <p class="dish-modal__desc">{{ productoDetalle.descripcion || 'Sin descripción.' }}</p>
-      <span class="dish-modal__price">{{ productoDetalle.precio_base | crcCurrency }}</span>
+      <p class="dish-modal__desc">{{ productoDetalle.descripcion || 'Sin descripcion.' }}</p>
 
-      <button type="button" class="dish-modal__cta" (click)="agregarAlCarrito()">
-        <ion-icon name="cart-outline"></ion-icon> Añadir al carrito
+      <!-- Selector de tamano (si aplica) -->
+      <div class="dish-modal__section" *ngIf="productoDetalle.tamanos && productoDetalle.tamanos.length > 0">
+        <p class="dish-modal__section-title">Tamano <span class="dish-modal__required">*</span></p>
+        <div class="dish-modal__options">
+          <button type="button" class="dish-modal__option"
+            *ngFor="let t of productoDetalle.tamanos"
+            [class.dish-modal__option--active]="tamanoSeleccionado?.id === t.id"
+            (click)="seleccionarTamano(t)">
+            <span class="dish-modal__option-name">{{ t.nombre }}</span>
+            <span class="dish-modal__option-price">{{ t.precio | crcCurrency }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de extras (si aplica) -->
+      <div class="dish-modal__section" *ngIf="productoDetalle.extras && productoDetalle.extras.length > 0">
+        <p class="dish-modal__section-title">Extras</p>
+        <div class="dish-modal__options">
+          <button type="button" class="dish-modal__option dish-modal__option--check"
+            *ngFor="let e of productoDetalle.extras"
+            [class.dish-modal__option--active]="extraSeleccionado(e)"
+            (click)="toggleExtra(e)">
+            <span class="dish-modal__option-check">
+              <ion-icon [name]="extraSeleccionado(e) ? 'checkbox' : 'square-outline'"></ion-icon>
+            </span>
+            <span class="dish-modal__option-name">{{ e.nombre }}</span>
+            <span class="dish-modal__option-price">+{{ e.precio | crcCurrency }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Precio calculado -->
+      <span class="dish-modal__price">{{ precioCalculado | crcCurrency }}</span>
+
+      <button type="button" class="dish-modal__cta" [disabled]="!puedeAgregar" (click)="agregarAlCarrito()">
+        <ion-icon name="cart-outline"></ion-icon> Anadir al carrito
       </button>
     </div>
   </div>
