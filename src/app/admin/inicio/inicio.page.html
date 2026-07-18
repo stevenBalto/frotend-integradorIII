@@ -1,0 +1,94 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Inicio" subtitle="Dashboard / Inicio"></admin-page-header>
+
+    <p *ngIf="error" class="inicio-error">{{ error }}</p>
+
+    <div class="admin-grid-4">
+      <admin-kpi-card label="Destacados" [value]="destacados.length"
+        icon="star-outline" iconBg="#F2B1341a" iconColor="#B8860B"></admin-kpi-card>
+      <admin-kpi-card label="Populares" [value]="populares.length"
+        icon="flame-outline" iconBg="#E136421a" iconColor="#E13642"></admin-kpi-card>
+      <admin-kpi-card label="Lo nuevo" [value]="nuevos.length"
+        icon="sparkles-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+      <admin-kpi-card label="Ofertas vigentes" [value]="ofertasVigentes.length"
+        icon="pricetag-outline" iconBg="#9CA3AF26" iconColor="#374151"></admin-kpi-card>
+    </div>
+
+    <!-- Secciones del Home (destacado / popular / nuevo) -->
+    <admin-section-card title="Secciones del Home">
+      <p class="inicio-hint">
+        Cada columna es una sección independiente de la vitrina del Home (como "Destacados",
+        "Populares" y "Lo nuevo" en apps de comida grandes). Un producto puede estar en varias
+        secciones a la vez. "Destacado" también se puede togglear desde <strong>Menú</strong> (mismo campo).
+      </p>
+
+      <p *ngIf="cargando" class="inicio-loading">Cargando catálogo...</p>
+
+      <div class="admin-table-wrap" *ngIf="!cargando">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Destacado</th><th>Popular</th><th>Nuevo</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of productos">
+              <td class="admin-table__strong" style="font-size: 12px;">{{ p.nombre }}</td>
+              <td class="inicio-muted">{{ p.categoria }}</td>
+              <td class="inicio-muted">{{ p.precio_base | crcCurrency }}</td>
+              <td><ion-toggle [checked]="p.destacado" (ionChange)="toggleSeccion(p, 'destacado')"></ion-toggle></td>
+              <td><ion-toggle [checked]="p.popular" (ionChange)="toggleSeccion(p, 'popular')"></ion-toggle></td>
+              <td><ion-toggle [checked]="p.nuevo" (ionChange)="toggleSeccion(p, 'nuevo')"></ion-toggle></td>
+            </tr>
+            <tr *ngIf="productos.length === 0">
+              <td colspan="6" class="inicio-muted">No hay productos disponibles.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+    <!-- Oferta destacada (hero) -->
+    <admin-section-card title="Oferta destacada del Home">
+      <p class="inicio-hint">
+        Cuando hay varias ofertas vigentes a la vez, elegí cuál se muestra primero en el Home.
+        Si no elegís ninguna, se muestran todas en orden normal.
+      </p>
+
+      <div class="inicio-hero-picker" *ngIf="ofertasVigentes.length > 0; else sinOfertas">
+        <select class="inicio-select" [(ngModel)]="ofertaHeroId">
+          <option [ngValue]="null">Ninguna (orden normal)</option>
+          <option *ngFor="let o of ofertasVigentes" [ngValue]="o.id">{{ o.nombre }}</option>
+        </select>
+        <admin-btn (clicked)="!guardando && guardarHero()">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </admin-btn>
+      </div>
+      <ng-template #sinOfertas>
+        <p class="inicio-muted">No hay ofertas vigentes ahora mismo.</p>
+      </ng-template>
+    </admin-section-card>
+
+    <!-- Cupones vigentes (preview de solo lectura) -->
+    <admin-section-card title="Cupones vigentes (vista previa del Home)">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Código</th><th>Descuento</th><th>Vigencia</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of cuponesVigentes">
+              <td class="admin-table__strong" style="font-size: 12px;">{{ c.codigo }}</td>
+              <td class="inicio-muted">{{ c.tipo === 'porcentaje' ? c.valor + '%' : ('₡' + c.valor) }}</td>
+              <td class="inicio-muted">{{ c.fecha_inicio || '—' }} a {{ c.fecha_fin || '—' }}</td>
+            </tr>
+            <tr *ngIf="cuponesVigentes.length === 0">
+              <td colspan="3" class="inicio-muted">No hay cupones vigentes ahora mismo.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>

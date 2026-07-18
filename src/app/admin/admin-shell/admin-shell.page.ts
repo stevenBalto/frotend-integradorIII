@@ -23,6 +23,7 @@ export class AdminShellPage {
 
   readonly navItems: NavItem[] = [
     { id: 'dashboard',      label: 'Dashboard',         icon: 'grid-outline' },
+    { id: 'inicio',         label: 'Inicio (Home)',     icon: 'home-outline' },
     { id: 'pedidos',        label: 'Pedidos',           icon: 'clipboard-outline' },
     { id: 'menu',           label: 'Menú',              icon: 'restaurant-outline' },
     { id: 'inventario',     label: 'Inventario',        icon: 'cube-outline' },

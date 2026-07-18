@@ -56,6 +56,8 @@ export class ProductoService {
     formData.append('descripcion', payload.descripcion ?? '');
     formData.append('precio_base', String(payload.precio_base));
     formData.append('destacado', payload.destacado ? '1' : '0');
+    formData.append('popular', payload.popular ? '1' : '0');
+    formData.append('nuevo', payload.nuevo ? '1' : '0');
     formData.append('disponible', payload.disponible ? '1' : '0');
     if (imagen) {
       formData.append('imagen', imagen);

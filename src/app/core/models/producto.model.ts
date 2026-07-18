@@ -7,6 +7,8 @@ export interface Producto {
   precio_base: number;
   imagen_url: string | null;
   destacado: boolean;
+  popular: boolean;
+  nuevo: boolean;
   disponible: boolean;
   created_at: string | null;
   updated_at: string | null;
@@ -25,6 +27,8 @@ export interface ProductoPayload {
   descripcion?: string | null;
   precio_base: number;
   destacado?: boolean;
+  popular?: boolean;
+  nuevo?: boolean;
   disponible?: boolean;
 }
 

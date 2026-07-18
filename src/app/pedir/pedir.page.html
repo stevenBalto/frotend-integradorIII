@@ -13,147 +13,67 @@
   <div class="pedir-search-wrap">
     <div class="pedir-search">
       <ion-icon name="search-outline"></ion-icon>
-      <input type="text" placeholder="Buscar platillo..." />
+      <input type="text" placeholder="Buscar platillo..." [(ngModel)]="busqueda" maxlength="100" />
     </div>
   </div>
 
   <!-- Categorias (tabs) -->
   <div class="pedir-cats">
-    <button class="pedir-cat pedir-cat--active">Todos</button>
-    <button class="pedir-cat">Pizza</button>
-    <button class="pedir-cat">Grill</button>
-    <button class="pedir-cat">Pasta</button>
+    <button class="pedir-cat" [class.pedir-cat--active]="activeCat === null" (click)="seleccionarCategoria(null)">Todos</button>
+    <button class="pedir-cat" *ngFor="let c of categorias"
+      [class.pedir-cat--active]="activeCat === c.id" (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
   </div>
 
+  <p *ngIf="error" class="pedir-msg">{{ error }}</p>
+  <p *ngIf="cargando" class="pedir-msg">Cargando menú...</p>
+  <p *ngIf="!cargando && !error && productosFiltrados.length === 0" class="pedir-msg">
+    No se encontraron platillos.
+  </p>
+
   <!-- Listado de platillos -->
-  <div class="pedir-list">
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&auto=format" alt="Pizza Pepperoni" class="menu-card__img" />
+  <div class="pedir-list" *ngIf="!cargando">
+    <div class="menu-card" *ngFor="let p of productosFiltrados" (click)="abrirDetalle(p)">
+      <div class="menu-card__img menu-card__img--placeholder" *ngIf="!p.imagen_url">
+        <ion-icon name="restaurant-outline"></ion-icon>
+      </div>
+      <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="menu-card__img" />
       <div class="menu-card__body">
         <div class="menu-card__info">
-          <span class="menu-card__name">Pizza Pepperoni</span>
-          <span class="menu-card__desc">Masa artesanal, salsa de tomate y pepperoni premium</span>
-          <span class="menu-card__price">$155</span>
+          <span class="menu-card__name">{{ p.nombre }}</span>
+          <span class="menu-card__desc">{{ p.descripcion }}</span>
+          <span class="menu-card__price">{{ p.precio_base | crcCurrency }}</span>
         </div>
-        <button class="menu-card__add">
+        <button class="menu-card__add" (click)="$event.stopPropagation(); agregarAlCarrito()">
           <ion-icon name="add"></ion-icon>
         </button>
       </div>
     </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop&auto=format" alt="Pizza 4 Quesos" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pizza 4 Quesos</span>
-          <span class="menu-card__desc">Mozzarella, gouda, parmesano y gorgonzola</span>
-          <span class="menu-card__price">$165</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop&auto=format" alt="Pizza Margarita" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pizza Margarita</span>
-          <span class="menu-card__desc">Salsa de tomate fresco, mozzarella y albahaca</span>
-          <span class="menu-card__price">$140</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format" alt="Costillas BBQ" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Costillas BBQ</span>
-          <span class="menu-card__desc">Costillas de cerdo con salsa BBQ ahumada y papas</span>
-          <span class="menu-card__price">$210</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=300&fit=crop&auto=format" alt="Filete a la Parrilla" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Filete a la Parrilla</span>
-          <span class="menu-card__desc">Filete de res angus con mantequilla de hierbas</span>
-          <span class="menu-card__price">$245</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c3?w=400&h=300&fit=crop&auto=format" alt="Pollo a las Brasas" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pollo a las Brasas</span>
-          <span class="menu-card__desc">Pollo entero marinado con especias de la casa</span>
-          <span class="menu-card__price">$178</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop&auto=format" alt="Pasta Carbonara" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Pasta Carbonara</span>
-          <span class="menu-card__desc">Spaghetti, panceta, yema de huevo y parmesano</span>
-          <span class="menu-card__price">$138</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop&auto=format" alt="Fettuccine Alfredo" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Fettuccine Alfredo</span>
-          <span class="menu-card__desc">Fettuccine en salsa cremosa de mantequilla y queso</span>
-          <span class="menu-card__price">$132</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="menu-card">
-      <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop&auto=format" alt="Penne Arrabbiata" class="menu-card__img" />
-      <div class="menu-card__body">
-        <div class="menu-card__info">
-          <span class="menu-card__name">Penne Arrabbiata</span>
-          <span class="menu-card__desc">Penne con salsa de tomate picante y ajo</span>
-          <span class="menu-card__price">$125</span>
-        </div>
-        <button class="menu-card__add">
-          <ion-icon name="add"></ion-icon>
-        </button>
-      </div>
-    </div>
-
   </div>
 
 </ion-content>
+
+<!-- ── Modal Detalle de platillo ─────────────────────────────────────────── -->
+<div class="dish-modal" *ngIf="detalleAbierto && productoDetalle">
+  <div class="dish-modal__backdrop" (click)="cerrarDetalle()"></div>
+  <div class="dish-modal__panel">
+    <button type="button" class="dish-modal__close" (click)="cerrarDetalle()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+
+    <div class="dish-modal__img">
+      <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" />
+      <ion-icon *ngIf="!productoDetalle.imagen_url" name="restaurant-outline"></ion-icon>
+    </div>
+
+    <div class="dish-modal__body">
+      <span class="dish-modal__cat">{{ productoDetalle.categoria }}</span>
+      <h3 class="dish-modal__name">{{ productoDetalle.nombre }}</h3>
+      <p class="dish-modal__desc">{{ productoDetalle.descripcion || 'Sin descripción.' }}</p>
+      <span class="dish-modal__price">{{ productoDetalle.precio_base | crcCurrency }}</span>
+
+      <button type="button" class="dish-modal__cta" (click)="agregarAlCarrito()">
+        <ion-icon name="cart-outline"></ion-icon> Añadir al carrito
+      </button>
+    </div>
+  </div>
+</div>
