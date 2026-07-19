@@ -105,6 +105,51 @@
     cursor: pointer;
   }
 
+  &__select-ion {
+    --background: #fff;
+    --border-radius: 12px;
+    --padding-start: 14px;
+    --padding-end: 12px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --placeholder-color: #bbb;
+    --placeholder-opacity: 1;
+    --highlight-color-focused: var(--rooster-red);
+    min-height: 46px;
+    width: 100%;
+    border: 1.5px solid var(--rooster-border);
+    border-radius: 12px;
+    background: #fff;
+    font-family: var(--rooster-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rooster-dark);
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &::part(icon) {
+      color: var(--rooster-red);
+      opacity: 1;
+    }
+
+    &.select-expanded,
+    &:focus-within {
+      border-color: var(--rooster-red);
+    }
+
+    &[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__hint {
+    font-family: var(--rooster-font-sans);
+    font-size: 12px;
+    color: var(--rooster-brown);
+    margin: 6px 0 0;
+  }
+
   &__toggles {
     display: flex;
     gap: 8px;

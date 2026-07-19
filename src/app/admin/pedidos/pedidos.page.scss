@@ -8,14 +8,19 @@
 .ped-row:hover { background: var(--admin-neutral1); }
 
 .ped-row__view {
-  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: none;
+  background: var(--admin-neutral1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--rooster-red);
-  font-family: var(--rooster-font-sans);
+  transition: transform 0.1s, background 0.15s;
 }
+.ped-row__view:hover { transform: scale(1.1); background: var(--admin-neutral2, #ececec); }
+.ped-row__view ion-icon { font-size: 15px; color: var(--rooster-red); }
 
 .ped-pago {
   font-size: 10px;

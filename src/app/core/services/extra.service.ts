@@ -19,6 +19,13 @@ export class ExtraService {
       .pipe(map((res) => res.data));
   }
 
+  /** GET /admin/extras/{id} — detalle individual (incluye productos_asignados). */
+  obtenerDetalle(id: number): Observable<Extra> {
+    return this.http
+      .get<ApiResource<Extra>>(`${this.base}/admin/extras/${id}`)
+      .pipe(map((res) => res.data));
+  }
+
   /** POST /admin/extras — crear extra. */
   crear(payload: ExtraPayload): Observable<Extra> {
     return this.http
@@ -36,5 +43,17 @@ export class ExtraService {
   /** DELETE /admin/extras/{id} — eliminar extra. */
   eliminar(id: number): Observable<unknown> {
     return this.http.delete(`${this.base}/admin/extras/${id}`);
+  }
+
+  /** POST /admin/extras/{id}/productos — asignar extra a un producto. */
+  asignarAProducto(extraId: number, productoId: number): Observable<unknown> {
+    return this.http.post(`${this.base}/admin/extras/${extraId}/productos`, {
+      producto_id: productoId,
+    });
+  }
+
+  /** DELETE /admin/extras/{id}/productos/{productoId} — desasignar extra de un producto. */
+  desasignarDeProducto(extraId: number, productoId: number): Observable<unknown> {
+    return this.http.delete(`${this.base}/admin/extras/${extraId}/productos/${productoId}`);
   }
 }

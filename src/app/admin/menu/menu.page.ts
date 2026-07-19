@@ -352,6 +352,7 @@ export class AdminMenuPage implements OnInit {
       nombre: this.extraForm.value.nombre,
       precio: this.extraForm.value.precio,
       disponible: this.extraForm.value.disponible,
+      es_general: false,
     };
 
     const request$ = this.editandoExtra
@@ -393,9 +394,162 @@ export class AdminMenuPage implements OnInit {
       nombre: extra.nombre,
       precio: extra.precio,
       disponible: !extra.disponible,
+      es_general: extra.es_general,
     };
     this.extraService.actualizar(extra.id, payload).subscribe({
       next: () => this.cargarExtras(),
+    });
+  }
+
+  // ── Modal gestion de extras (crear general/por categoria + asignar) ──
+
+  extrasMgrOpen = false;
+
+  // Seccion A: crear nueva extra
+  guardandoExtraNueva = false;
+  extraNuevaError: string | null = null;
+  readonly extraNuevaForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(60)]],
+    precio: [null, [Validators.required, Validators.min(0)]],
+    es_general: [false],
+    categoria_id: [null],
+  });
+
+  // Seccion B: asignar extra existente a un producto
+  extraAsignarId: number | null = null;
+  productoAsignarId: number | null = null;
+  asignando = false;
+  asignarError: string | null = null;
+  detalleExtraAsignar: Extra | null = null;
+  cargandoDetalleAsignar = false;
+
+  /** Extras asignables puntualmente: solo las que NO son generales. */
+  get extrasAsignables(): Extra[] {
+    return this.extras.filter((e) => !e.es_general);
+  }
+
+  abrirExtrasMgr(): void {
+    this.extraNuevaError = null;
+    this.asignarError = null;
+    this.extraNuevaForm.reset({
+      nombre: '',
+      precio: null,
+      es_general: false,
+      categoria_id: this.categorias[0]?.id ?? null,
+    });
+    this.extraAsignarId = null;
+    this.productoAsignarId = null;
+    this.detalleExtraAsignar = null;
+    this.extrasMgrOpen = true;
+  }
+
+  cerrarExtrasMgr(): void {
+    this.extrasMgrOpen = false;
+  }
+
+  onToggleEsGeneral(): void {
+    const esGeneral = this.extraNuevaForm.get('es_general')?.value;
+    if (esGeneral) {
+      this.extraNuevaForm.patchValue({ categoria_id: null });
+    } else {
+      this.extraNuevaForm.patchValue({ categoria_id: this.categorias[0]?.id ?? null });
+    }
+  }
+
+  guardarExtraNueva(): void {
+    const esGeneral = !!this.extraNuevaForm.get('es_general')?.value;
+    const catId = this.extraNuevaForm.get('categoria_id')?.value ?? null;
+
+    if (this.extraNuevaForm.get('nombre')?.invalid || this.extraNuevaForm.get('precio')?.invalid) {
+      this.extraNuevaForm.markAllAsTouched();
+      return;
+    }
+    if (!esGeneral && !catId) {
+      this.extraNuevaError = 'Elegí una categoría o marcá el extra como general.';
+      return;
+    }
+
+    this.guardandoExtraNueva = true;
+    this.extraNuevaError = null;
+
+    const payload: ExtraPayload = {
+      nombre: this.extraNuevaForm.value.nombre,
+      precio: this.extraNuevaForm.value.precio,
+      disponible: true,
+      es_general: esGeneral,
+      categoria_id: esGeneral ? null : catId,
+    };
+
+    this.extraService.crear(payload).subscribe({
+      next: () => {
+        this.guardandoExtraNueva = false;
+        this.extraNuevaForm.patchValue({ nombre: '', precio: null });
+        this.cargarExtras();
+      },
+      error: (err) => {
+        this.guardandoExtraNueva = false;
+        this.extraNuevaError = err?.error?.message || 'No se pudo crear el extra.';
+      },
+    });
+  }
+
+  onSeleccionExtraAsignar(): void {
+    this.detalleExtraAsignar = null;
+    this.asignarError = null;
+    if (!this.extraAsignarId) {
+      return;
+    }
+    this.cargarDetalleExtraAsignar();
+  }
+
+  private cargarDetalleExtraAsignar(): void {
+    if (!this.extraAsignarId) {
+      return;
+    }
+    this.cargandoDetalleAsignar = true;
+    this.extraService.obtenerDetalle(this.extraAsignarId).subscribe({
+      next: (detalle) => {
+        this.detalleExtraAsignar = detalle;
+        this.cargandoDetalleAsignar = false;
+      },
+      error: () => {
+        this.cargandoDetalleAsignar = false;
+      },
+    });
+  }
+
+  asignarExtraAProducto(): void {
+    if (!this.extraAsignarId || !this.productoAsignarId) {
+      return;
+    }
+    this.asignando = true;
+    this.asignarError = null;
+    this.extraService.asignarAProducto(this.extraAsignarId, this.productoAsignarId).subscribe({
+      next: () => {
+        this.asignando = false;
+        this.productoAsignarId = null;
+        this.cargarDetalleExtraAsignar();
+        this.cargarExtras();
+      },
+      error: (err) => {
+        this.asignando = false;
+        this.asignarError = err?.error?.message || 'No se pudo asignar el extra.';
+      },
+    });
+  }
+
+  desasignarExtraDeProducto(productoId: number): void {
+    if (!this.extraAsignarId) {
+      return;
+    }
+    this.extraService.desasignarDeProducto(this.extraAsignarId, productoId).subscribe({
+      next: () => {
+        this.cargarDetalleExtraAsignar();
+        this.cargarExtras();
+      },
+      error: (err) => {
+        this.asignarError = err?.error?.message || 'No se pudo desasignar el extra.';
+      },
     });
   }
 }

@@ -74,22 +74,133 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 8px;
   background: var(--rooster-bg);
   border: 0.5px solid rgba(168, 137, 94, 0.25);
 }
+.cfg-branch__info { flex: 1; min-width: 0; cursor: pointer; }
 .cfg-branch__name { font-size: 12px; font-weight: 600; color: #1e1e1e; margin: 0; }
 .cfg-branch__addr { font-size: 10px; color: var(--rooster-brown); margin: 0; }
+.cfg-branch__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .cfg-branch__badge {
   font-size: 9px;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
   color: var(--rooster-brown);
   background: rgba(168, 137, 94, 0.1);
+  border: none;
+  cursor: pointer;
+  font-family: var(--rooster-font-sans);
+  transition: transform 0.1s, opacity 0.15s;
 }
+.cfg-branch__badge:hover { transform: scale(1.05); }
+.cfg-branch__badge:disabled { opacity: 0.6; cursor: default; }
 .cfg-branch__badge--active { color: #2e9e4f; background: rgba(46, 158, 79, 0.1); }
+.cfg-branch__edit {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+
+  ion-icon { font-size: 14px; color: var(--rooster-brown); }
+}
+.cfg-branch__edit:hover { transform: scale(1.1); }
+.cfg-branch__status {
+  font-size: 11px;
+  color: var(--rooster-brown);
+  margin: 0 0 10px;
+
+  &--error { color: var(--admin-red-alt); }
+}
 
 .cfg-footer { display: flex; justify-content: flex-end; }
+
+/* ── Modal Nueva/Editar sucursal (mismo patrón que menu/pedidos) ───────────── */
+.order-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.order-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
+.order-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 448px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--rooster-bg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+  &--small { max-width: 360px; }
+}
+.order-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #1e1e1e;
+}
+.order-modal__title { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
+.order-modal__head-right { display: flex; align-items: center; gap: 12px; }
+.order-modal__close { background: none; border: none; display: flex; cursor: pointer; }
+.order-modal__close ion-icon { font-size: 18px; color: #fff; }
+.order-modal__body { padding: 20px; overflow-y: auto; max-height: 70vh; }
+
+.order-modal__cta {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+  transition: transform 0.1s;
+}
+.order-modal__cta:active { transform: scale(0.95); }
+.order-modal__cta:disabled { opacity: 0.6; cursor: default; }
+
+.menu-form { display: flex; flex-direction: column; gap: 14px; }
+.menu-form__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+}
+.menu-form__input {
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  color: var(--admin-text);
+}
+.menu-form__check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+.menu-error { color: var(--admin-red-alt); font-size: 12px; margin: 4px 0 0; }

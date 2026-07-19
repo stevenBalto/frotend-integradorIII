@@ -30,6 +30,7 @@ export class PedirPage implements OnInit, OnDestroy {
   // Sucursales
   sucursales: Sucursal[] = [];
   cargandoSucursales = false;
+  readonly sucursalSelectOptions = { header: 'Elegí tu sucursal' };
 
   // Categorias y productos
   categorias: Categoria[] = [];

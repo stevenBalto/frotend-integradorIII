@@ -56,7 +56,12 @@
                   {{ p.pagado ? 'Pagado' : 'Pendiente' }}
                 </span>
               </td>
-              <td><button type="button" class="ped-row__view">Ver</button></td>
+              <td>
+                <button type="button" class="ped-row__view" aria-label="Ver detalle del pedido"
+                  (click)="abrirDetalle(p); $event.stopPropagation()">
+                  <ion-icon name="expand-outline"></ion-icon>
+                </button>
+              </td>
             </tr>
             <tr *ngIf="pedidosFiltrados.length === 0 && !cargando">
               <td colspan="9" class="ped-empty">

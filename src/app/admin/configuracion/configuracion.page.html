@@ -56,19 +56,37 @@
         </div>
       </div>
 
-      <!-- Sucursales -->
+      <!-- Sucursales (datos reales) -->
       <div class="cfg-card">
         <p class="cfg-card__title">Sucursales</p>
+
+        <p *ngIf="cargandoSucursales" class="cfg-branch__status">Cargando sucursales...</p>
+        <p *ngIf="errorSucursales" class="cfg-branch__status cfg-branch__status--error">{{ errorSucursales }}</p>
+
         <div class="cfg-branch" *ngFor="let b of branches">
-          <div>
-            <p class="cfg-branch__name">{{ b.name }}</p>
-            <p class="cfg-branch__addr">{{ b.address }}</p>
+          <div class="cfg-branch__info" (click)="abrirEditarSucursal(b)">
+            <p class="cfg-branch__name">{{ b.nombre }}</p>
+            <p class="cfg-branch__addr">{{ b.direccion || 'Sin dirección' }}</p>
           </div>
-          <span class="cfg-branch__badge" [class.cfg-branch__badge--active]="b.active">
-            {{ b.active ? 'Activa' : 'Inactiva' }}
-          </span>
+          <div class="cfg-branch__actions">
+            <button type="button" class="cfg-branch__badge"
+              [class.cfg-branch__badge--active]="b.activa"
+              [disabled]="togglingId === b.id"
+              (click)="toggleActiva(b)">
+              {{ b.activa ? 'Activa' : 'Inactiva' }}
+            </button>
+            <button type="button" class="cfg-branch__edit" (click)="abrirEditarSucursal(b)"
+              aria-label="Editar sucursal">
+              <ion-icon name="create-outline"></ion-icon>
+            </button>
+          </div>
         </div>
-        <admin-btn [small]="true" [outline]="true">
+
+        <p *ngIf="!cargandoSucursales && !errorSucursales && branches.length === 0" class="cfg-branch__status">
+          No hay sucursales. Agregá la primera para empezar a recibir pedidos.
+        </p>
+
+        <admin-btn [small]="true" [outline]="true" (clicked)="abrirNuevaSucursal()">
           <ion-icon name="add-outline"></ion-icon> Agregar sucursal
         </admin-btn>
       </div>
@@ -83,3 +101,49 @@
 
   </div>
 </ion-content>
+
+<!-- ── Modal Nueva/Editar sucursal ─────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="sucursalModalOpen">
+  <div class="order-modal__backdrop" (click)="cerrarSucursalModal()"></div>
+  <div class="order-modal__panel order-modal__panel--small">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ editandoSucursal ? 'Editar sucursal' : 'Nueva sucursal' }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarSucursalModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="sucursalForm" (ngSubmit)="guardarSucursal()" class="menu-form">
+        <label class="menu-form__label">
+          Nombre
+          <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Sucursal Liberia" />
+        </label>
+
+        <label class="menu-form__label">
+          Dirección *
+          <input type="text" formControlName="direccion" class="menu-form__input" placeholder="Ej. Liberia, Guanacaste" />
+        </label>
+
+        <label class="menu-form__label">
+          Teléfono
+          <input type="text" formControlName="telefono" class="menu-form__input" placeholder="Ej. 2666-0000" />
+        </label>
+
+        <label class="menu-form__check">
+          <input type="checkbox" formControlName="activa" /> Activa
+        </label>
+
+        <p *ngIf="sucursalError" class="menu-error">{{ sucursalError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardandoSucursal">
+          {{ guardandoSucursal ? 'Guardando...' : (editandoSucursal ? 'Guardar cambios' : 'Crear sucursal') }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

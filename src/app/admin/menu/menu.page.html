@@ -2,6 +2,9 @@
   <div class="admin-page">
 
     <admin-page-header title="Menú / Catálogo" subtitle="Dashboard / Menú">
+      <admin-btn header-right [outline]="true" (clicked)="abrirExtrasMgr()">
+        <ion-icon name="pricetags-outline"></ion-icon> Extras
+      </admin-btn>
       <admin-btn header-right (clicked)="abrirNuevo()">
         <ion-icon name="add-outline"></ion-icon> Nuevo producto
       </admin-btn>
@@ -242,6 +245,120 @@
       <button type="button" class="order-modal__cta" (click)="editarDesdeDetalle()">
         Editar producto
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Gestion de extras (crear general/categoria + asignar a producto) ─ -->
+<div class="order-modal" *ngIf="extrasMgrOpen">
+  <div class="order-modal__backdrop" (click)="cerrarExtrasMgr()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Gestión de extras</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarExtrasMgr()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <!-- Seccion A: crear nueva extra -->
+      <div class="menu-form__section">
+        <div class="menu-form__section-header">
+          <span class="menu-form__section-title">Crear nueva extra</span>
+        </div>
+
+        <form [formGroup]="extraNuevaForm" (ngSubmit)="guardarExtraNueva()" class="menu-form">
+          <label class="menu-form__label">
+            Nombre
+            <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Extra queso" />
+          </label>
+
+          <label class="menu-form__label">
+            Precio
+            <input type="number" min="0" step="1" formControlName="precio" class="menu-form__input" placeholder="Ej. 500" />
+          </label>
+
+          <label class="menu-form__check">
+            <input type="checkbox" formControlName="es_general" (change)="onToggleEsGeneral()" />
+            Extra general (aplica a todos los productos)
+          </label>
+
+          <label class="menu-form__label" *ngIf="!extraNuevaForm.get('es_general')?.value">
+            Categoría
+            <select formControlName="categoria_id" class="menu-form__input">
+              <option [ngValue]="null" disabled>Seleccioná una categoría</option>
+              <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
+            </select>
+          </label>
+
+          <p *ngIf="extraNuevaError" class="menu-error">{{ extraNuevaError }}</p>
+
+          <button type="submit" class="order-modal__cta" [disabled]="guardandoExtraNueva">
+            {{ guardandoExtraNueva ? 'Creando...' : 'Crear extra' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Seccion B: asignar extra existente a un producto -->
+      <div class="menu-form__section">
+        <div class="menu-form__section-header">
+          <span class="menu-form__section-title">Asignar extra a un producto</span>
+        </div>
+
+        <div class="menu-form">
+          <label class="menu-form__label">
+            Extra
+            <select class="menu-form__input" [(ngModel)]="extraAsignarId" (ngModelChange)="onSeleccionExtraAsignar()">
+              <option [ngValue]="null" disabled>Seleccioná un extra</option>
+              <option *ngFor="let e of extrasAsignables" [ngValue]="e.id">{{ e.nombre }}</option>
+            </select>
+          </label>
+
+          <p class="menu-form__hint" *ngIf="extrasAsignables.length === 0">
+            No hay extras por categoría para asignar. Creá uno arriba (sin marcarlo como general).
+          </p>
+
+          <ng-container *ngIf="extraAsignarId">
+            <label class="menu-form__label">
+              Producto
+              <select class="menu-form__input" [(ngModel)]="productoAsignarId">
+                <option [ngValue]="null" disabled>Seleccioná un producto</option>
+                <option *ngFor="let p of productos" [ngValue]="p.id">{{ p.nombre }}</option>
+              </select>
+            </label>
+
+            <button type="button" class="order-modal__cta"
+              [disabled]="asignando || !productoAsignarId"
+              (click)="asignarExtraAProducto()">
+              {{ asignando ? 'Asignando...' : 'Asignar' }}
+            </button>
+
+            <p *ngIf="asignarError" class="menu-error">{{ asignarError }}</p>
+
+            <!-- Productos ya asignados -->
+            <div class="extras-mgr__assigned">
+              <span class="menu-form__section-title">Productos asignados</span>
+              <p class="menu-form__hint" *ngIf="cargandoDetalleAsignar">Cargando...</p>
+              <div class="extras-mgr__assigned-row"
+                *ngFor="let pa of detalleExtraAsignar?.productos_asignados">
+                <span class="extras-mgr__assigned-name">{{ pa.nombre }}</span>
+                <button type="button" class="extras-mgr__unassign" (click)="desasignarExtraDeProducto(pa.id)"
+                  aria-label="Desasignar producto">
+                  <ion-icon name="close-outline"></ion-icon>
+                </button>
+              </div>
+              <p class="menu-form__hint"
+                *ngIf="!cargandoDetalleAsignar && (detalleExtraAsignar?.productos_asignados?.length ?? 0) === 0">
+                Este extra no está asignado a ningún producto todavía.
+              </p>
+            </div>
+          </ng-container>
+        </div>
+      </div>
     </div>
   </div>
 </div>

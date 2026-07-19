@@ -17,12 +17,18 @@
     <div class="pedir-config">
       <div class="pedir-config__row">
         <label class="pedir-config__label">Sucursal</label>
-        <select class="pedir-config__select"
+        <ion-select class="pedir-config__select-ion"
+          interface="action-sheet"
+          [interfaceOptions]="sucursalSelectOptions"
+          placeholder="Selecciona sucursal"
+          [disabled]="sucursales.length === 0"
           [ngModel]="carritoService.datos.sucursalId"
           (ngModelChange)="seleccionarSucursal($event)">
-          <option [ngValue]="null" disabled>Selecciona sucursal</option>
-          <option *ngFor="let s of sucursales" [ngValue]="s.id">{{ s.nombre }}</option>
-        </select>
+          <ion-select-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</ion-select-option>
+        </ion-select>
+        <p class="pedir-config__hint" *ngIf="sucursales.length === 0 && !cargandoSucursales">
+          No hay sucursales disponibles por ahora.
+        </p>
       </div>
       <div class="pedir-config__row">
         <label class="pedir-config__label">Modalidad</label>
