@@ -17,30 +17,37 @@
     <!-- Stats Ofertas -->
     <div class="admin-grid-4" *ngIf="tab === 'ofertas'">
       <admin-kpi-card label="Ofertas totales" [value]="totalOfertas"
-        icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="filtroOferta === 'todos'" (cardClick)="setFiltroOferta('todos')"></admin-kpi-card>
       <admin-kpi-card label="Activas" [value]="ofertasActivas"
-        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtroOferta === 'activas'" (cardClick)="setFiltroOferta('activas')"></admin-kpi-card>
       <admin-kpi-card label="Por vencer (7 dias)" [value]="ofertasPorVencer"
-        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"
+        [clickable]="true" [active]="filtroOferta === 'por_vencer'" (cardClick)="setFiltroOferta('por_vencer')"></admin-kpi-card>
       <admin-kpi-card label="Vencidas" [value]="ofertasVencidas"
-        icon="alert-circle-outline" iconBg="#9CA3AF26" iconColor="#374151"></admin-kpi-card>
+        icon="alert-circle-outline" iconBg="#9CA3AF26" iconColor="#374151"
+        [clickable]="true" [active]="filtroOferta === 'vencidas'" (cardClick)="setFiltroOferta('vencidas')"></admin-kpi-card>
     </div>
 
     <!-- Stats Cupones -->
     <div class="admin-grid-4" *ngIf="tab === 'cupones'">
       <admin-kpi-card label="Cupones totales" [value]="totalCupones"
-        icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="filtroCupon === 'todos'" (cardClick)="setFiltroCupon('todos')"></admin-kpi-card>
       <admin-kpi-card label="Activos" [value]="cuponesActivos"
-        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtroCupon === 'activos'" (cardClick)="setFiltroCupon('activos')"></admin-kpi-card>
       <admin-kpi-card label="Usos totales" [value]="usosTotales"
         icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
       <admin-kpi-card label="Agotados" [value]="cuponesAgotados"
-        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"
+        [clickable]="true" [active]="filtroCupon === 'agotados'" (cardClick)="setFiltroCupon('agotados')"></admin-kpi-card>
     </div>
 
     <!-- Tabla Ofertas -->
     <admin-section-card title="Combos activos" *ngIf="tab === 'ofertas'">
-      <admin-search-input card-action placeholder="Buscar oferta..."></admin-search-input>
+      <admin-search-input card-action placeholder="Buscar oferta..." [(value)]="busquedaOferta"></admin-search-input>
 
       <p *ngIf="errorOfertas" class="of-error">{{ errorOfertas }}</p>
       <p *ngIf="cargandoOfertas" class="of-loading">Cargando ofertas...</p>
@@ -54,7 +61,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let o of ofertas" [class.of-row--off]="!o.activa">
+            <tr *ngFor="let o of ofertasFiltradas" [class.of-row--off]="!o.activa">
               <td>
                 <div class="of-combo-icon" [style.background]="o.activa ? '#E13642' : '#1E1E1E'">
                   <ion-icon name="restaurant-outline"></ion-icon>
@@ -79,8 +86,10 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="ofertas.length === 0 && !cargandoOfertas">
-              <td colspan="7" class="of-empty">No hay ofertas registradas.</td>
+            <tr *ngIf="ofertasFiltradas.length === 0 && !cargandoOfertas">
+              <td colspan="7" class="of-empty">
+                {{ ofertas.length === 0 ? 'No hay ofertas registradas.' : 'Ninguna oferta coincide con la búsqueda/filtro.' }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -89,7 +98,7 @@
 
     <!-- Tabla Cupones -->
     <admin-section-card title="Cupones de descuento" *ngIf="tab === 'cupones'">
-      <admin-search-input card-action placeholder="Buscar codigo..."></admin-search-input>
+      <admin-search-input card-action placeholder="Buscar codigo..." [(value)]="busquedaCupon"></admin-search-input>
 
       <p *ngIf="errorCupones" class="of-error">{{ errorCupones }}</p>
       <p *ngIf="cargandoCupones" class="of-loading">Cargando cupones...</p>
@@ -103,7 +112,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of cupones" [class.of-row--off]="!c.activo">
+            <tr *ngFor="let c of cuponesFiltrados" [class.of-row--off]="!c.activo">
               <td class="of-code">{{ c.codigo }}</td>
               <td class="of-muted">{{ formatTipoCupon(c.tipo) }}</td>
               <td class="of-value">{{ formatValorCupon(c) }}</td>
@@ -128,8 +137,10 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="cupones.length === 0 && !cargandoCupones">
-              <td colspan="8" class="of-empty">No hay cupones registrados.</td>
+            <tr *ngIf="cuponesFiltrados.length === 0 && !cargandoCupones">
+              <td colspan="8" class="of-empty">
+                {{ cupones.length === 0 ? 'No hay cupones registrados.' : 'Ningún cupón coincide con la búsqueda/filtro.' }}
+              </td>
             </tr>
           </tbody>
         </table>

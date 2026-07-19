@@ -12,6 +12,9 @@ interface ProductoOpt {
   nombre: string;
 }
 
+type FiltroOferta = 'todos' | 'activas' | 'por_vencer' | 'vencidas';
+type FiltroCupon = 'todos' | 'activos' | 'agotados';
+
 /**
  * Ofertas (combos) y cupones (codigos) del panel admin, conectado a la API.
  * Reconstruido para acompañar el HTML conectado (el .ts original no se subió).
@@ -35,6 +38,12 @@ export class AdminOfertasPage implements OnInit {
   cargandoCupones = false;
   errorOfertas: string | null = null;
   errorCupones: string | null = null;
+
+  // Busqueda + filtro por KPI
+  busquedaOferta = '';
+  filtroOferta: FiltroOferta = 'todos';
+  busquedaCupon = '';
+  filtroCupon: FiltroCupon = 'todos';
 
   // Modal oferta
   modalOfertaOpen = false;
@@ -150,6 +159,41 @@ export class AdminOfertasPage implements OnInit {
   }
   get cuponesAgotados(): number {
     return this.cupones.filter((c) => c.usos_max !== null && c.usos_actuales >= c.usos_max).length;
+  }
+
+  setFiltroOferta(filtro: FiltroOferta): void {
+    this.filtroOferta = this.filtroOferta === filtro ? 'todos' : filtro;
+  }
+
+  setFiltroCupon(filtro: FiltroCupon): void {
+    this.filtroCupon = this.filtroCupon === filtro ? 'todos' : filtro;
+  }
+
+  /** Lista visible de ofertas: aplica busqueda por nombre + filtro de KPI seleccionado. */
+  get ofertasFiltradas(): Oferta[] {
+    const texto = this.busquedaOferta.trim().toLowerCase();
+    return this.ofertas.filter((o) => {
+      const coincideTexto = !texto || o.nombre.toLowerCase().includes(texto);
+      const coincideFiltro =
+        this.filtroOferta === 'todos' ||
+        (this.filtroOferta === 'activas' && o.activa) ||
+        (this.filtroOferta === 'por_vencer' && this.isOfertaUrgent(o)) ||
+        (this.filtroOferta === 'vencidas' && (this.diasHastaFin(o.fecha_fin) ?? 0) < 0);
+      return coincideTexto && coincideFiltro;
+    });
+  }
+
+  /** Lista visible de cupones: aplica busqueda por codigo + filtro de KPI seleccionado. */
+  get cuponesFiltrados(): Cupon[] {
+    const texto = this.busquedaCupon.trim().toLowerCase();
+    return this.cupones.filter((c) => {
+      const coincideTexto = !texto || c.codigo.toLowerCase().includes(texto);
+      const coincideFiltro =
+        this.filtroCupon === 'todos' ||
+        (this.filtroCupon === 'activos' && c.activo) ||
+        (this.filtroCupon === 'agotados' && this.isUsosBarFull(c));
+      return coincideTexto && coincideFiltro;
+    });
   }
 
   // ── Modal oferta ──────────────────────────────────────────────────

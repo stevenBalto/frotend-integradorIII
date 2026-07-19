@@ -12,6 +12,10 @@ const routes: Routes = [
         loadChildren: () => import('../dashboard/dashboard.module').then(m => m.AdminDashboardPageModule),
       },
       {
+        path: 'inicio',
+        loadChildren: () => import('../inicio/inicio.module').then(m => m.AdminInicioPageModule),
+      },
+      {
         path: 'pedidos',
         loadChildren: () => import('../pedidos/pedidos.module').then(m => m.AdminPedidosPageModule),
       },
@@ -26,6 +30,10 @@ const routes: Routes = [
       {
         path: 'ofertas',
         loadChildren: () => import('../ofertas/ofertas.module').then(m => m.AdminOfertasPageModule),
+      },
+      {
+        path: 'clientes',
+        loadChildren: () => import('../clientes/clientes.module').then(m => m.AdminClientesPageModule),
       },
       {
         path: 'usuarios',

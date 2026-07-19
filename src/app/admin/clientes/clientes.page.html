@@ -1,0 +1,108 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <admin-page-header title="Clientes" subtitle="Dashboard / Clientes"></admin-page-header>
+
+    <!-- Stats / filtros -->
+    <div class="admin-grid-4">
+      <admin-kpi-card label="Clientes totales" [value]="totalClientes"
+        icon="people-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>
+      <admin-kpi-card label="Compraron (30 días)" [value]="clientesRecientes"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtro === 'recientes'" (cardClick)="setFiltro('recientes')"></admin-kpi-card>
+      <admin-kpi-card label="Sin compras" [value]="clientesSinCompras"
+        icon="alert-circle-outline" iconBg="#9CA3AF26" iconColor="#374151"
+        [clickable]="true" [active]="filtro === 'sin_compras'" (cardClick)="setFiltro('sin_compras')"></admin-kpi-card>
+      <admin-kpi-card label="Top comprador" [value]="topComprador ? formatMonto(topComprador.total_gastado) : '—'"
+        [sub]="topComprador ? topComprador.nombre : ''"
+        icon="trophy-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"
+        [clickable]="topComprador !== null" [active]="filtro === 'top_comprador'" (cardClick)="setFiltro('top_comprador')"></admin-kpi-card>
+    </div>
+
+    <admin-section-card title="Top 5 clientes por gasto" *ngIf="!cargando && clientes.length > 0">
+      <clientes-top-chart [data]="topCincoParaChart" [alturaPx]="220"></clientes-top-chart>
+    </admin-section-card>
+
+    <admin-section-card title="Clientes">
+      <admin-search-input card-action placeholder="Buscar por nombre o correo..." [(value)]="busqueda"></admin-search-input>
+
+      <p *ngIf="error" class="cli-error">{{ error }}</p>
+      <p *ngIf="cargando" class="cli-loading">Cargando clientes...</p>
+
+      <div class="admin-table-wrap" *ngIf="!cargando">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Cliente</th><th>Pedidos</th><th>Gasto total</th><th>Ticket prom.</th>
+              <th>Puntos</th><th>Último pedido</th><th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of clientesFiltrados">
+              <td>
+                <p class="admin-table__strong" style="font-size: 12px;">{{ c.nombre }}</p>
+                <p class="cli-muted">{{ c.email }}</p>
+              </td>
+              <td class="admin-table__semi" style="font-size: 12px;">{{ c.cantidad_pedidos }}</td>
+              <td class="admin-table__semi" style="font-size: 12px;">{{ formatMonto(c.total_gastado) }}</td>
+              <td class="cli-muted">{{ formatMonto(c.ticket_promedio) }}</td>
+              <td class="cli-muted">{{ c.puntos_balance }}</td>
+              <td class="cli-muted">{{ formatUltimoPedido(c) }}</td>
+              <td><status-badge [type]="getBadgeType(c)"></status-badge></td>
+              <td>
+                <div class="cli-actions">
+                  <button type="button" class="cli-action cli-action--history" title="Historial de pedidos"
+                    (click)="abrirHistorial(c)">
+                    <ion-icon name="time-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="clientesFiltrados.length === 0 && !cargando">
+              <td colspan="8" class="cli-empty">
+                {{ clientes.length === 0 ? 'No hay clientes registrados.' : 'Ningún cliente coincide con la búsqueda/filtro.' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
+  </div>
+</ion-content>
+
+<!-- ── Modal Historial de pedidos ───────────────────────────────────────── -->
+<div class="order-modal" *ngIf="historialOpen && historialCliente">
+  <div class="order-modal__backdrop" (click)="cerrarHistorial()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Historial — {{ historialCliente.nombre }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarHistorial()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <p *ngIf="historialError" class="cli-error">{{ historialError }}</p>
+      <p *ngIf="cargandoHistorial" class="cli-loading">Cargando historial...</p>
+
+      <div class="cli-historial" *ngIf="!cargandoHistorial">
+        <div class="cli-historial__item" *ngFor="let p of historialPedidos">
+          <div class="cli-historial__row">
+            <span class="cli-historial__fecha">{{ p.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
+            <status-badge [type]="getPedidoBadgeType(p.estado)"></status-badge>
+          </div>
+          <p class="cli-historial__detalle">
+            {{ formatMonto(p.total) }} · {{ formatModalidad(p.modalidad) }}
+          </p>
+        </div>
+        <p *ngIf="historialPedidos.length === 0" class="cli-empty">Sin pedidos registrados.</p>
+      </div>
+    </div>
+  </div>
+</div>

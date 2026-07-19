@@ -19,7 +19,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     </div>
   `,
   styles: [`
+    :host { display: block; height: 100%; }
     .kpi {
+      box-sizing: border-box;
+      height: 100%;
       background: var(--admin-card);
       border: 1px solid var(--admin-border);
       border-radius: 12px;
