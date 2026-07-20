@@ -33,7 +33,8 @@ export interface Pedido {
   total: number;
   puntos_ganados: number;
   notas: string | null;
-  hora_estimada: string | null;
+  /** "A nombre de quien" escrito en el checkout (puede diferir del nombre de la cuenta). */
+  nombre_cliente: string | null;
   created_at: string;
   sucursal: SucursalPedido;
   items: ItemPedido[];
@@ -66,7 +67,6 @@ export interface PedidoPublico {
   estado: PedidoEstado;
   modalidad: 'para_llevar' | 'comer_aqui';
   sucursal: string;
-  hora_estimada: string | null;
   creado_en: string;
 }
 
@@ -85,6 +85,7 @@ export interface ItemPedidoPayload {
 export interface CrearPedidoPayload {
   sucursal_id: number;
   modalidad: 'para_llevar' | 'comer_aqui';
+  nombre_cliente: string;
   notas?: string;
   items: ItemPedidoPayload[];
 }

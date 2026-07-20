@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MiCuentaPage } from './mi-cuenta.page';
 import { MiCuentaPageRoutingModule } from './mi-cuenta-routing.module';
+import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
 
 @NgModule({
   imports: [
@@ -12,7 +13,8 @@ import { MiCuentaPageRoutingModule } from './mi-cuenta-routing.module';
     CommonModule,
     FormsModule,
     RouterModule,
-    MiCuentaPageRoutingModule
+    MiCuentaPageRoutingModule,
+    CrcCurrencyPipe
   ],
   declarations: [MiCuentaPage]
 })

@@ -12,6 +12,8 @@ import { ProductoService } from '../core/services/producto.service';
 import { Sucursal } from '../core/models/sucursal.model';
 import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
 import { Pedido, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
+import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
+import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 
 type VistaCarrito = 'menu' | 'carrito' | 'checkout' | 'confirmacion';
 
@@ -54,12 +56,24 @@ export class PedirPage implements OnInit, OnDestroy {
 
   // Checkout
   nombreCliente = '';
+  /** Nombre del usuario logueado mostrado solo como placeholder (no como valor). */
+  nombreClientePlaceholder = 'Tu nombre';
   notasPedido = '';
   enviandoPedido = false;
   errorPedido: string | null = null;
 
   // Confirmacion
   pedidoConfirmado: Pedido | null = null;
+
+  // Buscar mi pedido (modal, endpoint autenticado)
+  buscarModalAbierto = false;
+  codigoBusqueda = '';
+  buscandoPedido = false;
+  buscarError: string | null = null;
+  pedidoBuscado: Pedido | null = null;
+
+  // Etiquetas compartidas para el template
+  readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   constructor(
     private auth: AuthService,
@@ -81,10 +95,11 @@ export class PedirPage implements OnInit, OnDestroy {
     this.cargarCategorias();
     this.cargarProductos();
 
-    // Pre-llenar nombre del cliente
+    // El nombre del usuario logueado aparece solo como placeholder (texto fantasma);
+    // el campo arranca vacio y es obligatorio confirmarlo antes de pagar.
     const usuario = this.auth.usuario;
-    if (usuario) {
-      this.nombreCliente = usuario.nombre;
+    if (usuario?.nombre) {
+      this.nombreClientePlaceholder = usuario.nombre;
     }
   }
 
@@ -129,6 +144,10 @@ export class PedirPage implements OnInit, OnDestroy {
 
   setModalidad(m: 'para_llevar' | 'comer_aqui'): void {
     this.carritoService.setModalidad(m);
+  }
+
+  get modalidadLabel(): string {
+    return MODALIDAD_LABEL[this.modalidad];
   }
 
   // ── Categorias y productos ──
@@ -332,6 +351,7 @@ export class PedirPage implements OnInit, OnDestroy {
     const payload: CrearPedidoPayload = {
       sucursal_id: this.carritoService.datos.sucursalId!,
       modalidad: this.carritoService.datos.modalidad,
+      nombre_cliente: this.nombreCliente.trim(),
       notas: this.notasPedido.trim() || undefined,
       items,
     };
@@ -359,6 +379,69 @@ export class PedirPage implements OnInit, OnDestroy {
     this.vista = 'menu';
     this.notasPedido = '';
     void this.router.navigateByUrl('/tabs/home');
+  }
+
+  // ── Buscar mi pedido (endpoint autenticado) ──
+
+  abrirBuscarPedido(): void {
+    this.buscarModalAbierto = true;
+    this.codigoBusqueda = '';
+    this.buscarError = null;
+    this.pedidoBuscado = null;
+  }
+
+  cerrarBuscarPedido(): void {
+    this.buscarModalAbierto = false;
+  }
+
+  buscarMiPedido(): void {
+    const codigo = this.codigoBusqueda.trim();
+    if (!codigo) {
+      return;
+    }
+
+    this.buscandoPedido = true;
+    this.buscarError = null;
+    this.pedidoBuscado = null;
+
+    this.pedidoService.buscarPropioPorCodigo(codigo)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pedido) => {
+          this.pedidoBuscado = pedido;
+          this.buscandoPedido = false;
+        },
+        error: (err) => {
+          this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código a tu nombre.';
+          this.buscandoPedido = false;
+        },
+      });
+  }
+
+  getEstadoLabel(estado: PedidoEstado): string {
+    return PEDIDO_ESTADO_LABEL[estado] || estado;
+  }
+
+  getEstadoClass(estado: PedidoEstado): string {
+    const clases: Record<PedidoEstado, string> = {
+      pendiente: 'estado--pendiente',
+      en_proceso: 'estado--proceso',
+      listo: 'estado--listo',
+      entregado: 'estado--entregado',
+      cancelado: 'estado--cancelado',
+    };
+    return clases[estado] || '';
+  }
+
+  formatFecha(fecha: string): string {
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-CR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   // ── Helpers ──

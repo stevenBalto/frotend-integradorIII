@@ -12,6 +12,8 @@ export interface Extra {
   nombre: string;
   precio: number;
   disponible: boolean;
+  /** Foto del extra (upsell). null cuando no tiene imagen cargada. */
+  imagen_url: string | null;
   /** true = aplica a todos los productos; false = acotado a una categoria. */
   es_general: boolean;
   /** Solo presente en el detalle individual (GET /admin/extras/{id}). */

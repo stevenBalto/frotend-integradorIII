@@ -4,6 +4,7 @@ import { takeUntil } from 'rxjs/operators';
 import { PedidoService } from '../core/services/pedido.service';
 import { Pedido } from '../core/models/pedido.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
+import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 
 @Component({
   selector: 'app-mis-pedidos',
@@ -20,6 +21,8 @@ export class MisPedidosPage implements OnInit, OnDestroy {
 
   // Detalle expandido
   pedidoExpandido: number | null = null;
+
+  readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   constructor(private pedidoService: PedidoService) {}
 

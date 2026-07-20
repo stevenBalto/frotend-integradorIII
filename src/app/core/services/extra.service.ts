@@ -26,18 +26,39 @@ export class ExtraService {
       .pipe(map((res) => res.data));
   }
 
-  /** POST /admin/extras — crear extra. */
-  crear(payload: ExtraPayload): Observable<Extra> {
+  /** POST multipart/form-data (necesario para poder adjuntar la imagen). */
+  crear(payload: ExtraPayload, imagen?: File | null): Observable<Extra> {
     return this.http
-      .post<ApiResource<Extra>>(`${this.base}/admin/extras`, payload)
+      .post<ApiResource<Extra>>(`${this.base}/admin/extras`, this.aFormData(payload, imagen))
       .pipe(map((res) => res.data));
   }
 
-  /** PUT /admin/extras/{id} — actualizar extra. */
-  actualizar(id: number, payload: ExtraPayload): Observable<Extra> {
+  /**
+   * POST con _method=PUT (spoofing) en vez de PUT real: los navegadores/Angular
+   * no soportan multipart/form-data en un PUT nativo de forma confiable
+   * (mismo patron que ProductoService). Si no se manda `imagen`, el backend
+   * conserva la imagen actual del extra.
+   */
+  actualizar(id: number, payload: ExtraPayload, imagen?: File | null): Observable<Extra> {
+    const formData = this.aFormData(payload, imagen);
+    formData.append('_method', 'PUT');
     return this.http
-      .put<ApiResource<Extra>>(`${this.base}/admin/extras/${id}`, payload)
+      .post<ApiResource<Extra>>(`${this.base}/admin/extras/${id}`, formData)
       .pipe(map((res) => res.data));
+  }
+
+  private aFormData(payload: ExtraPayload, imagen?: File | null): FormData {
+    const formData = new FormData();
+    formData.append('nombre', payload.nombre);
+    formData.append('precio', String(payload.precio));
+    formData.append('disponible', payload.disponible ? '1' : '0');
+    formData.append('es_general', payload.es_general ? '1' : '0');
+    // '' se convierte a null en Laravel (ConvertEmptyStringsToNull) -> extra general.
+    formData.append('categoria_id', payload.categoria_id != null ? String(payload.categoria_id) : '');
+    if (imagen) {
+      formData.append('imagen', imagen);
+    }
+    return formData;
   }
 
   /** DELETE /admin/extras/{id} — eliminar extra. */

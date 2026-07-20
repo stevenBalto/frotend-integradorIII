@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Cliente, PedidoResumen } from '../../core/models/cliente.model';
 import { ClienteService } from '../../core/services/cliente.service';
+import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
 
 type FiltroCliente = 'todos' | 'recientes' | 'sin_compras' | 'top_comprador';
 
@@ -113,7 +114,7 @@ export class AdminClientesPage implements OnInit {
     return 'process';
   }
   formatModalidad(modalidad: string): string {
-    return modalidad === 'comer_aqui' ? 'Comer en el restaurante' : 'Para llevar';
+    return MODALIDAD_LABEL[modalidad as Modalidad] ?? modalidad;
   }
 
   private diasDesdeUltimoPedido(c: Cliente): number | null {

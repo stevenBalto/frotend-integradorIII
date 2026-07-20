@@ -1,13 +1,14 @@
 import { Component, Input } from '@angular/core';
+import { MODALIDAD_LABEL } from '../../shared/constants/modalidad';
 
-/** Pastilla de modalidad de pedido: "Comer aquí" / "Para llevar". */
+/** Pastilla de modalidad de pedido: "Comer en el restaurante" / "Para llevar". */
 @Component({
   selector: 'modality-pill',
   standalone: false,
   template: `
     <span class="pill" [style.color]="color">
       <span class="pill__dot" [style.background]="color"></span>
-      {{ isHere ? 'Comer aquí' : 'Para llevar' }}
+      {{ label }}
     </span>
   `,
   styles: [`
@@ -29,6 +30,9 @@ import { Component, Input } from '@angular/core';
 export class ModalityPillComponent {
   @Input() mode = 'aqui';
   get isHere(): boolean { return this.mode === 'aqui'; }
+  get label(): string {
+    return this.isHere ? MODALIDAD_LABEL['comer_aqui'] : MODALIDAD_LABEL['para_llevar'];
+  }
   /** neutral4 para "aquí", neutral3 para "llevar". */
   get color(): string { return this.isHere ? '#374151' : '#6B7280'; }
 }

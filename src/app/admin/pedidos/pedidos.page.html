@@ -46,7 +46,7 @@
             <tr *ngFor="let p of pedidosFiltrados" class="ped-row" (click)="abrirDetalle(p)">
               <td class="admin-table__strong">{{ p.codigo }}</td>
               <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>
-              <td class="admin-table__semi">{{ p.cliente.nombre }}</td>
+              <td class="admin-table__semi">{{ p.nombre_cliente || p.cliente.nombre }}</td>
               <td><modality-pill [mode]="p.modalidad === 'comer_aqui' ? 'aqui' : 'llevar'"></modality-pill></td>
               <td>{{ p.items.length }}</td>
               <td class="admin-table__strong">{{ p.total | crcCurrency }}</td>
@@ -96,9 +96,9 @@
     <div class="order-modal__body">
       <!-- Cliente -->
       <div class="order-cust">
-        <div class="order-cust__avatar">{{ getClienteInicial(pedidoSeleccionado.cliente.nombre) }}</div>
+        <div class="order-cust__avatar">{{ getClienteInicial(pedidoSeleccionado.nombre_cliente || pedidoSeleccionado.cliente.nombre) }}</div>
         <div>
-          <p class="order-cust__name">{{ pedidoSeleccionado.cliente.nombre }}</p>
+          <p class="order-cust__name">{{ pedidoSeleccionado.nombre_cliente || pedidoSeleccionado.cliente.nombre }}</p>
           <p class="order-cust__mode">{{ formatModalidad(pedidoSeleccionado.modalidad) }}</p>
         </div>
         <span class="order-cust__pago" [class.order-cust__pago--si]="pedidoSeleccionado.pagado">
@@ -148,9 +148,17 @@
       <!-- Historial de estados -->
       <div class="order-historial" *ngIf="pedidoSeleccionado.historial && pedidoSeleccionado.historial.length > 0">
         <p class="order-modal__label">Historial</p>
-        <div class="order-historial__item" *ngFor="let h of pedidoSeleccionado.historial">
+        <div class="order-historial__item" *ngFor="let h of pedidoSeleccionado.historial; let i = index">
           <span class="order-historial__estado">{{ getEstadoLabel(h.estado) }}</span>
           <span class="order-historial__fecha">{{ formatFecha(h.creado_en) }}</span>
+          <button type="button" class="order-historial__revert"
+            *ngIf="i !== indiceHistorialActual()"
+            [class.order-historial__revert--loading]="revirtiendoEstado === h.estado"
+            [disabled]="revirtiendoEstado !== null"
+            (click)="revertirAEstado(h.estado)"
+            [attr.aria-label]="'Revertir a ' + getEstadoLabel(h.estado)">
+            <ion-icon [name]="revirtiendoEstado === h.estado ? 'sync-outline' : 'arrow-undo-outline'"></ion-icon>
+          </button>
           <span class="order-historial__comentario" *ngIf="h.comentario">{{ h.comentario }}</span>
         </div>
       </div>
@@ -164,28 +172,28 @@
         <button type="button" class="order-modal__cta order-modal__cta--secondary"
           *ngIf="puedeTransicionar('en_proceso')"
           [disabled]="cambiandoEstado"
-          (click)="abrirCambioEstado('en_proceso')">
+          (click)="cambiarEstadoDirecto('en_proceso')">
           <ion-icon name="flame-outline"></ion-icon> Iniciar preparacion
         </button>
 
         <button type="button" class="order-modal__cta order-modal__cta--secondary"
           *ngIf="puedeTransicionar('listo')"
           [disabled]="cambiandoEstado"
-          (click)="abrirCambioEstado('listo')">
+          (click)="cambiarEstadoDirecto('listo')">
           <ion-icon name="checkmark-done-outline"></ion-icon> Marcar como listo
         </button>
 
         <button type="button" class="order-modal__cta"
           *ngIf="puedeTransicionar('entregado')"
           [disabled]="cambiandoEstado"
-          (click)="abrirCambioEstado('entregado')">
+          (click)="cambiarEstadoDirecto('entregado')">
           <ion-icon name="bag-check-outline"></ion-icon> Marcar como entregado
         </button>
 
         <button type="button" class="order-modal__cta order-modal__cta--danger"
           *ngIf="puedeTransicionar('cancelado')"
           [disabled]="cambiandoEstado"
-          (click)="abrirCambioEstado('cancelado')">
+          (click)="cambiarEstadoDirecto('cancelado')">
           <ion-icon name="close-circle-outline"></ion-icon> Cancelar pedido
         </button>
 
@@ -195,48 +203,6 @@
           (click)="registrarPago()">
           <ion-icon name="cash-outline"></ion-icon>
           {{ registrandoPago ? 'Registrando...' : 'Registrar pago' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ── Modal confirmar cambio de estado ────────────────────────────────────── -->
-<div class="order-modal" *ngIf="modalEstadoOpen && nuevoEstado">
-  <div class="order-modal__backdrop" (click)="cerrarCambioEstado()"></div>
-  <div class="order-modal__panel order-modal__panel--small">
-    <div class="order-modal__head">
-      <div>
-        <p class="order-modal__title">Cambiar estado</p>
-      </div>
-      <div class="order-modal__head-right">
-        <button type="button" class="order-modal__close" (click)="cerrarCambioEstado()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="order-modal__body">
-      <p class="estado-confirm__text">
-        Cambiar el estado del pedido a <strong>{{ getEstadoLabel(nuevoEstado) }}</strong>?
-      </p>
-
-      <label class="estado-confirm__label">
-        Comentario (opcional)
-        <textarea class="estado-confirm__input" rows="2"
-          placeholder="Motivo del cambio..."
-          [(ngModel)]="comentarioEstado"></textarea>
-      </label>
-
-      <div class="estado-confirm__buttons">
-        <button type="button" class="order-modal__cta order-modal__cta--secondary"
-          (click)="cerrarCambioEstado()">
-          Cancelar
-        </button>
-        <button type="button" class="order-modal__cta"
-          [disabled]="cambiandoEstado"
-          (click)="confirmarCambioEstado()">
-          {{ cambiandoEstado ? 'Cambiando...' : 'Confirmar' }}
         </button>
       </div>
     </div>

@@ -8,6 +8,7 @@ import {
   PEDIDO_ESTADO_LABEL,
   esTransicionValida,
 } from '../../shared/constants/pedido-estado';
+import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
 import { estadoToStatusType } from '../shared/status-badge.component';
 
 type FiltroEstado = 'todos' | PedidoEstado;
@@ -39,10 +40,8 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   registrandoPago = false;
   accionError: string | null = null;
 
-  // Modal cambio de estado
-  modalEstadoOpen = false;
-  nuevoEstado: PedidoEstado | null = null;
-  comentarioEstado = '';
+  // Estado que se esta revirtiendo ahora mismo (micro-feedback no bloqueante).
+  revirtiendoEstado: PedidoEstado | null = null;
 
   constructor(private pedidoService: PedidoService) {}
 
@@ -164,17 +163,6 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
 
   // ── Cambio de estado ──
 
-  abrirCambioEstado(estado: PedidoEstado): void {
-    this.nuevoEstado = estado;
-    this.comentarioEstado = '';
-    this.modalEstadoOpen = true;
-  }
-
-  cerrarCambioEstado(): void {
-    this.modalEstadoOpen = false;
-    this.nuevoEstado = null;
-  }
-
   puedeTransicionar(estado: PedidoEstado): boolean {
     if (!this.pedidoSeleccionado) {
       return false;
@@ -182,8 +170,12 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     return esTransicionValida(this.pedidoSeleccionado.estado, estado);
   }
 
-  confirmarCambioEstado(): void {
-    if (!this.pedidoSeleccionado || !this.nuevoEstado) {
+  /**
+   * Avance de estado directo, de un solo click (sin modal ni motivo).
+   * Mismo resultado que el viejo confirmarCambioEstado() pero sin el paso intermedio.
+   */
+  cambiarEstadoDirecto(estado: PedidoEstado): void {
+    if (!this.pedidoSeleccionado || this.cambiandoEstado) {
       return;
     }
 
@@ -191,23 +183,65 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     this.accionError = null;
 
     this.pedidoService
-      .cambiarEstado(
-        this.pedidoSeleccionado.id,
-        this.nuevoEstado,
-        this.comentarioEstado.trim() || undefined
-      )
+      .cambiarEstado(this.pedidoSeleccionado.id, estado)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (pedido) => {
           this.pedidoSeleccionado = pedido;
           this.actualizarPedidoEnLista(pedido);
           this.cambiandoEstado = false;
-          this.cerrarCambioEstado();
         },
         error: (err) => {
           this.accionError = err?.error?.message || 'No se pudo cambiar el estado.';
           this.cambiandoEstado = false;
-          this.cerrarCambioEstado();
+        },
+      });
+  }
+
+  // ── Revertir estado (historial) ──
+
+  /**
+   * Indice de la entrada MAS RECIENTE del historial (= estado actual).
+   * A esa fila no le mostramos el boton de revertir (revertir al estado actual
+   * no tiene sentido). Se calcula por timestamp para ser robusto al orden del array.
+   */
+  indiceHistorialActual(): number {
+    const h = this.pedidoSeleccionado?.historial;
+    if (!h || h.length === 0) {
+      return -1;
+    }
+    let idx = 0;
+    let max = new Date(h[0].creado_en).getTime();
+    for (let i = 1; i < h.length; i++) {
+      const t = new Date(h[i].creado_en).getTime();
+      if (t >= max) {
+        max = t;
+        idx = i;
+      }
+    }
+    return idx;
+  }
+
+  revertirAEstado(estado: PedidoEstado): void {
+    if (!this.pedidoSeleccionado || this.revirtiendoEstado) {
+      return;
+    }
+
+    this.revirtiendoEstado = estado;
+    this.accionError = null;
+
+    this.pedidoService
+      .revertirEstado(this.pedidoSeleccionado.id, estado)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pedido) => {
+          this.pedidoSeleccionado = pedido;
+          this.actualizarPedidoEnLista(pedido);
+          this.revirtiendoEstado = null;
+        },
+        error: (err) => {
+          this.accionError = err?.error?.message || 'No se pudo revertir el estado.';
+          this.revirtiendoEstado = null;
         },
       });
   }
@@ -285,7 +319,7 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   }
 
   formatModalidad(modalidad: string): string {
-    return modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar';
+    return MODALIDAD_LABEL[modalidad as Modalidad] ?? modalidad;
   }
 
   getClienteInicial(nombre: string): string {

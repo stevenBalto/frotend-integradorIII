@@ -11,6 +11,7 @@ import {
   CambiarEstadoPayload,
   FiltrosPedidoAdmin,
 } from '../models/pedido.model';
+import { PedidoEstado } from '../../shared/constants/pedido-estado';
 
 /** Consumo de pedidos (cliente y admin). */
 @Injectable({ providedIn: 'root' })
@@ -50,6 +51,18 @@ export class PedidoService {
       .pipe(map((res) => res.data));
   }
 
+  /**
+   * GET /pedidos/mios/buscar?codigo=XXXX-XXXX — buscar un pedido PROPIO por codigo
+   * (autenticado). Devuelve el pedido completo (items, notas, sucursal, total)
+   * solo si el codigo pertenece al usuario logueado; 404 si no.
+   */
+  buscarPropioPorCodigo(codigo: string): Observable<Pedido> {
+    const params = new HttpParams().set('codigo', codigo);
+    return this.http
+      .get<ApiResource<Pedido>>(`${this.base}/pedidos/mios/buscar`, { params })
+      .pipe(map((res) => res.data));
+  }
+
   // ── Admin ──
 
   /** GET /admin/pedidos — listado de pedidos (admin). */
@@ -81,6 +94,17 @@ export class PedidoService {
     const body: CambiarEstadoPayload = { estado: estado as CambiarEstadoPayload['estado'], comentario };
     return this.http
       .post<ApiResource<PedidoAdmin>>(`${this.base}/admin/pedidos/${id}/estado`, body)
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * POST /admin/pedidos/{id}/revertir — revertir el pedido a un estado por el que
+   * YA paso (el backend valida contra el historial real y resetea `pagado` si
+   * corresponde). Devuelve el pedido actualizado.
+   */
+  revertirEstado(id: number, estado: PedidoEstado): Observable<PedidoAdmin> {
+    return this.http
+      .post<ApiResource<PedidoAdmin>>(`${this.base}/admin/pedidos/${id}/revertir`, { estado })
       .pipe(map((res) => res.data));
   }
 

@@ -80,6 +80,7 @@ export class AdminMenuPage implements OnInit {
     this.tamanos.push(this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(30)]],
       precio: [null, [Validators.required, Validators.min(0)]],
+      descripcion: ['', [Validators.maxLength(40)]],
     }));
   }
 
@@ -94,6 +95,7 @@ export class AdminMenuPage implements OnInit {
         this.tamanos.push(this.fb.group({
           nombre: [t.nombre, [Validators.required, Validators.maxLength(30)]],
           precio: [t.precio, [Validators.required, Validators.min(0)]],
+          descripcion: [t.descripcion ?? '', [Validators.maxLength(40)]],
         }));
       });
     }
@@ -185,6 +187,7 @@ export class AdminMenuPage implements OnInit {
     const tamanosExistentes = producto.tamanos?.map((t) => ({
       nombre: t.nombre,
       precio: t.precio,
+      descripcion: t.descripcion,
     })) ?? [];
     this.resetTamanos(tamanosExistentes);
     this.form.reset({
@@ -408,6 +411,8 @@ export class AdminMenuPage implements OnInit {
   // Seccion A: crear nueva extra
   guardandoExtraNueva = false;
   extraNuevaError: string | null = null;
+  extraImagenSeleccionada: File | null = null;
+  extraImagenPreview: string | null = null;
   readonly extraNuevaForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.maxLength(60)]],
     precio: [null, [Validators.required, Validators.min(0)]],
@@ -431,6 +436,7 @@ export class AdminMenuPage implements OnInit {
   abrirExtrasMgr(): void {
     this.extraNuevaError = null;
     this.asignarError = null;
+    this.limpiarExtraImagen();
     this.extraNuevaForm.reset({
       nombre: '',
       precio: null,
@@ -444,7 +450,29 @@ export class AdminMenuPage implements OnInit {
   }
 
   cerrarExtrasMgr(): void {
+    this.limpiarExtraImagen();
     this.extrasMgrOpen = false;
+  }
+
+  seleccionarExtraImagen(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0] ?? null;
+    if (!archivo) {
+      return;
+    }
+    this.extraImagenSeleccionada = archivo;
+    if (this.extraImagenPreview && this.extraImagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(this.extraImagenPreview);
+    }
+    this.extraImagenPreview = URL.createObjectURL(archivo);
+  }
+
+  private limpiarExtraImagen(): void {
+    if (this.extraImagenPreview && this.extraImagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(this.extraImagenPreview);
+    }
+    this.extraImagenSeleccionada = null;
+    this.extraImagenPreview = null;
   }
 
   onToggleEsGeneral(): void {
@@ -480,10 +508,11 @@ export class AdminMenuPage implements OnInit {
       categoria_id: esGeneral ? null : catId,
     };
 
-    this.extraService.crear(payload).subscribe({
+    this.extraService.crear(payload, this.extraImagenSeleccionada).subscribe({
       next: () => {
         this.guardandoExtraNueva = false;
         this.extraNuevaForm.patchValue({ nombre: '', precio: null });
+        this.limpiarExtraImagen();
         this.cargarExtras();
       },
       error: (err) => {

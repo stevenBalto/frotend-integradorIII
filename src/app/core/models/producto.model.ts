@@ -4,6 +4,8 @@ export interface ProductoTamano {
   nombre: string;
   precio: number;
   orden: number;
+  /** Detalle de cantidad opcional (ej. "12 slices", "500ml"). */
+  descripcion: string | null;
 }
 
 /** Extra disponible para un producto (ej. Extra queso). */
@@ -11,6 +13,8 @@ export interface ExtraDisponible {
   id: number;
   nombre: string;
   precio: number;
+  /** Foto del extra para el upsell en el modal de detalle (null si no tiene). */
+  imagen_url: string | null;
 }
 
 export interface Producto {
@@ -44,6 +48,7 @@ export interface Categoria {
 export interface TamanoPayload {
   nombre: string;
   precio: number;
+  descripcion?: string | null;
 }
 
 export interface ProductoPayload {

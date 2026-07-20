@@ -199,6 +199,37 @@
   color: var(--admin-text-muted);
   font-style: italic;
 }
+/* Boton sutil de revertir por fila del historial */
+.order-historial__revert {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s, background 0.15s;
+
+  ion-icon { font-size: 14px; color: var(--admin-text-muted); }
+
+  &:hover { opacity: 1; background: var(--admin-neutral1); }
+  &:disabled { cursor: default; }
+
+  &--loading {
+    opacity: 1;
+    ion-icon {
+      color: var(--rooster-red);
+      animation: order-historial-spin 0.8s linear infinite;
+    }
+  }
+}
+@keyframes order-historial-spin {
+  to { transform: rotate(360deg); }
+}
 
 /* ── Botones de accion ─────────────────────────────────────────────────────── */
 .order-actions {

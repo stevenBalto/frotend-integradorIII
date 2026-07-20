@@ -10,6 +10,9 @@
         <h2 class="pedir-header__title">Menu</h2>
         <p class="pedir-header__sub">Elige tu platillo favorito</p>
       </div>
+      <button type="button" class="pedir-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
+        <ion-icon name="receipt-outline"></ion-icon>
+      </button>
       <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-header__logo" />
     </div>
 
@@ -36,12 +39,12 @@
           <button type="button" class="pedir-config__toggle"
             [class.pedir-config__toggle--active]="modalidad === 'comer_aqui'"
             (click)="setModalidad('comer_aqui')">
-            <ion-icon name="restaurant-outline"></ion-icon> Comer aquí
+            <ion-icon name="restaurant-outline"></ion-icon> {{ MODALIDAD_LABEL['comer_aqui'] }}
           </button>
           <button type="button" class="pedir-config__toggle"
             [class.pedir-config__toggle--active]="modalidad === 'para_llevar'"
             (click)="setModalidad('para_llevar')">
-            <ion-icon name="bag-handle-outline"></ion-icon> Para llevar
+            <ion-icon name="bag-handle-outline"></ion-icon> {{ MODALIDAD_LABEL['para_llevar'] }}
           </button>
         </div>
       </div>
@@ -104,13 +107,14 @@
   <!-- VISTA: CARRITO -->
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <ng-container *ngIf="vista === 'carrito'">
+   <div class="pedir-narrow">
     <div class="pedir-header">
       <button type="button" class="pedir-header__back" (click)="irAMenu()">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </button>
       <div>
         <h2 class="pedir-header__title">Tu carrito</h2>
-        <p class="pedir-header__sub">{{ sucursalSeleccionada?.nombre || 'Sin sucursal' }} - {{ modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar' }}</p>
+        <p class="pedir-header__sub">{{ sucursalSeleccionada?.nombre || 'Sin sucursal' }} - {{ modalidadLabel }}</p>
       </div>
     </div>
 
@@ -161,12 +165,14 @@
         Vaciar carrito
       </button>
     </div>
+   </div>
   </ng-container>
 
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <!-- VISTA: CHECKOUT -->
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <ng-container *ngIf="vista === 'checkout'">
+   <div class="pedir-narrow">
     <div class="pedir-header">
       <button type="button" class="pedir-header__back" (click)="irACarrito()">
         <ion-icon name="arrow-back-outline"></ion-icon>
@@ -180,7 +186,15 @@
     <div class="checkout-form">
       <div class="checkout-section">
         <label class="checkout-label">A nombre de quien?</label>
-        <input type="text" class="checkout-input" placeholder="Tu nombre" [(ngModel)]="nombreCliente" />
+        <input type="text" class="checkout-input" [placeholder]="nombreClientePlaceholder" [(ngModel)]="nombreCliente" />
+      </div>
+
+      <div class="checkout-section">
+        <label class="checkout-label">Modalidad</label>
+        <p class="checkout-modalidad">
+          <ion-icon [name]="modalidad === 'comer_aqui' ? 'restaurant-outline' : 'bag-handle-outline'"></ion-icon>
+          {{ modalidadLabel }}
+        </p>
       </div>
 
       <div class="checkout-section">
@@ -214,6 +228,7 @@
         {{ enviandoPedido ? 'Enviando...' : 'Confirmar pedido' }}
       </button>
     </div>
+   </div>
   </ng-container>
 
   <!-- ════════════════════════════════════════════════════════════════════════ -->
@@ -237,9 +252,9 @@
           <ion-icon name="location-outline"></ion-icon>
           <span>{{ pedidoConfirmado.sucursal.nombre }}</span>
         </div>
-        <div class="confirm-info__row" *ngIf="pedidoConfirmado.hora_estimada">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>Tiempo estimado: {{ pedidoConfirmado.hora_estimada }}</span>
+        <div class="confirm-info__row">
+          <ion-icon [name]="modalidad === 'comer_aqui' ? 'restaurant-outline' : 'bag-handle-outline'"></ion-icon>
+          <span>{{ MODALIDAD_LABEL[pedidoConfirmado.modalidad] }}</span>
         </div>
         <div class="confirm-info__row">
           <ion-icon name="receipt-outline"></ion-icon>
@@ -281,25 +296,31 @@
             *ngFor="let t of productoDetalle.tamanos"
             [class.dish-modal__option--active]="tamanoSeleccionado?.id === t.id"
             (click)="seleccionarTamano(t)">
-            <span class="dish-modal__option-name">{{ t.nombre }}</span>
+            <span class="dish-modal__option-name">{{ t.nombre }}{{ t.descripcion ? ' — ' + t.descripcion : '' }}</span>
             <span class="dish-modal__option-price">{{ t.precio | crcCurrency }}</span>
           </button>
         </div>
       </div>
 
-      <!-- Selector de extras -->
+      <!-- Selector de extras - cards con foto, estilo upsell -->
       <div class="dish-modal__section" *ngIf="productoDetalle.extras && productoDetalle.extras.length > 0">
-        <p class="dish-modal__section-title">Extras</p>
-        <div class="dish-modal__options">
-          <button type="button" class="dish-modal__option dish-modal__option--check"
+        <p class="dish-modal__section-title">Hazlo mejor con un extra</p>
+        <div class="dish-modal__extras">
+          <button type="button" class="extra-card"
             *ngFor="let e of productoDetalle.extras"
-            [class.dish-modal__option--active]="extraSeleccionado(e)"
+            [class.extra-card--active]="extraSeleccionado(e)"
             (click)="toggleExtra(e)">
-            <span class="dish-modal__option-check">
-              <ion-icon [name]="extraSeleccionado(e) ? 'checkbox' : 'square-outline'"></ion-icon>
+            <div class="extra-card__img">
+              <img *ngIf="e.imagen_url" [src]="e.imagen_url" [alt]="e.nombre" />
+              <ion-icon *ngIf="!e.imagen_url" name="fast-food-outline"></ion-icon>
+            </div>
+            <div class="extra-card__info">
+              <span class="extra-card__name">{{ e.nombre }}</span>
+              <span class="extra-card__price">+{{ e.precio | crcCurrency }}</span>
+            </div>
+            <span class="extra-card__check">
+              <ion-icon [name]="extraSeleccionado(e) ? 'checkmark-circle' : 'add-circle-outline'"></ion-icon>
             </span>
-            <span class="dish-modal__option-name">{{ e.nombre }}</span>
-            <span class="dish-modal__option-price">+{{ e.precio | crcCurrency }}</span>
           </button>
         </div>
       </div>
@@ -309,6 +330,84 @@
       <button type="button" class="dish-modal__cta" [disabled]="!puedeAgregar" (click)="agregarAlCarrito()">
         <ion-icon name="cart-outline"></ion-icon> Anadir al carrito
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Buscar mi pedido ───────────────────────────────────────────────── -->
+<div class="buscar-modal" *ngIf="buscarModalAbierto">
+  <div class="buscar-modal__backdrop" (click)="cerrarBuscarPedido()"></div>
+  <div class="buscar-modal__panel">
+    <div class="buscar-modal__header">
+      <h3 class="buscar-modal__title">Buscar mi pedido</h3>
+      <button type="button" class="buscar-modal__close" (click)="cerrarBuscarPedido()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="buscar-modal__body">
+      <p class="buscar-modal__desc">Ingresá el código de tu pedido para ver su detalle.</p>
+
+      <input type="text" class="buscar-modal__input"
+        placeholder="Ej. ABCD-1234"
+        [(ngModel)]="codigoBusqueda"
+        (keyup.enter)="buscarMiPedido()" />
+
+      <p *ngIf="buscarError" class="buscar-modal__error">{{ buscarError }}</p>
+
+      <button type="button" class="buscar-modal__btn"
+        [disabled]="buscandoPedido || !codigoBusqueda.trim()"
+        (click)="buscarMiPedido()">
+        {{ buscandoPedido ? 'Buscando...' : 'Buscar pedido' }}
+      </button>
+
+      <!-- Resultado detallado -->
+      <div class="buscar-resultado" *ngIf="pedidoBuscado">
+        <div class="buscar-resultado__head">
+          <span class="buscar-resultado__codigo">{{ pedidoBuscado.codigo }}</span>
+          <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoBuscado.estado)">
+            {{ getEstadoLabel(pedidoBuscado.estado) }}
+          </span>
+        </div>
+
+        <div class="buscar-resultado__meta">
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>{{ pedidoBuscado.nombre_cliente || nombreClientePlaceholder }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ formatFecha(pedidoBuscado.created_at) }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>{{ pedidoBuscado.sucursal.nombre }} · {{ MODALIDAD_LABEL[pedidoBuscado.modalidad] }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row" *ngIf="pedidoBuscado.notas">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <span>"{{ pedidoBuscado.notas }}"</span>
+          </div>
+        </div>
+
+        <div class="buscar-resultado__items">
+          <div class="buscar-resultado__item" *ngFor="let item of pedidoBuscado.items">
+            <div class="buscar-resultado__item-main">
+              <span class="buscar-resultado__item-name">
+                {{ item.cantidad }}x {{ item.producto_nombre }}<span *ngIf="item.tamano_nombre"> ({{ item.tamano_nombre }})</span>
+              </span>
+              <span class="buscar-resultado__item-price">{{ item.subtotal | crcCurrency }}</span>
+            </div>
+            <div class="buscar-resultado__item-extras" *ngIf="item.extras && item.extras.length > 0">
+              <span *ngFor="let e of item.extras; let last = last">+ {{ e.nombre }}{{ last ? '' : ', ' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="buscar-resultado__total">
+          <span>Total</span>
+          <span>{{ pedidoBuscado.total | crcCurrency }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -167,31 +167,51 @@
         {{ buscandoPedido ? 'Buscando...' : 'Buscar pedido' }}
       </button>
 
-      <!-- Resultado -->
+      <!-- Resultado detallado -->
       <div class="buscar-resultado" *ngIf="pedidoEncontrado">
-        <div class="buscar-resultado__row">
-          <span class="buscar-resultado__label">Código</span>
-          <span class="buscar-resultado__value">{{ pedidoEncontrado.codigo }}</span>
-        </div>
-        <div class="buscar-resultado__row">
-          <span class="buscar-resultado__label">Estado</span>
+        <div class="buscar-resultado__head">
+          <span class="buscar-resultado__codigo">{{ pedidoEncontrado.codigo }}</span>
           <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoEncontrado.estado)">
             {{ getEstadoLabel(pedidoEncontrado.estado) }}
           </span>
         </div>
-        <div class="buscar-resultado__row">
-          <span class="buscar-resultado__label">Modalidad</span>
-          <span class="buscar-resultado__value">
-            {{ pedidoEncontrado.modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar' }}
-          </span>
+
+        <div class="buscar-resultado__meta">
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>{{ pedidoEncontrado.nombre_cliente || nombreUsuario }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ formatFecha(pedidoEncontrado.created_at) }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>{{ pedidoEncontrado.sucursal.nombre }} · {{ MODALIDAD_LABEL[pedidoEncontrado.modalidad] }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row" *ngIf="pedidoEncontrado.notas">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <span>"{{ pedidoEncontrado.notas }}"</span>
+          </div>
         </div>
-        <div class="buscar-resultado__row">
-          <span class="buscar-resultado__label">Sucursal</span>
-          <span class="buscar-resultado__value">{{ pedidoEncontrado.sucursal }}</span>
+
+        <div class="buscar-resultado__items">
+          <div class="buscar-resultado__item" *ngFor="let item of pedidoEncontrado.items">
+            <div class="buscar-resultado__item-main">
+              <span class="buscar-resultado__item-name">
+                {{ item.cantidad }}x {{ item.producto_nombre }}<span *ngIf="item.tamano_nombre"> ({{ item.tamano_nombre }})</span>
+              </span>
+              <span class="buscar-resultado__item-price">{{ item.subtotal | crcCurrency }}</span>
+            </div>
+            <div class="buscar-resultado__item-extras" *ngIf="item.extras && item.extras.length > 0">
+              <span *ngFor="let e of item.extras; let last = last">+ {{ e.nombre }}{{ last ? '' : ', ' }}</span>
+            </div>
+          </div>
         </div>
-        <div class="buscar-resultado__row" *ngIf="pedidoEncontrado.hora_estimada">
-          <span class="buscar-resultado__label">Hora estimada</span>
-          <span class="buscar-resultado__value">{{ pedidoEncontrado.hora_estimada }}</span>
+
+        <div class="buscar-resultado__total">
+          <span>Total</span>
+          <span>{{ pedidoEncontrado.total | crcCurrency }}</span>
         </div>
       </div>
     </div>

@@ -149,12 +149,15 @@
           <div class="menu-form__tamanos" formArrayName="tamanos">
             <div class="menu-form__tamano" *ngFor="let t of tamanos.controls; let i = index" [formGroupName]="i">
               <input type="text" formControlName="nombre" class="menu-form__input menu-form__input--sm"
-                placeholder="Nombre (ej. Mediana)" />
+                placeholder="Nombre (ej. Grande)" />
               <input type="number" formControlName="precio" class="menu-form__input menu-form__input--sm"
                 placeholder="Precio" min="0" />
               <button type="button" class="menu-form__remove-btn" (click)="quitarTamano(i)">
                 <ion-icon name="trash-outline"></ion-icon>
               </button>
+              <input type="text" formControlName="descripcion"
+                class="menu-form__input menu-form__input--sm menu-form__input--full"
+                placeholder="Cantidad (opcional, ej. 12 slices)" maxlength="40" />
             </div>
             <p class="menu-form__hint" *ngIf="tamanos.length === 0">
               Sin tamanos. El producto usara el precio base.
@@ -272,6 +275,17 @@
         </div>
 
         <form [formGroup]="extraNuevaForm" (ngSubmit)="guardarExtraNueva()" class="menu-form">
+          <label class="menu-form__label">
+            Foto del extra
+            <div class="menu-form__photo">
+              <div class="menu-form__photo-preview">
+                <img *ngIf="extraImagenPreview" [src]="extraImagenPreview" alt="Preview" />
+                <ion-icon *ngIf="!extraImagenPreview" name="image-outline"></ion-icon>
+              </div>
+              <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarExtraImagen($event)" class="menu-form__file" />
+            </div>
+          </label>
+
           <label class="menu-form__label">
             Nombre
             <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Extra queso" />

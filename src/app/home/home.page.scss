@@ -459,6 +459,79 @@
   color: var(--rooster-red);
 }
 
+/* ── Extras como cards con foto (upsell) ────────────────────────────────────── */
+.dish-modal__extras {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.extra-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 0;
+  border-radius: 14px;
+  border: 1.5px solid var(--rooster-border);
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  font-family: var(--rooster-font-sans);
+  transition: all 0.2s;
+
+  &:active { transform: scale(0.98); }
+
+  &--active {
+    border-color: var(--rooster-red);
+    box-shadow: 0 0 0 2px rgba(225, 54, 66, 0.12);
+  }
+
+  &__img {
+    width: 100%;
+    height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--rooster-bg);
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+    ion-icon { font-size: 30px; color: var(--rooster-brown); }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px 10px;
+  }
+
+  &__name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rooster-dark);
+    line-height: 1.25;
+  }
+
+  &__price {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rooster-red);
+  }
+
+  &__check {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+
+    ion-icon { font-size: 22px; color: var(--rooster-brown); }
+  }
+
+  &--active &__check ion-icon { color: var(--rooster-red); }
+}
+
 .dish-modal__cta {
   width: 100%;
   display: flex;

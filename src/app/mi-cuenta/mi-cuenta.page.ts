@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { PedidoService } from '../core/services/pedido.service';
-import { PedidoPublico } from '../core/models/pedido.model';
+import { Pedido } from '../core/models/pedido.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
+import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 
 @Component({
   selector: 'app-mi-cuenta',
@@ -17,13 +18,20 @@ export class MiCuentaPage {
   codigoBusqueda = '';
   buscandoPedido = false;
   buscarError: string | null = null;
-  pedidoEncontrado: PedidoPublico | null = null;
+  pedidoEncontrado: Pedido | null = null;
+
+  readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   constructor(
     private auth: AuthService,
     private router: Router,
     private pedidoService: PedidoService,
   ) {}
+
+  /** Nombre del usuario logueado (para mostrar en el resultado de busqueda). */
+  get nombreUsuario(): string {
+    return this.auth.usuario?.nombre ?? 'Vos';
+  }
 
   /** Cierra sesion en backend + local y vuelve al login. */
   cerrarSesion(): void {
@@ -66,13 +74,14 @@ export class MiCuentaPage {
     this.buscarError = null;
     this.pedidoEncontrado = null;
 
-    this.pedidoService.buscarPorCodigo(codigo).subscribe({
+    // Endpoint autenticado: devuelve el pedido completo del usuario logueado.
+    this.pedidoService.buscarPropioPorCodigo(codigo).subscribe({
       next: (pedido) => {
         this.pedidoEncontrado = pedido;
         this.buscandoPedido = false;
       },
       error: (err) => {
-        this.buscarError = err?.error?.message || 'No encontramos un pedido con ese codigo.';
+        this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código a tu nombre.';
         this.buscandoPedido = false;
       },
     });
@@ -80,6 +89,17 @@ export class MiCuentaPage {
 
   getEstadoLabel(estado: PedidoEstado): string {
     return PEDIDO_ESTADO_LABEL[estado] || estado;
+  }
+
+  formatFecha(fecha: string): string {
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-CR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   getEstadoClass(estado: PedidoEstado): string {

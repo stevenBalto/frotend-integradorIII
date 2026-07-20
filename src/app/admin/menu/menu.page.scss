@@ -242,11 +242,15 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 .menu-form__input--sm {
   flex: 1;
   padding: 8px 10px;
   font-size: 12px;
+}
+.menu-form__input--full {
+  flex-basis: 100%;
 }
 .menu-form__remove-btn {
   width: 28px;

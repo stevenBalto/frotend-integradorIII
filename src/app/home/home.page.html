@@ -89,25 +89,31 @@
             *ngFor="let t of productoDetalle.tamanos"
             [class.dish-modal__option--active]="tamanoSeleccionado?.id === t.id"
             (click)="seleccionarTamano(t)">
-            <span class="dish-modal__option-name">{{ t.nombre }}</span>
+            <span class="dish-modal__option-name">{{ t.nombre }}{{ t.descripcion ? ' — ' + t.descripcion : '' }}</span>
             <span class="dish-modal__option-price">{{ t.precio | crcCurrency }}</span>
           </button>
         </div>
       </div>
 
-      <!-- Selector de extras (si aplica) -->
+      <!-- Selector de extras (si aplica) - cards con foto, estilo upsell -->
       <div class="dish-modal__section" *ngIf="productoDetalle.extras && productoDetalle.extras.length > 0">
-        <p class="dish-modal__section-title">Extras</p>
-        <div class="dish-modal__options">
-          <button type="button" class="dish-modal__option dish-modal__option--check"
+        <p class="dish-modal__section-title">Hazlo mejor con un extra</p>
+        <div class="dish-modal__extras">
+          <button type="button" class="extra-card"
             *ngFor="let e of productoDetalle.extras"
-            [class.dish-modal__option--active]="extraSeleccionado(e)"
+            [class.extra-card--active]="extraSeleccionado(e)"
             (click)="toggleExtra(e)">
-            <span class="dish-modal__option-check">
-              <ion-icon [name]="extraSeleccionado(e) ? 'checkbox' : 'square-outline'"></ion-icon>
+            <div class="extra-card__img">
+              <img *ngIf="e.imagen_url" [src]="e.imagen_url" [alt]="e.nombre" />
+              <ion-icon *ngIf="!e.imagen_url" name="fast-food-outline"></ion-icon>
+            </div>
+            <div class="extra-card__info">
+              <span class="extra-card__name">{{ e.nombre }}</span>
+              <span class="extra-card__price">+{{ e.precio | crcCurrency }}</span>
+            </div>
+            <span class="extra-card__check">
+              <ion-icon [name]="extraSeleccionado(e) ? 'checkmark-circle' : 'add-circle-outline'"></ion-icon>
             </span>
-            <span class="dish-modal__option-name">{{ e.nombre }}</span>
-            <span class="dish-modal__option-price">+{{ e.precio | crcCurrency }}</span>
           </button>
         </div>
       </div>

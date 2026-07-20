@@ -31,7 +31,7 @@
           {{ p.sucursal.nombre }}
         </span>
         <span class="pedido-card__modalidad">
-          {{ p.modalidad === 'comer_aqui' ? 'Comer aquí' : 'Para llevar' }}
+          {{ MODALIDAD_LABEL[p.modalidad] }}
         </span>
       </div>
 
