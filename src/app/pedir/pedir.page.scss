@@ -288,6 +288,13 @@
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 
+  /* Chromium colapsa la altura de un flex row con overflow-x:auto cuando el
+     contenido excede el ancho disponible (bug de layout, no de contenido) —
+     min-height explicito evita que los chips queden recortados/tapados por
+     el listado de platillos debajo. Valor = alto real de .pedir-cat (padding
+     14px*2 + line-height 13px + borde ~3px). */
+  min-height: 44px;
+
   @media (min-width: 768px) {
     padding: 0 32px 20px;
     margin-bottom: 12px;
