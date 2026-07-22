@@ -2,21 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
-import { CategoriaService } from '../core/services/categoria.service';
 import { ProductoService } from '../core/services/producto.service';
+import { OfertaService } from '../core/services/oferta.service';
+import { CuponService } from '../core/services/cupon.service';
+import { HomeConfigService } from '../core/services/home-config.service';
 import { CarritoService, LineaCarrito } from '../core/services/carrito.service';
 import { Usuario } from '../core/models/usuario.model';
-import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
+import { Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
+import { Oferta } from '../core/models/oferta.model';
+import { Cupon } from '../core/models/cupon.model';
 
-/** Foto decorativa por categoria (placeholder hasta integrar Cloudinary). */
-const IMAGEN_CATEGORIA: Record<string, string> = {
-  pizza: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop&auto=format',
-  grill: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop&auto=format',
-  pastas: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=200&h=200&fit=crop&auto=format',
-  bebidas: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&auto=format',
-};
-const IMAGEN_CATEGORIA_DEFAULT = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&auto=format';
-
+/** Home cliente: vitrina (destacados/populares/nuevo + ofertas + cupones vigentes). El menu completo vive en la tab "Carrito". */
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -26,10 +22,13 @@ const IMAGEN_CATEGORIA_DEFAULT = 'https://images.unsplash.com/photo-150467490024
 export class HomePage implements OnInit {
   readonly usuario$: Observable<Usuario | null>;
 
-  categorias: Categoria[] = [];
-  activeCat: number | null = null;
+  destacados: Producto[] = [];
+  populares: Producto[] = [];
+  nuevos: Producto[] = [];
+  ofertas: Oferta[] = [];
+  cupones: Cupon[] = [];
+  ofertaHeroId: number | null = null;
 
-  productos: Producto[] = [];
   cargando = false;
   error: string | null = null;
 
@@ -43,8 +42,10 @@ export class HomePage implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private categoriaService: CategoriaService,
     private productoService: ProductoService,
+    private ofertaService: OfertaService,
+    private cuponService: CuponService,
+    private homeConfigService: HomeConfigService,
     private carritoService: CarritoService,
     private toast: ToastController,
   ) {
@@ -52,25 +53,7 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.categoriaService.listarActivas().subscribe({
-      next: (categorias) => (this.categorias = categorias),
-    });
-    this.cargarProductos();
-  }
-
-  get productosFiltrados(): Producto[] {
-    if (this.activeCat === null) {
-      return this.productos;
-    }
-    return this.productos.filter((p) => p.categoria_id === this.activeCat);
-  }
-
-  imagenCategoria(nombre: string): string {
-    return IMAGEN_CATEGORIA[nombre.toLowerCase()] ?? IMAGEN_CATEGORIA_DEFAULT;
-  }
-
-  seleccionarCategoria(id: number | null): void {
-    this.activeCat = id;
+    this.cargarVitrina();
   }
 
   abrirDetalle(producto: Producto): void {
@@ -153,12 +136,29 @@ export class HomePage implements OnInit {
     await t.present();
   }
 
-  private cargarProductos(): void {
+  /** Texto del descuento de una oferta, ej. "20% OFF" o "-₡500". */
+  descuentoOferta(o: Oferta): string {
+    return o.tipo_descuento === 'porcentaje' ? `${o.valor}% OFF` : `-₡${o.valor}`;
+  }
+
+  /** Texto del descuento de un cupon, ej. "15% OFF" o "-₡1000". */
+  descuentoCupon(c: Cupon): string {
+    return c.tipo === 'porcentaje' ? `${c.valor}% OFF` : `-₡${c.valor}`;
+  }
+
+  esOfertaHero(o: Oferta): boolean {
+    return this.ofertaHeroId !== null && o.id === this.ofertaHeroId;
+  }
+
+  private cargarVitrina(): void {
     this.cargando = true;
     this.error = null;
+
     this.productoService.listarDisponibles().subscribe({
       next: (productos) => {
-        this.productos = productos;
+        this.destacados = productos.filter((p) => p.destacado);
+        this.populares = productos.filter((p) => p.popular);
+        this.nuevos = productos.filter((p) => p.nuevo);
         this.cargando = false;
       },
       error: () => {
@@ -166,5 +166,32 @@ export class HomePage implements OnInit {
         this.cargando = false;
       },
     });
+
+    this.homeConfigService.obtener().subscribe({
+      next: (config) => {
+        this.ofertaHeroId = config.oferta_hero_id;
+        this.ordenarOfertas();
+      },
+    });
+
+    this.ofertaService.listarPublicas().subscribe({
+      next: (ofertas) => {
+        this.ofertas = ofertas;
+        this.ordenarOfertas();
+      },
+    });
+
+    this.cuponService.listarPublicos().subscribe({
+      next: (cupones) => (this.cupones = cupones),
+    });
+  }
+
+  /** Pone la oferta "hero" elegida en admin primero, si hay alguna vigente. */
+  private ordenarOfertas(): void {
+    if (this.ofertaHeroId === null) {
+      return;
+    }
+    const heroId = this.ofertaHeroId;
+    this.ofertas = [...this.ofertas].sort((a, b) => (a.id === heroId ? -1 : b.id === heroId ? 1 : 0));
   }
 }

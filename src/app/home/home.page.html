@@ -9,59 +9,84 @@
     <img src="assets/logo/rooster-logo.png" alt="Rooster" class="home-header__logo" />
   </div>
 
-  <!-- Categorias -->
-  <div class="home-section">
+  <p *ngIf="error" class="home-section__error" style="padding: 0 20px;">{{ error }}</p>
+
+  <!-- Ofertas vigentes -->
+  <div class="home-section" *ngIf="!cargando && ofertas.length > 0">
     <div class="home-section__row">
-      <span class="home-section__label">Categorias</span>
+      <span class="home-section__label">Ofertas</span>
     </div>
-    <div class="categories-scroll">
-
-      <button class="category-item" [class.category-item--active]="activeCat === null" (click)="seleccionarCategoria(null)">
-        <div class="category-item__img-wrap" [class.category-item__img-wrap--active]="activeCat === null">
-          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&auto=format" alt="Todos" />
-        </div>
-        <span class="category-item__label" [class.category-item__label--active]="activeCat === null">Todos</span>
-      </button>
-
-      <button class="category-item" *ngFor="let c of categorias"
-        [class.category-item--active]="activeCat === c.id" (click)="seleccionarCategoria(c.id)">
-        <div class="category-item__img-wrap" [class.category-item__img-wrap--active]="activeCat === c.id">
-          <img [src]="imagenCategoria(c.nombre)" [alt]="c.nombre" />
-        </div>
-        <span class="category-item__label" [class.category-item__label--active]="activeCat === c.id">{{ c.nombre }}</span>
-      </button>
-
-    </div>
-  </div>
-
-  <!-- Platillos -->
-  <div class="home-section">
-    <div class="home-section__row">
-      <span class="home-section__label">Platillos populares</span>
-    </div>
-
-    <p *ngIf="error" class="home-section__error">{{ error }}</p>
-    <p *ngIf="cargando" class="home-section__loading">Cargando menú...</p>
-    <p *ngIf="!cargando && !error && productosFiltrados.length === 0" class="home-section__loading">
-      No hay platillos disponibles en esta categoría.
-    </p>
-
-    <div class="dish-grid" *ngIf="!cargando">
-      <div class="dish-card" *ngFor="let p of productosFiltrados" (click)="abrirDetalle(p)">
-        <div class="dish-card__img dish-card__img--placeholder" *ngIf="!p.imagen_url">
-          <ion-icon name="restaurant-outline"></ion-icon>
-        </div>
-        <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="dish-card__img" />
-        <div class="dish-card__body">
-          <span class="dish-card__name">{{ p.nombre }}</span>
-          <span class="dish-card__desc">{{ p.descripcion }}</span>
-          <span class="dish-card__price">{{ p.precio_base | crcCurrency }}</span>
-        </div>
+    <div class="promo-scroll">
+      <div class="promo-card promo-card--oferta" [class.promo-card--hero]="esOfertaHero(o)" *ngFor="let o of ofertas">
+        <span class="promo-card__badge">{{ esOfertaHero(o) ? '★ ' : '' }}{{ descuentoOferta(o) }}</span>
+        <span class="promo-card__title">{{ o.nombre }}</span>
+        <span class="promo-card__desc" *ngIf="o.descripcion">{{ o.descripcion }}</span>
       </div>
     </div>
   </div>
 
+  <!-- Cupones vigentes -->
+  <div class="home-section" *ngIf="!cargando && cupones.length > 0">
+    <div class="home-section__row">
+      <span class="home-section__label">Cupones para ti</span>
+    </div>
+    <div class="promo-scroll">
+      <div class="promo-card promo-card--cupon" *ngFor="let c of cupones">
+        <span class="promo-card__badge">{{ descuentoCupon(c) }}</span>
+        <span class="promo-card__title">{{ c.codigo }}</span>
+        <span class="promo-card__desc" *ngIf="c.monto_minimo">Compra mínima ₡{{ c.monto_minimo }}</span>
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="cargando" class="home-section__loading" style="padding: 0 20px;">Cargando menú...</p>
+
+  <!-- Destacados -->
+  <div class="home-section" *ngIf="!cargando && destacados.length > 0">
+    <div class="home-section__row">
+      <span class="home-section__label">Destacados</span>
+    </div>
+    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: destacados }"></ng-container>
+  </div>
+
+  <!-- Populares -->
+  <div class="home-section" *ngIf="!cargando && populares.length > 0">
+    <div class="home-section__row">
+      <span class="home-section__label">Populares</span>
+    </div>
+    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: populares }"></ng-container>
+  </div>
+
+  <!-- Lo nuevo -->
+  <div class="home-section" *ngIf="!cargando && nuevos.length > 0">
+    <div class="home-section__row">
+      <span class="home-section__label">Lo nuevo</span>
+    </div>
+    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: nuevos }"></ng-container>
+  </div>
+
+  <p *ngIf="!cargando && !error && destacados.length === 0 && populares.length === 0 && nuevos.length === 0"
+    class="home-section__loading" style="padding: 0 20px;">
+    Todavía no hay platillos destacados.
+  </p>
+
 </ion-content>
+
+<ng-template #dishGrid let-lista="lista">
+  <div class="dish-grid">
+    <div class="dish-card" *ngFor="let p of lista" (click)="abrirDetalle(p)">
+      <div class="dish-card__img dish-card__img--placeholder" *ngIf="!p.imagen_url">
+        <ion-icon name="restaurant-outline"></ion-icon>
+      </div>
+      <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="dish-card__img" />
+      <div class="dish-card__body">
+        <span class="dish-card__name">{{ p.nombre }}</span>
+        <span class="dish-card__desc">{{ p.descripcion }}</span>
+        <span class="dish-card__price">{{ p.precio_base | crcCurrency }}</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
 
 <!-- ── Modal Detalle de platillo ─────────────────────────────────────────── -->
 <div class="dish-modal" *ngIf="detalleAbierto && productoDetalle">
