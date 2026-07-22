@@ -48,6 +48,34 @@
       </div>
     </admin-section-card>
 
+    <!-- Ofertas: activar/desactivar en el Home -->
+    <admin-section-card title="Ofertas">
+      <p class="inicio-hint">
+        Igual que en "Secciones del Home": activá o desactivá cada oferta con el checkbox para que
+        aparezca (o no) en el Home del cliente. Solo las activas y vigentes se pueden elegir como "hero" abajo.
+      </p>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Oferta</th><th>Descuento</th><th>Vigencia</th><th>Estado</th><th>Activa</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of ofertas">
+              <td class="admin-table__strong" style="font-size: 12px;">{{ o.nombre }}</td>
+              <td><span class="inicio-tag">{{ descuentoOferta(o) }}</span></td>
+              <td class="inicio-muted">{{ o.fecha_inicio || '—' }} a {{ o.fecha_fin || '—' }}</td>
+              <td><status-badge [type]="estadoOferta(o)"></status-badge></td>
+              <td><ion-toggle [checked]="o.activa" (ionChange)="toggleOferta(o)"></ion-toggle></td>
+            </tr>
+            <tr *ngIf="ofertas.length === 0">
+              <td colspan="5" class="inicio-muted">No hay ofertas registradas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </admin-section-card>
+
     <!-- Oferta destacada (hero) -->
     <admin-section-card title="Oferta destacada del Home">
       <p class="inicio-hint">
@@ -65,25 +93,31 @@
         </admin-btn>
       </div>
       <ng-template #sinOfertas>
-        <p class="inicio-muted">No hay ofertas vigentes ahora mismo.</p>
+        <p class="inicio-muted">No hay ofertas activas y vigentes ahora mismo.</p>
       </ng-template>
     </admin-section-card>
 
-    <!-- Cupones vigentes (preview de solo lectura) -->
-    <admin-section-card title="Cupones vigentes (vista previa del Home)">
+    <!-- Cupones: activar/desactivar en el Home -->
+    <admin-section-card title="Cupones">
+      <p class="inicio-hint">
+        Igual que en "Secciones del Home": activá o desactivá cada cupón con el checkbox para que
+        aparezca (o no) en el Home del cliente.
+      </p>
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Código</th><th>Descuento</th><th>Vigencia</th></tr>
+            <tr><th>Código</th><th>Descuento</th><th>Vigencia</th><th>Estado</th><th>Activo</th></tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of cuponesVigentes">
+            <tr *ngFor="let c of cupones">
               <td class="admin-table__strong" style="font-size: 12px;">{{ c.codigo }}</td>
-              <td class="inicio-muted">{{ c.tipo === 'porcentaje' ? c.valor + '%' : ('₡' + c.valor) }}</td>
+              <td><span class="inicio-tag">{{ descuentoCupon(c) }}</span></td>
               <td class="inicio-muted">{{ c.fecha_inicio || '—' }} a {{ c.fecha_fin || '—' }}</td>
+              <td><status-badge [type]="estadoCupon(c)"></status-badge></td>
+              <td><ion-toggle [checked]="c.activo" (ionChange)="toggleCupon(c)"></ion-toggle></td>
             </tr>
-            <tr *ngIf="cuponesVigentes.length === 0">
-              <td colspan="3" class="inicio-muted">No hay cupones vigentes ahora mismo.</td>
+            <tr *ngIf="cupones.length === 0">
+              <td colspan="5" class="inicio-muted">No hay cupones registrados.</td>
             </tr>
           </tbody>
         </table>

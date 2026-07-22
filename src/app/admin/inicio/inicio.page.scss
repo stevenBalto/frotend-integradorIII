@@ -38,3 +38,16 @@
   color: var(--admin-text);
   background: #fff;
 }
+
+.inicio-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  font-family: var(--rooster-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--rooster-red), #b8232f);
+  white-space: nowrap;
+}

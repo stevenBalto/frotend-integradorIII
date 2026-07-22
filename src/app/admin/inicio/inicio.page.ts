@@ -10,8 +10,9 @@ import { Cupon } from '../../core/models/cupon.model';
 
 /**
  * Curacion del Home cliente. No duplica datos: reutiliza Productos/Ofertas/Cupones
- * ya existentes. Lo unico que persiste esta pagina es la oferta "hero" (cuando hay
- * varias vigentes a la vez) via /admin/home-config.
+ * ya existentes. Ofertas y cupones se administran igual que las secciones de
+ * productos (checkbox de activo/a). Lo unico que persiste esta pagina aparte es
+ * la oferta "hero" (cuando hay varias vigentes a la vez) via /admin/home-config.
  */
 @Component({
   selector: 'app-admin-inicio',
@@ -21,8 +22,8 @@ import { Cupon } from '../../core/models/cupon.model';
 })
 export class AdminInicioPage implements OnInit {
   productos: Producto[] = [];
-  ofertasVigentes: Oferta[] = [];
-  cuponesVigentes: Cupon[] = [];
+  ofertas: Oferta[] = [];
+  cupones: Cupon[] = [];
   ofertaHeroId: number | null = null;
 
   cargando = false;
@@ -53,6 +54,31 @@ export class AdminInicioPage implements OnInit {
     return this.productos.filter((p) => p.nuevo);
   }
 
+  /** Ofertas activas y no vencidas (elegibles como hero / contadas en el KPI). */
+  get ofertasVigentes(): Oferta[] {
+    return this.ofertas.filter((o) => o.activa && !this.estaVencida(o.fecha_fin));
+  }
+
+  /** Texto del descuento de una oferta, ej. "20% OFF" o "-₡500". */
+  descuentoOferta(o: Oferta): string {
+    return o.tipo_descuento === 'porcentaje' ? `${o.valor}% OFF` : `-₡${o.valor}`;
+  }
+
+  /** Texto del descuento de un cupon, ej. "15% OFF" o "-₡1000". */
+  descuentoCupon(c: Cupon): string {
+    return c.tipo === 'porcentaje' ? `${c.valor}% OFF` : `-₡${c.valor}`;
+  }
+
+  estadoOferta(o: Oferta): 'active' | 'inactive' | 'expired' {
+    if (this.estaVencida(o.fecha_fin)) return 'expired';
+    return o.activa ? 'active' : 'inactive';
+  }
+
+  estadoCupon(c: Cupon): 'active' | 'inactive' | 'expired' {
+    if (this.estaVencida(c.fecha_fin)) return 'expired';
+    return c.activo ? 'active' : 'inactive';
+  }
+
   /** Toggle rapido de una seccion del Home (destacado/popular/nuevo) sin ir al modulo Menu. */
   async toggleSeccion(producto: Producto, campo: 'destacado' | 'popular' | 'nuevo'): Promise<void> {
     const payload = {
@@ -71,8 +97,51 @@ export class AdminInicioPage implements OnInit {
         producto.destacado = actualizado.destacado;
         producto.popular = actualizado.popular;
         producto.nuevo = actualizado.nuevo;
+        this.mostrarToast(`${producto.nombre} actualizado.`, 'success');
       },
       error: () => this.mostrarToast('No se pudo actualizar el producto.', 'danger'),
+    });
+  }
+
+  /** Activa/desactiva una oferta directamente desde Inicio. */
+  toggleOferta(oferta: Oferta): void {
+    const payload = {
+      nombre: oferta.nombre,
+      descripcion: oferta.descripcion,
+      tipo_descuento: oferta.tipo_descuento,
+      valor: oferta.valor,
+      fecha_inicio: oferta.fecha_inicio,
+      fecha_fin: oferta.fecha_fin,
+      activa: !oferta.activa,
+      producto_ids: oferta.productos.map((p) => p.id),
+    };
+    this.ofertaService.actualizar(oferta.id, payload).subscribe({
+      next: (actualizada) => {
+        oferta.activa = actualizada.activa;
+        this.mostrarToast(`${oferta.nombre} ${oferta.activa ? 'activada' : 'desactivada'}.`, 'success');
+      },
+      error: () => this.mostrarToast('No se pudo actualizar la oferta.', 'danger'),
+    });
+  }
+
+  /** Activa/desactiva un cupon directamente desde Inicio. */
+  toggleCupon(cupon: Cupon): void {
+    const payload = {
+      codigo: cupon.codigo,
+      tipo: cupon.tipo,
+      valor: cupon.valor,
+      monto_minimo: cupon.monto_minimo,
+      fecha_inicio: cupon.fecha_inicio,
+      fecha_fin: cupon.fecha_fin,
+      usos_max: cupon.usos_max,
+      activo: !cupon.activo,
+    };
+    this.cuponService.actualizar(cupon.id, payload).subscribe({
+      next: (actualizado) => {
+        cupon.activo = actualizado.activo;
+        this.mostrarToast(`${cupon.codigo} ${cupon.activo ? 'activado' : 'desactivado'}.`, 'success');
+      },
+      error: () => this.mostrarToast('No se pudo actualizar el cupón.', 'danger'),
     });
   }
 
@@ -105,17 +174,22 @@ export class AdminInicioPage implements OnInit {
       },
     });
 
-    this.ofertaService.listarPublicas().subscribe({
-      next: (ofertas) => (this.ofertasVigentes = ofertas),
+    this.ofertaService.listarTodos().subscribe({
+      next: (ofertas) => (this.ofertas = ofertas),
     });
 
-    this.cuponService.listarPublicos().subscribe({
-      next: (cupones) => (this.cuponesVigentes = cupones),
+    this.cuponService.listarTodos().subscribe({
+      next: (cupones) => (this.cupones = cupones),
     });
 
     this.homeConfigService.obtener().subscribe({
       next: (config) => (this.ofertaHeroId = config.oferta_hero_id),
     });
+  }
+
+  private estaVencida(fechaFin: string | null): boolean {
+    if (!fechaFin) return false;
+    return new Date(fechaFin) < new Date(new Date().toDateString());
   }
 
   private async mostrarToast(message: string, color: 'success' | 'danger'): Promise<void> {
