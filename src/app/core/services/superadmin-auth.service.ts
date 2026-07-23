@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Storage } from '@ionic/storage-angular';
 import { BehaviorSubject, Observable, finalize, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -10,28 +9,29 @@ import {
   SuperAdminLoginBody,
 } from '../models/superadmin.model';
 
+const SA_TOKEN_KEY = 'sa_token';
+const SA_USER_KEY = 'sa_user';
+
 /**
  * Autenticacion y gestion del panel de SUPERADMIN (aislado de la sesion normal).
- * Guarda su token/usuario con claves propias ('sa_token'/'sa_user') para que la
- * sesion de superadmin y la de admin/cliente NUNCA se mezclen.
+ * Guarda su token/usuario en sessionStorage con claves propias ('sa_token'/'sa_user'):
+ * separado de la sesion de admin/cliente, y aislado por pestana/ventana (evita que
+ * loguearse en una pestana pise la sesion de superadmin abierta en otra).
  */
 @Injectable({ providedIn: 'root' })
 export class SuperAdminAuthService {
   private readonly base = environment.apiBaseUrl;
-  private store: Storage | null = null;
   private tokenMem: string | null = null;
   private readonly superadminSubject = new BehaviorSubject<SuperAdmin | null>(null);
   readonly superadminActual$ = this.superadminSubject.asObservable();
 
-  constructor(private http: HttpClient, private ionicStorage: Storage) {}
+  constructor(private http: HttpClient) {}
 
   /** APP_INITIALIZER: carga token/superadmin persistidos a memoria antes de arrancar. */
   async init(): Promise<void> {
-    if (!this.store) {
-      this.store = await this.ionicStorage.create();
-    }
-    this.tokenMem = (await this.store.get('sa_token')) ?? null;
-    const sa = (await this.store.get('sa_user')) ?? null;
+    this.tokenMem = sessionStorage.getItem(SA_TOKEN_KEY);
+    const raw = sessionStorage.getItem(SA_USER_KEY);
+    const sa = raw ? (JSON.parse(raw) as SuperAdmin) : null;
     if (sa) {
       this.superadminSubject.next(sa);
     }
@@ -92,14 +92,14 @@ export class SuperAdminAuthService {
   limpiarSesion(): void {
     this.tokenMem = null;
     this.superadminSubject.next(null);
-    void this.store?.remove('sa_token');
-    void this.store?.remove('sa_user');
+    sessionStorage.removeItem(SA_TOKEN_KEY);
+    sessionStorage.removeItem(SA_USER_KEY);
   }
 
   private persistir(res: SuperAdminAuthResponse): void {
     this.tokenMem = res.token;
     this.superadminSubject.next(res.data);
-    void this.store?.set('sa_token', res.token);
-    void this.store?.set('sa_user', res.data);
+    sessionStorage.setItem(SA_TOKEN_KEY, res.token);
+    sessionStorage.setItem(SA_USER_KEY, JSON.stringify(res.data));
   }
 }

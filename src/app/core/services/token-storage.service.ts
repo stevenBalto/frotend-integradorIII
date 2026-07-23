@@ -1,40 +1,40 @@
 import { Injectable } from '@angular/core';
-import { Storage } from '@ionic/storage-angular';
 import { Usuario } from '../models/usuario.model';
 
+const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'auth_user';
+
 /**
- * Persistencia del token y el usuario con @ionic/storage-angular.
+ * Persistencia del token y el usuario en sessionStorage: aislado por pestaña/ventana
+ * (a diferencia de IndexedDB/localStorage, que comparte sesion entre todas las pestanas
+ * del mismo origen y hacia que loguearse en una pestana pisara la sesion de otra).
+ * Sobrevive a un reload de la misma pestana; una pestana nueva arranca sin sesion.
  */
 @Injectable({ providedIn: 'root' })
 export class TokenStorageService {
-  private store: Storage | null = null;
-
-  constructor(private ionicStorage: Storage) {}
-
   async init(): Promise<void> {
-    if (!this.store) {
-      this.store = await this.ionicStorage.create();
-    }
+    // No requiere inicializacion asincrona; se mantiene por compatibilidad con AuthService.
   }
 
   async getToken(): Promise<string | null> {
-    return (await this.store?.get('auth_token')) ?? null;
+    return sessionStorage.getItem(TOKEN_KEY);
   }
 
   async setToken(token: string): Promise<void> {
-    await this.store?.set('auth_token', token);
+    sessionStorage.setItem(TOKEN_KEY, token);
   }
 
   async getUsuario(): Promise<Usuario | null> {
-    return (await this.store?.get('auth_user')) ?? null;
+    const raw = sessionStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw) as Usuario) : null;
   }
 
   async setUsuario(usuario: Usuario): Promise<void> {
-    await this.store?.set('auth_user', usuario);
+    sessionStorage.setItem(USER_KEY, JSON.stringify(usuario));
   }
 
   async clear(): Promise<void> {
-    await this.store?.remove('auth_token');
-    await this.store?.remove('auth_user');
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
   }
 }
