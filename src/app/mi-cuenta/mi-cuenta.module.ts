@@ -6,6 +6,13 @@ import { RouterModule } from '@angular/router';
 import { MiCuentaPage } from './mi-cuenta.page';
 import { MiCuentaPageRoutingModule } from './mi-cuenta-routing.module';
 import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
+import { FaqPage } from './pages/faq.page';
+import { InfoPage } from './pages/info.page';
+import { ProductosPage } from './pages/productos.page';
+import { RoostersPage } from './pages/roosters.page';
+import { PerfilPage } from './pages/perfil.page';
+import { HistorialPage } from './pages/historial.page';
+import { RestaurantesPage } from './pages/restaurantes.page';
 
 @NgModule({
   imports: [
@@ -14,8 +21,17 @@ import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
     FormsModule,
     RouterModule,
     MiCuentaPageRoutingModule,
-    CrcCurrencyPipe
+    CrcCurrencyPipe,
   ],
-  declarations: [MiCuentaPage]
+  declarations: [
+    MiCuentaPage,
+    FaqPage,
+    InfoPage,
+    ProductosPage,
+    RoostersPage,
+    PerfilPage,
+    HistorialPage,
+    RestaurantesPage,
+  ],
 })
 export class MiCuentaPageModule {}

@@ -1,0 +1,72 @@
+/* Estilos compartidos por las sub-paginas de Mi cuenta (header + contenedores). */
+:host {
+  --background: var(--rooster-bg);
+}
+.sub-content {
+  --background: var(--rooster-bg);
+}
+
+.sub-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px 12px;
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.sub-back {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: none;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+
+  ion-icon { font-size: 20px; color: var(--rooster-dark); }
+  &:active { transform: scale(0.95); }
+}
+
+.sub-title {
+  font-family: var(--rooster-font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--rooster-dark);
+  margin: 0;
+}
+
+.sub-body {
+  padding: 4px 16px 40px;
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.sub-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 14px;
+}
+
+.sub-empty {
+  text-align: center;
+  color: var(--rooster-brown);
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  padding: 40px 20px;
+}
+
+.sub-status {
+  text-align: center;
+  color: var(--rooster-brown);
+  font-family: var(--rooster-font-sans);
+  font-size: 14px;
+  padding: 20px;
+}
