@@ -2,6 +2,9 @@
   <div class="admin-page">
 
     <admin-page-header title="Menú / Catálogo" subtitle="Dashboard / Menú">
+      <admin-btn header-right [outline]="true" (clicked)="abrirNuevaCategoria()">
+        <ion-icon name="albums-outline"></ion-icon> Categoría
+      </admin-btn>
       <admin-btn header-right [outline]="true" (clicked)="abrirExtrasMgr()">
         <ion-icon name="pricetags-outline"></ion-icon> Extras
       </admin-btn>
@@ -24,17 +27,23 @@
 
     <admin-section-card>
       <div class="menu-toolbar">
-        <div class="menu-toolbar__tabs">
-          <filter-tab *ngFor="let c of categories" [label]="c"
-            [active]="activeCat === c" (select)="activeCat = c"></filter-tab>
+        <div class="menu-toolbar__left">
+          <div class="menu-toolbar__modes">
+            <filter-tab label="Productos" [active]="vistaTabla === 'productos'" (select)="vistaTabla = 'productos'"></filter-tab>
+            <filter-tab label="Extras" [active]="vistaTabla === 'extras'" (select)="vistaTabla = 'extras'"></filter-tab>
+          </div>
+          <div class="menu-toolbar__tabs" *ngIf="vistaTabla === 'productos'">
+            <filter-tab *ngFor="let c of categories" [label]="c"
+              [active]="activeCat === c" (select)="activeCat = c"></filter-tab>
+          </div>
         </div>
-        <admin-search-input placeholder="Buscar producto..."></admin-search-input>
+        <admin-search-input [placeholder]="vistaTabla === 'productos' ? 'Buscar producto...' : 'Buscar extra...'"></admin-search-input>
       </div>
 
       <p *ngIf="error" class="menu-error">{{ error }}</p>
       <p *ngIf="cargando" class="menu-loading">Cargando catálogo...</p>
 
-      <div class="admin-table-wrap" *ngIf="!cargando">
+      <div class="admin-table-wrap" *ngIf="!cargando && vistaTabla === 'productos'">
         <table class="admin-table">
           <thead>
             <tr>
@@ -78,6 +87,51 @@
             </tr>
             <tr *ngIf="productosFiltrados.length === 0">
               <td colspan="7" class="menu-empty">No hay productos en esta categoría.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-table-wrap" *ngIf="vistaTabla === 'extras'">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th></th><th>Extra</th><th>Categoría</th><th>Precio</th>
+              <th>Disponible</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of extrasFiltradosTabla" [class.menu-row--off]="!e.disponible">
+              <td>
+                <div class="menu-thumb">
+                  <img *ngIf="e.imagen_url" [src]="e.imagen_url" [alt]="e.nombre" />
+                  <ion-icon *ngIf="!e.imagen_url" name="fast-food-outline"></ion-icon>
+                </div>
+              </td>
+              <td class="admin-table__strong" style="font-size: 12px;">{{ e.nombre }}</td>
+              <td><span class="menu-cat">{{ nombreCategoriaExtra(e) }}</span></td>
+              <td class="admin-table__semi" style="font-size: 12px;">{{ e.precio | crcCurrency }}</td>
+              <td>
+                <div class="menu-avail">
+                  <span class="menu-switch" [class.menu-switch--on]="e.disponible">
+                    <span class="menu-switch__knob"></span>
+                  </span>
+                  <span class="menu-avail__label" *ngIf="!e.disponible">Inactivo</span>
+                </div>
+              </td>
+              <td>
+                <div class="menu-actions">
+                  <button type="button" class="menu-action" (click)="abrirEditarExtra(e)">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button type="button" class="menu-action menu-action--danger" (click)="eliminarExtra(e)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!cargandoExtras && extrasFiltradosTabla.length === 0">
+              <td colspan="6" class="menu-empty">No hay extras en esta categoría.</td>
             </tr>
           </tbody>
         </table>
@@ -373,6 +427,39 @@
           </ng-container>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Nueva categoria ───────────────────────────────────────────────── -->
+<div class="order-modal" *ngIf="catModalOpen">
+  <div class="order-modal__backdrop" (click)="cerrarCatModal()"></div>
+  <div class="order-modal__panel order-modal__panel--small">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Nueva categoría</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarCatModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <form [formGroup]="catForm" (ngSubmit)="guardarCategoria()" class="menu-form">
+        <label class="menu-form__label">
+          Nombre
+          <input type="text" formControlName="nombre" class="menu-form__input" maxlength="80"
+            placeholder="Ej. Bebidas" />
+        </label>
+
+        <p *ngIf="catError" class="menu-error">{{ catError }}</p>
+
+        <button type="submit" class="order-modal__cta" [disabled]="guardandoCat">
+          {{ guardandoCat ? 'Creando...' : 'Crear categoría' }}
+        </button>
+      </form>
     </div>
   </div>
 </div>

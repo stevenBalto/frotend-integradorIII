@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ToastController } from '@ionic/angular';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Categoria, Producto, TamanoPayload } from '../../core/models/producto.model';
 import { Extra, ExtraPayload } from '../../core/models/extra.model';
@@ -16,6 +17,7 @@ import { ExtraService } from '../../core/services/extra.service';
 export class AdminMenuPage implements OnInit {
   activeCat = 'Todos';
   categories: string[] = ['Todos'];
+  vistaTabla: 'productos' | 'extras' = 'productos';
 
   productos: Producto[] = [];
   categorias: Categoria[] = [];
@@ -62,6 +64,7 @@ export class AdminMenuPage implements OnInit {
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
     private extraService: ExtraService,
+    private toast: ToastController,
   ) {}
 
   ngOnInit(): void {
@@ -296,6 +299,14 @@ export class AdminMenuPage implements OnInit {
     });
   }
 
+  /** Nombre de categoria de un extra para la tabla de gestion (o "General"). */
+  nombreCategoriaExtra(extra: Extra): string {
+    if (extra.es_general) {
+      return 'General';
+    }
+    return this.categorias.find((c) => c.id === extra.categoria_id)?.nombre ?? 'Sin categoría';
+  }
+
   /** Extras filtrados por la categoria seleccionada en el form de producto. */
   get extrasFiltrados(): Extra[] {
     const catId = this.form.get('categoria_id')?.value;
@@ -303,6 +314,11 @@ export class AdminMenuPage implements OnInit {
       return this.extras;
     }
     return this.extras.filter((e) => e.categoria_id === catId);
+  }
+
+  /** Todos los extras, para la tabla principal (vista "Extras" — sin tabs de categoria). */
+  get extrasFiltradosTabla(): Extra[] {
+    return this.extras;
   }
 
   abrirNuevoExtra(): void {
@@ -342,8 +358,13 @@ export class AdminMenuPage implements OnInit {
       return;
     }
 
-    const catId = this.form.get('categoria_id')?.value;
-    if (!catId) {
+    // Al editar, conserva la categoria/generalidad propias del extra (no editables en este modal).
+    // Al crear (solo alcanzable desde el form de producto), usa la categoria del producto en edicion.
+    const esGeneral = this.editandoExtra?.es_general ?? false;
+    const catId = this.editandoExtra
+      ? this.editandoExtra.categoria_id
+      : this.form.get('categoria_id')?.value;
+    if (!esGeneral && !catId) {
       return;
     }
 
@@ -351,11 +372,11 @@ export class AdminMenuPage implements OnInit {
     this.extraError = null;
 
     const payload: ExtraPayload = {
-      categoria_id: catId,
+      categoria_id: esGeneral ? null : catId,
       nombre: this.extraForm.value.nombre,
       precio: this.extraForm.value.precio,
       disponible: this.extraForm.value.disponible,
-      es_general: false,
+      es_general: esGeneral,
     };
 
     const request$ = this.editandoExtra
@@ -580,5 +601,57 @@ export class AdminMenuPage implements OnInit {
         this.asignarError = err?.error?.message || 'No se pudo desasignar el extra.';
       },
     });
+  }
+
+  // ── Modal crear categoria ──
+
+  catModalOpen = false;
+  guardandoCat = false;
+  catError: string | null = null;
+  readonly catForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(80)]],
+  });
+
+  abrirNuevaCategoria(): void {
+    this.catError = null;
+    this.catForm.reset({ nombre: '' });
+    this.catModalOpen = true;
+  }
+
+  cerrarCatModal(): void {
+    this.catModalOpen = false;
+  }
+
+  guardarCategoria(): void {
+    if (this.catForm.invalid) {
+      this.catForm.markAllAsTouched();
+      return;
+    }
+
+    this.guardandoCat = true;
+    this.catError = null;
+
+    this.categoriaService
+      .crear({ nombre: this.catForm.value.nombre })
+      .subscribe({
+        next: (categoria) => {
+          this.guardandoCat = false;
+          // Agregar a la lista local para que el <select> del form de producto
+          // y las tabs de filtro la vean sin recargar.
+          this.categorias = [...this.categorias, categoria];
+          this.categories = ['Todos', ...this.categorias.map((c) => c.nombre)];
+          this.cerrarCatModal();
+          this.notificar(`Categoría "${categoria.nombre}" creada.`, 'success');
+        },
+        error: (err) => {
+          this.guardandoCat = false;
+          this.catError = err?.error?.message || 'No se pudo crear la categoría.';
+        },
+      });
+  }
+
+  private async notificar(mensaje: string, color: string): Promise<void> {
+    const t = await this.toast.create({ message: mensaje, duration: 2600, position: 'top', color });
+    await t.present();
   }
 }
