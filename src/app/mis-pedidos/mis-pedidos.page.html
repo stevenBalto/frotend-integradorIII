@@ -17,7 +17,13 @@
     <div class="pedido-card" *ngFor="let p of pedidos" (click)="toggleDetalle(p.id)">
       <div class="pedido-card__header">
         <div class="pedido-card__info">
-          <span class="pedido-card__codigo">{{ p.codigo }}</span>
+          <div class="pedido-card__codigo-row">
+            <span class="pedido-card__codigo">{{ p.codigo }}</span>
+            <button type="button" class="pedido-card__copy"
+              (click)="$event.stopPropagation(); copiarCodigo(p.codigo)" aria-label="Copiar código">
+              <ion-icon name="copy-outline"></ion-icon>
+            </button>
+          </div>
           <span class="pedido-card__fecha">{{ formatFecha(p.created_at) }}</span>
         </div>
         <span class="pedido-card__estado" [ngClass]="getEstadoClass(p.estado)">
@@ -79,8 +85,8 @@
         </div>
 
         <p class="pedido-card__puntos" *ngIf="p.puntos_ganados > 0">
-          <ion-icon name="star"></ion-icon>
-          +{{ p.puntos_ganados }} puntos ganados
+          <ion-icon name="ribbon-outline"></ion-icon>
+          +{{ p.puntos_ganados | crcCurrency }} en Roosters
         </p>
       </div>
     </div>

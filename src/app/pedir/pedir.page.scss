@@ -1210,6 +1210,91 @@
     font-size: 20px;
     flex-shrink: 0;
   }
+
+  &--guest {
+    align-items: flex-start;
+    background: #fff1f2;
+    color: var(--rooster-red);
+    line-height: 1.4;
+  }
+}
+
+/* ── Canje de Roosters en checkout ── */
+.checkout-roosters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--rooster-border);
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &--active {
+    border-color: var(--rooster-red);
+    background: #fff8f2;
+  }
+
+  &__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #fff1f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon { font-size: 20px; color: var(--rooster-red); }
+  }
+
+  &__info { flex: 1; display: flex; flex-direction: column; text-align: left; }
+  &__title { font-family: var(--rooster-font-sans); font-size: 14px; font-weight: 700; color: var(--rooster-dark); }
+  &__sub { font-family: var(--rooster-font-sans); font-size: 12px; color: var(--rooster-brown); }
+
+  &__switch {
+    width: 44px;
+    height: 26px;
+    border-radius: 13px;
+    background: rgba(168, 137, 94, 0.33);
+    flex-shrink: 0;
+    padding: 3px;
+    transition: background 0.2s;
+
+    &--on { background: #2e9e4f; }
+  }
+
+  &__knob {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s;
+  }
+
+  &__switch--on &__knob { transform: translateX(18px); }
+}
+
+.checkout-summary__row--discount {
+  color: #15803d;
+  font-weight: 700;
+}
+
+/* ── Nota de invitado en confirmacion ── */
+.confirm-guest {
+  font-family: var(--rooster-font-sans);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--rooster-brown);
+  text-align: center;
+  background: #fff1f2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 0 0 16px;
+
+  strong { color: var(--rooster-red); }
 }
 
 .checkout-summary {

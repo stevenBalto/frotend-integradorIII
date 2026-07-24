@@ -61,6 +61,8 @@ export class PedirPage implements OnInit, OnDestroy {
   notasPedido = '';
   enviandoPedido = false;
   errorPedido: string | null = null;
+  /** Canjear los Roosters del usuario logueado en este pedido (toggle del checkout). */
+  usarRoosters = false;
 
   // Confirmacion
   pedidoConfirmado: Pedido | null = null;
@@ -332,6 +334,29 @@ export class PedirPage implements OnInit, OnDestroy {
     );
   }
 
+  /** true = visitante sin sesion (pide como invitado, no acumula Roosters). */
+  get esInvitado(): boolean {
+    return !this.auth.estaAutenticado;
+  }
+
+  /** Roosters disponibles del usuario logueado (colones). */
+  get roostersDisponibles(): number {
+    return this.auth.usuario?.puntos_balance ?? 0;
+  }
+
+  /** Solo se ofrece canjear Roosters si hay sesion y saldo. */
+  get puedeUsarRoosters(): boolean {
+    return !this.esInvitado && this.roostersDisponibles > 0;
+  }
+
+  /** Estimacion (client-side) del descuento por Roosters, capado al total. El backend recapa. */
+  montoRoostersAAplicar(total: number): number {
+    if (!this.puedeUsarRoosters || !this.usarRoosters) {
+      return 0;
+    }
+    return Math.min(this.roostersDisponibles, total);
+  }
+
   async enviarPedido(): Promise<void> {
     if (!this.puedeEnviarPedido) {
       return;
@@ -356,14 +381,29 @@ export class PedirPage implements OnInit, OnDestroy {
       items,
     };
 
-    this.pedidoService.crear(payload)
+    const invitado = this.esInvitado;
+    if (this.puedeUsarRoosters && this.usarRoosters) {
+      payload.roosters_a_usar = this.roostersDisponibles;
+    }
+
+    // Invitado -> endpoint publico (sin Roosters); logueado -> endpoint autenticado.
+    const peticion$ = invitado
+      ? this.pedidoService.crearInvitado(payload)
+      : this.pedidoService.crear(payload);
+
+    peticion$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (pedido) => {
           this.pedidoConfirmado = pedido;
           this.carritoService.vaciar();
+          this.usarRoosters = false;
           this.enviandoPedido = false;
           this.vista = 'confirmacion';
+          // El usuario logueado gano/canjeo Roosters: refrescamos su saldo local.
+          if (!invitado) {
+            this.auth.refrescarPerfil().pipe(takeUntil(this.destroy$)).subscribe({ error: () => {} });
+          }
         },
         error: (err) => {
           this.enviandoPedido = false;

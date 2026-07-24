@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -27,6 +28,7 @@ const routes: Routes = [
   },
   {
     path: 'mis-pedidos',
+    canActivate: [authGuard],
     loadChildren: () =>
       import('./mis-pedidos/mis-pedidos.module').then((m) => m.MisPedidosPageModule),
   },
@@ -50,7 +52,9 @@ const routes: Routes = [
       ),
   },
   { path: 'superadmin', redirectTo: 'superadmin/panel', pathMatch: 'full' },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  // La app ya no obliga a loguearse al abrir: se entra directo a la vitrina.
+  // El login vive en la tab "Mi cuenta" para quien no tenga sesion.
+  { path: '', redirectTo: 'tabs/home', pathMatch: 'full' },
   {
     path: '',
     loadChildren: () => import('./tabs/tabs.module').then((m) => m.TabsPageModule),

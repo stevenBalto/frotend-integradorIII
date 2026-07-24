@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, finalize, tap } from 'rxjs';
+import { BehaviorSubject, Observable, finalize, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginResultado, Usuario } from '../models/usuario.model';
 import { TokenStorageService } from './token-storage.service';
@@ -82,6 +82,20 @@ export class AuthService {
     return this.http
       .post(`${this.base}/logout`, {})
       .pipe(finalize(() => this.limpiarSesion()));
+  }
+
+  /**
+   * Re-lee el perfil desde el backend y refresca la sesion local. Util tras acciones
+   * que cambian datos del usuario (ej. ganar/canjear Roosters en un pedido).
+   */
+  refrescarPerfil(): Observable<Usuario> {
+    return this.http.get<{ data: Usuario }>(`${this.base}/me`).pipe(
+      map((res) => res.data),
+      tap((usuario) => {
+        this.usuarioSubject.next(usuario);
+        void this.storage.setUsuario(usuario);
+      }),
+    );
   }
 
   /** Limpia la sesion local (sin llamar al backend). La usa el interceptor ante 401. */

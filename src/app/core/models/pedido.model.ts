@@ -32,6 +32,8 @@ export interface Pedido {
   descuento: number;
   total: number;
   puntos_ganados: number;
+  /** true = ya pagado en caja (pasa de "Mis pedidos" a "Historial de compras"). */
+  pagado: boolean;
   notas: string | null;
   /** "A nombre de quien" escrito en el checkout (puede diferir del nombre de la cuenta). */
   nombre_cliente: string | null;
@@ -81,12 +83,14 @@ export interface ItemPedidoPayload {
   notas?: string;
 }
 
-/** Body para POST /pedidos. */
+/** Body para POST /pedidos y POST /pedidos/invitado. */
 export interface CrearPedidoPayload {
   sucursal_id: number;
   modalidad: 'para_llevar' | 'comer_aqui';
   nombre_cliente: string;
   notas?: string;
+  /** Roosters (colones) a canjear en este pedido. Solo aplica a usuarios logueados. */
+  roosters_a_usar?: number;
   items: ItemPedidoPayload[];
 }
 

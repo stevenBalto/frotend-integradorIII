@@ -4,6 +4,8 @@ export interface Sucursal {
   nombre: string;
   direccion: string;
   telefono: string | null;
+  latitud: number | null;
+  longitud: number | null;
   activa: boolean;
 }
 

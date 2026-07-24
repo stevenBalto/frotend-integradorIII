@@ -29,6 +29,13 @@ export class PedidoService {
       .pipe(map((res) => res.data));
   }
 
+  /** POST /pedidos/invitado — crear pedido SIN sesion (visitante). No acumula Roosters. */
+  crearInvitado(payload: CrearPedidoPayload): Observable<Pedido> {
+    return this.http
+      .post<ApiResource<Pedido>>(`${this.base}/pedidos/invitado`, payload)
+      .pipe(map((res) => res.data));
+  }
+
   /** GET /pedidos/mios — historial de pedidos del cliente. */
   misPedidos(): Observable<Pedido[]> {
     return this.http

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ToastController } from '@ionic/angular';
 import { PedidoService } from '../core/services/pedido.service';
 import { Pedido } from '../core/models/pedido.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
@@ -24,7 +25,10 @@ export class MisPedidosPage implements OnInit, OnDestroy {
 
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
-  constructor(private pedidoService: PedidoService) {}
+  constructor(
+    private pedidoService: PedidoService,
+    private toast: ToastController,
+  ) {}
 
   ngOnInit(): void {
     this.cargarPedidos();
@@ -42,7 +46,8 @@ export class MisPedidosPage implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (pedidos) => {
-          this.pedidos = pedidos;
+          // Los pedidos ya pagados salen de aqui y viven en "Historial de compras".
+          this.pedidos = pedidos.filter((p) => !p.pagado);
           this.cargando = false;
         },
         error: () => {
@@ -50,6 +55,22 @@ export class MisPedidosPage implements OnInit, OnDestroy {
           this.cargando = false;
         },
       });
+  }
+
+  /** Copia el codigo del pedido al portapapeles (mismo patron que en "Pedir"). */
+  async copiarCodigo(codigo: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(codigo);
+      const t = await this.toast.create({
+        message: 'Código copiado',
+        duration: 1500,
+        position: 'bottom',
+        color: 'success',
+      });
+      await t.present();
+    } catch {
+      // Clipboard no disponible (ej. http sin TLS); no interrumpe el flujo.
+    }
   }
 
   getEstadoLabel(estado: PedidoEstado): string {

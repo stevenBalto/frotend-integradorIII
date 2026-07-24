@@ -198,6 +198,29 @@
           placeholder="Alergias, instrucciones especiales..." [(ngModel)]="notasPedido"></textarea>
       </div>
 
+      <!-- Roosters (canje, solo usuarios logueados con saldo) -->
+      <div class="checkout-section" *ngIf="puedeUsarRoosters">
+        <button type="button" class="checkout-roosters" [class.checkout-roosters--active]="usarRoosters"
+          (click)="usarRoosters = !usarRoosters">
+          <div class="checkout-roosters__icon"><ion-icon name="ribbon-outline"></ion-icon></div>
+          <div class="checkout-roosters__info">
+            <span class="checkout-roosters__title">Usar mis Roosters</span>
+            <span class="checkout-roosters__sub">Tenés {{ roostersDisponibles | crcCurrency }} disponibles</span>
+          </div>
+          <div class="checkout-roosters__switch" [class.checkout-roosters__switch--on]="usarRoosters">
+            <div class="checkout-roosters__knob"></div>
+          </div>
+        </button>
+      </div>
+
+      <div class="checkout-section" *ngIf="esInvitado">
+        <p class="checkout-notice checkout-notice--guest">
+          <ion-icon name="person-outline"></ion-icon>
+          Estás pidiendo como invitado. Te daremos un código para seguir tu pedido.
+          Iniciá sesión para acumular Roosters.
+        </p>
+      </div>
+
       <div class="checkout-section">
         <p class="checkout-notice">
           <ion-icon name="information-circle-outline"></ion-icon>
@@ -205,15 +228,19 @@
         </p>
       </div>
 
-      <div class="checkout-summary">
+      <div class="checkout-summary" *ngIf="(total$ | async) as tot">
         <div class="checkout-summary__row" *ngFor="let l of (lineas$ | async)">
           <span>{{ l.cantidad }}x {{ l.producto.nombre }}{{ l.tamano ? ' (' + l.tamano.nombre + ')' : '' }}</span>
           <span>{{ calcularPrecioLinea(l) * l.cantidad | crcCurrency }}</span>
         </div>
         <div class="checkout-summary__divider"></div>
+        <div class="checkout-summary__row checkout-summary__row--discount" *ngIf="montoRoostersAAplicar(tot) > 0">
+          <span>Roosters</span>
+          <span>-{{ montoRoostersAAplicar(tot) | crcCurrency }}</span>
+        </div>
         <div class="checkout-summary__total">
           <span>Total a pagar</span>
-          <span>{{ total$ | async | crcCurrency }}</span>
+          <span>{{ tot - montoRoostersAAplicar(tot) | crcCurrency }}</span>
         </div>
       </div>
 
@@ -249,6 +276,10 @@
 
       <div class="confirm-info">
         <div class="confirm-info__row">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>A nombre de {{ pedidoConfirmado.nombre_cliente }}</span>
+        </div>
+        <div class="confirm-info__row">
           <ion-icon name="location-outline"></ion-icon>
           <span>{{ pedidoConfirmado.sucursal.nombre }}</span>
         </div>
@@ -256,11 +287,24 @@
           <ion-icon [name]="modalidad === 'comer_aqui' ? 'restaurant-outline' : 'bag-handle-outline'"></ion-icon>
           <span>{{ MODALIDAD_LABEL[pedidoConfirmado.modalidad] }}</span>
         </div>
+        <div class="confirm-info__row" *ngIf="pedidoConfirmado.descuento > 0">
+          <ion-icon name="ribbon-outline"></ion-icon>
+          <span>Canjeaste {{ pedidoConfirmado.descuento | crcCurrency }} en Roosters</span>
+        </div>
         <div class="confirm-info__row">
           <ion-icon name="receipt-outline"></ion-icon>
           <span>Total: {{ pedidoConfirmado.total | crcCurrency }}</span>
         </div>
+        <div class="confirm-info__row" *ngIf="pedidoConfirmado.puntos_ganados > 0">
+          <ion-icon name="ribbon-outline"></ion-icon>
+          <span>Ganaste {{ pedidoConfirmado.puntos_ganados | crcCurrency }} en Roosters</span>
+        </div>
       </div>
+
+      <p class="confirm-guest" *ngIf="esInvitado">
+        Pediste como <strong>invitado</strong>. Guardá tu código: lo vas a necesitar
+        para consultar tu pedido con "Buscar mi pedido".
+      </p>
 
       <button type="button" class="confirm-btn" (click)="volverAlInicio()">
         Volver al inicio

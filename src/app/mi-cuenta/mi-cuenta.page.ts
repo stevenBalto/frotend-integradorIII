@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { PedidoService } from '../core/services/pedido.service';
 import { Pedido } from '../core/models/pedido.model';
+import { Usuario } from '../core/models/usuario.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
 import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 
@@ -13,6 +15,9 @@ import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
   standalone: false,
 })
 export class MiCuentaPage {
+  /** Usuario logueado (o null = invitado). El template muestra login o el menu segun esto. */
+  readonly usuario$: Observable<Usuario | null>;
+
   // Modal buscar pedido
   buscarModalAbierto = false;
   codigoBusqueda = '';
@@ -20,35 +25,57 @@ export class MiCuentaPage {
   buscarError: string | null = null;
   pedidoEncontrado: Pedido | null = null;
 
+  // Modal metodos de pago (informativo: aun se paga todo en caja)
+  metodosPagoAbierto = false;
+
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   constructor(
     private auth: AuthService,
     private router: Router,
     private pedidoService: PedidoService,
-  ) {}
+  ) {
+    this.usuario$ = this.auth.usuarioActual$;
+  }
+
+  get estaAutenticado(): boolean {
+    return this.auth.estaAutenticado;
+  }
 
   /** Nombre del usuario logueado (para mostrar en el resultado de busqueda). */
   get nombreUsuario(): string {
     return this.auth.usuario?.nombre ?? 'Vos';
   }
 
-  /** Cierra sesion en backend + local y vuelve al login. */
+  /** Saldo de Roosters del usuario logueado. */
+  get roostersBalance(): number {
+    return this.auth.usuario?.puntos_balance ?? 0;
+  }
+
+  // ── Metodos de pago (modal) ──
+
+  abrirMetodosPago(): void {
+    this.metodosPagoAbierto = true;
+  }
+
+  cerrarMetodosPago(): void {
+    this.metodosPagoAbierto = false;
+  }
+
+  // ── Sesion ──
+
+  /** Cierra sesion en backend + local y vuelve a la vitrina. */
   cerrarSesion(): void {
     this.auth.logout().subscribe({
-      next: () => this.irAlLogin(),
-      error: () => this.irAlLogin(),
+      next: () => this.irAVitrina(),
+      error: () => this.irAVitrina(),
     });
   }
 
-  /**
-   * Limpia la sesion ANTES de navegar. Sin esto, el guestGuard del login ve la
-   * sesion todavia activa (el finalize de logout() corre despues del next) y
-   * rebota a /tabs/home — por eso "no salia el login".
-   */
-  private irAlLogin(): void {
+  /** Limpia la sesion ANTES de navegar (el finalize de logout corre despues del next). */
+  private irAVitrina(): void {
     this.auth.limpiarSesion();
-    void this.router.navigateByUrl('/login', { replaceUrl: true });
+    void this.router.navigateByUrl('/tabs/home', { replaceUrl: true });
   }
 
   // ── Buscar pedido ──
@@ -74,7 +101,6 @@ export class MiCuentaPage {
     this.buscarError = null;
     this.pedidoEncontrado = null;
 
-    // Endpoint autenticado: devuelve el pedido completo del usuario logueado.
     this.pedidoService.buscarPropioPorCodigo(codigo).subscribe({
       next: (pedido) => {
         this.pedidoEncontrado = pedido;
