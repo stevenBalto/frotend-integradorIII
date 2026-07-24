@@ -113,7 +113,31 @@
   }
 }
 
-/* ── Config (sucursal + modalidad) ──────────────────────────────────────────── */
+/* ── Fila superior: sucursal + busqueda ──────────────────────────────────────── */
+/* En desktop van lado a lado, cada uno con ancho FIJO ajustado a su contenido
+   (no flex-grow llenando el contenedor): antes, aunque quedaran del mismo
+   ancho entre si, ese ancho comun (280px+) seguia siendo mucho mas grande de
+   lo que su contenido necesita ("se ve feo que sea tan largo" — el problema
+   nunca fue el desbalance relativo, sino el tamano absoluto de sobra). */
+.pedir-toolbar {
+  @media (min-width: 768px) {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0 32px 8px;
+
+    .pedir-config { padding: 0; flex: 0 0 260px; }
+    .pedir-search-wrap {
+      padding: 0;
+      flex: 0 0 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
+}
+
+/* ── Config (sucursal) ──────────────────────────────────────────────────────── */
 .pedir-config {
   padding: 0 20px 16px;
   display: flex;
@@ -246,6 +270,19 @@
   }
 }
 
+/* Label fantasma: en desktop, sucursal y buscador van lado a lado dentro de
+   .pedir-toolbar, pero solo sucursal tiene un <label> encima ("SUCURSAL") —
+   sin este spacer del mismo alto, la caja del buscador queda mas arriba que
+   la del select y no se ven en la misma fila aunque esten en el mismo row flex. */
+.pedir-search__ghost-label {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+    visibility: hidden;
+  }
+}
+
 .pedir-search {
   display: flex;
   align-items: center;
@@ -284,6 +321,9 @@
   gap: 10px;
   overflow-x: auto;
   padding: 0 20px 16px;
+  /* Separacion de la fila de arriba (sucursal + buscador): sin esto quedaban
+     pegadas, casi tocandose. */
+  margin-top: 12px;
   margin-bottom: 8px;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
@@ -303,6 +343,14 @@
 
 .pedir-cat {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Line-height explicito: sin esto, el centrado vertical del texto dentro
+     de un <button> depende del calculo de linea por defecto del navegador,
+     que en zooms fraccionarios (ej. 137.5% / devicePixelRatio 1.375) puede
+     redondear a un pixel de mas o de menos arriba/abajo del centro real. */
+  line-height: 1;
   background: #ffffff;
   border: 1.5px solid var(--rooster-border);
   border-radius: 24px;
@@ -384,14 +432,21 @@
   }
 
   &__img {
-    width: 100px;
-    height: 100px;
+    /* Proporcion FIJA 4:3 (horizontal) — la MISMA que usa la card de Home
+       (.dish-card__img), asi una foto se recorta identico en las dos pantallas
+       y nunca "se ve bien en Home pero cortada aca". 4:3 tambien evita el
+       cuadrado gigante que salia en desktop cuando la columna era ancha.
+       Regla para fotos nuevas: subirlas en 4:3 (ej. 1200x900) y encajan exacto,
+       sin recorte ni espacio sobrante. */
+    width: 110px;
+    aspect-ratio: 4 / 3;
+    height: auto;
     object-fit: cover;
     flex-shrink: 0;
 
     @media (min-width: 768px) {
       width: 100%;
-      height: 176px;
+      height: auto;
     }
 
     &--placeholder {
@@ -567,7 +622,7 @@
 }
 .dish-modal__img {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -737,7 +792,7 @@
 }
 .dish-modal__img {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1273,6 +1328,13 @@
     margin-bottom: 8px;
   }
 
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
   &__value {
     display: block;
     font-family: var(--rooster-font-sans);
@@ -1280,6 +1342,28 @@
     font-weight: 800;
     color: var(--rooster-red);
     letter-spacing: 0.05em;
+  }
+
+  &__copy {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.1s;
+
+    &:active { transform: scale(0.92); }
+
+    ion-icon {
+      font-size: 17px;
+      color: var(--rooster-red);
+    }
   }
 }
 
@@ -1353,7 +1437,7 @@
 
   &__img {
     width: 100%;
-    height: 84px;
+    aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1527,12 +1611,37 @@
     gap: 8px;
     margin-bottom: 12px;
   }
+  &__codigo-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
   &__codigo {
     font-family: var(--rooster-font-sans);
     font-size: 16px;
     font-weight: 800;
     color: var(--rooster-red);
     letter-spacing: 0.04em;
+  }
+  &__copy {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+
+    &:active { transform: scale(0.9); }
+
+    ion-icon {
+      font-size: 13px;
+      color: var(--rooster-red);
+    }
   }
   &__estado {
     display: inline-block;

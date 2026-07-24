@@ -16,45 +16,32 @@
       <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-header__logo" />
     </div>
 
-    <!-- Selector de sucursal y modalidad -->
-    <div class="pedir-config">
-      <div class="pedir-config__row">
-        <label class="pedir-config__label">Sucursal</label>
-        <ion-select class="pedir-config__select-ion"
-          interface="action-sheet"
-          [interfaceOptions]="sucursalSelectOptions"
-          placeholder="Selecciona sucursal"
-          [disabled]="sucursales.length === 0"
-          [ngModel]="carritoService.datos.sucursalId"
-          (ngModelChange)="seleccionarSucursal($event)">
-          <ion-select-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</ion-select-option>
-        </ion-select>
-        <p class="pedir-config__hint" *ngIf="sucursales.length === 0 && !cargandoSucursales">
-          No hay sucursales disponibles por ahora.
-        </p>
-      </div>
-      <div class="pedir-config__row">
-        <label class="pedir-config__label">Modalidad</label>
-        <div class="pedir-config__toggles">
-          <button type="button" class="pedir-config__toggle"
-            [class.pedir-config__toggle--active]="modalidad === 'comer_aqui'"
-            (click)="setModalidad('comer_aqui')">
-            <ion-icon name="restaurant-outline"></ion-icon> {{ MODALIDAD_LABEL['comer_aqui'] }}
-          </button>
-          <button type="button" class="pedir-config__toggle"
-            [class.pedir-config__toggle--active]="modalidad === 'para_llevar'"
-            (click)="setModalidad('para_llevar')">
-            <ion-icon name="bag-handle-outline"></ion-icon> {{ MODALIDAD_LABEL['para_llevar'] }}
-          </button>
+    <!-- Selector de sucursal + busqueda -->
+    <div class="pedir-toolbar">
+      <div class="pedir-config">
+        <div class="pedir-config__row">
+          <label class="pedir-config__label">Sucursal</label>
+          <ion-select class="pedir-config__select-ion"
+            interface="action-sheet"
+            [interfaceOptions]="sucursalSelectOptions"
+            placeholder="Selecciona sucursal"
+            [disabled]="sucursales.length === 0"
+            [ngModel]="carritoService.datos.sucursalId"
+            (ngModelChange)="seleccionarSucursal($event)">
+            <ion-select-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</ion-select-option>
+          </ion-select>
+          <p class="pedir-config__hint" *ngIf="sucursales.length === 0 && !cargandoSucursales">
+            No hay sucursales disponibles por ahora.
+          </p>
         </div>
       </div>
-    </div>
 
-    <!-- Busqueda -->
-    <div class="pedir-search-wrap">
-      <div class="pedir-search">
-        <ion-icon name="search-outline"></ion-icon>
-        <input type="text" placeholder="Buscar platillo..." [(ngModel)]="busqueda" />
+      <div class="pedir-search-wrap">
+        <label class="pedir-config__label pedir-search__ghost-label">Buscar</label>
+        <div class="pedir-search">
+          <ion-icon name="search-outline"></ion-icon>
+          <input type="text" placeholder="Buscar platillo..." [(ngModel)]="busqueda" />
+        </div>
       </div>
     </div>
 
@@ -191,10 +178,18 @@
 
       <div class="checkout-section">
         <label class="checkout-label">Modalidad</label>
-        <p class="checkout-modalidad">
-          <ion-icon [name]="modalidad === 'comer_aqui' ? 'restaurant-outline' : 'bag-handle-outline'"></ion-icon>
-          {{ modalidadLabel }}
-        </p>
+        <div class="pedir-config__toggles">
+          <button type="button" class="pedir-config__toggle"
+            [class.pedir-config__toggle--active]="modalidad === 'comer_aqui'"
+            (click)="setModalidad('comer_aqui')">
+            <ion-icon name="restaurant-outline"></ion-icon> {{ MODALIDAD_LABEL['comer_aqui'] }}
+          </button>
+          <button type="button" class="pedir-config__toggle"
+            [class.pedir-config__toggle--active]="modalidad === 'para_llevar'"
+            (click)="setModalidad('para_llevar')">
+            <ion-icon name="bag-handle-outline"></ion-icon> {{ MODALIDAD_LABEL['para_llevar'] }}
+          </button>
+        </div>
       </div>
 
       <div class="checkout-section">
@@ -244,7 +239,12 @@
 
       <div class="confirm-code">
         <span class="confirm-code__label">Código de pedido</span>
-        <span class="confirm-code__value">{{ pedidoConfirmado.codigo }}</span>
+        <div class="confirm-code__row">
+          <span class="confirm-code__value">{{ pedidoConfirmado.codigo }}</span>
+          <button type="button" class="confirm-code__copy" (click)="copiarCodigo(pedidoConfirmado.codigo)" aria-label="Copiar código">
+            <ion-icon name="copy-outline"></ion-icon>
+          </button>
+        </div>
       </div>
 
       <div class="confirm-info">
@@ -364,7 +364,12 @@
       <!-- Resultado detallado -->
       <div class="buscar-resultado" *ngIf="pedidoBuscado">
         <div class="buscar-resultado__head">
-          <span class="buscar-resultado__codigo">{{ pedidoBuscado.codigo }}</span>
+          <div class="buscar-resultado__codigo-row">
+            <span class="buscar-resultado__codigo">{{ pedidoBuscado.codigo }}</span>
+            <button type="button" class="buscar-resultado__copy" (click)="copiarCodigo(pedidoBuscado.codigo)" aria-label="Copiar código">
+              <ion-icon name="copy-outline"></ion-icon>
+            </button>
+          </div>
           <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoBuscado.estado)">
             {{ getEstadoLabel(pedidoBuscado.estado) }}
           </span>

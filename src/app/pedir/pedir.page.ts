@@ -446,6 +446,21 @@ export class PedirPage implements OnInit, OnDestroy {
 
   // ── Helpers ──
 
+  async copiarCodigo(codigo: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(codigo);
+      const t = await this.toast.create({
+        message: 'Código copiado',
+        duration: 1500,
+        position: 'bottom',
+        color: 'success',
+      });
+      await t.present();
+    } catch {
+      // Clipboard API no disponible en este contexto (ej. http sin TLS); no interrumpe el flujo.
+    }
+  }
+
   private async mostrarError(mensaje: string): Promise<void> {
     const t = await this.toast.create({
       message: mensaje,
