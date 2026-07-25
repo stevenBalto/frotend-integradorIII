@@ -17,10 +17,17 @@
       <span class="home-section__label">Ofertas</span>
     </div>
     <div class="promo-scroll">
-      <div class="promo-card promo-card--oferta" [class.promo-card--hero]="esOfertaHero(o)" *ngFor="let o of ofertas">
-        <span class="promo-card__badge">{{ esOfertaHero(o) ? '★ ' : '' }}{{ descuentoOferta(o) }}</span>
-        <span class="promo-card__title">{{ o.nombre }}</span>
-        <span class="promo-card__desc" *ngIf="o.descripcion">{{ o.descripcion }}</span>
+      <div class="promo-card promo-card--oferta" *ngFor="let o of ofertas; let i = index">
+        <div class="promo-card__icon-wrap">
+          <div class="promo-card__icon-circle" [style.background]="colorFor(i)">
+            <ion-icon [name]="iconOferta(o)"></ion-icon>
+          </div>
+        </div>
+        <div class="promo-card__body">
+          <span class="promo-card__badge" [style.background]="colorFor(i)">{{ descuentoOferta(o) }}</span>
+          <span class="promo-card__title">{{ o.nombre }}</span>
+          <span class="promo-card__desc" *ngIf="o.descripcion">{{ o.descripcion }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -31,10 +38,19 @@
       <span class="home-section__label">Cupones para ti</span>
     </div>
     <div class="promo-scroll">
-      <div class="promo-card promo-card--cupon" *ngFor="let c of cupones">
-        <span class="promo-card__badge">{{ descuentoCupon(c) }}</span>
-        <span class="promo-card__title">{{ c.codigo }}</span>
-        <span class="promo-card__desc" *ngIf="c.monto_minimo">Compra mínima ₡{{ c.monto_minimo }}</span>
+      <div class="promo-card promo-card--cupon" *ngFor="let c of cupones; let i = index">
+        <div class="promo-card__icon-wrap">
+          <div class="promo-card__icon-circle" [style.background]="colorFor(i)">
+            <ion-icon [name]="iconCupon(c)"></ion-icon>
+          </div>
+        </div>
+        <div class="promo-card__perforation"></div>
+        <div class="promo-card__body">
+          <span class="promo-card__code" [style.color]="colorFor(i)">{{ c.codigo }}</span>
+          <span class="promo-card__desc">
+            {{ descuentoCupon(c) }}<ng-container *ngIf="c.monto_minimo"> · mín. {{ c.monto_minimo | crcCurrency }}</ng-container>
+          </span>
+        </div>
       </div>
     </div>
   </div>

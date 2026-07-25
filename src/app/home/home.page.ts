@@ -5,7 +5,6 @@ import { AuthService } from '../core/services/auth.service';
 import { ProductoService } from '../core/services/producto.service';
 import { OfertaService } from '../core/services/oferta.service';
 import { CuponService } from '../core/services/cupon.service';
-import { HomeConfigService } from '../core/services/home-config.service';
 import { CarritoService, LineaCarrito } from '../core/services/carrito.service';
 import { Usuario } from '../core/models/usuario.model';
 import { Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
@@ -27,13 +26,14 @@ export class HomePage implements OnInit {
   nuevos: Producto[] = [];
   ofertas: Oferta[] = [];
   cupones: Cupon[] = [];
-  ofertaHeroId: number | null = null;
 
   cargando = false;
   error: string | null = null;
 
   detalleAbierto = false;
   productoDetalle: Producto | null = null;
+
+  private readonly colores = ['#E13642', '#F58220', '#A8895E', '#F2B134'];
 
   // Selecciones del modal de detalle
   tamanoSeleccionado: ProductoTamano | null = null;
@@ -45,7 +45,6 @@ export class HomePage implements OnInit {
     private productoService: ProductoService,
     private ofertaService: OfertaService,
     private cuponService: CuponService,
-    private homeConfigService: HomeConfigService,
     private carritoService: CarritoService,
     private toast: ToastController,
   ) {
@@ -146,8 +145,27 @@ export class HomePage implements OnInit {
     return c.tipo === 'porcentaje' ? `${c.valor}% OFF` : `-₡${c.valor}`;
   }
 
-  esOfertaHero(o: Oferta): boolean {
-    return this.ofertaHeroId !== null && o.id === this.ofertaHeroId;
+  /** Color rotativo (mismo set que la pantalla "Ofertas") para el icono/badge de cada tarjeta. */
+  colorFor(index: number): string {
+    return this.colores[index % this.colores.length];
+  }
+
+  /** Icono representativo de una oferta segun su nombre (mismo criterio que la pantalla "Ofertas"). */
+  iconOferta(o: Oferta): string {
+    const nombre = o.nombre.toLowerCase();
+
+    if (nombre.includes('pizza')) return 'pizza-outline';
+    if (nombre.includes('grill') || nombre.includes('costilla') || nombre.includes('carne')) return 'restaurant-outline';
+    if (nombre.includes('pasta')) return 'wine-outline';
+
+    return o.tipo_descuento === 'porcentaje' ? 'pricetag-outline' : 'restaurant-outline';
+  }
+
+  /** Icono representativo de un cupon segun su tipo (mismo criterio que la pantalla "Ofertas"). */
+  iconCupon(c: Cupon): string {
+    if (c.tipo === 'porcentaje') return 'pricetag-outline';
+    if ((c.monto_minimo ?? 0) > 0) return 'card-outline';
+    return 'gift-outline';
   }
 
   private cargarVitrina(): void {
@@ -167,31 +185,12 @@ export class HomePage implements OnInit {
       },
     });
 
-    this.homeConfigService.obtener().subscribe({
-      next: (config) => {
-        this.ofertaHeroId = config.oferta_hero_id;
-        this.ordenarOfertas();
-      },
-    });
-
     this.ofertaService.listarPublicas().subscribe({
-      next: (ofertas) => {
-        this.ofertas = ofertas;
-        this.ordenarOfertas();
-      },
+      next: (ofertas) => (this.ofertas = ofertas),
     });
 
     this.cuponService.listarPublicos().subscribe({
       next: (cupones) => (this.cupones = cupones),
     });
-  }
-
-  /** Pone la oferta "hero" elegida en admin primero, si hay alguna vigente. */
-  private ordenarOfertas(): void {
-    if (this.ofertaHeroId === null) {
-      return;
-    }
-    const heroId = this.ofertaHeroId;
-    this.ofertas = [...this.ofertas].sort((a, b) => (a.id === heroId ? -1 : b.id === heroId ? 1 : 0));
   }
 }

@@ -3,7 +3,6 @@ import { ToastController } from '@ionic/angular';
 import { ProductoService } from '../../core/services/producto.service';
 import { OfertaService } from '../../core/services/oferta.service';
 import { CuponService } from '../../core/services/cupon.service';
-import { HomeConfigService } from '../../core/services/home-config.service';
 import { Producto } from '../../core/models/producto.model';
 import { Oferta } from '../../core/models/oferta.model';
 import { Cupon } from '../../core/models/cupon.model';
@@ -11,8 +10,7 @@ import { Cupon } from '../../core/models/cupon.model';
 /**
  * Curacion del Home cliente. No duplica datos: reutiliza Productos/Ofertas/Cupones
  * ya existentes. Ofertas y cupones se administran igual que las secciones de
- * productos (checkbox de activo/a). Lo unico que persiste esta pagina aparte es
- * la oferta "hero" (cuando hay varias vigentes a la vez) via /admin/home-config.
+ * productos (checkbox de activo/a).
  */
 @Component({
   selector: 'app-admin-inicio',
@@ -24,17 +22,14 @@ export class AdminInicioPage implements OnInit {
   productos: Producto[] = [];
   ofertas: Oferta[] = [];
   cupones: Cupon[] = [];
-  ofertaHeroId: number | null = null;
 
   cargando = false;
-  guardando = false;
   error: string | null = null;
 
   constructor(
     private productoService: ProductoService,
     private ofertaService: OfertaService,
     private cuponService: CuponService,
-    private homeConfigService: HomeConfigService,
     private toast: ToastController,
   ) {}
 
@@ -145,20 +140,6 @@ export class AdminInicioPage implements OnInit {
     });
   }
 
-  guardarHero(): void {
-    this.guardando = true;
-    this.homeConfigService.actualizar(this.ofertaHeroId).subscribe({
-      next: () => {
-        this.guardando = false;
-        this.mostrarToast('Oferta destacada del Home actualizada.', 'success');
-      },
-      error: () => {
-        this.guardando = false;
-        this.mostrarToast('No se pudo guardar la oferta destacada.', 'danger');
-      },
-    });
-  }
-
   private cargarTodo(): void {
     this.cargando = true;
     this.error = null;
@@ -180,10 +161,6 @@ export class AdminInicioPage implements OnInit {
 
     this.cuponService.listarTodos().subscribe({
       next: (cupones) => (this.cupones = cupones),
-    });
-
-    this.homeConfigService.obtener().subscribe({
-      next: (config) => (this.ofertaHeroId = config.oferta_hero_id),
     });
   }
 

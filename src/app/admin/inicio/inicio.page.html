@@ -52,7 +52,7 @@
     <admin-section-card title="Ofertas">
       <p class="inicio-hint">
         Igual que en "Secciones del Home": activá o desactivá cada oferta con el checkbox para que
-        aparezca (o no) en el Home del cliente. Solo las activas y vigentes se pueden elegir como "hero" abajo.
+        aparezca (o no) en el Home del cliente.
       </p>
 
       <div class="admin-table-wrap">
@@ -74,27 +74,6 @@
           </tbody>
         </table>
       </div>
-    </admin-section-card>
-
-    <!-- Oferta destacada (hero) -->
-    <admin-section-card title="Oferta destacada del Home">
-      <p class="inicio-hint">
-        Cuando hay varias ofertas vigentes a la vez, elegí cuál se muestra primero en el Home.
-        Si no elegís ninguna, se muestran todas en orden normal.
-      </p>
-
-      <div class="inicio-hero-picker" *ngIf="ofertasVigentes.length > 0; else sinOfertas">
-        <select class="inicio-select" [(ngModel)]="ofertaHeroId">
-          <option [ngValue]="null">Ninguna (orden normal)</option>
-          <option *ngFor="let o of ofertasVigentes" [ngValue]="o.id">{{ o.nombre }}</option>
-        </select>
-        <admin-btn (clicked)="!guardando && guardarHero()">
-          {{ guardando ? 'Guardando...' : 'Guardar' }}
-        </admin-btn>
-      </div>
-      <ng-template #sinOfertas>
-        <p class="inicio-muted">No hay ofertas activas y vigentes ahora mismo.</p>
-      </ng-template>
     </admin-section-card>
 
     <!-- Cupones: activar/desactivar en el Home -->
