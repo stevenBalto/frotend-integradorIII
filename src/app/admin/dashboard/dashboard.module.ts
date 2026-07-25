@@ -5,6 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 
 import { AdminSharedModule } from '../shared/admin-shared.module';
+import { CrcCurrencyPipe } from '../../shared/pipes/crc-currency.pipe';
 import { AdminDashboardPage } from './dashboard.page';
 
 @NgModule({
@@ -13,6 +14,7 @@ import { AdminDashboardPage } from './dashboard.page';
     FormsModule,
     IonicModule,
     AdminSharedModule,
+    CrcCurrencyPipe,
     RouterModule.forChild([{ path: '', component: AdminDashboardPage }]),
   ],
   declarations: [AdminDashboardPage],
