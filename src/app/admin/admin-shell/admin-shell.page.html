@@ -41,8 +41,11 @@
           <ion-icon name="menu-outline"></ion-icon>
         </button>
         <div>
-          <p class="admin-header__greeting">Buenas tardes, Admin</p>
-          <p class="admin-header__meta">Sucursal Liberia · martes 24 de junio</p>
+          <p class="admin-header__greeting">{{ saludo }}<ng-container *ngIf="(usuario$ | async) as u">, {{ u.nombre.split(' ')[0] }}</ng-container></p>
+          <p class="admin-header__meta">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <ng-container *ngIf="sucursalNombre">{{ sucursalNombre }} · </ng-container>{{ fechaTexto }}
+          </p>
         </div>
       </div>
 
@@ -51,11 +54,11 @@
           <ion-icon name="notifications-outline"></ion-icon>
           <span class="admin-header__bell-dot"></span>
         </div>
-        <div class="admin-header__user">
-          <div class="admin-header__avatar">A</div>
+        <div class="admin-header__user" *ngIf="usuario$ | async as u">
+          <div class="admin-header__avatar">{{ avatarInicial$ | async }}</div>
           <div class="admin-header__user-info">
-            <p class="admin-header__user-name">Admin Rooster</p>
-            <p class="admin-header__user-role">Administrador</p>
+            <p class="admin-header__user-name">{{ u.nombre }}</p>
+            <p class="admin-header__user-role">{{ rolLabel$ | async }}</p>
           </div>
         </div>
       </div>

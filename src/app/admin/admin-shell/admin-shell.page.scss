@@ -175,9 +175,14 @@
   margin: 0;
 }
 .admin-header__meta {
-  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
   color: var(--admin-text-muted);
-  margin: 0;
+  margin: 2px 0 0;
+
+  ion-icon { font-size: 12px; flex-shrink: 0; }
 }
 
 .admin-header__right { display: flex; align-items: center; gap: 12px; }
@@ -212,6 +217,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 2px rgba(225, 54, 66, 0.15);
 }
 .admin-header__user-info { display: none; }
 @media (min-width: 640px) {
