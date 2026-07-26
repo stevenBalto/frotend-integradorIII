@@ -123,6 +123,50 @@ export class AdminMenuPage implements OnInit {
     return this.productos.filter((p) => p.destacado).length;
   }
 
+  // ── Sugerencias de destacado por reseñas (R6) ──
+  destacandoId: number | null = null;
+
+  /** Un producto se sugiere destacar si tiene buena calificación y aún no está destacado. */
+  esSugerido(p: Producto): boolean {
+    return !p.destacado
+      && (p.calificacion_promedio ?? 0) >= 4
+      && p.resenas_count > 0;
+  }
+
+  get totalSugeridos(): number {
+    return this.productos.filter((p) => this.esSugerido(p)).length;
+  }
+
+  /** Marca el producto como destacado en un clic (reusa el update completo). */
+  destacarRapido(p: Producto): void {
+    if (this.destacandoId) {
+      return;
+    }
+    this.destacandoId = p.id;
+    this.productoService.actualizar(p.id, {
+      categoria_id: p.categoria_id,
+      nombre: p.nombre,
+      descripcion: p.descripcion,
+      precio_base: p.precio_base,
+      destacado: true,
+      disponible: p.disponible,
+      tamanos: (p.tamanos ?? []).map((t) => ({
+        nombre: t.nombre,
+        precio: t.precio,
+        descripcion: t.descripcion,
+      })),
+    }, null).subscribe({
+      next: () => {
+        this.destacandoId = null;
+        this.cargarProductos();
+      },
+      error: () => {
+        this.destacandoId = null;
+        this.error = 'No se pudo destacar el producto.';
+      },
+    });
+  }
+
   cargarCategorias(): void {
     this.categoriaService.listarAdmin().subscribe({
       next: (categorias) => {

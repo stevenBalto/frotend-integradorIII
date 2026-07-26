@@ -1,52 +1,139 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Reseñas y calificaciones">
-      <span header-subtitle class="res-sub">Calificación promedio: <strong>4.6 ★</strong> · 312 reseñas</span>
+    <admin-page-header title="Reseñas y calificaciones"
+      [subtitle]="'Calificación promedio: ' + promedioGeneral + ' ★ · ' + total + ' reseñas'">
     </admin-page-header>
 
-    <!-- Resumen -->
+    <!-- KPIs -->
     <div class="admin-grid-3">
-      <admin-kpi-card label="Calificación promedio" value="4.6 ★"
+      <admin-kpi-card label="Calificación promedio" [value]="promedioGeneral + ' ★'"
         icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
-      <admin-kpi-card label="Total reseñas" [value]="312"
+      <admin-kpi-card label="Total reseñas" [value]="total"
         icon="chatbubble-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
-      <admin-kpi-card label="Sin responder" [value]="3"
-        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+      <admin-kpi-card label="Ocultas" [value]="ocultasCount"
+        icon="eye-off-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
     </div>
+
+    <!-- Distribución de calificaciones -->
+    <admin-section-card title="Distribución de calificaciones">
+      <div class="dist">
+        <div class="dist__row" *ngFor="let d of distribucion">
+          <span class="dist__label">{{ d.estrella }} ★</span>
+          <progress-bar class="dist__bar" [value]="d.cantidad" [max]="maxDistribucion" color="#F59E0B"></progress-bar>
+          <span class="dist__count">{{ d.cantidad }}</span>
+        </div>
+      </div>
+    </admin-section-card>
 
     <!-- Filtros -->
-    <div class="res-filters">
-      <filter-tab *ngFor="let f of filters" [label]="f.label"
-        [active]="activeFilter === f.id" (select)="activeFilter = f.id"></filter-tab>
-    </div>
-
-    <!-- Reseñas -->
-    <div class="res-list">
-      <div class="res-card" *ngFor="let r of reviews">
-        <div class="res-card__head">
-          <div class="res-card__user">
-            <div class="res-card__avatar">{{ r.client[0] }}</div>
-            <div>
-              <p class="res-card__name">{{ r.client }}</p>
-              <p class="res-card__date">{{ r.date }}</p>
-            </div>
-          </div>
-          <div class="res-card__stars">
-            <span *ngFor="let s of stars" class="res-star" [class.res-star--on]="s <= r.rating">★</span>
+    <admin-section-card title="Filtrar">
+      <div class="res-filtros">
+        <div class="res-filtros__group">
+          <span class="res-filtros__caption">Estrellas</span>
+          <div class="res-filtros__tabs">
+            <filter-tab label="Todas" [active]="filtroEstrella === 0" (select)="filtroEstrella = 0"></filter-tab>
+            <filter-tab *ngFor="let s of [5,4,3,2,1]" [label]="s + ' ★'"
+              [active]="filtroEstrella === s" (select)="filtroEstrella = s"></filter-tab>
           </div>
         </div>
 
-        <p class="res-card__text">{{ r.text }}</p>
+        <div class="res-filtros__group">
+          <span class="res-filtros__caption">Estado</span>
+          <div class="res-filtros__tabs">
+            <filter-tab label="Todas" [active]="filtroEstado === 'todas'" (select)="filtroEstado = 'todas'"></filter-tab>
+            <filter-tab label="Publicadas" [active]="filtroEstado === 'publicada'" (select)="filtroEstado = 'publicada'"></filter-tab>
+            <filter-tab label="Ocultas" [active]="filtroEstado === 'oculta'" (select)="filtroEstado = 'oculta'"></filter-tab>
+          </div>
+        </div>
+
+        <div class="res-filtros__group">
+          <span class="res-filtros__caption">Tipo</span>
+          <div class="res-filtros__tabs">
+            <filter-tab label="Todas" [active]="filtroTipo === 'todas'" (select)="filtroTipo = 'todas'"></filter-tab>
+            <filter-tab label="General" [active]="filtroTipo === 'general'" (select)="filtroTipo = 'general'"></filter-tab>
+            <filter-tab label="Producto" [active]="filtroTipo === 'producto'" (select)="filtroTipo = 'producto'"></filter-tab>
+          </div>
+        </div>
+
+        <div class="res-filtros__inline">
+          <label class="res-field">
+            <span>Producto</span>
+            <select [(ngModel)]="filtroProductoId">
+              <option value="todas">Todos</option>
+              <option *ngFor="let p of productos" [ngValue]="p.id">{{ p.nombre }}</option>
+            </select>
+          </label>
+          <label class="res-field">
+            <span>Desde</span>
+            <input type="date" [(ngModel)]="desde" />
+          </label>
+          <label class="res-field">
+            <span>Hasta</span>
+            <input type="date" [(ngModel)]="hasta" />
+          </label>
+          <label class="res-field res-field--grow">
+            <span>Cliente</span>
+            <admin-search-input placeholder="Buscar por cliente…"
+              [value]="busqueda" (valueChange)="busqueda = $event"></admin-search-input>
+          </label>
+          <button *ngIf="hayFiltros()" type="button" class="res-clear" (click)="limpiarFiltros()">
+            <ion-icon name="close-circle-outline"></ion-icon> Limpiar
+          </button>
+        </div>
+      </div>
+    </admin-section-card>
+
+    <!-- Estados -->
+    <div class="res-empty" *ngIf="cargando">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+    <div class="res-empty res-empty--error" *ngIf="error">
+      <ion-icon name="warning-outline"></ion-icon>
+      <p>{{ error }}</p>
+      <admin-btn [outline]="true" [small]="true" (clicked)="cargar()">Reintentar</admin-btn>
+    </div>
+    <div class="res-empty" *ngIf="!cargando && !error && resenasFiltradas.length === 0">
+      <ion-icon name="star-outline"></ion-icon>
+      <p>{{ total === 0 ? 'Todavía no hay reseñas.' : 'Ninguna reseña coincide con los filtros.' }}</p>
+    </div>
+
+    <!-- Lista -->
+    <div class="res-list" *ngIf="!cargando && !error && resenasFiltradas.length > 0">
+      <div class="res-card" *ngFor="let r of resenasFiltradas" [class.res-card--oculta]="r.estado === 'oculta'">
+        <div class="res-card__head">
+          <div class="res-card__user">
+            <div class="res-card__avatar">{{ iniciales(r.cliente?.nombre) }}</div>
+            <div>
+              <p class="res-card__name">{{ r.cliente?.nombre || 'Cliente' }}</p>
+              <p class="res-card__date">{{ fecha(r.created_at) }}</p>
+            </div>
+          </div>
+          <div class="res-card__stars">
+            <span *ngFor="let s of stars" class="res-star" [class.res-star--on]="s <= r.calificacion">★</span>
+          </div>
+        </div>
+
+        <div class="res-card__meta">
+          <span class="res-tag" [class.res-tag--general]="r.tipo === 'general'">
+            {{ r.tipo === 'general' ? 'Experiencia general' : (r.producto?.nombre || 'Producto') }}
+          </span>
+          <span class="res-tag res-tag--oculta" *ngIf="r.estado === 'oculta'">
+            <ion-icon name="eye-off-outline"></ion-icon> Oculta
+          </span>
+        </div>
+
+        <p class="res-card__text" *ngIf="r.comentario">{{ r.comentario }}</p>
+        <p class="res-card__text res-card__text--empty" *ngIf="!r.comentario">Sin comentario</p>
 
         <div class="res-card__footer">
-          <span class="res-status" [class.res-status--replied]="r.replied">
-            <ion-icon [name]="r.replied ? 'checkmark-circle-outline' : 'time-outline'"></ion-icon>
-            {{ r.replied ? 'Respondida' : 'Pendiente' }}
-          </span>
-          <admin-btn *ngIf="!r.replied" [small]="true" [outline]="true">
-            <ion-icon name="chatbubble-outline"></ion-icon> Responder
+          <admin-btn [small]="true" [outline]="true" (clicked)="toggleVisibilidad(r)">
+            <ion-icon [name]="r.estado === 'oculta' ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+            {{ r.estado === 'oculta' ? 'Mostrar' : 'Ocultar' }}
           </admin-btn>
+          <button type="button" class="res-del" (click)="eliminar(r)" [disabled]="accionandoId === r.id">
+            <ion-icon name="trash-outline"></ion-icon> Eliminar
+          </button>
         </div>
       </div>
     </div>

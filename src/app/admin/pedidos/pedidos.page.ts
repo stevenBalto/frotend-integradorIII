@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subject, interval } from 'rxjs';
 import { takeUntil, switchMap, filter } from 'rxjs/operators';
 import { PedidoService } from '../../core/services/pedido.service';
@@ -43,9 +44,17 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // Estado que se esta revirtiendo ahora mismo (micro-feedback no bloqueante).
   revirtiendoEstado: PedidoEstado | null = null;
 
-  constructor(private pedidoService: PedidoService) {}
+  constructor(
+    private pedidoService: PedidoService,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
+    // Si venimos desde una notificación ("abrir pedido"), pre-filtra por código.
+    const codigo = this.route.snapshot.queryParamMap.get('codigo');
+    if (codigo) {
+      this.busqueda = codigo;
+    }
     this.cargarPedidos();
     this.iniciarPolling();
   }

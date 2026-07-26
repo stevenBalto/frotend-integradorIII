@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 import { ProductoService } from '../core/services/producto.service';
+import { ResenaService } from '../core/services/resena.service';
+import { ResenaPublica, ResumenProducto } from '../core/models/resena.model';
 import { OfertaService } from '../core/services/oferta.service';
 import { CuponService } from '../core/services/cupon.service';
 import { CarritoService, LineaCarrito } from '../core/services/carrito.service';
@@ -40,12 +42,17 @@ export class HomePage implements OnInit {
   extrasSeleccionados: ExtraDisponible[] = [];
   cantidadDetalle = 1;
 
+  // Reseñas del producto abierto en el detalle
+  opinionesProducto: ResenaPublica[] = [];
+  resumenProducto: ResumenProducto | null = null;
+
   constructor(
     private auth: AuthService,
     private productoService: ProductoService,
     private ofertaService: OfertaService,
     private cuponService: CuponService,
     private carritoService: CarritoService,
+    private resenaService: ResenaService,
     private toast: ToastController,
   ) {
     this.usuario$ = this.auth.usuarioActual$;
@@ -62,6 +69,17 @@ export class HomePage implements OnInit {
     this.extrasSeleccionados = [];
     this.cantidadDetalle = 1;
     this.detalleAbierto = true;
+
+    // Cargar reseñas del producto
+    this.opinionesProducto = [];
+    this.resumenProducto = null;
+    this.resenaService.productoResenas(producto.id).subscribe({
+      next: (r) => {
+        this.resumenProducto = r.resumen;
+        this.opinionesProducto = r.opiniones;
+      },
+      error: () => { /* sin reseñas o error: no molestamos */ },
+    });
   }
 
   cerrarDetalle(): void {

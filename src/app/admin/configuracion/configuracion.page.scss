@@ -5,6 +5,9 @@
 }
 @media (min-width: 1024px) {
   .cfg-grid { grid-template-columns: repeat(2, 1fr); }
+  /* La tarjeta alta (Info general) ocupa las dos filas de la izquierda y se
+     estira (stretch por defecto) para igualar la altura de Horario+Notificaciones. */
+  .cfg-card--tall { grid-column: 1; grid-row: 1 / span 2; }
 }
 
 .cfg-card {
@@ -123,7 +126,17 @@
   &--error { color: var(--admin-red-alt); }
 }
 
-.cfg-footer { display: flex; justify-content: flex-end; }
+.cfg-footer { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+.cfg-footer__msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.cfg-footer__msg--ok { color: #16a34a; }
+.cfg-footer__msg--ok ion-icon { font-size: 15px; }
+.cfg-footer__msg--error { color: #dc2626; }
 
 /* ── Modal Nueva/Editar sucursal (mismo patrón que menu/pedidos) ───────────── */
 .order-modal {

@@ -68,6 +68,10 @@
         <div class="menu-card__body">
           <div class="menu-card__info">
             <span class="menu-card__name">{{ p.nombre }}</span>
+            <span class="menu-card__rating" *ngIf="p.resenas_count > 0">
+              <ion-icon name="star"></ion-icon>{{ p.calificacion_promedio }}
+              <span class="menu-card__rating-count">· {{ p.resenas_count }}</span>
+            </span>
             <span class="menu-card__desc">{{ p.descripcion }}</span>
             <span class="menu-card__price">{{ p.precio_base | crcCurrency }}</span>
           </div>
@@ -330,6 +334,13 @@
     <div class="dish-modal__body">
       <span class="dish-modal__cat">{{ productoDetalle.categoria }}</span>
       <h3 class="dish-modal__name">{{ productoDetalle.nombre }}</h3>
+      <div class="dish-modal__rating" *ngIf="resumenProducto && resumenProducto.total > 0">
+        <span class="dish-modal__stars">
+          <ion-icon *ngFor="let s of [1,2,3,4,5]" name="star"
+            [class.dish-modal__star--on]="s <= resumenProducto.promedio"></ion-icon>
+        </span>
+        <span class="dish-modal__rating-num">{{ resumenProducto.promedio }} · {{ resumenProducto.total }} reseña{{ resumenProducto.total === 1 ? '' : 's' }}</span>
+      </div>
       <p class="dish-modal__desc">{{ productoDetalle.descripcion || 'Sin descripcion.' }}</p>
 
       <!-- Selector de tamano -->
@@ -374,6 +385,21 @@
       <button type="button" class="dish-modal__cta" [disabled]="!puedeAgregar" (click)="agregarAlCarrito()">
         <ion-icon name="cart-outline"></ion-icon> Anadir al carrito
       </button>
+
+      <!-- Opiniones de otros clientes -->
+      <div class="dish-modal__section dish-reviews" *ngIf="opinionesProducto.length > 0">
+        <h4 class="dish-modal__section-title">Opiniones de otros clientes</h4>
+        <div class="dish-review" *ngFor="let op of opinionesProducto">
+          <div class="dish-review__head">
+            <span class="dish-review__author">{{ op.cliente || 'Cliente' }}</span>
+            <span class="dish-review__stars">
+              <ion-icon *ngFor="let s of [1,2,3,4,5]" name="star"
+                [class.dish-review__star--on]="s <= op.calificacion"></ion-icon>
+            </span>
+          </div>
+          <p class="dish-review__text" *ngIf="op.comentario">{{ op.comentario }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

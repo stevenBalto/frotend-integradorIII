@@ -6,14 +6,35 @@
     <div class="cfg-grid">
 
       <!-- Información general -->
-      <div class="cfg-card">
+      <div class="cfg-card cfg-card--tall">
         <p class="cfg-card__title">Información general</p>
         <div class="cfg-card__fields">
-          <div class="cfg-field" *ngFor="let f of generalFields">
-            <p class="cfg-field__label">{{ f.label }}</p>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Nombre del restaurante</p>
             <div class="cfg-input">
-              <ion-icon *ngIf="f.icon" [name]="f.icon"></ion-icon>
-              <input [value]="f.value" />
+              <ion-icon name="storefront-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_nombre" maxlength="120" placeholder="Ej. Rooster La Fortuna" />
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Teléfono de contacto</p>
+            <div class="cfg-input">
+              <ion-icon name="call-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_telefono" maxlength="40" placeholder="Ej. 2479-0000" />
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Dirección</p>
+            <div class="cfg-input">
+              <ion-icon name="globe-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_direccion" maxlength="200" placeholder="Ej. La Fortuna, San Carlos" />
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Sitio web</p>
+            <div class="cfg-input">
+              <ion-icon name="globe-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_sitio_web" maxlength="120" placeholder="Ej. rooster.cr" />
             </div>
           </div>
         </div>
@@ -26,16 +47,19 @@
           <div class="cfg-hours">
             <div class="cfg-field">
               <p class="cfg-field__label">Hora de apertura</p>
-              <div class="cfg-input"><ion-icon name="time-outline"></ion-icon><input value="11:00" /></div>
+              <div class="cfg-input"><ion-icon name="time-outline"></ion-icon>
+                <input type="time" [(ngModel)]="ajustes.horario_apertura" /></div>
             </div>
             <div class="cfg-field">
               <p class="cfg-field__label">Hora de cierre</p>
-              <div class="cfg-input"><ion-icon name="time-outline"></ion-icon><input value="22:00" /></div>
+              <div class="cfg-input"><ion-icon name="time-outline"></ion-icon>
+                <input type="time" [(ngModel)]="ajustes.horario_cierre" /></div>
             </div>
           </div>
           <div class="cfg-field">
             <p class="cfg-field__label">IVA (%)</p>
-            <div class="cfg-input"><input value="13" /></div>
+            <div class="cfg-input">
+              <input type="number" min="0" max="100" step="0.01" [(ngModel)]="ajustes.iva_porcentaje" /></div>
           </div>
         </div>
       </div>
@@ -44,106 +68,51 @@
       <div class="cfg-card">
         <p class="cfg-card__title">Notificaciones</p>
         <div class="cfg-card__fields">
-          <div class="cfg-notif" *ngFor="let n of notifToggles">
+          <div class="cfg-notif">
             <div>
-              <p class="cfg-notif__label">{{ n.label }}</p>
-              <p class="cfg-notif__sub">{{ n.sub }}</p>
+              <p class="cfg-notif__label">Nuevos pedidos</p>
+              <p class="cfg-notif__sub">Recibir alerta al llegar un pedido</p>
             </div>
-            <span class="cfg-toggle" [class.cfg-toggle--on]="n.on">
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_nuevos_pedidos"
+              (click)="toggleNotif('notif_nuevos_pedidos')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+          <div class="cfg-notif">
+            <div>
+              <p class="cfg-notif__label">Reseñas nuevas</p>
+              <p class="cfg-notif__sub">Recibir alerta cuando hay reseñas</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_resenas_nuevas"
+              (click)="toggleNotif('notif_resenas_nuevas')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+          <div class="cfg-notif">
+            <div>
+              <p class="cfg-notif__label">Stock bajo</p>
+              <p class="cfg-notif__sub">Alertar cuando un producto se agota</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_stock_bajo"
+              (click)="toggleNotif('notif_stock_bajo')">
               <span class="cfg-toggle__knob"></span>
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Sucursales (datos reales) -->
-      <div class="cfg-card">
-        <p class="cfg-card__title">Sucursales</p>
-
-        <p *ngIf="cargandoSucursales" class="cfg-branch__status">Cargando sucursales...</p>
-        <p *ngIf="errorSucursales" class="cfg-branch__status cfg-branch__status--error">{{ errorSucursales }}</p>
-
-        <div class="cfg-branch" *ngFor="let b of branches">
-          <div class="cfg-branch__info" (click)="abrirEditarSucursal(b)">
-            <p class="cfg-branch__name">{{ b.nombre }}</p>
-            <p class="cfg-branch__addr">{{ b.direccion || 'Sin dirección' }}</p>
-          </div>
-          <div class="cfg-branch__actions">
-            <button type="button" class="cfg-branch__badge"
-              [class.cfg-branch__badge--active]="b.activa"
-              [disabled]="togglingId === b.id"
-              (click)="toggleActiva(b)">
-              {{ b.activa ? 'Activa' : 'Inactiva' }}
-            </button>
-            <button type="button" class="cfg-branch__edit" (click)="abrirEditarSucursal(b)"
-              aria-label="Editar sucursal">
-              <ion-icon name="create-outline"></ion-icon>
-            </button>
-          </div>
-        </div>
-
-        <p *ngIf="!cargandoSucursales && !errorSucursales && branches.length === 0" class="cfg-branch__status">
-          No hay sucursales. Agregá la primera para empezar a recibir pedidos.
-        </p>
-
-        <admin-btn [small]="true" [outline]="true" (clicked)="abrirNuevaSucursal()">
-          <ion-icon name="add-outline"></ion-icon> Agregar sucursal
-        </admin-btn>
-      </div>
-
     </div>
 
     <div class="cfg-footer">
-      <admin-btn>
-        <ion-icon name="checkmark-circle-outline"></ion-icon> Guardar cambios
+      <span class="cfg-footer__msg cfg-footer__msg--ok" *ngIf="ajustesGuardado">
+        <ion-icon name="checkmark-circle"></ion-icon> Cambios guardados
+      </span>
+      <span class="cfg-footer__msg cfg-footer__msg--error" *ngIf="ajustesError">{{ ajustesError }}</span>
+      <admin-btn (clicked)="guardarAjustes()">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        {{ guardandoAjustes ? 'Guardando…' : 'Guardar cambios' }}
       </admin-btn>
     </div>
 
   </div>
 </ion-content>
-
-<!-- ── Modal Nueva/Editar sucursal ─────────────────────────────────────────── -->
-<div class="order-modal" *ngIf="sucursalModalOpen">
-  <div class="order-modal__backdrop" (click)="cerrarSucursalModal()"></div>
-  <div class="order-modal__panel order-modal__panel--small">
-    <div class="order-modal__head">
-      <div>
-        <p class="order-modal__title">{{ editandoSucursal ? 'Editar sucursal' : 'Nueva sucursal' }}</p>
-      </div>
-      <div class="order-modal__head-right">
-        <button type="button" class="order-modal__close" (click)="cerrarSucursalModal()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-    </div>
-
-    <div class="order-modal__body">
-      <form [formGroup]="sucursalForm" (ngSubmit)="guardarSucursal()" class="menu-form">
-        <label class="menu-form__label">
-          Nombre
-          <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Sucursal Liberia" />
-        </label>
-
-        <label class="menu-form__label">
-          Dirección *
-          <input type="text" formControlName="direccion" class="menu-form__input" placeholder="Ej. Liberia, Guanacaste" />
-        </label>
-
-        <label class="menu-form__label">
-          Teléfono
-          <input type="text" formControlName="telefono" class="menu-form__input" placeholder="Ej. 2666-0000" />
-        </label>
-
-        <label class="menu-form__check">
-          <input type="checkbox" formControlName="activa" /> Activa
-        </label>
-
-        <p *ngIf="sucursalError" class="menu-error">{{ sucursalError }}</p>
-
-        <button type="submit" class="order-modal__cta" [disabled]="guardandoSucursal">
-          {{ guardandoSucursal ? 'Guardando...' : (editandoSucursal ? 'Guardar cambios' : 'Crear sucursal') }}
-        </button>
-      </form>
-    </div>
-  </div>
-</div>

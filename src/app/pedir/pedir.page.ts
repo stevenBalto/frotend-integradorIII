@@ -9,6 +9,8 @@ import { SucursalService } from '../core/services/sucursal.service';
 import { PedidoService } from '../core/services/pedido.service';
 import { CategoriaService } from '../core/services/categoria.service';
 import { ProductoService } from '../core/services/producto.service';
+import { ResenaService } from '../core/services/resena.service';
+import { ResenaPublica, ResumenProducto } from '../core/models/resena.model';
 import { Sucursal } from '../core/models/sucursal.model';
 import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
 import { Pedido, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
@@ -45,6 +47,8 @@ export class PedirPage implements OnInit, OnDestroy {
   // Modal detalle producto
   detalleAbierto = false;
   productoDetalle: Producto | null = null;
+  opinionesProducto: ResenaPublica[] = [];
+  resumenProducto: ResumenProducto | null = null;
   tamanoSeleccionado: ProductoTamano | null = null;
   extrasSeleccionados: ExtraDisponible[] = [];
   cantidadDetalle = 1;
@@ -84,6 +88,7 @@ export class PedirPage implements OnInit, OnDestroy {
     private pedidoService: PedidoService,
     private categoriaService: CategoriaService,
     private productoService: ProductoService,
+    private resenaService: ResenaService,
     private toast: ToastController,
     private router: Router,
   ) {
@@ -213,6 +218,17 @@ export class PedirPage implements OnInit, OnDestroy {
     this.extrasSeleccionados = [];
     this.cantidadDetalle = 1;
     this.detalleAbierto = true;
+
+    // Cargar reseñas del producto
+    this.opinionesProducto = [];
+    this.resumenProducto = null;
+    this.resenaService.productoResenas(producto.id).subscribe({
+      next: (r) => {
+        this.resumenProducto = r.resumen;
+        this.opinionesProducto = r.opiniones;
+      },
+      error: () => { /* sin reseñas o error: no molestamos */ },
+    });
   }
 
   cerrarDetalle(): void {

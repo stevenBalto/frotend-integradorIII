@@ -1,0 +1,67 @@
+<ion-modal
+  [isOpen]="isOpen"
+  [initialBreakpoint]="1"
+  [breakpoints]="[0, 1]"
+  handle="true"
+  (ionModalDidDismiss)="ahoraNo()">
+  <ng-template>
+    <div class="rp" *ngIf="actual as p">
+
+      <div class="rp__head">
+        <div class="rp__badge"><ion-icon name="star"></ion-icon></div>
+        <h2 class="rp__title">¿Cómo estuvo tu pedido?</h2>
+        <p class="rp__code">Pedido {{ p.codigo }}</p>
+      </div>
+
+      <div class="rp__body">
+        <!-- Experiencia general -->
+        <section class="rp__section">
+          <p class="rp__label">Tu experiencia general</p>
+          <div class="rp__stars">
+            <button type="button" class="rp__star" *ngFor="let s of estrellas"
+              [class.rp__star--on]="s <= generalCalificacion"
+              (click)="setGeneral(s)" [attr.aria-label]="s + ' estrellas'">★</button>
+          </div>
+          <textarea class="rp__comment" rows="2" maxlength="500"
+            [(ngModel)]="generalComentario"
+            placeholder="Contanos cómo te fue (opcional)"></textarea>
+        </section>
+
+        <!-- Productos -->
+        <section class="rp__section" *ngIf="productos.length > 0">
+          <p class="rp__label">Calificá lo que pediste</p>
+
+          <div class="rp__prod" *ngFor="let prod of productos"
+            [class.rp__prod--done]="prod.ya_resenado">
+            <div class="rp__prod-top">
+              <span class="rp__prod-name">{{ prod.nombre }}</span>
+              <span class="rp__prod-done" *ngIf="prod.ya_resenado">
+                <ion-icon name="checkmark-circle"></ion-icon> Reseñado
+              </span>
+            </div>
+            <div class="rp__stars rp__stars--sm" *ngIf="!prod.ya_resenado">
+              <button type="button" class="rp__star" *ngFor="let s of estrellas"
+                [class.rp__star--on]="s <= prod.calificacion"
+                (click)="setProducto(prod, s)">★</button>
+            </div>
+            <input class="rp__comment rp__comment--inline" *ngIf="!prod.ya_resenado && prod.calificacion > 0"
+              maxlength="500" [(ngModel)]="prod.comentario"
+              placeholder="Comentario (opcional)" />
+          </div>
+        </section>
+      </div>
+
+      <div class="rp__footer">
+        <button type="button" class="rp__btn rp__btn--ghost" (click)="descartar()" [disabled]="enviando">
+          No volver a pedir
+        </button>
+        <button type="button" class="rp__btn rp__btn--primary"
+          (click)="enviar()" [disabled]="!puedeEnviar || enviando">
+          <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
+          <span *ngIf="!enviando">Enviar reseña</span>
+        </button>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>

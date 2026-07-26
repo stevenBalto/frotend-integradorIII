@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { ToastController } from '@ionic/angular';
+import { Observable, map, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { SucursalService } from '../../core/services/sucursal.service';
 import { Usuario } from '../../core/models/usuario.model';
+import { NotificacionService } from '../../core/services/notificacion.service';
+import { Notificacion } from '../../core/models/notificacion.model';
 
 interface NavItem {
   id: string;
@@ -15,6 +18,10 @@ interface NavItem {
 /**
  * Shell del panel admin: sidebar (colapsable en móvil) + header persistente
  * + <ion-router-outlet> para las 9 páginas hijas.
+ *
+ * Aquí vive el "tiempo real" de notificaciones: mientras el admin esté en el
+ * panel (cualquier pantalla), se sondea el backend y se muestra un toast global
+ * + se actualiza el badge del sidebar.
  */
 @Component({
   selector: 'app-admin-shell',
@@ -22,7 +29,9 @@ interface NavItem {
   styleUrls: ['./admin-shell.page.scss'],
   standalone: false,
 })
-export class AdminShellPage implements OnInit {
+export class AdminShellPage implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   sidebarOpen = false;
   sucursalNombre: string | null = null;
 
@@ -43,7 +52,7 @@ export class AdminShellPage implements OnInit {
     { id: 'clientes',       label: 'Clientes',          icon: 'people-outline' },
     { id: 'usuarios',       label: 'Usuarios y roles',  icon: 'shield-checkmark-outline' },
     { id: 'analiticas',     label: 'Analíticas',        icon: 'bar-chart-outline' },
-    { id: 'notificaciones', label: 'Notificaciones',    icon: 'notifications-outline', badge: '3' },
+    { id: 'notificaciones', label: 'Notificaciones',    icon: 'notifications-outline' },
     { id: 'resenas',        label: 'Reseñas',           icon: 'star-outline' },
     { id: 'configuracion',  label: 'Configuración',     icon: 'settings-outline' },
   ];
@@ -52,6 +61,8 @@ export class AdminShellPage implements OnInit {
     private router: Router,
     private auth: AuthService,
     private sucursalService: SucursalService,
+    private notificaciones: NotificacionService,
+    private toastCtrl: ToastController,
   ) {
     this.usuario$ = this.auth.usuarioActual$;
 
@@ -65,6 +76,7 @@ export class AdminShellPage implements OnInit {
   }
 
   ngOnInit(): void {
+    // Header dinámico: nombre de la sucursal del admin (aporte del compañero).
     const sucursalId = this.auth.usuario?.sucursal_id;
     if (sucursalId) {
       this.sucursalService.listarActivas().subscribe({
@@ -73,9 +85,61 @@ export class AdminShellPage implements OnInit {
         },
       });
     }
+
+    // Notificaciones en tiempo real: badge en vivo + toast global (polling).
+    this.notificaciones.noLeidas$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((n) => this.setBadge(n));
+
+    this.notificaciones.nuevas$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((nuevas) => nuevas.forEach((n) => void this.mostrarToast(n)));
+
+    this.notificaciones.iniciarPolling();
+  }
+
+  ngOnDestroy(): void {
+    this.notificaciones.detenerPolling();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   closeSidebar(): void { this.sidebarOpen = false; }
+
+  private setBadge(cantidad: number): void {
+    const item = this.navItems.find((i) => i.id === 'notificaciones');
+    if (item) {
+      item.badge = cantidad > 0 ? String(cantidad) : undefined;
+    }
+  }
+
+  private async mostrarToast(n: Notificacion): Promise<void> {
+    const toast = await this.toastCtrl.create({
+      header: n.titulo,
+      message: n.mensaje,
+      duration: 6000,
+      position: 'top',
+      icon: 'notifications-outline',
+      cssClass: 'notif-toast',
+      buttons: [
+        {
+          text: 'Ver',
+          handler: () => this.abrirPedido(n),
+        },
+        { text: 'Cerrar', role: 'cancel' },
+      ],
+    });
+    await toast.present();
+  }
+
+  /** Abre el pedido de la notificación en el módulo de Pedidos. */
+  private abrirPedido(n: Notificacion): void {
+    const codigo = n.data?.codigo;
+    this.closeSidebar();
+    void this.router.navigate(['/admin/pedidos'], {
+      queryParams: codigo ? { codigo } : {},
+    });
+  }
 
   /** Temporal: vuelve a la app cliente (sin invalidar token, es otro contexto). */
   salirAlApp(): void {

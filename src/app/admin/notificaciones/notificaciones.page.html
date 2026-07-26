@@ -1,21 +1,48 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Notificaciones" subtitle="3 sin leer">
-      <button type="button" header-right class="notif-mark">Marcar todas como leídas</button>
+    <admin-page-header
+      title="Notificaciones"
+      [subtitle]="noLeidas > 0 ? (noLeidas + ' sin leer') : 'Todo al día'">
+      <button
+        type="button"
+        header-right
+        class="notif-mark"
+        [disabled]="noLeidas === 0 || marcandoTodas"
+        (click)="marcarTodas()">
+        Marcar todas como leídas
+      </button>
     </admin-page-header>
 
-    <div class="notif-list">
-      <div class="notif" *ngFor="let n of notifs" [class.notif--unread]="!n.read">
-        <div class="notif__icon" [style.background]="n.iconBg">
-          <ion-icon [name]="n.icon" [style.color]="n.iconColor"></ion-icon>
+    <!-- Cargando -->
+    <div class="notif-empty" *ngIf="cargando">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+    <!-- Vacío -->
+    <div class="notif-empty" *ngIf="!cargando && notifs.length === 0">
+      <ion-icon name="notifications-off-outline"></ion-icon>
+      <p>No hay notificaciones todavía.</p>
+    </div>
+
+    <!-- Lista real -->
+    <div class="notif-list" *ngIf="!cargando && notifs.length > 0">
+      <button
+        type="button"
+        class="notif"
+        *ngFor="let n of notifs"
+        [class.notif--unread]="!n.leida"
+        (click)="abrir(n)">
+        <div class="notif__icon">
+          <ion-icon [name]="icono(n)"></ion-icon>
         </div>
         <div class="notif__body">
-          <p class="notif__text" [class.notif__text--unread]="!n.read">{{ n.text }}</p>
-          <p class="notif__time">{{ n.time }}</p>
+          <p class="notif__text" [class.notif__text--unread]="!n.leida">{{ n.titulo }}</p>
+          <p class="notif__sub">{{ n.mensaje }}</p>
+          <p class="notif__time">{{ tiempo(n) }}</p>
         </div>
-        <div class="notif__dot" *ngIf="!n.read"></div>
-      </div>
+        <div class="notif__dot" *ngIf="!n.leida"></div>
+      </button>
     </div>
 
   </div>

@@ -25,6 +25,16 @@
         icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
     </div>
 
+    <!-- Sugerencias de destacado por reseñas -->
+    <div class="menu-suggest" *ngIf="totalSugeridos > 0">
+      <ion-icon name="sparkles"></ion-icon>
+      <div class="menu-suggest__text">
+        <strong>{{ totalSugeridos }}</strong> producto{{ totalSugeridos === 1 ? '' : 's' }}
+        con buena calificación que podrías destacar.
+        <span>Mirá la etiqueta <em>Sugerido</em> en la tabla y tocá "Destacar".</span>
+      </div>
+    </div>
+
     <admin-section-card>
       <div class="menu-toolbar">
         <div class="menu-toolbar__left">
@@ -60,11 +70,23 @@
                   <ion-icon *ngIf="!p.imagen_url" name="restaurant-outline"></ion-icon>
                 </div>
               </td>
-              <td class="admin-table__strong" style="font-size: 12px;">{{ p.nombre }}</td>
+              <td class="admin-table__strong" style="font-size: 12px;">
+                {{ p.nombre }}
+                <span class="menu-rating" *ngIf="p.resenas_count > 0">
+                  ★ {{ p.calificacion_promedio }} · {{ p.resenas_count }}
+                </span>
+              </td>
               <td><span class="menu-cat">{{ p.categoria }}</span></td>
               <td class="admin-table__semi" style="font-size: 12px;">{{ p.precio_base | crcCurrency }}</td>
               <td>
-                <span class="menu-star" [class.menu-star--on]="p.destacado">{{ p.destacado ? '★' : '☆' }}</span>
+                <div class="menu-destacado">
+                  <span class="menu-star" [class.menu-star--on]="p.destacado">{{ p.destacado ? '★' : '☆' }}</span>
+                  <button *ngIf="esSugerido(p)" type="button" class="menu-suggest-btn"
+                    (click)="destacarRapido(p); $event.stopPropagation()" [disabled]="destacandoId === p.id">
+                    <ion-icon name="sparkles"></ion-icon>
+                    {{ destacandoId === p.id ? 'Destacando…' : 'Destacar' }}
+                  </button>
+                </div>
               </td>
               <td>
                 <div class="menu-avail">

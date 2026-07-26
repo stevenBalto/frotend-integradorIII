@@ -661,3 +661,50 @@
     transform: none;
   }
 }
+
+// ── Reseñas: rating en card + resumen y opiniones en el modal ──
+.dish-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b8860b;
+  margin: 2px 0;
+}
+.dish-card__rating ion-icon { font-size: 12px; color: #f59e0b; }
+.dish-card__rating-count { color: var(--rooster-brown, #8a6f52); font-weight: 500; }
+
+.dish-modal__rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 4px;
+}
+.dish-modal__stars { display: inline-flex; gap: 1px; }
+.dish-modal__stars ion-icon { font-size: 15px; color: #e2dbcf; }
+.dish-modal__stars ion-icon.dish-modal__star--on { color: #f59e0b; }
+.dish-modal__rating-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rooster-brown, #8a6f52);
+}
+
+.dish-reviews { margin-top: 8px; }
+.dish-review {
+  padding: 12px 0;
+  border-top: 1px solid rgba(168, 137, 94, 0.18);
+}
+.dish-review__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.dish-review__author { font-size: 13px; font-weight: 700; color: #1e1e1e; }
+.dish-review__stars { display: inline-flex; gap: 1px; flex-shrink: 0; }
+.dish-review__stars ion-icon { font-size: 12px; color: #e2dbcf; }
+.dish-review__stars ion-icon.dish-review__star--on { color: #f59e0b; }
+.dish-review__text { font-size: 13px; color: #4b4b4b; margin: 0; line-height: 1.5; }
+

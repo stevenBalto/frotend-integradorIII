@@ -18,11 +18,18 @@
   padding: 16px;
   background: #fff;
   border: 0.5px solid rgba(168, 137, 94, 0.25);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--rooster-font-sans);
+  transition: background 0.15s ease;
 }
+.notif:hover { background: #faf8f5; }
 .notif--unread {
   background: #fff8f8;
   border-color: rgba(225, 54, 66, 0.2);
 }
+.notif--unread:hover { background: #fff2f2; }
 .notif__icon {
   width: 38px;
   height: 38px;
@@ -31,11 +38,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: rgba(225, 54, 66, 0.1);
 }
-.notif__icon ion-icon { font-size: 17px; }
+.notif__icon ion-icon { font-size: 17px; color: var(--rooster-red); }
 .notif__body { flex: 1; min-width: 0; }
-.notif__text { font-size: 12px; color: #1e1e1e; font-weight: 400; margin: 0; }
+.notif__text { font-size: 13px; color: #1e1e1e; font-weight: 400; margin: 0; }
 .notif__text--unread { font-weight: 600; }
+.notif__sub { font-size: 12px; color: #4b4b4b; margin: 2px 0 0; }
 .notif__time { font-size: 10px; color: var(--rooster-brown); margin: 2px 0 0; }
 .notif__dot {
   width: 8px;
@@ -45,3 +54,15 @@
   flex-shrink: 0;
   margin-top: 4px;
 }
+
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 16px;
+  color: var(--rooster-brown);
+}
+.notif-empty ion-icon { font-size: 40px; opacity: 0.5; }
+.notif-empty p { font-size: 13px; margin: 0; }

@@ -29,6 +29,10 @@ export interface Producto {
   popular: boolean;
   nuevo: boolean;
   disponible: boolean;
+  /** Promedio de reseñas visibles del producto (null si no tiene). */
+  calificacion_promedio: number | null;
+  /** Cantidad de reseñas visibles del producto. */
+  resenas_count: number;
   created_at: string | null;
   updated_at: string | null;
   /** Tamanos disponibles (vacio si no aplica a este producto). */
