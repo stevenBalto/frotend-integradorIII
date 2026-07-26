@@ -1,15 +1,3 @@
-.an-range-btn {
-  padding: 8px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #fff;
-  color: #1e1e1e;
-  border: 0.5px solid rgba(168, 137, 94, 0.25);
-  font-family: var(--rooster-font-sans);
-  cursor: pointer;
-}
-
 .an-charts-5 {
   display: grid;
   grid-template-columns: 1fr;
@@ -79,3 +67,14 @@
 .an-legend__label { font-size: 11px; color: var(--admin-text); font-weight: 600; }
 .an-legend__value { font-size: 9px; color: var(--admin-text-muted); margin: 0; }
 .an-legend__pct { font-size: 13px; font-weight: 800; }
+
+/* -- Ventas por categoria -------------------------------------------------- */
+.an-categoria { display: flex; flex-direction: column; gap: 14px; }
+.an-categoria__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.an-categoria__name { font-size: 12px; color: #1e1e1e; font-weight: 600; }
+.an-categoria__monto { font-size: 12px; font-weight: 700; color: #374151; }

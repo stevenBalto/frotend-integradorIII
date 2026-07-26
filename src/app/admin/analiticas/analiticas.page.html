@@ -1,72 +1,104 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Reportes y analíticas" subtitle="Dashboard / Reportes">
-      <ng-container ngProjectAs="[header-right]">
-        <button type="button" class="an-range-btn">Este mes ▾</button>
-        <admin-btn [small]="true">
-          <ion-icon name="download-outline"></ion-icon> Exportar
-        </admin-btn>
-      </ng-container>
-    </admin-page-header>
+    <admin-page-header title="Reportes y analiticas" subtitle="Dashboard / Reportes"></admin-page-header>
 
-    <!-- KPIs -->
-    <div class="admin-grid-4">
-      <admin-kpi-card label="Ventas del mes" value="₡8.420.500" sub="↑ 14% vs anterior" subColor="#16A34A" [accent]="true"></admin-kpi-card>
-      <admin-kpi-card label="Pedidos del mes" [value]="962" sub="↑ 9% vs anterior" subColor="#16A34A"></admin-kpi-card>
-      <admin-kpi-card label="Ticket promedio" value="₡8.760" sub="↓ 2% vs anterior" subColor="#DC2626"></admin-kpi-card>
-      <admin-kpi-card label="Calificación promedio" value="4.6 ★" sub="312 reseñas" subColor="#6B7280"></admin-kpi-card>
+    <!-- Error -->
+    <div class="an-error" *ngIf="error">
+      <p>{{ error }}</p>
+      <admin-btn (click)="cargarAnaliticas()">Reintentar</admin-btn>
     </div>
 
-    <!-- Barras -->
-    <div class="an-charts-5">
-      <div class="an-charts-5__main">
-        <admin-section-card title="Ventas por día">
-          <span card-action class="an-note">Pico: vie–sáb</span>
-          <bar-chart [data]="dailySales" [height]="150"></bar-chart>
-        </admin-section-card>
-      </div>
-      <div class="an-charts-5__side">
-        <admin-section-card title="Horas pico">
-          <span card-action class="an-note an-note--green">Pico: 5p–7p</span>
-          <bar-chart [data]="peakHours" [height]="150"></bar-chart>
-        </admin-section-card>
-      </div>
+    <!-- Loading -->
+    <div class="an-loading" *ngIf="cargando">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando analiticas...</p>
     </div>
 
-    <!-- Top productos + modalidad -->
-    <div class="an-charts-2">
-      <admin-section-card title="Productos más vendidos">
-        <div class="an-top">
-          <div class="an-top__item" *ngFor="let p of topProducts; let i = index">
-            <div class="an-top__head">
-              <div class="an-top__name-wrap">
-                <span class="an-top__rank" [style.background]="p.color">{{ i + 1 }}</span>
-                <span class="an-top__name">{{ p.name }}</span>
-              </div>
-              <span class="an-top__units" [style.color]="p.color">{{ p.units }} uds</span>
+    <!-- Contenido principal -->
+    <ng-container *ngIf="!cargando && !error">
+      <!-- KPIs -->
+      <div class="admin-grid-4">
+        <admin-kpi-card label="Ventas del mes" [value]="formatMonto(ventasMes)" [sub]="compVentas.texto" [subColor]="compVentas.color" [accent]="true"></admin-kpi-card>
+        <admin-kpi-card label="Pedidos del mes" [value]="pedidosMes" [sub]="compPedidos.texto" [subColor]="compPedidos.color"></admin-kpi-card>
+        <admin-kpi-card label="Ticket promedio" [value]="formatMonto(ticketPromedio)" sub="vs mes anterior"></admin-kpi-card>
+        <admin-kpi-card label="Calificacion promedio" value="4.6" sub="312 resenas" subColor="#6B7280"></admin-kpi-card>
+      </div>
+
+      <!-- Barras -->
+      <div class="an-charts-5">
+        <div class="an-charts-5__main">
+          <admin-section-card title="Ventas por dia">
+            <sales-bar-chart [data]="dailySales" [height]="150" prefix="₡"></sales-bar-chart>
+          </admin-section-card>
+        </div>
+        <div class="an-charts-5__side">
+          <admin-section-card title="Horas pico">
+            <sales-bar-chart [data]="peakHours" [height]="150" suffix=" pedidos"></sales-bar-chart>
+          </admin-section-card>
+        </div>
+      </div>
+
+      <!-- Ventas por categoria -->
+      <admin-section-card title="Ventas por categoria">
+        <div class="an-categoria">
+          <div class="an-categoria__item" *ngFor="let cat of ventasPorCategoria">
+            <div class="an-categoria__head">
+              <span class="an-categoria__name">{{ cat.categoria }}</span>
+              <span class="an-categoria__monto">{{ formatMonto(cat.total) }}</span>
             </div>
-            <progress-bar [value]="p.units" [max]="maxUnits" [color]="p.color"></progress-bar>
+            <progress-bar [value]="cat.total" [max]="maxCategoriaTotal" color="#374151"></progress-bar>
           </div>
+          <p *ngIf="ventasPorCategoria.length === 0" class="an-empty">Sin datos de categorias.</p>
         </div>
       </admin-section-card>
 
-      <admin-section-card title="Modalidad de pedido">
-        <div class="an-modality">
-          <donut-chart [pct]="58" label="Comer aquí"></donut-chart>
-          <div class="an-modality__legend">
-            <div class="an-legend" *ngFor="let l of legend" [style.background]="l.bg">
-              <span class="an-legend__dot" [style.background]="l.c"></span>
-              <div class="an-legend__info">
-                <span class="an-legend__label">{{ l.label }}</span>
-                <p class="an-legend__value">{{ l.value }} pedidos</p>
+      <!-- Top productos + modalidad -->
+      <div class="an-charts-2">
+        <admin-section-card title="Productos mas vendidos">
+          <div class="an-top">
+            <div class="an-top__item" *ngFor="let p of topProducts; let i = index">
+              <div class="an-top__head">
+                <div class="an-top__name-wrap">
+                  <span class="an-top__rank" [style.background]="p.color">{{ i + 1 }}</span>
+                  <span class="an-top__name">{{ p.name }}</span>
+                </div>
+                <span class="an-top__units" [style.color]="p.color">{{ p.units }} uds</span>
               </div>
-              <span class="an-legend__pct" [style.color]="l.c">{{ l.pct }}</span>
+              <progress-bar [value]="p.units" [max]="maxUnits" [color]="p.color"></progress-bar>
+            </div>
+            <p *ngIf="topProducts.length === 0" class="an-empty">Sin datos de productos.</p>
+          </div>
+        </admin-section-card>
+
+        <admin-section-card title="Modalidad de pedido">
+          <div class="an-modality">
+            <modality-donut-chart [data]="modalityData"></modality-donut-chart>
+            <div class="an-modality__legend">
+              <div class="an-legend" *ngFor="let l of legend" [style.background]="l.bg">
+                <span class="an-legend__dot" [style.background]="l.c"></span>
+                <div class="an-legend__info">
+                  <span class="an-legend__label">{{ l.label }}</span>
+                  <p class="an-legend__value">{{ l.value }} pedidos</p>
+                </div>
+                <span class="an-legend__pct" [style.color]="l.c">{{ l.pct }}</span>
+              </div>
+              <p *ngIf="legend.length === 0" class="an-empty">Sin datos de modalidad.</p>
             </div>
           </div>
-        </div>
-      </admin-section-card>
-    </div>
+        </admin-section-card>
+      </div>
+
+      <!-- Comparativo mes actual vs anterior -->
+      <div class="an-charts-2">
+        <admin-section-card title="Comparativo de ventas">
+          <sales-bar-chart [data]="comparativoVentas" [height]="150" prefix="₡"></sales-bar-chart>
+        </admin-section-card>
+        <admin-section-card title="Comparativo de pedidos">
+          <sales-bar-chart [data]="comparativoPedidos" [height]="150" suffix=" pedidos"></sales-bar-chart>
+        </admin-section-card>
+      </div>
+    </ng-container>
 
   </div>
 </ion-content>

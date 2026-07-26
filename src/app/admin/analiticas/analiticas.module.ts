@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 
 import { AdminSharedModule } from '../shared/admin-shared.module';
 import { AdminAnaliticasPage } from './analiticas.page';
+import { SalesBarChartComponent } from '../shared/sales-bar-chart.component';
+import { ModalityDonutChartComponent } from '../shared/modality-donut-chart.component';
 
 @NgModule({
   imports: [
@@ -13,6 +15,8 @@ import { AdminAnaliticasPage } from './analiticas.page';
     FormsModule,
     IonicModule,
     AdminSharedModule,
+    SalesBarChartComponent,
+    ModalityDonutChartComponent,
     RouterModule.forChild([{ path: '', component: AdminAnaliticasPage }]),
   ],
   declarations: [AdminAnaliticasPage],

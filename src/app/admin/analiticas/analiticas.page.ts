@@ -1,39 +1,165 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AnaliticasService } from '../../core/services/analiticas.service';
+import { AnaliticasResponse, ComparacionMesAnterior, ModalidadApi, TopProductoApi, VentaCategoria } from '../../core/models/analiticas.model';
+import { SalesBarDatum } from '../shared/sales-bar-chart.component';
+import { ModalityDatum } from '../shared/modality-donut-chart.component';
 
-interface Bar { day: string; val: number; }
 interface TopProduct { name: string; units: number; color: string; }
 interface Legend { label: string; pct: string; value: string; c: string; bg: string; }
+interface ComparacionTexto { texto: string; color: string; }
 
-/** Reportes y analíticas: KPIs, barras por día / horas pico, top productos, modalidad. */
+/** Paleta de colores para el ranking de productos (rojo solo para el #1). */
+const RANKING_COLORS = ['#E13642', '#374151', '#6B7280', '#9CA3AF', '#D1D5DB'];
+
+/** Reportes y analiticas: KPIs, barras por dia / horas pico, top productos, modalidad. */
 @Component({
   selector: 'app-admin-analiticas',
   templateUrl: './analiticas.page.html',
   styleUrls: ['./analiticas.page.scss'],
   standalone: false,
 })
-export class AdminAnaliticasPage {
-  readonly dailySales: Bar[] = [
-    { day: 'L', val: 280 }, { day: 'M', val: 390 }, { day: 'M', val: 320 },
-    { day: 'J', val: 450 }, { day: 'V', val: 370 }, { day: 'S', val: 680 },
-    { day: 'D', val: 760 }, { day: 'L', val: 310 }, { day: 'M', val: 400 },
-    { day: 'J', val: 355 }, { day: 'S', val: 620 }, { day: 'D', val: 785 },
-  ];
+export class AdminAnaliticasPage implements OnInit {
+  cargando = false;
+  error: string | null = null;
 
-  readonly peakHours: Bar[] = [
-    { day: '11a', val: 12 }, { day: '1p', val: 28 }, { day: '3p', val: 35 },
-    { day: '5p', val: 65 }, { day: '7p', val: 58 }, { day: '9p', val: 32 }, { day: '11p', val: 15 },
-  ];
+  // KPIs
+  ventasMes = 0;
+  pedidosMes = 0;
+  ticketPromedio = 0;
 
-  readonly topProducts: TopProduct[] = [
-    { name: 'Pizza Pepperoni', units: 312, color: '#E13642' },
-    { name: 'Costillas BBQ',   units: 248, color: '#374151' },
-    { name: 'Pizza 4 Quesos',  units: 201, color: '#6B7280' },
-    { name: 'Pasta Alfredo',   units: 156, color: '#9CA3AF' },
-  ];
-  readonly maxUnits = 312;
+  // Charts
+  dailySales: SalesBarDatum[] = [];
+  peakHours: SalesBarDatum[] = [];
+  modalityData: ModalityDatum[] = [];
 
-  readonly legend: Legend[] = [
-    { label: 'Comer aquí',  pct: '58%', value: '558', c: '#E13642', bg: 'rgba(225,54,66,0.05)' },
-    { label: 'Para llevar', pct: '42%', value: '404', c: '#374151', bg: '#E5E7EB' },
-  ];
+  // Ranking productos
+  topProducts: TopProduct[] = [];
+  maxUnits = 0;
+
+  // Leyenda modalidad
+  legend: Legend[] = [];
+
+  // Comparacion mensual
+  compVentas: ComparacionTexto = { texto: '', color: '' };
+  compPedidos: ComparacionTexto = { texto: '', color: '' };
+
+  // Ventas por categoria
+  ventasPorCategoria: VentaCategoria[] = [];
+  maxCategoriaTotal = 0;
+
+  // Comparativos mes actual vs anterior (charts de barras)
+  comparativoVentas: SalesBarDatum[] = [];
+  comparativoPedidos: SalesBarDatum[] = [];
+
+  constructor(private analiticasService: AnaliticasService) {}
+
+  ngOnInit(): void {
+    this.cargarAnaliticas();
+  }
+
+  cargarAnaliticas(): void {
+    this.cargando = true;
+    this.error = null;
+    this.analiticasService.obtenerAnaliticas().subscribe({
+      next: (res) => {
+        this.procesarRespuesta(res);
+        this.cargando = false;
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar las analiticas.';
+        this.cargando = false;
+      },
+    });
+  }
+
+  private procesarRespuesta(res: AnaliticasResponse): void {
+    // KPIs
+    this.ventasMes = res.ventas_mes;
+    this.pedidosMes = res.pedidos_mes;
+    this.ticketPromedio = res.ticket_promedio;
+
+    // Ventas por dia
+    this.dailySales = res.ventas_por_dia.map((v) => ({
+      label: this.formatFechaDia(v.fecha),
+      value: v.total,
+    }));
+
+    // Horas pico
+    this.peakHours = res.horas_pico.map((h) => ({
+      label: h.hora,
+      value: h.cantidad,
+    }));
+
+    // Top productos
+    this.topProducts = res.top_productos.map((p: TopProductoApi, i: number) => ({
+      name: p.nombre,
+      units: p.unidades,
+      color: RANKING_COLORS[i] ?? RANKING_COLORS[RANKING_COLORS.length - 1],
+    }));
+    this.maxUnits = Math.max(...this.topProducts.map((p) => p.units), 0);
+
+    // Modalidad
+    this.modalityData = res.modalidad.map((m: ModalidadApi) => ({
+      modalidad: m.modalidad,
+      cantidad: m.cantidad,
+      pct: m.pct,
+    }));
+
+    // Leyenda modalidad
+    this.legend = res.modalidad.map((m: ModalidadApi, i: number) => {
+      const esPico = m.pct === Math.max(...res.modalidad.map((x) => x.pct));
+      return {
+        label: m.modalidad,
+        pct: `${Math.round(m.pct)}%`,
+        value: String(m.cantidad),
+        c: esPico ? '#E13642' : '#374151',
+        bg: esPico ? 'rgba(225,54,66,0.05)' : '#E5E7EB',
+      };
+    });
+
+    // Comparacion mensual
+    this.compVentas = this.formatComparacion(res.comparacion_mes_anterior?.ventas_pct);
+    this.compPedidos = this.formatComparacion(res.comparacion_mes_anterior?.pedidos_pct);
+
+    // Ventas por categoria
+    this.ventasPorCategoria = res.ventas_por_categoria ?? [];
+    this.maxCategoriaTotal = Math.max(...this.ventasPorCategoria.map((c) => c.total), 0);
+
+    // Comparativos mes actual vs anterior
+    const comp = res.comparacion_mes_anterior;
+    this.comparativoVentas = [
+      { label: 'Mes anterior', value: comp?.ventas_mes_anterior ?? 0 },
+      { label: 'Este mes', value: res.ventas_mes },
+    ];
+    this.comparativoPedidos = [
+      { label: 'Mes anterior', value: comp?.pedidos_mes_anterior ?? 0 },
+      { label: 'Este mes', value: res.pedidos_mes },
+    ];
+  }
+
+  /** Formatea un porcentaje de comparacion con flecha y color. */
+  private formatComparacion(pct: number | null | undefined): ComparacionTexto {
+    if (pct === null || pct === undefined) {
+      return { texto: 'Sin datos previos', color: '#6B7280' };
+    }
+    if (pct > 0) {
+      return { texto: `↑ ${Math.abs(pct).toFixed(1)}% vs anterior`, color: '#16A34A' };
+    }
+    if (pct < 0) {
+      return { texto: `↓ ${Math.abs(pct).toFixed(1)}% vs anterior`, color: '#DC2626' };
+    }
+    return { texto: '0% vs anterior', color: '#6B7280' };
+  }
+
+  /** Convierte "2026-07-25" a "25" o dia de semana corto segun preferencia. */
+  private formatFechaDia(fecha: string): string {
+    const d = new Date(fecha);
+    // Usar dia del mes (1-31)
+    return String(d.getDate());
+  }
+
+  // ---- Formato ----
+  formatMonto(valor: number): string {
+    return `₡${new Intl.NumberFormat('es-CR').format(valor)}`;
+  }
 }
