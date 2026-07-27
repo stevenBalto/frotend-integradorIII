@@ -32,7 +32,6 @@ export class AdminUsuariosPage implements OnInit {
   readonly filters: FilterOpt[] = [
     { id: 'todos', label: 'Todos' },
     { id: 'admin', label: 'Administradores' },
-    { id: 'cliente', label: 'Clientes' },
   ];
 
   // Modal crear/editar

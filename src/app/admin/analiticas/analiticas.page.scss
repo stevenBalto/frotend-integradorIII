@@ -1,3 +1,19 @@
+.an-cache-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin: -8px 0 16px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--admin-bg-muted, #F3F4F6);
+  color: var(--admin-text-muted, #6B7280);
+  font-size: 12px;
+  font-weight: 600;
+
+  ion-icon { font-size: 14px; }
+}
+
 .an-charts-5 {
   display: grid;
   grid-template-columns: 1fr;
