@@ -1,28 +1,33 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Menú / Catálogo" subtitle="Dashboard / Menú">
-      <admin-btn header-right [outline]="true" (clicked)="abrirNuevaCategoria()">
-        <ion-icon name="albums-outline"></ion-icon> Categoría
+    <!-- Acciones en el header global (junto a la campana) -->
+    <ng-template adminHeaderActions>
+      <admin-btn [outline]="true" (clicked)="abrirNuevaCategoria()">
+        <ion-icon name="albums-outline"></ion-icon> <span class="hide-on-mobile">Categoría</span>
       </admin-btn>
-      <admin-btn header-right [outline]="true" (clicked)="abrirExtrasMgr()">
-        <ion-icon name="pricetags-outline"></ion-icon> Extras
+      <admin-btn [outline]="true" (clicked)="abrirExtrasMgr()">
+        <ion-icon name="pricetags-outline"></ion-icon> <span class="hide-on-mobile">Extras</span>
       </admin-btn>
-      <admin-btn header-right (clicked)="abrirNuevo()">
-        <ion-icon name="add-outline"></ion-icon> Nuevo producto
+      <admin-btn (clicked)="abrirNuevo()">
+        <ion-icon name="add-outline"></ion-icon> <span class="hide-on-mobile">Nuevo producto</span>
       </admin-btn>
-    </admin-page-header>
+    </ng-template>
 
-    <!-- Stats -->
+    <!-- Stats (clic = filtro con focus) -->
     <div class="admin-grid-4">
       <admin-kpi-card label="Productos totales" [value]="productos.length"
-        icon="cube-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="filtroEstadoMenu === 'todos'" (cardClick)="filtrarMenu('todos')"></admin-kpi-card>
       <admin-kpi-card label="Disponibles" [value]="totalDisponibles"
-        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtroEstadoMenu === 'disponibles'" (cardClick)="filtrarMenu('disponibles')"></admin-kpi-card>
       <admin-kpi-card label="Agotados" [value]="totalAgotados"
-        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"></admin-kpi-card>
+        icon="alert-circle-outline" iconBg="#DC26261a" iconColor="#DC2626"
+        [clickable]="true" [active]="filtroEstadoMenu === 'agotados'" (cardClick)="filtrarMenu('agotados')"></admin-kpi-card>
       <admin-kpi-card label="Destacados" [value]="totalDestacados"
-        icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+        icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"
+        [clickable]="true" [active]="filtroEstadoMenu === 'destacados'" (cardClick)="filtrarMenu('destacados')"></admin-kpi-card>
     </div>
 
     <!-- Sugerencias de destacado por reseñas -->
@@ -35,7 +40,7 @@
       </div>
     </div>
 
-    <admin-section-card>
+    <admin-section-card id="menu-tabla">
       <div class="menu-toolbar">
         <div class="menu-toolbar__left">
           <div class="menu-toolbar__modes">
@@ -98,6 +103,11 @@
               </td>
               <td>
                 <div class="menu-actions">
+                  <button type="button" class="menu-action menu-action--extras" *ngIf="(p.extras?.length ?? 0) > 0"
+                    (click)="abrirElegirExtras(p); $event.stopPropagation()" title="Extras del producto">
+                    <ion-icon name="pricetags-outline"></ion-icon>
+                    <span class="menu-action__count">{{ p.extras?.length }}</span>
+                  </button>
                   <button type="button" class="menu-action" (click)="abrirEditar(p); $event.stopPropagation()">
                     <ion-icon name="create-outline"></ion-icon>
                   </button>
@@ -217,7 +227,7 @@
         <!-- Tamanos -->
         <div class="menu-form__section">
           <div class="menu-form__section-header">
-            <span class="menu-form__section-title">Tamanos (opcional)</span>
+            <span class="menu-form__section-title">Tamaños (opcional)</span>
             <button type="button" class="menu-form__add-btn" (click)="agregarTamano()">
               <ion-icon name="add-outline"></ion-icon> Agregar
             </button>
@@ -236,7 +246,7 @@
                 placeholder="Cantidad (opcional, ej. 12 slices)" maxlength="40" />
             </div>
             <p class="menu-form__hint" *ngIf="tamanos.length === 0">
-              Sin tamanos. El producto usara el precio base.
+              Sin tamaños. El producto usará el precio base.
             </p>
           </div>
         </div>
@@ -244,9 +254,9 @@
         <!-- Extras de la categoria -->
         <div class="menu-form__section" *ngIf="form.get('categoria_id')?.value">
           <div class="menu-form__section-header">
-            <span class="menu-form__section-title">Acompañamientos de esta categoria</span>
-            <button type="button" class="menu-form__add-btn" (click)="abrirNuevoExtra()">
-              <ion-icon name="add-outline"></ion-icon> Nuevo
+            <span class="menu-form__section-title">Acompañamientos de esta categoría</span>
+            <button type="button" class="menu-form__add-btn" (click)="abrirElegirExtras()">
+              <ion-icon name="pricetags-outline"></ion-icon> Extras
             </button>
           </div>
           <div class="menu-form__extras">
@@ -264,7 +274,7 @@
               </button>
             </div>
             <p class="menu-form__hint" *ngIf="extrasFiltrados.length === 0">
-              No hay extras para esta categoria. Agrega uno nuevo.
+              No hay extras para esta categoría. Agrega uno nuevo.
             </p>
           </div>
         </div>
@@ -333,8 +343,12 @@
   <div class="order-modal__backdrop" (click)="cerrarExtrasMgr()"></div>
   <div class="order-modal__panel">
     <div class="order-modal__head">
-      <div>
+      <div class="order-modal__title-row">
         <p class="order-modal__title">Gestión de extras</p>
+        <button type="button" class="order-modal__head-btn" (click)="abrirProductosParaExtras()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span class="hide-on-mobile">Asignar a un producto</span>
+        </button>
       </div>
       <div class="order-modal__head-right">
         <button type="button" class="order-modal__close" (click)="cerrarExtrasMgr()">
@@ -393,61 +407,108 @@
         </form>
       </div>
 
-      <!-- Seccion B: asignar extra existente a un producto -->
-      <div class="menu-form__section">
-        <div class="menu-form__section-header">
-          <span class="menu-form__section-title">Asignar extra a un producto</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal elegir producto (para asignarle extras) ─────────────────────────── -->
+<div class="order-modal" *ngIf="productosExtrasOpen">
+  <div class="order-modal__backdrop" (click)="cerrarProductosParaExtras()"></div>
+  <div class="order-modal__panel order-modal__panel--small">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Elegí el producto</p>
+        <p class="order-modal__sub">Después elegís qué extras tendrá</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarProductosParaExtras()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="picker-search">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="Buscar producto..." [(ngModel)]="productosExtrasBusqueda" />
+      </div>
+
+      <div class="picker-list">
+        <button type="button" class="picker-card picker-card--btn" *ngFor="let p of productosParaElegir"
+          (click)="elegirProductoParaExtras(p)">
+          <div class="picker-card__icon"><ion-icon name="fast-food-outline"></ion-icon></div>
+          <div class="picker-card__info">
+            <span class="picker-card__name">{{ p.nombre }}</span>
+            <span class="picker-card__meta">{{ p.categoria || 'Sin categoría' }} · {{ p.extras?.length ?? 0 }} extra(s)</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="picker-card__chevron"></ion-icon>
+        </button>
+        <p class="picker-empty" *ngIf="productosParaElegir.length === 0">
+          <ion-icon name="cube-outline"></ion-icon>
+          No hay productos que coincidan.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal elegir extras existentes para el producto (no crear) ────────────── -->
+<div class="order-modal" *ngIf="elegirExtrasOpen">
+  <div class="order-modal__backdrop" (click)="cerrarElegirExtras()"></div>
+  <div class="order-modal__panel order-modal__panel--small">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Extras del producto</p>
+        <p class="order-modal__sub">{{ productoParaExtras?.nombre }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarElegirExtras()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="picker-search">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="Buscar extra..." [(ngModel)]="elegirExtrasBusqueda" />
+      </div>
+      <p *ngIf="asignarError" class="menu-error">{{ asignarError }}</p>
+
+      <div class="picker-list">
+        <div class="picker-card" *ngFor="let e of extrasParaProducto"
+          [class.picker-card--done]="!extraInherente(e) && extraYaEnProducto(e.id)">
+          <div class="picker-card__icon">
+            <ion-icon name="pricetag-outline"></ion-icon>
+          </div>
+          <div class="picker-card__info">
+            <span class="picker-card__name">{{ e.nombre }}</span>
+            <span class="picker-card__price">{{ e.precio | crcCurrency }}</span>
+          </div>
+
+          <!-- Incluido automáticamente (general o de la categoría del producto). -->
+          <span class="picker-card__badge" *ngIf="extraInherente(e)">
+            <ion-icon name="lock-closed"></ion-icon> {{ e.es_general ? 'General' : 'Categoría' }}
+          </span>
+
+          <!-- Asignado puntualmente (pivote) → se puede quitar. -->
+          <button type="button" class="picker-card__btn picker-card__btn--ghost"
+            *ngIf="!extraInherente(e) && extraYaEnProducto(e.id)"
+            [disabled]="asignando" (click)="quitarExtraDelProducto(e)">
+            <ion-icon name="close-outline"></ion-icon> {{ asignando ? '...' : 'Quitar' }}
+          </button>
+
+          <!-- Disponible para asignar. -->
+          <button type="button" class="picker-card__btn"
+            *ngIf="!extraInherente(e) && !extraYaEnProducto(e.id)"
+            [disabled]="asignando" (click)="asignarExtraAlProducto(e)">
+            <ion-icon name="add-outline"></ion-icon> {{ asignando ? '...' : 'Asignar' }}
+          </button>
         </div>
-
-        <div class="menu-form">
-          <label class="menu-form__label">
-            Extra
-            <select class="menu-form__input" [(ngModel)]="extraAsignarId" (ngModelChange)="onSeleccionExtraAsignar()">
-              <option [ngValue]="null" disabled>Seleccioná un extra</option>
-              <option *ngFor="let e of extrasAsignables" [ngValue]="e.id">{{ e.nombre }}</option>
-            </select>
-          </label>
-
-          <p class="menu-form__hint" *ngIf="extrasAsignables.length === 0">
-            No hay extras por categoría para asignar. Creá uno arriba (sin marcarlo como general).
-          </p>
-
-          <ng-container *ngIf="extraAsignarId">
-            <label class="menu-form__label">
-              Producto
-              <select class="menu-form__input" [(ngModel)]="productoAsignarId">
-                <option [ngValue]="null" disabled>Seleccioná un producto</option>
-                <option *ngFor="let p of productos" [ngValue]="p.id">{{ p.nombre }}</option>
-              </select>
-            </label>
-
-            <button type="button" class="order-modal__cta"
-              [disabled]="asignando || !productoAsignarId"
-              (click)="asignarExtraAProducto()">
-              {{ asignando ? 'Asignando...' : 'Asignar' }}
-            </button>
-
-            <p *ngIf="asignarError" class="menu-error">{{ asignarError }}</p>
-
-            <!-- Productos ya asignados -->
-            <div class="extras-mgr__assigned">
-              <span class="menu-form__section-title">Productos asignados</span>
-              <p class="menu-form__hint" *ngIf="cargandoDetalleAsignar">Cargando...</p>
-              <div class="extras-mgr__assigned-row"
-                *ngFor="let pa of detalleExtraAsignar?.productos_asignados">
-                <span class="extras-mgr__assigned-name">{{ pa.nombre }}</span>
-                <button type="button" class="extras-mgr__unassign" (click)="desasignarExtraDeProducto(pa.id)"
-                  aria-label="Desasignar producto">
-                  <ion-icon name="close-outline"></ion-icon>
-                </button>
-              </div>
-              <p class="menu-form__hint"
-                *ngIf="!cargandoDetalleAsignar && (detalleExtraAsignar?.productos_asignados?.length ?? 0) === 0">
-                Este extra no está asignado a ningún producto todavía.
-              </p>
-            </div>
-          </ng-container>
-        </div>
+        <p class="picker-empty" *ngIf="extrasParaProducto.length === 0">
+          <ion-icon name="pricetags-outline"></ion-icon>
+          No hay extras disponibles. Creá una desde "Crear nueva extra".
+        </p>
       </div>
     </div>
   </div>

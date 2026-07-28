@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://127.0.0.1:8000/api',
+  // Relativo: el dev-server (proxy.conf.json) reenvía /api → http://127.0.0.1:8000.
+  // Así funciona por túnel público (mismo origen que el 8100), sin exponer el 8000 ni CORS.
+  apiBaseUrl: '/api',
 };
 
 /*

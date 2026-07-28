@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { Categoria, Producto, TamanoPayload } from '../../core/models/producto.model';
 import { Extra, ExtraPayload } from '../../core/models/extra.model';
 import { CategoriaService } from '../../core/services/categoria.service';
@@ -104,11 +105,28 @@ export class AdminMenuPage implements OnInit {
     }
   }
 
+  // #11 Filtro de estado alimentado por los KPIs (todos/disponibles/agotados/destacados).
+  filtroEstadoMenu: 'todos' | 'disponibles' | 'agotados' | 'destacados' = 'todos';
+
   get productosFiltrados(): Producto[] {
-    if (this.activeCat === 'Todos') {
-      return this.productos;
-    }
-    return this.productos.filter((p) => p.categoria === this.activeCat);
+    let lista = this.activeCat === 'Todos'
+      ? this.productos
+      : this.productos.filter((p) => p.categoria === this.activeCat);
+
+    if (this.filtroEstadoMenu === 'disponibles') lista = lista.filter((p) => p.disponible);
+    else if (this.filtroEstadoMenu === 'agotados') lista = lista.filter((p) => !p.disponible);
+    else if (this.filtroEstadoMenu === 'destacados') lista = lista.filter((p) => p.destacado);
+
+    return lista;
+  }
+
+  /** #11 KPI como filtro: cambia a vista productos, filtra y enfoca la tabla. */
+  filtrarMenu(f: 'todos' | 'disponibles' | 'agotados' | 'destacados'): void {
+    this.filtroEstadoMenu = f;
+    this.vistaTabla = 'productos';
+    setTimeout(() => {
+      document.getElementById('menu-tabla')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   get totalDisponibles(): number {
@@ -493,9 +511,195 @@ export class AdminMenuPage implements OnInit {
   detalleExtraAsignar: Extra | null = null;
   cargandoDetalleAsignar = false;
 
+  // #6 Modal selector de productos (multi-selección) para asignarle el extra.
+  pickerProductosOpen = false;
+  pickerBusqueda = '';
+  pickerSeleccion = new Set<number>();
+
   /** Extras asignables puntualmente: solo las que NO son generales. */
   get extrasAsignables(): Extra[] {
     return this.extras.filter((e) => !e.es_general);
+  }
+
+  /** Productos del selector, filtrados por el buscador del modal. */
+  get productosPicker() {
+    const q = this.pickerBusqueda.trim().toLowerCase();
+    return this.productos.filter((p) => !q || p.nombre.toLowerCase().includes(q));
+  }
+
+  productoYaAsignado(id: number): boolean {
+    return !!this.detalleExtraAsignar?.productos_asignados?.some((pa) => pa.id === id);
+  }
+
+  abrirPickerProductos(): void {
+    if (!this.extraAsignarId) {
+      return;
+    }
+    this.pickerBusqueda = '';
+    this.asignarError = null;
+    this.pickerSeleccion.clear();
+    this.pickerProductosOpen = true;
+  }
+
+  cerrarPickerProductos(): void {
+    this.pickerProductosOpen = false;
+  }
+
+  /** Marca/desmarca un producto en el picker (los ya asignados no se tocan). */
+  togglePickerProducto(id: number): void {
+    if (this.productoYaAsignado(id)) {
+      return;
+    }
+    if (this.pickerSeleccion.has(id)) {
+      this.pickerSeleccion.delete(id);
+    } else {
+      this.pickerSeleccion.add(id);
+    }
+  }
+
+  // #3 Modal para elegir un producto y luego editar sus extras.
+  productosExtrasOpen = false;
+  productosExtrasBusqueda = '';
+
+  // #3 Chooser de extras de UN producto (desde: botón de Gestión de extras,
+  // conteo en la fila de producto, o botón "Elegir extras" del form).
+  elegirExtrasOpen = false;
+  elegirExtrasBusqueda = '';
+  productoParaExtras: Producto | null = null;
+  private productoExtrasIds = new Set<number>();
+
+  /** Productos para el modal "Elegí el producto" (filtrados por buscador). */
+  get productosParaElegir(): Producto[] {
+    const q = this.productosExtrasBusqueda.trim().toLowerCase();
+    return this.productos.filter((p) => !q || p.nombre.toLowerCase().includes(q));
+  }
+
+  abrirProductosParaExtras(): void {
+    this.productosExtrasBusqueda = '';
+    this.productosExtrasOpen = true;
+  }
+
+  cerrarProductosParaExtras(): void {
+    this.productosExtrasOpen = false;
+  }
+
+  /** Elegí un producto de la lista → abrir su chooser de extras. */
+  elegirProductoParaExtras(producto: Producto): void {
+    this.productosExtrasOpen = false;
+    this.abrirElegirExtras(producto);
+  }
+
+  /** Todas las extras disponibles (todas las categorías), filtradas por el buscador. */
+  get extrasParaProducto(): Extra[] {
+    const q = this.elegirExtrasBusqueda.trim().toLowerCase();
+    return this.extras.filter((e) => e.disponible && (!q || e.nombre.toLowerCase().includes(q)));
+  }
+
+  /** true si la extra ya está en el producto (por categoría, general o pivote). */
+  extraYaEnProducto(id: number): boolean {
+    return this.productoExtrasIds.has(id);
+  }
+
+  /** true si la extra es automática del producto (general o de su categoría; no se quita). */
+  extraInherente(extra: Extra): boolean {
+    const catId = this.productoParaExtras?.categoria_id ?? null;
+    return extra.es_general || extra.categoria_id === catId;
+  }
+
+  /** Abre el chooser de extras para un producto (o el que se está editando en el form). */
+  abrirElegirExtras(producto?: Producto): void {
+    this.asignarError = null;
+    this.formError = null;
+    this.productoParaExtras = producto ?? this.editando;
+    this.productoExtrasIds = new Set((this.productoParaExtras?.extras ?? []).map((e) => e.id));
+    this.elegirExtrasBusqueda = '';
+    this.elegirExtrasOpen = true;
+  }
+
+  cerrarElegirExtras(): void {
+    this.elegirExtrasOpen = false;
+    this.productoParaExtras = null;
+  }
+
+  /** Asigna (pivote) una extra al producto activo del chooser. */
+  asignarExtraAlProducto(extra: Extra): void {
+    const prod = this.productoParaExtras;
+    if (!prod) {
+      this.formError = 'Guardá el producto primero para poder asignarle extras.';
+      this.elegirExtrasOpen = false;
+      return;
+    }
+    if (this.extraYaEnProducto(extra.id)) {
+      return;
+    }
+    this.asignando = true;
+    this.extraService.asignarAProducto(extra.id, prod.id).subscribe({
+      next: () => {
+        this.asignando = false;
+        this.productoExtrasIds.add(extra.id);
+        this.reflejarExtraEnProducto(prod, extra, true);
+      },
+      error: (err) => {
+        this.asignando = false;
+        this.asignarError = err?.error?.message || 'No se pudo asignar el extra.';
+      },
+    });
+  }
+
+  /** Quita (pivote) una extra del producto activo del chooser. */
+  quitarExtraDelProducto(extra: Extra): void {
+    const prod = this.productoParaExtras;
+    if (!prod) {
+      return;
+    }
+    this.asignando = true;
+    this.extraService.desasignarDeProducto(extra.id, prod.id).subscribe({
+      next: () => {
+        this.asignando = false;
+        this.productoExtrasIds.delete(extra.id);
+        this.reflejarExtraEnProducto(prod, extra, false);
+      },
+      error: (err) => {
+        this.asignando = false;
+        this.asignarError = err?.error?.message || 'No se pudo quitar el extra.';
+      },
+    });
+  }
+
+  /** Mantiene sincronizado producto.extras (para el conteo en la tabla) sin recargar todo. */
+  private reflejarExtraEnProducto(prod: Producto, extra: Extra, agregar: boolean): void {
+    const lista = prod.extras ?? [];
+    const existe = lista.some((e) => e.id === extra.id);
+    if (agregar && !existe) {
+      prod.extras = [...lista, { id: extra.id, nombre: extra.nombre, precio: extra.precio, imagen_url: extra.imagen_url }];
+    } else if (!agregar && existe) {
+      prod.extras = lista.filter((e) => e.id !== extra.id);
+    }
+  }
+
+  /** Asigna el extra a TODOS los productos seleccionados (uno o más) de una vez. */
+  confirmarAsignacionProductos(): void {
+    if (!this.extraAsignarId || this.pickerSeleccion.size === 0) {
+      return;
+    }
+    const extraId = this.extraAsignarId;
+    const ids = [...this.pickerSeleccion];
+    this.asignando = true;
+    this.asignarError = null;
+
+    forkJoin(ids.map((pid) => this.extraService.asignarAProducto(extraId, pid))).subscribe({
+      next: () => {
+        this.asignando = false;
+        this.pickerSeleccion.clear();
+        this.pickerProductosOpen = false;
+        this.cargarDetalleExtraAsignar();
+        this.cargarExtras();
+      },
+      error: (err) => {
+        this.asignando = false;
+        this.asignarError = err?.error?.message || 'No se pudieron asignar algunos productos.';
+      },
+    });
   }
 
   abrirExtrasMgr(): void {
@@ -612,13 +816,14 @@ export class AdminMenuPage implements OnInit {
     });
   }
 
-  asignarExtraAProducto(): void {
-    if (!this.extraAsignarId || !this.productoAsignarId) {
+  asignarExtraAProducto(productoId?: number): void {
+    const pid = productoId ?? this.productoAsignarId;
+    if (!this.extraAsignarId || !pid) {
       return;
     }
     this.asignando = true;
     this.asignarError = null;
-    this.extraService.asignarAProducto(this.extraAsignarId, this.productoAsignarId).subscribe({
+    this.extraService.asignarAProducto(this.extraAsignarId, pid).subscribe({
       next: () => {
         this.asignando = false;
         this.productoAsignarId = null;

@@ -1,12 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
-import { Observable, map, Subject, takeUntil } from 'rxjs';
+import { Observable, map, Subject, takeUntil, filter, startWith } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { SucursalService } from '../../core/services/sucursal.service';
 import { Usuario } from '../../core/models/usuario.model';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { Notificacion } from '../../core/models/notificacion.model';
+import { AdminHeaderService } from '../shared/admin-header.service';
 
 interface NavItem {
   id: string;
@@ -35,9 +36,34 @@ export class AdminShellPage implements OnInit, OnDestroy {
   sidebarOpen = false;
   sucursalNombre: string | null = null;
 
+  // Header contextual (tentativo): el saludo solo se muestra en Dashboard; en el
+  // resto de secciones el header global muestra el titulo/subtitulo de la seccion
+  // (antes vivian dentro de cada pagina). Asi se recupera espacio vertical.
+  esDashboard = true;
+  seccionTitulo = '';
+  seccionSubtitulo = '';
+
+  /** Titulo/subtitulo por seccion, replicando lo que mostraba cada admin-page-header. */
+  private readonly secciones: Record<string, { titulo: string; subtitulo: string }> = {
+    inicio:         { titulo: 'Inicio',                  subtitulo: 'Dashboard / Inicio' },
+    pedidos:        { titulo: 'Pedidos',                 subtitulo: 'Dashboard / Gestión de pedidos' },
+    menu:           { titulo: 'Menú',                    subtitulo: 'Dashboard / Menú' },
+    inventario:     { titulo: 'Inventario',              subtitulo: 'Dashboard / Inventario' },
+    ofertas:        { titulo: 'Ofertas',                 subtitulo: 'Dashboard / Ofertas y cupones' },
+    clientes:       { titulo: 'Clientes',                subtitulo: 'Dashboard / Clientes' },
+    usuarios:       { titulo: 'Usuarios',                subtitulo: 'Dashboard / Usuarios y roles' },
+    analiticas:     { titulo: 'Reportes',               subtitulo: 'Dashboard / Reportes y analíticas' },
+    notificaciones: { titulo: 'Notificaciones',          subtitulo: 'Bandeja del panel' },
+    resenas:        { titulo: 'Reseñas y calificaciones', subtitulo: 'Gestión y moderación' },
+    configuracion:  { titulo: 'Configuración general',   subtitulo: 'Dashboard / Configuración' },
+  };
+
   readonly usuario$: Observable<Usuario | null>;
   readonly avatarInicial$: Observable<string>;
   readonly rolLabel$: Observable<string>;
+
+  /** Acciones que la página activa publica para el header (junto a la campana). */
+  readonly headerActions$: Observable<TemplateRef<unknown> | null>;
 
   readonly saludo = this.calcularSaludo();
   readonly fechaTexto = this.calcularFecha();
@@ -63,8 +89,10 @@ export class AdminShellPage implements OnInit, OnDestroy {
     private sucursalService: SucursalService,
     private notificaciones: NotificacionService,
     private toastCtrl: ToastController,
+    private adminHeader: AdminHeaderService,
   ) {
     this.usuario$ = this.auth.usuarioActual$;
+    this.headerActions$ = this.adminHeader.actions$;
 
     this.avatarInicial$ = this.usuario$.pipe(
       map((u) => (u?.nombre?.trim()?.charAt(0) ?? 'A').toUpperCase()),
@@ -76,6 +104,17 @@ export class AdminShellPage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Header contextual: al navegar entre secciones, actualiza el titulo/subtitulo
+    // (o marca Dashboard para mostrar el saludo).
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        map((e) => e.urlAfterRedirects),
+        startWith(this.router.url),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((url) => this.actualizarSeccion(url));
+
     // Header dinámico: nombre de la sucursal del admin (aporte del compañero).
     const sucursalId = this.auth.usuario?.sucursal_id;
     if (sucursalId) {
@@ -105,6 +144,19 @@ export class AdminShellPage implements OnInit, OnDestroy {
   }
 
   closeSidebar(): void { this.sidebarOpen = false; }
+
+  /** Deriva la seccion activa del URL (/admin/<id>) para el header contextual. */
+  private actualizarSeccion(url: string): void {
+    const id = url.split('?')[0].split('/').filter(Boolean)[1] ?? 'dashboard';
+    this.esDashboard = id === 'dashboard';
+    const sec = this.secciones[id];
+    this.seccionTitulo = sec?.titulo ?? '';
+    this.seccionSubtitulo = sec?.subtitulo ?? '';
+    // Red de seguridad: al cambiar de sección, limpia las acciones del header.
+    // La página entrante (si tiene) re-publica las suyas en un microtask posterior,
+    // así ningún botón/aviso de la sección anterior queda "pegado".
+    this.adminHeader.setActions(null);
+  }
 
   private setBadge(cantidad: number): void {
     const item = this.navItems.find((i) => i.id === 'notificaciones');

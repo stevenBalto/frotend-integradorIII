@@ -1,16 +1,42 @@
 .dash-loading { font-size: 12px; color: var(--admin-text-muted); margin: 0 0 16px; }
 
+/* Select reutilizable de las cards del dashboard (rango de ventas, filtro pedidos). */
+.dash-select {
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+}
+.dash-empty { text-align: center; color: var(--admin-text-muted); font-size: 11px; padding: 16px 0; }
+
 /* ── Grid gráfico + card de pedidos nuevos ─────────────────────────────────── */
 .dash-charts {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0,1fr): las columnas NO crecen con el ancho intrínseco del SVG. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
+  align-items: stretch;
 }
+/* min-width:0 en toda la cadena → el contenedor de scroll clampea (card no se agranda). */
+.dash-charts__main { min-width: 0; }
 @media (min-width: 1024px) {
-  .dash-charts { grid-template-columns: repeat(5, 1fr); }
-  .dash-charts__main { grid-column: span 3; }
+  .dash-charts { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .dash-charts__main { grid-column: span 3; display: flex; }
+  .dash-charts__main > admin-section-card { width: 100%; }
   .new-orders { grid-column: span 2; }
 }
+/* La card del gráfico llena el alto (simetría con "Pedidos nuevos"); el chart crece. */
+.dash-charts__main > admin-section-card { display: block; min-width: 0; max-width: 100%; }
+.dash-charts__main area-chart { display: block; }
+/* #1 Scroll horizontal cuando hay muchos días (14/30): los puntos no se aplastan. */
+.dash-chart-scroll { overflow-x: auto; overflow-y: hidden; min-width: 0; max-width: 100%; }
+.dash-chart-scroll area-chart { display: block; }
+.dash-chart-hint { margin: 8px 0 0; font-size: 10px; color: var(--admin-text-muted); text-align: center; }
 
 /* ── Card "Pedidos nuevos" ─────────────────────────────────────────────────── */
 .new-orders {

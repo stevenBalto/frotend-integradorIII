@@ -1,12 +1,13 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Reportes y analiticas" subtitle="Dashboard / Reportes"></admin-page-header>
-
-    <div class="an-cache-notice">
-      <ion-icon name="time-outline"></ion-icon>
-      <span>Los datos se actualizan cada 30 minutos</span>
-    </div>
+    <!-- Aviso en el header global (junto a la campana) -->
+    <ng-template adminHeaderActions>
+      <div class="an-cache-notice">
+        <ion-icon name="time-outline"></ion-icon>
+        <span>Los datos se actualizan cada 30 minutos</span>
+      </div>
+    </ng-template>
 
     <!-- Error -->
     <div class="an-error" *ngIf="error">
@@ -17,7 +18,7 @@
     <!-- Loading -->
     <div class="an-loading" *ngIf="cargando">
       <ion-spinner name="crescent"></ion-spinner>
-      <p>Cargando analiticas...</p>
+      <p>Cargando analíticas...</p>
     </div>
 
     <!-- Contenido principal -->
@@ -27,13 +28,13 @@
         <admin-kpi-card label="Ventas del mes" [value]="formatMonto(ventasMes)" [sub]="compVentas.texto" [subColor]="compVentas.color" [accent]="true"></admin-kpi-card>
         <admin-kpi-card label="Pedidos del mes" [value]="pedidosMes" [sub]="compPedidos.texto" [subColor]="compPedidos.color"></admin-kpi-card>
         <admin-kpi-card label="Ticket promedio" [value]="formatMonto(ticketPromedio)" sub="vs mes anterior"></admin-kpi-card>
-        <admin-kpi-card label="Calificacion promedio" value="4.6" sub="312 resenas" subColor="#6B7280"></admin-kpi-card>
+        <admin-kpi-card label="Calificación promedio" value="4.6" sub="312 reseñas" subColor="#6B7280"></admin-kpi-card>
       </div>
 
       <!-- Barras -->
       <div class="an-charts-5">
         <div class="an-charts-5__main">
-          <admin-section-card title="Ventas por dia">
+          <admin-section-card title="Ventas por día">
             <sales-bar-chart [data]="dailySales" [height]="150" prefix="₡"></sales-bar-chart>
           </admin-section-card>
         </div>
@@ -45,7 +46,7 @@
       </div>
 
       <!-- Ventas por categoria -->
-      <admin-section-card title="Ventas por categoria">
+      <admin-section-card title="Ventas por categoría">
         <div class="an-categoria">
           <div class="an-categoria__item" *ngFor="let cat of ventasPorCategoria">
             <div class="an-categoria__head">
@@ -54,13 +55,13 @@
             </div>
             <progress-bar [value]="cat.total" [max]="maxCategoriaTotal" color="#374151"></progress-bar>
           </div>
-          <p *ngIf="ventasPorCategoria.length === 0" class="an-empty">Sin datos de categorias.</p>
+          <p *ngIf="ventasPorCategoria.length === 0" class="an-empty">Sin datos de categorías.</p>
         </div>
       </admin-section-card>
 
       <!-- Top productos + modalidad -->
       <div class="an-charts-2">
-        <admin-section-card title="Productos mas vendidos">
+        <admin-section-card title="Productos más vendidos" [fill]="true">
           <div class="an-top">
             <div class="an-top__item" *ngFor="let p of topProducts; let i = index">
               <div class="an-top__head">
@@ -76,7 +77,7 @@
           </div>
         </admin-section-card>
 
-        <admin-section-card title="Modalidad de pedido">
+        <admin-section-card title="Modalidad de pedido" [fill]="true">
           <div class="an-modality">
             <modality-donut-chart [data]="modalityData"></modality-donut-chart>
             <div class="an-modality__legend">

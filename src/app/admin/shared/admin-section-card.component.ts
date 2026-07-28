@@ -5,7 +5,7 @@ import { Component, Input } from '@angular/core';
   selector: 'admin-section-card',
   standalone: false,
   template: `
-    <div class="section-card">
+    <div class="section-card" [class.section-card--fill]="fill">
       <div class="section-card__head" *ngIf="title || hasAction">
         <span class="section-card__title" *ngIf="title">{{ title }}</span>
         <div class="section-card__action">
@@ -34,10 +34,18 @@ import { Component, Input } from '@angular/core';
       font-weight: 700;
       color: var(--admin-text);
     }
+    /* Llena el alto del contenedor (para simetría con cards vecinas en un grid). */
+    .section-card--fill {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
   `],
 })
 export class AdminSectionCardComponent {
   @Input() title?: string;
   /** Forzar el header aunque no haya title (cuando solo se proyecta action). */
   @Input() hasAction = false;
+  /** Estira la tarjeta al alto de su contenedor (simetría en grids). */
+  @Input() fill = false;
 }

@@ -1,23 +1,25 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Inicio" subtitle="Dashboard / Inicio"></admin-page-header>
-
     <p *ngIf="error" class="inicio-error">{{ error }}</p>
 
     <div class="admin-grid-4">
       <admin-kpi-card label="Destacados" [value]="destacados.length"
-        icon="star-outline" iconBg="#F2B1341a" iconColor="#B8860B"></admin-kpi-card>
+        icon="star-outline" iconBg="#F2B1341a" iconColor="#B8860B"
+        [clickable]="true" [active]="filtroInicio === 'destacado'" (cardClick)="filtrarInicio('destacado')"></admin-kpi-card>
       <admin-kpi-card label="Populares" [value]="populares.length"
-        icon="flame-outline" iconBg="#E136421a" iconColor="#E13642"></admin-kpi-card>
+        icon="flame-outline" iconBg="#E136421a" iconColor="#E13642"
+        [clickable]="true" [active]="filtroInicio === 'popular'" (cardClick)="filtrarInicio('popular')"></admin-kpi-card>
       <admin-kpi-card label="Lo nuevo" [value]="nuevos.length"
-        icon="sparkles-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+        icon="sparkles-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtroInicio === 'nuevo'" (cardClick)="filtrarInicio('nuevo')"></admin-kpi-card>
       <admin-kpi-card label="Ofertas vigentes" [value]="ofertasVigentes.length"
-        icon="pricetag-outline" iconBg="#9CA3AF26" iconColor="#374151"></admin-kpi-card>
+        icon="pricetag-outline" iconBg="#9CA3AF26" iconColor="#374151"
+        [clickable]="true" (cardClick)="enfocarOfertas()"></admin-kpi-card>
     </div>
 
     <!-- Secciones del Home (destacado / popular / nuevo) -->
-    <admin-section-card title="Secciones del Home">
+    <admin-section-card id="inicio-secciones" title="Secciones del Home">
       <p class="inicio-hint">
         Cada columna es una sección independiente de la vitrina del Home (como "Destacados",
         "Populares" y "Lo nuevo" en apps de comida grandes). Un producto puede estar en varias
@@ -32,7 +34,7 @@
             <tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Destacado</th><th>Popular</th><th>Nuevo</th></tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of productos">
+            <tr *ngFor="let p of productosFiltradosInicio">
               <td class="admin-table__strong" style="font-size: 12px;">{{ p.nombre }}</td>
               <td class="inicio-muted">{{ p.categoria }}</td>
               <td class="inicio-muted">{{ p.precio_base | crcCurrency }}</td>
@@ -40,8 +42,8 @@
               <td><ion-toggle [checked]="p.popular" (ionChange)="toggleSeccion(p, 'popular')"></ion-toggle></td>
               <td><ion-toggle [checked]="p.nuevo" (ionChange)="toggleSeccion(p, 'nuevo')"></ion-toggle></td>
             </tr>
-            <tr *ngIf="productos.length === 0">
-              <td colspan="6" class="inicio-muted">No hay productos disponibles.</td>
+            <tr *ngIf="productosFiltradosInicio.length === 0">
+              <td colspan="6" class="inicio-muted">No hay productos con este filtro.</td>
             </tr>
           </tbody>
         </table>
@@ -49,7 +51,7 @@
     </admin-section-card>
 
     <!-- Ofertas: activar/desactivar en el Home -->
-    <admin-section-card title="Ofertas">
+    <admin-section-card id="inicio-ofertas" title="Ofertas">
       <p class="inicio-hint">
         Igual que en "Secciones del Home": activá o desactivá cada oferta con el checkbox para que
         aparezca (o no) en el Home del cliente.

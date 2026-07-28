@@ -5,8 +5,8 @@ import { Component, Input } from '@angular/core';
   selector: 'admin-page-header',
   standalone: false,
   template: `
-    <div class="page-header">
-      <div class="page-header__left">
+    <div class="page-header" [class.page-header--actions]="actionsOnly">
+      <div class="page-header__left" *ngIf="!actionsOnly">
         <img src="assets/logo/rooster-logo.png" alt="Rooster" class="page-header__logo" />
         <div>
           <h2 class="page-header__title">{{ title }}</h2>
@@ -29,6 +29,14 @@ import { Component, Input } from '@angular/core';
       padding-bottom: 16px;
       border-bottom: 1px solid var(--admin-border);
       font-family: var(--rooster-font-sans);
+    }
+    /* Modo "solo acciones": el titulo/subtitulo vive ahora en el header global
+       del shell; aqui solo queda la fila de acciones (crear, buscar, etc.),
+       sin logo/titulo ni borde, para recuperar espacio vertical. */
+    .page-header--actions {
+      justify-content: flex-end;
+      padding-bottom: 0;
+      border-bottom: none;
     }
     .page-header__left {
       display: flex;
@@ -65,4 +73,6 @@ import { Component, Input } from '@angular/core';
 export class AdminPageHeaderComponent {
   @Input() title = '';
   @Input() subtitle?: string;
+  /** Oculta logo/titulo/subtitulo y deja solo las acciones proyectadas. */
+  @Input() actionsOnly = false;
 }

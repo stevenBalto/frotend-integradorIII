@@ -1,3 +1,23 @@
+/* Toolbar de la tabla: tabs (Ofertas/Cupones) a la izquierda, buscador a la
+   derecha. Mismo patrón que la tabla de Menú. */
+.of-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.of-toolbar__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Móvil: apilar los tabs y dejar el buscador a lo ancho (sin desperdiciar espacio). */
+@media (max-width: 767px) {
+  .of-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .of-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .of-toolbar__tabs > * { flex-shrink: 0; }
+  .of-toolbar > admin-search-input { display: block; width: 100%; }
+}
+
 .of-tabs { display: flex; gap: 8px; }
 .of-tab {
   padding: 10px 20px;
@@ -18,12 +38,16 @@
 }
 
 /* ── Tablas (paleta cálida) ────────────────────────────────────────────────── */
-.of-table-wrap { overflow-x: auto; }
+.of-table-wrap { overflow: auto; }
 .of-table {
   width: 100%;
+  min-width: max-content;   /* columnas no se comprimen: fuerza scroll horizontal */
   border-collapse: collapse;
   font-family: var(--rooster-font-sans);
 }
+.of-table td, .of-table th { padding-left: 4px; }
+/* Primera columna (logo de oferta / código de cupón) con aire, no pegada al borde. */
+.of-table td:first-child, .of-table th:first-child { padding-left: 12px; }
 .of-table thead tr { border-bottom: 0.5px solid rgba(168, 137, 94, 0.25); }
 .of-table th {
   text-align: left;

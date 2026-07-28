@@ -1,23 +1,24 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Usuarios y roles" subtitle="Dashboard / Usuarios y roles">
-      <admin-btn header-right (clicked)="abrirCrear()">
-        <ion-icon name="person-add-outline"></ion-icon> Crear usuario
+    <!-- Acción en el header global (junto a la campana) -->
+    <ng-template adminHeaderActions>
+      <admin-btn (clicked)="abrirCrear()">
+        <ion-icon name="person-add-outline"></ion-icon> <span class="hide-on-mobile">Crear usuario</span>
       </admin-btn>
-    </admin-page-header>
+    </ng-template>
 
-    <!-- Stats -->
-    <div class="admin-grid-3">
+    <!-- Stats (clic = filtro con focus) -->
+    <div class="usr-stats">
       <admin-kpi-card label="Usuarios totales" [value]="totalUsuarios"
-        icon="people-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="people-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="activeFilter === 'todos'" (cardClick)="filtrar('todos')"></admin-kpi-card>
       <admin-kpi-card label="Administradores" [value]="totalAdmins"
-        icon="shield-checkmark-outline" iconBg="#E136421a" iconColor="#E13642"></admin-kpi-card>
-      <admin-kpi-card label="Clientes" [value]="totalClientes"
-        icon="person-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="shield-checkmark-outline" iconBg="#E136421a" iconColor="#E13642"
+        [clickable]="true" [active]="activeFilter === 'admin'" (cardClick)="filtrar('admin')"></admin-kpi-card>
     </div>
 
-    <admin-section-card>
+    <admin-section-card id="usr-tabla">
       <div class="usr-toolbar">
         <div class="usr-toolbar__tabs">
           <filter-tab *ngFor="let f of filters" [label]="f.label"
@@ -123,7 +124,7 @@
       <div class="usr-field">
         <p class="usr-field__label">Rol</p>
         <div class="usr-roles">
-          <button type="button" class="usr-role-opt" *ngFor="let r of roles"
+          <button type="button" class="usr-role-opt" *ngFor="let r of rolesAsignables"
             [class.usr-role-opt--active]="form.value.role_id === r.id"
             (click)="form.patchValue({ role_id: r.id })">
             <ion-icon [name]="r.nombre === 'cliente' ? 'person-outline' : 'shield-checkmark-outline'"></ion-icon>

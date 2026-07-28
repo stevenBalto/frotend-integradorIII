@@ -17,10 +17,29 @@ export class AdminDashboardPage implements OnInit {
   cargando = true;
   resumen: DashboardResumen | null = null;
 
-  readonly areaData: number[] = [];
-  readonly xLabels: string[] = [];
-  peakIdx = 0;
-  peakValue = '';
+  valores: number[] = [];
+  xLabels: string[] = [];
+
+  // #3 Ventana del gráfico de ventas (select funcional).
+  rangoDias = 7;
+  readonly rangos: { v: number; l: string }[] = [
+    { v: 7, l: 'Últimos 7 días' },
+    { v: 14, l: 'Últimos 14 días' },
+    { v: 30, l: 'Últimos 30 días' },
+  ];
+
+  // #2 Filtro de la tabla "Últimos pedidos" (también lo alimentan los KPIs).
+  filtroUltimos: 'todos' | 'activos' | 'hoy' | PedidoEstado = 'todos';
+  readonly filtrosUltimos: { v: 'todos' | 'activos' | 'hoy' | PedidoEstado; l: string }[] = [
+    { v: 'todos', l: 'Todos' },
+    { v: 'hoy', l: 'Hoy' },
+    { v: 'activos', l: 'Activos' },
+    { v: 'pendiente', l: 'Pendientes' },
+    { v: 'en_proceso', l: 'En preparación' },
+    { v: 'listo', l: 'Listos' },
+    { v: 'entregado', l: 'Entregados' },
+    { v: 'cancelado', l: 'Cancelados' },
+  ];
 
   constructor(
     private router: Router,
@@ -31,9 +50,9 @@ export class AdminDashboardPage implements OnInit {
     this.cargar();
   }
 
-  private cargar(): void {
+  private cargar(dias = this.rangoDias): void {
     this.cargando = true;
-    this.dashboardService.resumen().subscribe({
+    this.dashboardService.resumen(dias).subscribe({
       next: (data) => {
         this.resumen = data;
         this.calcularSemana(data);
@@ -45,33 +64,48 @@ export class AdminDashboardPage implements OnInit {
     });
   }
 
-  private calcularSemana(data: DashboardResumen): void {
-    const totales = data.ventas_semana.map((d) => d.total);
-    const max = Math.max(...totales, 1);
-
-    this.areaData.length = 0;
-    this.xLabels.length = 0;
-
-    data.ventas_semana.forEach((d, i) => {
-      this.areaData.push(Math.round((d.total / max) * 100));
-      this.xLabels.push(d.dia);
-    });
-
-    let peakIdx = 0;
-    for (let i = 1; i < totales.length; i++) {
-      if (totales[i] > totales[peakIdx]) {
-        peakIdx = i;
-      }
-    }
-    this.peakIdx = peakIdx;
-    this.peakValue = totales[peakIdx] > 0 ? this.formatCortoColones(totales[peakIdx]) : '₡0';
+  /** #3 Cambia la ventana del gráfico y re-consulta. */
+  cambiarRango(dias: number): void {
+    this.rangoDias = dias;
+    this.cargar(dias);
   }
 
-  private formatCortoColones(valor: number): string {
-    if (valor >= 1000) {
-      return `₡${Math.round(valor / 1000)}k`;
+  /** #2 Pedidos de la tabla "Últimos pedidos" según el filtro activo. */
+  get ultimosPedidosFiltrados() {
+    const lista = this.resumen?.ultimos_pedidos ?? [];
+    if (this.filtroUltimos === 'todos') return lista;
+    if (this.filtroUltimos === 'hoy') {
+      const hoy = new Date().toDateString();
+      return lista.filter((o) => new Date(o.created_at).toDateString() === hoy);
     }
-    return `₡${Math.round(valor)}`;
+    if (this.filtroUltimos === 'activos') {
+      return lista.filter((o) => o.estado === 'pendiente' || o.estado === 'en_proceso' || o.estado === 'listo');
+    }
+    return lista.filter((o) => o.estado === this.filtroUltimos);
+  }
+
+  // #6 KPI resaltado como filtro activo (se trackea aparte del valor del filtro
+  // para que dos KPIs con el mismo filtro no se resalten juntos ni haya default).
+  kpiSel: string | null = null;
+
+  /** #11 Aplica un filtro desde un KPI y enfoca la tabla si está lejos. */
+  filtrarUltimos(filtro: 'todos' | 'activos' | 'hoy' | PedidoEstado): void {
+    this.filtroUltimos = filtro;
+    setTimeout(() => {
+      document.getElementById('dash-ultimos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  }
+
+  /** #6 Selecciona un KPI (todos son clickeables) → resalta + filtra + enfoca. */
+  seleccionarKpi(kpi: string, filtro: 'todos' | 'activos' | 'hoy' | PedidoEstado): void {
+    this.kpiSel = kpi;
+    this.filtrarUltimos(filtro);
+  }
+
+  private calcularSemana(data: DashboardResumen): void {
+    // El <area-chart> recibe los montos crudos y arma su propia escala/pico en ₡.
+    this.valores = data.ventas_semana.map((d) => d.total);
+    this.xLabels = data.ventas_semana.map((d) => d.dia);
   }
 
   variacionTexto(variacion: number | null): string | undefined {

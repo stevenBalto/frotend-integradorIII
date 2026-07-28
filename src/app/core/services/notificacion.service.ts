@@ -122,4 +122,18 @@ export class NotificacionService {
       .post<{ cambiadas: number }>(`${this.base}/admin/notificaciones/leer-todas`, {})
       .pipe(map((res) => res.cambiadas));
   }
+
+  /** Elimina una notificación y actualiza la lista + contador en memoria. */
+  eliminar(id: number): Observable<void> {
+    return this.http
+      .delete<{ eliminada: boolean }>(`${this.base}/admin/notificaciones/${id}`)
+      .pipe(
+        map(() => {
+          const lista = this._notificaciones$.value.filter((n) => n.id !== id);
+          this._notificaciones$.next(lista);
+          this._noLeidas$.next(lista.filter((n) => !n.leida).length);
+          this.idsVistos.delete(id);
+        }),
+      );
+  }
 }

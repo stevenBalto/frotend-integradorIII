@@ -5,12 +5,14 @@ import { IonicModule } from '@ionic/angular';
 
 import { AdminShellPage } from './admin-shell.page';
 import { AdminShellPageRoutingModule } from './admin-shell-routing.module';
+import { AdminSharedModule } from '../shared/admin-shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    AdminSharedModule,
     AdminShellPageRoutingModule,
   ],
   declarations: [AdminShellPage],

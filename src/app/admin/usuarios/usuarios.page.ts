@@ -105,6 +105,19 @@ export class AdminUsuariosPage implements OnInit {
     this.totalClientes = this.usuarios.filter((u) => u.rol === 'cliente').length;
   }
 
+  /** Roles asignables desde el panel: NO se crea/edita clientes aquí. */
+  get rolesAsignables(): RolOpt[] {
+    return this.roles.filter((r) => r.nombre !== 'cliente');
+  }
+
+  /** #11 KPI como filtro: aplica el filtro y enfoca la tabla. */
+  filtrar(f: string): void {
+    this.activeFilter = f;
+    setTimeout(() => {
+      document.getElementById('usr-tabla')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  }
+
   /** El rol elegido en el modal es de staff (admin_sede) → muestra módulos. */
   get rolEsAdmin(): boolean {
     const rol = this.roles.find((r) => r.id === this.form.value.role_id);

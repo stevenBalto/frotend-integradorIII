@@ -1,3 +1,10 @@
+/* #12 KPIs compactos (2: Usuarios totales + Administradores). */
+.usr-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
 .usr-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -7,6 +14,14 @@
   margin-bottom: 16px;
 }
 .usr-toolbar__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* #14 Móvil: tabs con scroll horizontal y buscador a lo ancho (no desperdicia espacio). */
+@media (max-width: 767px) {
+  .usr-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .usr-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .usr-toolbar__tabs > * { flex-shrink: 0; }
+  .usr-toolbar > admin-search-input { display: block; width: 100%; }
+}
 
 .usr-row--off { opacity: 0.6; }
 

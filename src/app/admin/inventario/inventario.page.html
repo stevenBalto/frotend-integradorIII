@@ -1,11 +1,12 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Inventario" subtitle="Dashboard / Inventario">
-      <admin-btn header-right (clicked)="abrirNuevo()">
-        <ion-icon name="add-outline"></ion-icon> Nuevo insumo
+    <!-- Acción en el header global (junto a la campana) -->
+    <ng-template adminHeaderActions>
+      <admin-btn (clicked)="abrirNuevo()">
+        <ion-icon name="add-outline"></ion-icon> <span class="hide-on-mobile">Nuevo insumo</span>
       </admin-btn>
-    </admin-page-header>
+    </ng-template>
 
     <!-- Stats / filtros -->
     <div class="admin-grid-4">

@@ -20,6 +20,151 @@
   border-right: 1px solid var(--admin-border);
 }
 
+/* Móvil: apilar toolbar. Modos arriba, categorías en fila con scroll horizontal
+   (sin barra visible) y buscador a lo ancho. Evita el amontonamiento. */
+@media (max-width: 767px) {
+  .menu-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .menu-toolbar__left { flex-direction: column; align-items: stretch; gap: 10px; }
+  .menu-toolbar__modes { padding-right: 0; border-right: none; }
+  .menu-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .menu-toolbar__tabs > * { flex-shrink: 0; }
+  .menu-toolbar > admin-search-input { display: block; width: 100%; }
+}
+
+/* #6 Lista de productos del modal selector (asignar extra a producto). */
+.picker-list {
+  margin-top: 12px;
+  max-height: 46vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  cursor: pointer;
+}
+.picker-row input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--rooster-red); }
+.picker-row--done { opacity: 0.65; cursor: default; }
+.picker-row__name { flex: 1; font-size: 12px; font-weight: 600; color: var(--admin-text); }
+.picker-row__price { color: var(--rooster-red); font-weight: 700; margin-left: 6px; }
+.picker-row__btn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.picker-row__btn:disabled { opacity: 0.6; }
+.picker-row__done { font-size: 11px; font-weight: 700; color: #16a34a; flex-shrink: 0; }
+
+/* #6b Modal "Elegí las extras": tarjetas acopladas al estilo del panel. */
+.picker-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+
+  ion-icon { font-size: 15px; color: var(--admin-text-muted); flex-shrink: 0; }
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 11px 0;
+    font-size: 12px;
+    font-family: var(--rooster-font-sans);
+    color: var(--admin-text);
+  }
+  input::placeholder { color: var(--admin-text-muted); }
+}
+
+.picker-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.picker-card:hover { border-color: rgba(225, 54, 66, 0.4); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+.picker-card--done { background: rgba(22, 163, 74, 0.06); border-color: rgba(22, 163, 74, 0.35); }
+.picker-card--done:hover { border-color: rgba(22, 163, 74, 0.45); box-shadow: none; }
+.picker-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(225, 54, 66, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 15px; color: var(--rooster-red); }
+}
+.picker-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.picker-card__name { font-size: 12px; font-weight: 700; color: var(--admin-text); }
+.picker-card__price { font-size: 11px; font-weight: 700; color: var(--rooster-red); }
+.picker-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+
+  ion-icon { font-size: 13px; }
+}
+.picker-card__btn:active { transform: scale(0.95); }
+.picker-card__btn:disabled { opacity: 0.6; }
+.picker-card__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #16a34a;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 14px; }
+}
+.picker-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--admin-text-muted);
+  font-size: 12px;
+  padding: 24px 12px;
+
+  ion-icon { font-size: 26px; color: var(--admin-text-soft); }
+}
+
 .menu-row--off { opacity: 0.6; }
 
 .menu-thumb {
@@ -88,6 +233,8 @@
 .menu-action ion-icon { font-size: 13px; color: var(--admin-neutral4); }
 .menu-action--danger { background: rgba(220, 38, 38, 0.08); }
 .menu-action--danger ion-icon { color: var(--admin-red-alt); }
+.menu-action--assign { background: rgba(225, 54, 66, 0.1); }
+.menu-action--assign ion-icon { color: var(--rooster-red); }
 
 .menu-error { color: var(--admin-red-alt); font-size: 12px; margin: 4px 0 12px; }
 .menu-loading { color: var(--admin-text-muted); font-size: 12px; margin: 4px 0 12px; }
@@ -346,6 +493,71 @@
 /* ── Modal pequeno ── */
 .order-modal__panel--small {
   max-width: 360px;
+}
+
+/* #3 Header del modal con botón (Gestión de extras → asignar a un producto). */
+.order-modal__title-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.order-modal__sub { font-size: 11px; color: rgba(255, 255, 255, 0.6); margin: 2px 0 0; }
+.order-modal__head-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+
+  ion-icon { font-size: 14px; }
+}
+.order-modal__head-btn:active { transform: scale(0.95); }
+
+/* #3 Botón de conteo de extras en la fila de producto. */
+.menu-action--extras {
+  width: auto;
+  min-width: 28px;
+  padding: 0 8px;
+  gap: 3px;
+  background: rgba(225, 54, 66, 0.1);
+}
+.menu-action--extras ion-icon { color: var(--rooster-red); }
+.menu-action__count { font-size: 10px; font-weight: 800; color: var(--rooster-red); }
+
+/* #3 Fila de producto (modal "Elegí el producto") como botón. */
+.picker-card--btn {
+  width: 100%;
+  text-align: left;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+}
+.picker-card__meta { font-size: 10px; color: var(--admin-text-muted); }
+.picker-card__chevron { font-size: 16px; color: var(--admin-text-soft); flex-shrink: 0; }
+
+/* #3 Chip "incluido" (general/categoría) y botón "Quitar". */
+.picker-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  background: var(--admin-neutral1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 11px; }
+}
+.picker-card__btn--ghost {
+  background: transparent;
+  color: var(--admin-red-alt);
+  border: 1px solid rgba(220, 38, 38, 0.35);
 }
 
 /* ── Modal gestion de extras: productos asignados ── */

@@ -18,6 +18,17 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
   cargando = true;
   marcandoTodas = false;
 
+  // #17 Filtros de la bandeja.
+  filtroEstado: 'todas' | 'no_leidas' | 'leidas' = 'todas';
+  filtroPeriodo: 'todas' | 'hoy' | 'ayer' | 'semana' | 'mes' = 'todas';
+  readonly periodos: { v: 'todas' | 'hoy' | 'ayer' | 'semana' | 'mes'; l: string }[] = [
+    { v: 'todas', l: 'Todas' },
+    { v: 'hoy', l: 'Hoy' },
+    { v: 'ayer', l: 'Ayer' },
+    { v: 'semana', l: 'Semana' },
+    { v: 'mes', l: 'Mes' },
+  ];
+
   constructor(
     private notificaciones: NotificacionService,
     private router: Router,
@@ -44,6 +55,45 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
 
   get noLeidas(): number {
     return this.notifs.filter((n) => !n.leida).length;
+  }
+
+  /** #17 Notificaciones tras aplicar estado + periodo. */
+  get notifsFiltradas(): Notificacion[] {
+    return this.notifs.filter((n) => {
+      const estadoOk =
+        this.filtroEstado === 'todas' ||
+        (this.filtroEstado === 'no_leidas' ? !n.leida : n.leida);
+      return estadoOk && this.enPeriodo(n.created_at);
+    });
+  }
+
+  private enPeriodo(iso?: string | null): boolean {
+    if (this.filtroPeriodo === 'todas') return true;
+    if (!iso) return false;
+    const d = new Date(iso);
+    const now = new Date();
+    const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (this.filtroPeriodo === 'hoy') return d >= hoy;
+    if (this.filtroPeriodo === 'ayer') {
+      const ayer = new Date(hoy);
+      ayer.setDate(ayer.getDate() - 1);
+      return d >= ayer && d < hoy;
+    }
+    if (this.filtroPeriodo === 'semana') {
+      const inicio = new Date(hoy);
+      inicio.setDate(inicio.getDate() - 6);
+      return d >= inicio;
+    }
+    // mes = últimos 30 días
+    const inicioMes = new Date(hoy);
+    inicioMes.setDate(inicioMes.getDate() - 29);
+    return d >= inicioMes;
+  }
+
+  /** #17 Elimina una notificación (no interfiere con abrir). */
+  eliminar(n: Notificacion, ev: Event): void {
+    ev.stopPropagation();
+    this.notificaciones.eliminar(n.id).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   /** Clic en una notificación: la marca leída y abre el pedido si lo tiene. */

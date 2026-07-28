@@ -36,6 +36,37 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
+/* ── Scrollbars invisibles en todo el sistema (el scroll sigue funcionando) ─── */
+* {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge legacy */
+}
+*::-webkit-scrollbar {          /* Chrome / Safari / Edge */
+  width: 0 !important;
+  height: 0 !important;
+  display: none;
+}
+ion-content::part(scroll)::-webkit-scrollbar { display: none; }
+
+/* Utilidad: ocultar en móvil (p. ej. texto de botones que quedan solo-ícono). */
+@media (max-width: 767px) {
+  .hide-on-mobile { display: none !important; }
+}
+
+/* ── Marquee de overflow (saludo del header cuando es muy largo) ────────────── */
+.admin-greeting { overflow: hidden; max-width: 100%; }
+.admin-greeting > * { white-space: nowrap; display: inline-block; will-change: transform; }
+.admin-greeting.marquee--run > * {
+  animation: admin-marquee var(--marquee-time, 8s) ease-in-out infinite alternate;
+}
+@keyframes admin-marquee {
+  0%, 18%   { transform: translateX(0); }
+  82%, 100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-greeting.marquee--run > * { animation: none; }
+}
+
 /* ── Panel admin: contenedor de cada pagina hija (scroll interno) ──────────── */
 .admin-page-content {
   --background: var(--admin-panel);
@@ -68,8 +99,13 @@
 }
 
 /* ── Panel admin: tablas reutilizables ─────────────────────────────────────── */
-.admin-table-wrap {
-  overflow-x: auto;
+/* Alto fijo con scroll interno: la tabla no crece infinito al agregar filas,
+   se mantiene el orden y la simetría en móvil y PC. El thead queda fijo (sticky)
+   para no perder los encabezados al hacer scroll. */
+.admin-table-wrap,
+.of-table-wrap {
+  overflow: auto;
+  max-height: 60vh;
   border-radius: 12px;
   border: 1px solid rgba(168, 137, 94, 0.25);
 }
@@ -81,6 +117,14 @@
 .admin-table thead tr {
   background: var(--admin-panel);
   border-bottom: 1px solid var(--admin-border);
+}
+/* Encabezados fijos al hacer scroll vertical dentro de la tabla. */
+.admin-table thead th,
+.of-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--admin-panel);
 }
 .admin-table th {
   text-align: left;

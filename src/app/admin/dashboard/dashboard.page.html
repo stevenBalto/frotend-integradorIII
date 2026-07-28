@@ -1,28 +1,36 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Dashboard" subtitle="Resumen del día"></admin-page-header>
-
     <p *ngIf="cargando" class="dash-loading">Cargando dashboard...</p>
 
     <!-- KPIs -->
     <div class="admin-grid-4" *ngIf="resumen as r">
       <admin-kpi-card label="Pedidos hoy" [value]="r.pedidos_hoy" [sub]="variacionTexto(r.pedidos_hoy_variacion)" [subColor]="variacionColor(r.pedidos_hoy_variacion)"
-        icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="kpiSel === 'pedidos_hoy'" (cardClick)="seleccionarKpi('pedidos_hoy', 'hoy')"></admin-kpi-card>
       <admin-kpi-card label="Ventas hoy" [value]="(r.ventas_hoy | crcCurrency)" [sub]="variacionTexto(r.ventas_hoy_variacion)" [subColor]="variacionColor(r.ventas_hoy_variacion)"
-        icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"></admin-kpi-card>
+        icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="kpiSel === 'ventas_hoy'" (cardClick)="seleccionarKpi('ventas_hoy', 'entregado')"></admin-kpi-card>
       <admin-kpi-card label="Ticket promedio" [value]="(r.ticket_promedio | crcCurrency)"
-        icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"></admin-kpi-card>
+        icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"
+        [clickable]="true" [active]="kpiSel === 'ticket'" (cardClick)="seleccionarKpi('ticket', 'todos')"></admin-kpi-card>
       <admin-kpi-card label="Pedidos activos" [value]="r.pedidos_activos" sub="en preparación" subColor="#6B7280"
-        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
+        icon="time-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"
+        [clickable]="true" [active]="kpiSel === 'activos'" (cardClick)="seleccionarKpi('activos', 'activos')"></admin-kpi-card>
     </div>
 
     <!-- Gráfico + pedidos nuevos -->
     <div class="dash-charts" *ngIf="resumen as r">
       <div class="dash-charts__main">
-        <admin-section-card title="Ventas de la semana">
-          <dropdown-btn card-action label="Últimos 7 días"></dropdown-btn>
-          <area-chart [data]="areaData" [xLabels]="xLabels" [peakIdx]="peakIdx" [peakValue]="peakValue"></area-chart>
+        <admin-section-card title="Ventas de la semana" [fill]="true">
+          <select card-action class="dash-select" [ngModel]="rangoDias"
+            (ngModelChange)="cambiarRango(+$event)">
+            <option *ngFor="let op of rangos" [ngValue]="op.v">{{ op.l }}</option>
+          </select>
+          <div class="dash-chart-scroll">
+            <area-chart [values]="valores" [xLabels]="xLabels"></area-chart>
+          </div>
+          <p class="dash-chart-hint">Tocá cualquier punto para ver las ventas de ese día.</p>
         </admin-section-card>
       </div>
 
@@ -68,7 +76,10 @@
     </div>
 
     <!-- Últimos pedidos -->
-    <admin-section-card title="Últimos pedidos" *ngIf="resumen as r">
+    <admin-section-card id="dash-ultimos" title="Últimos pedidos" *ngIf="resumen as r">
+      <select card-action class="dash-select" [(ngModel)]="filtroUltimos" (ngModelChange)="kpiSel = null">
+        <option *ngFor="let f of filtrosUltimos" [ngValue]="f.v">{{ f.l }}</option>
+      </select>
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
@@ -78,13 +89,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let o of r.ultimos_pedidos">
+            <tr *ngFor="let o of ultimosPedidosFiltrados">
               <td class="admin-table__strong">{{ o.codigo }}</td>
               <td class="admin-table__muted">{{ formatFecha(o.created_at) }}</td>
               <td class="admin-table__semi">{{ o.cliente }}</td>
               <td><modality-pill [mode]="modoModalidad(o.modalidad)"></modality-pill></td>
               <td class="admin-table__strong">{{ o.total | crcCurrency }}</td>
               <td><status-badge [type]="estadoToStatusType(o.estado)"></status-badge></td>
+            </tr>
+            <tr *ngIf="ultimosPedidosFiltrados.length === 0">
+              <td colspan="6" class="dash-empty">Ningún pedido con este filtro.</td>
             </tr>
           </tbody>
         </table>

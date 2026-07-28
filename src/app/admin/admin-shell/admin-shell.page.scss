@@ -147,11 +147,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 16px;
   flex-shrink: 0;
   background: var(--admin-card);
   border-bottom: 1px solid var(--admin-border);
 }
+/* El bloque izquierdo (saludo/título) puede encogerse; el derecho (campana +
+   usuario) no, para que nunca queden pegados. */
+.admin-header__left { min-width: 0; flex: 1; }
 @media (min-width: 768px) {
   .admin-header { padding: 16px 24px; }
 }
@@ -174,6 +178,24 @@
   color: var(--admin-text);
   margin: 0;
 }
+/* Titulo de seccion en el header global (reemplaza al saludo fuera de Dashboard). */
+.admin-header__title {
+  font-family: var(--rooster-font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--admin-text);
+  line-height: 1.1;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* El bloque izquierdo puede encogerse sin empujar la altura del header. */
+.admin-header__left > div { min-width: 0; }
+/* En móvil ocultamos el subtítulo breadcrump para no saturar/alargar el header. */
+@media (max-width: 767px) {
+  .admin-header__meta--plain { display: none; }
+}
 .admin-header__meta {
   display: flex;
   align-items: center;
@@ -184,8 +206,20 @@
 
   ion-icon { font-size: 12px; flex-shrink: 0; }
 }
+/* Subtitulo de seccion: sin icono, texto simple. */
+.admin-header__meta--plain { display: block; }
+/* Meta del Dashboard (sucursal · fecha) sin icono; se anima si es muy larga. */
+.admin-header__submeta { font-size: 11px; color: var(--admin-text-muted); }
 
-.admin-header__right { display: flex; align-items: center; gap: 12px; }
+.admin-header__right { display: flex; align-items: center; gap: 12px; min-width: 0; }
+/* Portal de acciones de la página (crear, filtros, avisos) junto a la campana. */
+.admin-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 .admin-header__bell {
   position: relative;
   display: flex;

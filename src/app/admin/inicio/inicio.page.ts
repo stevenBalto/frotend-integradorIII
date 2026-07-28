@@ -26,6 +26,9 @@ export class AdminInicioPage implements OnInit {
   cargando = false;
   error: string | null = null;
 
+  // #11 Filtro de la tabla "Secciones del Home" alimentado por los KPIs.
+  filtroInicio: 'todos' | 'destacado' | 'popular' | 'nuevo' = 'todos';
+
   constructor(
     private productoService: ProductoService,
     private ofertaService: OfertaService,
@@ -52,6 +55,29 @@ export class AdminInicioPage implements OnInit {
   /** Ofertas activas y no vencidas (elegibles como hero / contadas en el KPI). */
   get ofertasVigentes(): Oferta[] {
     return this.ofertas.filter((o) => o.activa && !this.estaVencida(o.fecha_fin));
+  }
+
+  /** #11 Productos de la tabla "Secciones del Home" según el KPI activo. */
+  get productosFiltradosInicio(): Producto[] {
+    if (this.filtroInicio === 'destacado') return this.productos.filter((p) => p.destacado);
+    if (this.filtroInicio === 'popular') return this.productos.filter((p) => p.popular);
+    if (this.filtroInicio === 'nuevo') return this.productos.filter((p) => p.nuevo);
+    return this.productos;
+  }
+
+  /** #11 KPI como filtro: filtra la tabla de secciones y la enfoca. */
+  filtrarInicio(f: 'todos' | 'destacado' | 'popular' | 'nuevo'): void {
+    this.filtroInicio = f;
+    setTimeout(() => {
+      document.getElementById('inicio-secciones')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  }
+
+  /** #11 El KPI de ofertas enfoca la tabla de ofertas. */
+  enfocarOfertas(): void {
+    setTimeout(() => {
+      document.getElementById('inicio-ofertas')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   /** Texto del descuento de una oferta, ej. "20% OFF" o "-₡500". */

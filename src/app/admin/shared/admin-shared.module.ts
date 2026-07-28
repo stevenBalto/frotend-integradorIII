@@ -16,6 +16,8 @@ import { DonutChartComponent } from './donut-chart.component';
 import { MiniBarComponent } from './mini-bar.component';
 import { BarChartComponent } from './bar-chart.component';
 import { AreaChartComponent } from './area-chart.component';
+import { AdminHeaderActionsDirective } from './admin-header-actions.directive';
+import { MarqueeOverflowDirective } from './marquee-overflow.directive';
 
 const COMPONENTS = [
   AdminKpiCardComponent,
@@ -32,6 +34,8 @@ const COMPONENTS = [
   MiniBarComponent,
   BarChartComponent,
   AreaChartComponent,
+  AdminHeaderActionsDirective,
+  MarqueeOverflowDirective,
 ];
 
 /**

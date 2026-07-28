@@ -40,16 +40,28 @@
         <button type="button" class="admin-header__burger" (click)="sidebarOpen = true">
           <ion-icon name="menu-outline"></ion-icon>
         </button>
-        <div>
-          <p class="admin-header__greeting">{{ saludo }}<ng-container *ngIf="(usuario$ | async) as u">, {{ u.nombre.split(' ')[0] }}</ng-container></p>
-          <p class="admin-header__meta">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <ng-container *ngIf="sucursalNombre">{{ sucursalNombre }} · </ng-container>{{ fechaTexto }}
-          </p>
+        <!-- Dashboard: saludo. Resto de secciones: titulo/subtitulo contextual. -->
+        <div *ngIf="esDashboard; else seccionTpl">
+          <div class="admin-greeting" adminMarquee>
+            <p class="admin-header__greeting">{{ saludo }}<ng-container *ngIf="(usuario$ | async) as u">, {{ u.nombre.split(' ')[0] }}</ng-container></p>
+          </div>
+          <div class="admin-greeting" adminMarquee>
+            <span class="admin-header__submeta">{{ sucursalNombre ? sucursalNombre + ' · ' : '' }}{{ fechaTexto }}</span>
+          </div>
         </div>
+        <ng-template #seccionTpl>
+          <div>
+            <p class="admin-header__title">{{ seccionTitulo }}</p>
+            <p class="admin-header__meta admin-header__meta--plain" *ngIf="seccionSubtitulo">{{ seccionSubtitulo }}</p>
+          </div>
+        </ng-template>
       </div>
 
       <div class="admin-header__right">
+        <!-- Acciones de la página activa (portal): crear, filtros, avisos. -->
+        <div class="admin-header__actions" *ngIf="headerActions$ | async as tpl">
+          <ng-container [ngTemplateOutlet]="tpl"></ng-container>
+        </div>
         <div class="admin-header__bell">
           <ion-icon name="notifications-outline"></ion-icon>
           <span class="admin-header__bell-dot"></span>

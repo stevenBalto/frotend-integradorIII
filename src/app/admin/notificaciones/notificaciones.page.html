@@ -1,9 +1,7 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header
-      title="Notificaciones"
-      [subtitle]="noLeidas > 0 ? (noLeidas + ' sin leer') : 'Todo al día'">
+    <admin-page-header [actionsOnly]="true">
       <button
         type="button"
         header-right
@@ -25,12 +23,28 @@
       <p>No hay notificaciones todavía.</p>
     </div>
 
-    <!-- Lista real -->
+    <!-- Barra: contador + filtros (estado y periodo) -->
+    <div class="notif-bar" *ngIf="!cargando && notifs.length > 0">
+      <p class="notif-bar__count">
+        <strong>{{ notifsFiltradas.length }}</strong>
+        notificaci{{ notifsFiltradas.length === 1 ? 'ón' : 'ones' }}
+        <span class="notif-bar__unread" *ngIf="noLeidas > 0">· {{ noLeidas }} sin leer</span>
+      </p>
+      <div class="notif-bar__chips">
+        <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'todas'" (click)="filtroEstado = 'todas'">Todas</button>
+        <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'no_leidas'" (click)="filtroEstado = 'no_leidas'">No leídas</button>
+        <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'leidas'" (click)="filtroEstado = 'leidas'">Leídas</button>
+        <span class="notif-bar__sep"></span>
+        <button type="button" class="notif-chip" *ngFor="let p of periodos"
+          [class.notif-chip--on]="filtroPeriodo === p.v" (click)="filtroPeriodo = p.v">{{ p.l }}</button>
+      </div>
+    </div>
+
+    <!-- Lista real (alto fijo con scroll interno) -->
     <div class="notif-list" *ngIf="!cargando && notifs.length > 0">
-      <button
-        type="button"
+      <div
         class="notif"
-        *ngFor="let n of notifs"
+        *ngFor="let n of notifsFiltradas"
         [class.notif--unread]="!n.leida"
         (click)="abrir(n)">
         <div class="notif__icon">
@@ -42,7 +56,15 @@
           <p class="notif__time">{{ tiempo(n) }}</p>
         </div>
         <div class="notif__dot" *ngIf="!n.leida"></div>
-      </button>
+        <button type="button" class="notif__del" (click)="eliminar(n, $event)"
+          aria-label="Eliminar notificación">
+          <ion-icon name="trash-outline"></ion-icon>
+        </button>
+      </div>
+
+      <p class="notif-filter-empty" *ngIf="notifsFiltradas.length === 0">
+        No hay notificaciones con este filtro.
+      </p>
     </div>
 
   </div>

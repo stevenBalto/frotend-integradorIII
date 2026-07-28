@@ -1,11 +1,6 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header title="Pedidos" subtitle="Dashboard / Gestion de pedidos">
-      <admin-search-input header-right placeholder="Buscar pedido o cliente..."
-        [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
-    </admin-page-header>
-
     <!-- KPIs / Filtros -->
     <div class="admin-grid-4">
       <admin-kpi-card label="Pedidos totales" [value]="totalPedidos"
@@ -14,7 +9,7 @@
       <admin-kpi-card label="Pendientes" [value]="totalPendientes"
         icon="hourglass-outline" iconBg="#6B72801a" iconColor="#6B7280"
         [clickable]="true" [active]="filtroEstado === 'pendiente'" (cardClick)="setFiltroEstado('pendiente')"></admin-kpi-card>
-      <admin-kpi-card label="En preparacion" [value]="totalEnProceso"
+      <admin-kpi-card label="En preparación" [value]="totalEnProceso"
         icon="flame-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"
         [clickable]="true" [active]="filtroEstado === 'en_proceso'" (cardClick)="setFiltroEstado('en_proceso')"></admin-kpi-card>
       <admin-kpi-card label="Listos" [value]="totalListos"
@@ -24,6 +19,9 @@
 
     <!-- Tabla -->
     <admin-section-card title="Pedidos recientes">
+      <admin-search-input card-action placeholder="Buscar pedido o cliente..."
+        [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
+
       <p *ngIf="error" class="ped-error">{{ error }}</p>
       <p *ngIf="cargando" class="ped-loading">Cargando pedidos...</p>
 
@@ -31,7 +29,7 @@
         <table class="admin-table">
           <thead>
             <tr>
-              <th>Codigo</th>
+              <th>Código</th>
               <th>Fecha</th>
               <th>Cliente</th>
               <th>Modalidad</th>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResource } from '../models/producto.model';
@@ -12,10 +12,11 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  /** GET /admin/dashboard */
-  resumen(): Observable<DashboardResumen> {
+  /** GET /admin/dashboard?dias=7|14|30 (dias controla la ventana del gráfico). */
+  resumen(dias = 7): Observable<DashboardResumen> {
+    const params = new HttpParams().set('dias', String(dias));
     return this.http
-      .get<ApiResource<DashboardResumen>>(`${this.base}/admin/dashboard`)
+      .get<ApiResource<DashboardResumen>>(`${this.base}/admin/dashboard`, { params })
       .pipe(map((res) => res.data));
   }
 }
