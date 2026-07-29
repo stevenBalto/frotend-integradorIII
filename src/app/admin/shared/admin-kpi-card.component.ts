@@ -61,6 +61,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       font-weight: 500;
       margin: 4px 0 0;
     }
+    /* Móvil: sin ícono → todas las KPIs quedan del mismo alto compacto (como Reportes). */
+    @media (max-width: 767px) {
+      .kpi__icon { display: none; }
+    }
   `],
 })
 export class AdminKpiCardComponent {

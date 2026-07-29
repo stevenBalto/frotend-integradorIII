@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AnaliticasService } from '../../core/services/analiticas.service';
 import { AnaliticasResponse, ComparacionMesAnterior, ModalidadApi, TopProductoApi, VentaCategoria } from '../../core/models/analiticas.model';
 import { SalesBarDatum } from '../shared/sales-bar-chart.component';
@@ -18,9 +18,17 @@ const RANKING_COLORS = ['#E13642', '#374151', '#6B7280', '#9CA3AF', '#D1D5DB'];
   styleUrls: ['./analiticas.page.scss'],
   standalone: false,
 })
-export class AdminAnaliticasPage implements OnInit {
+export class AdminAnaliticasPage implements OnInit, OnDestroy {
   cargando = false;
   error: string | null = null;
+
+  // Contador de caché (los datos se recalculan cada 30 min en el backend).
+  ttlMinutos = 30;
+  cacheModalOpen = false;
+  restanteTexto = '—';
+  private expiraEnMs: number | null = null;
+  private refrescando = false;
+  private timer?: ReturnType<typeof setInterval>;
 
   // KPIs
   ventasMes = 0;
@@ -55,6 +63,37 @@ export class AdminAnaliticasPage implements OnInit {
 
   ngOnInit(): void {
     this.cargarAnaliticas();
+    this.timer = setInterval(() => this.tick(), 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  /** Recalcula el texto del contador cada segundo; refresca al llegar a 0. */
+  private tick(): void {
+    if (this.expiraEnMs === null) {
+      this.restanteTexto = '—';
+      return;
+    }
+    const ms = this.expiraEnMs - Date.now();
+    if (ms <= 0) {
+      this.restanteTexto = 'Actualizando…';
+      // Al vencer la caché, re-consulta una vez (el backend regenera y devuelve nuevo expira_en).
+      if (!this.cargando && !this.refrescando) {
+        this.refrescando = true;
+        this.cargarAnaliticas();
+      }
+      return;
+    }
+    const totalSeg = Math.floor(ms / 1000);
+    const min = Math.floor(totalSeg / 60);
+    const seg = totalSeg % 60;
+    this.restanteTexto = min > 0
+      ? `${min} min ${seg.toString().padStart(2, '0')} s`
+      : `${seg} s`;
   }
 
   cargarAnaliticas(): void {
@@ -73,6 +112,12 @@ export class AdminAnaliticasPage implements OnInit {
   }
 
   private procesarRespuesta(res: AnaliticasResponse): void {
+    // Contador de caché
+    this.ttlMinutos = res.ttl_minutos ?? 30;
+    this.expiraEnMs = res.expira_en ? new Date(res.expira_en).getTime() : null;
+    this.refrescando = false;
+    this.tick();
+
     // KPIs
     this.ventasMes = res.ventas_mes;
     this.pedidosMes = res.pedidos_mes;

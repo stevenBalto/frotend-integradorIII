@@ -192,9 +192,10 @@
 }
 /* El bloque izquierdo puede encogerse sin empujar la altura del header. */
 .admin-header__left > div { min-width: 0; }
-/* En móvil ocultamos el subtítulo breadcrump para no saturar/alargar el header. */
+/* En móvil ocultamos el subtítulo (solo queda el título de la sección).
+   Especificidad extra: gana sobre `.admin-header__meta--plain{display:block}` de abajo. */
 @media (max-width: 767px) {
-  .admin-header__meta--plain { display: none; }
+  .admin-header__left .admin-header__meta--plain { display: none; }
 }
 .admin-header__meta {
   display: flex;

@@ -1,18 +1,107 @@
-.an-cache-notice {
-  display: flex;
+/* Botón de caché (junto a la campana): reloj + contador. Abre el modal. */
+.an-cache-btn {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  width: fit-content;
-  margin: 0;
-  padding: 4px 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
   border-radius: 999px;
-  background: var(--admin-bg-muted, #F3F4F6);
-  color: var(--admin-text-muted, #6B7280);
+  background: var(--admin-panel);
+  color: var(--admin-text-muted);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
 
-  ion-icon { font-size: 14px; }
+  ion-icon { font-size: 15px; color: var(--rooster-red); }
 }
+.an-cache-btn:hover { border-color: rgba(225, 54, 66, 0.4); }
+.an-cache-btn:active { transform: scale(0.96); }
+.an-cache-btn__time { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Modal de caché + contador de próxima actualización */
+.an-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.an-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); }
+.an-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  background: var(--admin-card, #fff);
+  border-radius: 16px;
+  padding: 28px 24px 22px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.an-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  display: flex;
+  cursor: pointer;
+
+  ion-icon { font-size: 18px; color: var(--admin-text-muted); }
+}
+.an-modal__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  background: rgba(225, 54, 66, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon { font-size: 26px; color: var(--rooster-red); }
+}
+.an-modal__title { font-size: 15px; font-weight: 700; color: var(--admin-text); margin: 0 0 8px; }
+.an-modal__text { font-size: 12px; color: var(--admin-text-muted); line-height: 1.5; margin: 0 0 16px; }
+.an-modal__count {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--admin-panel);
+  margin-bottom: 16px;
+}
+.an-modal__count-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-text-muted);
+  font-weight: 700;
+}
+.an-modal__count-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--rooster-red);
+  font-variant-numeric: tabular-nums;
+}
+.an-modal__cta {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--rooster-red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.an-modal__cta:active { transform: scale(0.97); }
 
 .an-charts-5 {
   display: grid;

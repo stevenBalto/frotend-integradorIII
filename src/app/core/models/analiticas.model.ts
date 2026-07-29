@@ -9,6 +9,10 @@ export interface AnaliticasResponse {
   modalidad: ModalidadApi[];
   comparacion_mes_anterior: ComparacionMesAnterior;
   ventas_por_categoria: VentaCategoria[];
+  /** Metadatos de caché (30 min) para el contador de próxima actualización. */
+  generado_en?: string | null;
+  expira_en?: string | null;
+  ttl_minutos?: number;
 }
 
 /** ventas_pct/pedidos_pct: null cuando el mes anterior no tuvo ventas/pedidos. ventas_mes_anterior/pedidos_mes_anterior son siempre numéricos (0 si no hubo datos). */

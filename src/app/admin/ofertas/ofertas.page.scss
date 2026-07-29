@@ -45,6 +45,24 @@
   border-collapse: collapse;
   font-family: var(--rooster-font-sans);
 }
+/* Móvil: mismo patrón anidado 1D que las tablas globales (alto fijo sin diagonal). */
+@media (max-width: 767px) {
+  .of-table-wrap {
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+  .of-table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+  }
+}
 .of-table td, .of-table th { padding-left: 4px; }
 /* Primera columna (logo de oferta / código de cupón) con aire, no pegada al borde. */
 .of-table td:first-child, .of-table th:first-child { padding-left: 12px; }

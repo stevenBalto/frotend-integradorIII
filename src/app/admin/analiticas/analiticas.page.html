@@ -1,12 +1,13 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- Aviso en el header global (junto a la campana) -->
+    <!-- Botón de caché en el header global (junto a la campana). Abre el modal con el contador. -->
     <ng-template adminHeaderActions>
-      <div class="an-cache-notice">
+      <button type="button" class="an-cache-btn" (click)="cacheModalOpen = true"
+        title="Actualización de datos">
         <ion-icon name="time-outline"></ion-icon>
-        <span>Los datos se actualizan cada 30 minutos</span>
-      </div>
+        <span class="an-cache-btn__time hide-on-mobile">{{ restanteTexto }}</span>
+      </button>
     </ng-template>
 
     <!-- Error -->
@@ -106,5 +107,26 @@
       </div>
     </ng-container>
 
+  </div>
+
+  <!-- Modal: info de caché + contador de próxima actualización -->
+  <div class="an-modal" *ngIf="cacheModalOpen">
+    <div class="an-modal__backdrop" (click)="cacheModalOpen = false"></div>
+    <div class="an-modal__panel">
+      <button type="button" class="an-modal__close" (click)="cacheModalOpen = false">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <div class="an-modal__icon"><ion-icon name="time-outline"></ion-icon></div>
+      <p class="an-modal__title">Los datos se actualizan cada {{ ttlMinutos }} minutos</p>
+      <p class="an-modal__text">
+        Las analíticas se calculan y se guardan en caché para cargar rápido. Los números que ves
+        pueden tener hasta {{ ttlMinutos }} minutos de antigüedad.
+      </p>
+      <div class="an-modal__count">
+        <span class="an-modal__count-label">Próxima actualización en</span>
+        <span class="an-modal__count-val">{{ restanteTexto }}</span>
+      </div>
+      <button type="button" class="an-modal__cta" (click)="cacheModalOpen = false">Entendido</button>
+    </div>
   </div>
 </ion-content>
