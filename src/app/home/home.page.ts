@@ -35,6 +35,13 @@ export class HomePage implements OnInit {
   detalleAbierto = false;
   productoDetalle: Producto | null = null;
 
+  /** Modal de código QR (oferta o cupón), igual que en la pantalla "Ofertas y cupones". */
+  qrAbierto = false;
+  qrValor = '';
+  qrCodigoTexto = '';
+  qrTitulo = '';
+  qrSubtitulo = '';
+
   private readonly colores = ['#E13642', '#F58220', '#A8895E', '#F2B134'];
 
   // Selecciones del modal de detalle
@@ -184,6 +191,28 @@ export class HomePage implements OnInit {
     if (c.tipo === 'porcentaje') return 'pricetag-outline';
     if ((c.monto_minimo ?? 0) > 0) return 'card-outline';
     return 'gift-outline';
+  }
+
+  /** Muestra el QR de una oferta: el staff lo escanea/tipea para validarla en el mostrador. */
+  verQrOferta(o: Oferta): void {
+    this.qrCodigoTexto = `OF-${o.id.toString().padStart(4, '0')}`;
+    this.qrValor = this.qrCodigoTexto;
+    this.qrTitulo = o.nombre;
+    this.qrSubtitulo = 'Mostrá este código en el mostrador para validar la oferta.';
+    this.qrAbierto = true;
+  }
+
+  /** Muestra el QR de un cupón: el staff lo escanea/tipea para canjearlo en un pedido real. */
+  verQrCupon(c: Cupon): void {
+    this.qrValor = `ROOSTER-CUPON:${c.codigo}`;
+    this.qrCodigoTexto = c.codigo;
+    this.qrTitulo = c.codigo;
+    this.qrSubtitulo = 'Mostrá este código en el mostrador para canjear el cupón.';
+    this.qrAbierto = true;
+  }
+
+  cerrarQr(): void {
+    this.qrAbierto = false;
   }
 
   private cargarVitrina(): void {

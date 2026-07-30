@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 import { HomePageRoutingModule } from './home-routing.module';
 import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
+import { QrCodeComponent } from '../shared/components/qr-code.component';
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
     FormsModule,
     HomePageRoutingModule,
     CrcCurrencyPipe,
+    QrCodeComponent,
   ],
   declarations: [HomePage]
 })

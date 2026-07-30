@@ -17,7 +17,7 @@
       <span class="home-section__label">Ofertas</span>
     </div>
     <div class="promo-scroll">
-      <div class="promo-card promo-card--oferta" *ngFor="let o of ofertas; let i = index">
+      <div class="promo-card promo-card--oferta" *ngFor="let o of ofertas; let i = index" (click)="verQrOferta(o)">
         <div class="promo-card__icon-wrap">
           <div class="promo-card__icon-circle" [style.background]="colorFor(i)">
             <ion-icon [name]="iconOferta(o)"></ion-icon>
@@ -38,7 +38,7 @@
       <span class="home-section__label">Cupones para ti</span>
     </div>
     <div class="promo-scroll">
-      <div class="promo-card promo-card--cupon" *ngFor="let c of cupones; let i = index">
+      <div class="promo-card promo-card--cupon" *ngFor="let c of cupones; let i = index" (click)="verQrCupon(c)">
         <div class="promo-card__icon-wrap">
           <div class="promo-card__icon-circle" [style.background]="colorFor(i)">
             <ion-icon [name]="iconCupon(c)"></ion-icon>
@@ -192,5 +192,19 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ── Modal de código QR (oferta o cupón) ─────────────────────────────────── -->
+<div class="qr-modal" *ngIf="qrAbierto">
+  <div class="qr-modal__backdrop" (click)="cerrarQr()"></div>
+  <div class="qr-modal__panel">
+    <button type="button" class="qr-modal__close" (click)="cerrarQr()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+    <p class="qr-modal__title">{{ qrTitulo }}</p>
+    <qr-code [value]="qrValor" [size]="220"></qr-code>
+    <p class="qr-modal__codigo">{{ qrCodigoTexto }}</p>
+    <p class="qr-modal__hint">{{ qrSubtitulo }}</p>
   </div>
 </div>
