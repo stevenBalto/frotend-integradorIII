@@ -68,8 +68,16 @@ export class PedidosMostradorPage implements OnInit {
     private pedidoService: PedidoService,
   ) {}
 
+  private productosListos = false;
+
   ngOnInit(): void {
-    this.productoService.listarDisponibles().subscribe({ next: (p) => (this.productos = p) });
+    this.productoService.listarDisponibles().subscribe({
+      next: (p) => {
+        this.productos = p;
+        this.productosListos = true;
+        this.autoAgregarProductosDeOferta();
+      },
+    });
     this.sucursalService.listarActivas().subscribe({
       next: (s) => {
         this.sucursales = s;
@@ -89,6 +97,31 @@ export class PedidosMostradorPage implements OnInit {
       this.ofertaId = Number(ofertaIdParam);
       this.validarOferta(this.ofertaId);
     }
+  }
+
+  /**
+   * Cuando se canjea una OFERTA, sus productos ya fueron elegidos al crearla
+   * (checklist de "Productos incluidos") — no tiene sentido pedirle al staff que
+   * los busque de nuevo. Se agregan solos al carrito (cantidad 1) apenas están
+   * listos tanto el catálogo como la oferta. Los productos con tamaños quedan
+   * para que el staff elija el tamaño manualmente (queda resaltado con el tag
+   * "oferta" en la lista) porque no hay forma de adivinar cuál quiere el cliente.
+   */
+  private autoAgregarProductosDeOferta(): void {
+    if (!this.productosListos || !this.oferta || this.lineas.length > 0) {
+      return;
+    }
+
+    const idsOferta = this.oferta.productos.map((p) => p.id);
+    const productosSinTamano = this.productos.filter((p) => idsOferta.includes(p.id) && p.tamanos.length === 0);
+
+    this.lineas = productosSinTamano.map((producto) => ({
+      producto,
+      productoTamanoId: null,
+      tamanoNombre: null,
+      precioUnitario: producto.precio_base,
+      cantidad: 1,
+    }));
   }
 
   private validarCupon(codigo: string): void {
@@ -115,6 +148,7 @@ export class PedidosMostradorPage implements OnInit {
         this.oferta = ofertas.find((o) => o.id === id) ?? null;
         this.errorCanje = this.oferta ? null : 'Esta oferta ya no existe.';
         this.cargandoCanje = false;
+        this.autoAgregarProductosDeOferta();
       },
       error: () => {
         this.errorCanje = 'No se pudo validar la oferta.';

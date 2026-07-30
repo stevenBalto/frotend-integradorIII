@@ -32,7 +32,8 @@ export class QrCodeComponent implements OnChanges, AfterViewInit {
 
     QRCode.toCanvas(this.canvasRef.nativeElement, this.value, {
       width: this.size,
-      margin: 1,
+      margin: 4,
+      errorCorrectionLevel: 'M',
       color: { dark: '#1E1E1E', light: '#FFFFFF' },
     }).catch(() => {
       /* si falla el render, el texto del código sigue visible como fallback */
