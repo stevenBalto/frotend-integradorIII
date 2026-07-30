@@ -204,8 +204,8 @@ export class HomePage implements OnInit {
 
   /** Muestra el QR de un cupón: el staff lo escanea/tipea para canjearlo en un pedido real. */
   verQrCupon(c: Cupon): void {
-    this.qrValor = `ROOSTER-CUPON:${c.codigo}`;
-    this.qrCodigoTexto = c.codigo;
+    this.qrCodigoTexto = `CU-${c.id.toString().padStart(4, '0')}`;
+    this.qrValor = this.qrCodigoTexto;
     this.qrTitulo = c.codigo;
     this.qrSubtitulo = 'Mostrá este código en el mostrador para canjear el cupón.';
     this.qrAbierto = true;

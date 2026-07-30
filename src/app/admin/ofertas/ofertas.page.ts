@@ -403,7 +403,14 @@ export class AdminOfertasPage implements OnInit {
       return;
     }
 
-    // Fallback: si escanean/tipean el código "pelado" (sin prefijo), asumimos cupón.
+    // Código corto de cupón mostrado al cliente (ej. "CU-0005") — ya no se muestra/codifica el nombre del cupón.
+    const matchCupon = valor.trim().match(/^CU-0*(\d+)$/i);
+    if (matchCupon) {
+      this.validarCuponEscaneadoPorId(Number(matchCupon[1]));
+      return;
+    }
+
+    // Fallback: si escanean/tipean el código "pelado" (sin prefijo), asumimos que es el código real del cupón.
     this.validarCuponEscaneado(valor.trim());
   }
 
@@ -419,6 +426,16 @@ export class AdminOfertasPage implements OnInit {
         this.canjeCargando = false;
       },
     });
+  }
+
+  /** El código corto ("CU-0005") solo identifica el cupón por id — se resuelve a su código real y se valida igual. */
+  private validarCuponEscaneadoPorId(id: number): void {
+    const cupon = this.cupones.find((c) => c.id === id) ?? null;
+    if (!cupon) {
+      this.canjeError = 'Este cupón no existe.';
+      return;
+    }
+    this.validarCuponEscaneado(cupon.codigo);
   }
 
   private validarOfertaEscaneada(id: number): void {

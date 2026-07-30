@@ -182,8 +182,8 @@ export class OfertasPage implements OnInit {
 
   /** Muestra el QR de un cupón: el staff lo escanea para canjearlo en un pedido real. */
   verQrCupon(c: CouponCard): void {
-    this.qrValor = `ROOSTER-CUPON:${c.code}`;
-    this.qrCodigoTexto = c.code;
+    this.qrCodigoTexto = this.codigoDeCupon(c.id);
+    this.qrValor = this.qrCodigoTexto;
     this.qrTitulo = c.code;
     this.qrSubtitulo = 'Mostrá este código en el mostrador para canjear el cupón.';
     this.qrAbierto = true;
@@ -192,6 +192,11 @@ export class OfertasPage implements OnInit {
   /** Código corto tipo "pedido" (letras + números) para mostrar bajo el QR, en vez del payload interno. */
   private codigoDeOferta(id: number): string {
     return `OF-${id.toString().padStart(4, '0')}`;
+  }
+
+  /** Idem para cupones: el nombre del cupón (ej. "PASTA", "CUPONROOSTER") ya no se muestra ni se codifica. */
+  private codigoDeCupon(id: number): string {
+    return `CU-${id.toString().padStart(4, '0')}`;
   }
 
   cerrarQr(): void {
