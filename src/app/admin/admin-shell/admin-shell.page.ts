@@ -50,6 +50,7 @@ export class AdminShellPage implements OnInit, OnDestroy {
     menu:           { titulo: 'Menú',                    subtitulo: 'Dashboard / Menú' },
     inventario:     { titulo: 'Inventario',              subtitulo: 'Dashboard / Inventario' },
     ofertas:        { titulo: 'Ofertas',                 subtitulo: 'Dashboard / Ofertas y cupones' },
+    'pedidos-mostrador': { titulo: 'Pedido de mostrador', subtitulo: 'Canje de cupón por QR' },
     clientes:       { titulo: 'Clientes',                subtitulo: 'Dashboard / Clientes' },
     usuarios:       { titulo: 'Usuarios',                subtitulo: 'Dashboard / Usuarios y roles' },
     analiticas:     { titulo: 'Reportes',               subtitulo: 'Dashboard / Reportes y analíticas' },

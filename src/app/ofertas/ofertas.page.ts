@@ -7,6 +7,7 @@ import { CuponService } from '../core/services/cupon.service';
 type OfferTab = 'ofertas' | 'cupones';
 
 interface OfferCard {
+  id: number;
   name: string;
   badge: string;
   price: string;
@@ -15,6 +16,7 @@ interface OfferCard {
 }
 
 interface CouponCard {
+  id: number;
   code: string;
   desc: string;
   expira: string;
@@ -40,6 +42,12 @@ export class OfertasPage implements OnInit {
   errorCupones: string | null = null;
 
   private readonly colores = ['#E13642', '#F58220', '#A8895E', '#F2B134'];
+
+  /** Modal de código QR (oferta o cupón), a pantalla completa. */
+  qrAbierto = false;
+  qrValor = '';
+  qrTitulo = '';
+  qrSubtitulo = '';
 
   constructor(
     private readonly ofertaService: OfertaService,
@@ -88,6 +96,7 @@ export class OfertasPage implements OnInit {
     const color = this.colores[index % this.colores.length];
 
     return {
+      id: oferta.id,
       name: oferta.nombre.toUpperCase(),
       badge: this.getBadgeForOferta(oferta),
       price: this.getPriceForOferta(oferta),
@@ -126,6 +135,7 @@ export class OfertasPage implements OnInit {
 
   private mapCupon(cupon: Cupon, index: number): CouponCard {
     return {
+      id: cupon.id,
       code: cupon.codigo,
       desc: this.getDescForCupon(cupon),
       expira: this.getExpiraForCupon(cupon),
@@ -158,6 +168,26 @@ export class OfertasPage implements OnInit {
     if (cupon.tipo === 'porcentaje') return 'pricetag-outline';
     if ((cupon.monto_minimo ?? 0) > 0) return 'card-outline';
     return 'gift-outline';
+  }
+
+  /** Muestra el QR de una oferta: el staff lo escanea para confirmar su vigencia (informativo, sin canje automático). */
+  verQrOferta(o: OfferCard): void {
+    this.qrValor = `ROOSTER-OFERTA:${o.id}`;
+    this.qrTitulo = o.name;
+    this.qrSubtitulo = 'Mostrá este código en el mostrador para validar la oferta.';
+    this.qrAbierto = true;
+  }
+
+  /** Muestra el QR de un cupón: el staff lo escanea para canjearlo en un pedido real. */
+  verQrCupon(c: CouponCard): void {
+    this.qrValor = `ROOSTER-CUPON:${c.code}`;
+    this.qrTitulo = c.code;
+    this.qrSubtitulo = 'Mostrá este código en el mostrador para canjear el cupón.';
+    this.qrAbierto = true;
+  }
+
+  cerrarQr(): void {
+    this.qrAbierto = false;
   }
 
   private formatCurrency(value: number): string {

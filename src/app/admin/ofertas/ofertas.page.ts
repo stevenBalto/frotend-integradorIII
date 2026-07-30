@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { OfertaService } from '../../core/services/oferta.service';
 import { CuponService } from '../../core/services/cupon.service';
 import { ProductoService } from '../../core/services/producto.service';
@@ -62,8 +63,16 @@ export class AdminOfertasPage implements OnInit {
   readonly formCupon: FormGroup;
   private cuponEditId: number | null = null;
 
+  // Canje por QR (scanner)
+  canjearOpen = false;
+  canjeCargando = false;
+  canjeError: string | null = null;
+  canjeCupon: Cupon | null = null;
+  canjeOferta: Oferta | null = null;
+
   constructor(
     private fb: FormBuilder,
+    private router: Router,
     private ofertaService: OfertaService,
     private cuponService: CuponService,
     private productoService: ProductoService,
@@ -357,6 +366,81 @@ export class AdminOfertasPage implements OnInit {
       return;
     }
     this.cuponService.eliminar(c.id).subscribe({ next: () => this.cargarCupones() });
+  }
+
+  // ── Canje por QR ──────────────────────────────────────────────────
+  abrirCanjear(): void {
+    this.canjeError = null;
+    this.canjeCupon = null;
+    this.canjeOferta = null;
+    this.canjearOpen = true;
+  }
+
+  cerrarCanjear(): void {
+    this.canjearOpen = false;
+  }
+
+  /** Se dispara al decodificar el QR (o al tipear el código manualmente en el scanner). */
+  onCodigoDecodificado(valor: string): void {
+    this.canjeError = null;
+    this.canjeCupon = null;
+    this.canjeOferta = null;
+
+    if (valor.startsWith('ROOSTER-CUPON:')) {
+      this.validarCuponEscaneado(valor.substring('ROOSTER-CUPON:'.length));
+      return;
+    }
+
+    if (valor.startsWith('ROOSTER-OFERTA:')) {
+      this.validarOfertaEscaneada(Number(valor.substring('ROOSTER-OFERTA:'.length)));
+      return;
+    }
+
+    // Fallback: si escanean/tipean el código "pelado" (sin prefijo), asumimos cupón.
+    this.validarCuponEscaneado(valor);
+  }
+
+  private validarCuponEscaneado(codigo: string): void {
+    this.canjeCargando = true;
+    this.cuponService.validar(codigo).subscribe({
+      next: (res) => {
+        this.canjeCupon = res.data;
+        this.canjeCargando = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.canjeError = this.primerError(err);
+        this.canjeCargando = false;
+      },
+    });
+  }
+
+  private validarOfertaEscaneada(id: number): void {
+    this.canjeCargando = true;
+    this.ofertaService.listarTodos().subscribe({
+      next: (ofertas) => {
+        const oferta = ofertas.find((o) => o.id === id) ?? null;
+        this.canjeOferta = oferta;
+        this.canjeError = oferta ? null : 'Esta oferta ya no existe.';
+        this.canjeCargando = false;
+      },
+      error: () => {
+        this.canjeError = 'No se pudo validar la oferta.';
+        this.canjeCargando = false;
+      },
+    });
+  }
+
+  get canjeOfertaProductosTexto(): string {
+    const nombres = this.canjeOferta?.productos.map((p) => p.nombre) ?? [];
+    return nombres.length > 0 ? nombres.join(', ') : 'todos los productos';
+  }
+
+  /** Arma el pedido de mostrador con el cupón ya validado. */
+  irAPedidoDeMostrador(): void {
+    if (!this.canjeCupon) {
+      return;
+    }
+    void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { cupon: this.canjeCupon.codigo } });
   }
 
   // ── Formateo / helpers de vista ───────────────────────────────────

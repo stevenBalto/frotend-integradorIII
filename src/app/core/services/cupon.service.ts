@@ -5,6 +5,11 @@ import { environment } from '../../../environments/environment';
 import { ApiCollection, ApiResource } from '../models/producto.model';
 import { Cupon, CuponPayload } from '../models/cupon.model';
 
+export interface CuponValidado {
+  data: Cupon;
+  descuento_estimado: number | null;
+}
+
 /** Consumo de cupones (panel admin). */
 @Injectable({ providedIn: 'root' })
 export class CuponService {
@@ -43,5 +48,10 @@ export class CuponService {
   /** DELETE /admin/cupones/{id} — eliminar cupon. */
   eliminar(id: number): Observable<unknown> {
     return this.http.delete(`${this.base}/admin/cupones/${id}`);
+  }
+
+  /** POST /admin/cupones/validar — valida un codigo (vigencia/usos) antes de canjearlo. */
+  validar(codigo: string, subtotal?: number): Observable<CuponValidado> {
+    return this.http.post<CuponValidado>(`${this.base}/admin/cupones/validar`, { codigo, subtotal });
   }
 }

@@ -1,0 +1,116 @@
+<ion-content class="admin-page-content">
+  <div class="admin-page">
+
+    <!-- Confirmación -->
+    <admin-section-card *ngIf="pedidoCreado" title="Pedido creado">
+      <div class="mostrador-confirm">
+        <p class="mostrador-confirm__codigo">{{ pedidoCreado.codigo }}</p>
+        <p class="mostrador-confirm__total">Total cobrado: {{ pedidoCreado.total | crcCurrency }}</p>
+        <div class="mostrador-confirm__actions">
+          <admin-btn (clicked)="irAPedidos()">Ver en Pedidos</admin-btn>
+          <admin-btn [outline]="true" (clicked)="nuevoPedido()">Armar otro pedido</admin-btn>
+        </div>
+      </div>
+    </admin-section-card>
+
+    <ng-container *ngIf="!pedidoCreado">
+
+      <!-- Estado del cupón -->
+      <admin-section-card title="Cupón" *ngIf="cuponCodigo">
+        <p *ngIf="cargandoCupon" class="mostrador-hint">Validando código {{ cuponCodigo }}...</p>
+        <p *ngIf="errorCupon" class="mostrador-error">{{ errorCupon }}</p>
+        <div class="mostrador-cupon" *ngIf="cupon">
+          <span class="mostrador-cupon__codigo">{{ cupon.codigo }}</span>
+          <span class="mostrador-cupon__valor">{{ cupon.tipo === 'porcentaje' ? cupon.valor + '% OFF' : (cupon.valor | crcCurrency) + ' OFF' }}</span>
+        </div>
+      </admin-section-card>
+
+      <div class="mostrador-grid">
+        <!-- Catálogo -->
+        <admin-section-card title="Productos" class="mostrador-grid__catalogo">
+          <input type="text" class="mostrador-buscar" placeholder="Buscar producto..." [(ngModel)]="busqueda" />
+
+          <div class="mostrador-productos">
+            <div class="mostrador-producto" *ngFor="let p of productosFiltrados">
+              <div class="mostrador-producto__info">
+                <p class="mostrador-producto__nombre">{{ p.nombre }}</p>
+                <p class="mostrador-producto__precio">{{ p.precio_base | crcCurrency }}</p>
+              </div>
+
+              <ng-container *ngIf="p.tamanos.length > 0; else sinTamano">
+                <select #tamanoSel class="mostrador-producto__tamano">
+                  <option [value]="''" disabled selected>Tamaño</option>
+                  <option *ngFor="let t of p.tamanos" [value]="t.id">{{ t.nombre }} · {{ t.precio | crcCurrency }}</option>
+                </select>
+                <button type="button" class="mostrador-producto__add" (click)="agregarProducto(p, tamanoSel.value)">
+                  <ion-icon name="add-outline"></ion-icon>
+                </button>
+              </ng-container>
+
+              <ng-template #sinTamano>
+                <button type="button" class="mostrador-producto__add" (click)="agregarProducto(p, null)">
+                  <ion-icon name="add-outline"></ion-icon>
+                </button>
+              </ng-template>
+            </div>
+          </div>
+        </admin-section-card>
+
+        <!-- Carrito -->
+        <admin-section-card title="Pedido" class="mostrador-grid__carrito">
+          <p class="mostrador-hint" *ngIf="lineas.length === 0">Agregá productos del catálogo.</p>
+
+          <div class="mostrador-linea" *ngFor="let l of lineas; let i = index">
+            <div class="mostrador-linea__info">
+              <p class="mostrador-linea__nombre">{{ l.producto.nombre }}<span *ngIf="l.tamanoNombre"> — {{ l.tamanoNombre }}</span></p>
+              <p class="mostrador-linea__precio">{{ l.precioUnitario | crcCurrency }} c/u</p>
+            </div>
+            <div class="mostrador-linea__qty">
+              <button type="button" (click)="cambiarCantidad(i, -1)">−</button>
+              <span>{{ l.cantidad }}</span>
+              <button type="button" (click)="cambiarCantidad(i, 1)">+</button>
+            </div>
+          </div>
+
+          <div class="mostrador-totales" *ngIf="lineas.length > 0">
+            <div class="mostrador-totales__row">
+              <span>Subtotal</span><span>{{ subtotal | crcCurrency }}</span>
+            </div>
+            <div class="mostrador-totales__row" *ngIf="descuentoEstimado > 0">
+              <span>Descuento</span><span>− {{ descuentoEstimado | crcCurrency }}</span>
+            </div>
+            <div class="mostrador-totales__row mostrador-totales__row--total">
+              <span>Total</span><span>{{ total | crcCurrency }}</span>
+            </div>
+          </div>
+
+          <div class="mostrador-form">
+            <input type="text" placeholder="Nombre del cliente" [(ngModel)]="nombreCliente" />
+
+            <select [(ngModel)]="sucursalId">
+              <option [ngValue]="null" disabled>Sucursal</option>
+              <option *ngFor="let s of sucursales" [ngValue]="s.id">{{ s.nombre }}</option>
+            </select>
+
+            <div class="mostrador-form__modalidad">
+              <button type="button" [class.mostrador-form__modalidad-btn--active]="modalidad === 'comer_aqui'" (click)="modalidad = 'comer_aqui'">Comer aquí</button>
+              <button type="button" [class.mostrador-form__modalidad-btn--active]="modalidad === 'para_llevar'" (click)="modalidad = 'para_llevar'">Para llevar</button>
+            </div>
+
+            <textarea placeholder="Notas (opcional)" rows="2" [(ngModel)]="notas"></textarea>
+          </div>
+
+          <p class="mostrador-error" *ngIf="errorEnvio">{{ errorEnvio }}</p>
+
+          <admin-btn *ngIf="puedeConfirmar" (clicked)="confirmar()">
+            {{ enviando ? 'Creando pedido...' : 'Confirmar pedido' }}
+          </admin-btn>
+          <p class="mostrador-hint" *ngIf="!puedeConfirmar && lineas.length > 0">
+            Falta el nombre del cliente y/o la sucursal para confirmar.
+          </p>
+        </admin-section-card>
+      </div>
+    </ng-container>
+
+  </div>
+</ion-content>

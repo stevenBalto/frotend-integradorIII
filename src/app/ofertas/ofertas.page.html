@@ -34,6 +34,7 @@
           <p class="oferta-card__name">{{ oferta.name }}</p>
           <p class="oferta-card__badge">{{ oferta.badge }}</p>
           <p class="oferta-card__price">{{ oferta.price }}</p>
+          <button type="button" class="oferta-card__btn" [style.background]="oferta.color" (click)="verQrOferta(oferta)">Ver código</button>
         </div>
       </div>
     </div>
@@ -63,12 +64,26 @@
         <div class="cupon-card__body">
           <div class="cupon-card__header">
             <span class="cupon-card__code" [style.color]="cup.color">{{ cup.code }}</span>
-            <button type="button" class="cupon-card__btn" [style.background]="cup.color">Usar</button>
+            <button type="button" class="cupon-card__btn" [style.background]="cup.color" (click)="verQrCupon(cup)">Usar</button>
           </div>
           <p class="cupon-card__desc">{{ cup.desc }}</p>
           <p class="cupon-card__expira">{{ cup.expira }}</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de código QR (oferta o cupón) -->
+  <div class="qr-modal" *ngIf="qrAbierto">
+    <div class="qr-modal__backdrop" (click)="cerrarQr()"></div>
+    <div class="qr-modal__panel">
+      <button type="button" class="qr-modal__close" (click)="cerrarQr()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <p class="qr-modal__title">{{ qrTitulo }}</p>
+      <qr-code [value]="qrValor" [size]="220"></qr-code>
+      <p class="qr-modal__codigo">{{ qrValor }}</p>
+      <p class="qr-modal__hint">{{ qrSubtitulo }}</p>
     </div>
   </div>
 

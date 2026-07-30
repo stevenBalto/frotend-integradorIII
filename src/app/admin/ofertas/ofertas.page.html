@@ -3,6 +3,10 @@
 
     <!-- Acción en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
+      <admin-btn [outline]="true" (clicked)="abrirCanjear()">
+        <ion-icon name="qr-code-outline"></ion-icon>
+        <span class="hide-on-mobile">Canjear código</span>
+      </admin-btn>
       <admin-btn (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
         <ion-icon name="add-outline"></ion-icon>
         <span class="hide-on-mobile">{{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupón' }}</span>
@@ -297,6 +301,48 @@
           {{ guardandoCupon ? 'Guardando...' : (editandoCupon ? 'Guardar cambios' : 'Crear cupón') }}
         </button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: canjear código (QR) -->
+<div class="order-modal" *ngIf="canjearOpen">
+  <div class="order-modal__backdrop" (click)="cerrarCanjear()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Canjear código</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarCanjear()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <qr-scanner (decoded)="onCodigoDecodificado($event)"></qr-scanner>
+
+      <p class="canje-hint" *ngIf="canjeCargando">Validando...</p>
+      <p class="canje-error" *ngIf="canjeError">{{ canjeError }}</p>
+
+      <div class="canje-resultado" *ngIf="canjeCupon">
+        <p class="canje-resultado__titulo">Cupón {{ canjeCupon.codigo }}</p>
+        <p class="canje-resultado__detalle">
+          {{ canjeCupon.tipo === 'porcentaje' ? canjeCupon.valor + '% de descuento' : ('₡' + canjeCupon.valor + ' de descuento') }}
+          <span *ngIf="canjeCupon.monto_minimo"> · mín. ₡{{ canjeCupon.monto_minimo }}</span>
+        </p>
+        <button type="button" class="order-modal__cta" (click)="irAPedidoDeMostrador()">Armar pedido de mostrador</button>
+      </div>
+
+      <div class="canje-resultado" *ngIf="canjeOferta">
+        <p class="canje-resultado__titulo">Oferta: {{ canjeOferta.nombre }}</p>
+        <p class="canje-resultado__detalle">
+          {{ canjeOferta.tipo_descuento === 'porcentaje' ? canjeOferta.valor + '% de descuento' : ('₡' + canjeOferta.valor + ' de descuento') }}
+        </p>
+        <p class="canje-hint">Válida solo para: {{ canjeOfertaProductosTexto }}</p>
+        <p class="canje-hint">Esta oferta es solo informativa: el descuento se aplica manualmente al cobrar.</p>
+      </div>
     </div>
   </div>
 </div>

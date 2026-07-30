@@ -4,13 +4,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OfertasPage } from './ofertas.page';
 import { OfertasPageRoutingModule } from './ofertas-routing.module';
+import { QrCodeComponent } from '../shared/components/qr-code.component';
 
 @NgModule({
   imports: [
     IonicModule,
     CommonModule,
     FormsModule,
-    OfertasPageRoutingModule
+    OfertasPageRoutingModule,
+    QrCodeComponent,
   ],
   declarations: [OfertasPage]
 })

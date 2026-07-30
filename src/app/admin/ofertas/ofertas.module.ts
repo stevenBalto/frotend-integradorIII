@@ -5,6 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 
 import { AdminSharedModule } from '../shared/admin-shared.module';
+import { QrScannerComponent } from '../shared/qr-scanner.component';
 import { AdminOfertasPage } from './ofertas.page';
 
 @NgModule({
@@ -14,6 +15,7 @@ import { AdminOfertasPage } from './ofertas.page';
     ReactiveFormsModule,
     IonicModule,
     AdminSharedModule,
+    QrScannerComponent,
     RouterModule.forChild([{ path: '', component: AdminOfertasPage }]),
   ],
   declarations: [AdminOfertasPage],

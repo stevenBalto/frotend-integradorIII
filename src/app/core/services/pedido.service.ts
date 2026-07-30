@@ -121,4 +121,15 @@ export class PedidoService {
       .post<ApiResource<PedidoAdmin>>(`${this.base}/admin/pedidos/${id}/pagar`, {})
       .pipe(map((res) => res.data));
   }
+
+  /**
+   * POST /admin/pedidos/mostrador — el staff arma el pedido de un cliente que pidio
+   * en el mostrador (canje de cupon por QR). Mismo patron que crearInvitado, pero
+   * autenticado como staff.
+   */
+  crearMostrador(payload: CrearPedidoPayload): Observable<PedidoAdmin> {
+    return this.http
+      .post<ApiResource<PedidoAdmin>>(`${this.base}/admin/pedidos/mostrador`, payload)
+      .pipe(map((res) => res.data));
+  }
 }

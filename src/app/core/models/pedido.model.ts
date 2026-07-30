@@ -55,12 +55,19 @@ export interface HistorialEstado {
   creado_en: string;
 }
 
+/** Cupon resumido en el pedido (admin), si se canjeo alguno. */
+export interface CuponPedido {
+  id: number;
+  codigo: string;
+}
+
 /** Pedido extendido para admin. */
 export interface PedidoAdmin extends Pedido {
   cliente: ClientePedido;
   pagado: boolean;
   pagado_en: string | null;
   historial: HistorialEstado[];
+  cupon: CuponPedido | null;
 }
 
 /** Respuesta publica (buscar por codigo, sin auth). */
@@ -91,6 +98,8 @@ export interface CrearPedidoPayload {
   notas?: string;
   /** Roosters (colones) a canjear en este pedido. Solo aplica a usuarios logueados. */
   roosters_a_usar?: number;
+  /** Codigo de cupon a canjear (checkout normal o pedido de mostrador via QR). */
+  cupon_codigo?: string;
   items: ItemPedidoPayload[];
 }
 
