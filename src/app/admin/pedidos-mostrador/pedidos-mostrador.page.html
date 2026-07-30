@@ -28,7 +28,10 @@
       <div class="mostrador-grid">
         <!-- Catálogo -->
         <admin-section-card title="Productos" class="mostrador-grid__catalogo">
-          <input type="text" class="mostrador-buscar" placeholder="Buscar producto..." [(ngModel)]="busqueda" />
+          <label class="of-form__label">
+            Buscar
+            <input type="text" class="of-form__input" placeholder="Nombre del producto..." [(ngModel)]="busqueda" />
+          </label>
 
           <div class="mostrador-productos">
             <div class="mostrador-producto" *ngFor="let p of productosFiltrados">
@@ -84,20 +87,36 @@
             </div>
           </div>
 
-          <div class="mostrador-form">
-            <input type="text" placeholder="Nombre del cliente" [(ngModel)]="nombreCliente" />
+          <div class="mostrador-form of-form">
+            <label class="of-form__label">
+              Nombre del cliente
+              <input type="text" class="of-form__input" placeholder="Ej. María Rodríguez" [(ngModel)]="nombreCliente" />
+            </label>
 
-            <select [(ngModel)]="sucursalId">
-              <option [ngValue]="null" disabled>Sucursal</option>
-              <option *ngFor="let s of sucursales" [ngValue]="s.id">{{ s.nombre }}</option>
-            </select>
+            <label class="of-form__label">
+              Sucursal
+              <select class="of-form__input" [(ngModel)]="sucursalId">
+                <option [ngValue]="null" disabled>Elegí una sucursal</option>
+                <option *ngFor="let s of sucursales" [ngValue]="s.id">{{ s.nombre }}</option>
+              </select>
+            </label>
 
-            <div class="mostrador-form__modalidad">
-              <button type="button" [class.mostrador-form__modalidad-btn--active]="modalidad === 'comer_aqui'" (click)="modalidad = 'comer_aqui'">Comer aquí</button>
-              <button type="button" [class.mostrador-form__modalidad-btn--active]="modalidad === 'para_llevar'" (click)="modalidad = 'para_llevar'">Para llevar</button>
-            </div>
+            <label class="of-form__label">
+              Modalidad
+              <div class="mostrador-form__modalidad">
+                <button type="button" class="mostrador-form__modalidad-btn" [class.mostrador-form__modalidad-btn--active]="modalidad === 'comer_aqui'" (click)="modalidad = 'comer_aqui'">
+                  <ion-icon name="restaurant-outline"></ion-icon> Comer aquí
+                </button>
+                <button type="button" class="mostrador-form__modalidad-btn" [class.mostrador-form__modalidad-btn--active]="modalidad === 'para_llevar'" (click)="modalidad = 'para_llevar'">
+                  <ion-icon name="bag-handle-outline"></ion-icon> Para llevar
+                </button>
+              </div>
+            </label>
 
-            <textarea placeholder="Notas (opcional)" rows="2" [(ngModel)]="notas"></textarea>
+            <label class="of-form__label">
+              Notas (opcional)
+              <textarea class="of-form__input" placeholder="Ej. sin cebolla" rows="2" [(ngModel)]="notas"></textarea>
+            </label>
           </div>
 
           <p class="mostrador-error" *ngIf="errorEnvio">{{ errorEnvio }}</p>
