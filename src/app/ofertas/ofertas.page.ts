@@ -46,6 +46,7 @@ export class OfertasPage implements OnInit {
   /** Modal de código QR (oferta o cupón), a pantalla completa. */
   qrAbierto = false;
   qrValor = '';
+  qrCodigoTexto = '';
   qrTitulo = '';
   qrSubtitulo = '';
 
@@ -173,6 +174,7 @@ export class OfertasPage implements OnInit {
   /** Muestra el QR de una oferta: el staff lo escanea para confirmar su vigencia (informativo, sin canje automático). */
   verQrOferta(o: OfferCard): void {
     this.qrValor = `ROOSTER-OFERTA:${o.id}`;
+    this.qrCodigoTexto = this.codigoDeOferta(o.id);
     this.qrTitulo = o.name;
     this.qrSubtitulo = 'Mostrá este código en el mostrador para validar la oferta.';
     this.qrAbierto = true;
@@ -181,9 +183,15 @@ export class OfertasPage implements OnInit {
   /** Muestra el QR de un cupón: el staff lo escanea para canjearlo en un pedido real. */
   verQrCupon(c: CouponCard): void {
     this.qrValor = `ROOSTER-CUPON:${c.code}`;
+    this.qrCodigoTexto = c.code;
     this.qrTitulo = c.code;
     this.qrSubtitulo = 'Mostrá este código en el mostrador para canjear el cupón.';
     this.qrAbierto = true;
+  }
+
+  /** Código corto tipo "pedido" (letras + números) para mostrar bajo el QR, en vez del payload interno. */
+  private codigoDeOferta(id: number): string {
+    return `OF-${id.toString().padStart(4, '0')}`;
   }
 
   cerrarQr(): void {
