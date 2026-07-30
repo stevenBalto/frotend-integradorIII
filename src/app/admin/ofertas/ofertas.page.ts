@@ -396,8 +396,15 @@ export class AdminOfertasPage implements OnInit {
       return;
     }
 
+    // Código corto de oferta mostrado al cliente (ej. "OF-0003").
+    const matchOferta = valor.trim().match(/^OF-0*(\d+)$/i);
+    if (matchOferta) {
+      this.validarOfertaEscaneada(Number(matchOferta[1]));
+      return;
+    }
+
     // Fallback: si escanean/tipean el código "pelado" (sin prefijo), asumimos cupón.
-    this.validarCuponEscaneado(valor);
+    this.validarCuponEscaneado(valor.trim());
   }
 
   private validarCuponEscaneado(codigo: string): void {

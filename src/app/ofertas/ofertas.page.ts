@@ -173,8 +173,8 @@ export class OfertasPage implements OnInit {
 
   /** Muestra el QR de una oferta: el staff lo escanea para confirmar su vigencia (informativo, sin canje automático). */
   verQrOferta(o: OfferCard): void {
-    this.qrValor = `ROOSTER-OFERTA:${o.id}`;
     this.qrCodigoTexto = this.codigoDeOferta(o.id);
+    this.qrValor = this.qrCodigoTexto;
     this.qrTitulo = o.name;
     this.qrSubtitulo = 'Mostrá este código en el mostrador para validar la oferta.';
     this.qrAbierto = true;
