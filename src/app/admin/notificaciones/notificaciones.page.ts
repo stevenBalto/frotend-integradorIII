@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { NotificacionService } from '../../core/services/notificacion.service';
-import { Notificacion } from '../../core/models/notificacion.model';
+import { Notificacion, rutaDeNotificacion, iconoDeNotificacion } from '../../core/models/notificacion.model';
 
 /** Bandeja de notificaciones del admin (datos reales; polling en el shell). */
 @Component({
@@ -17,6 +18,7 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
   notifs: Notificacion[] = [];
   cargando = true;
   marcandoTodas = false;
+  borrandoTodas = false;
 
   // #17 Filtros de la bandeja.
   filtroEstado: 'todas' | 'no_leidas' | 'leidas' = 'todas';
@@ -32,6 +34,7 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
   constructor(
     private notificaciones: NotificacionService,
     private router: Router,
+    private alertCtrl: AlertController,
   ) {}
 
   ngOnInit(): void {
@@ -96,18 +99,16 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
     this.notificaciones.eliminar(n.id).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
-  /** Clic en una notificación: la marca leída y abre el pedido si lo tiene. */
+  /** Clic en una notificación: la marca leída y navega a la sección del evento. */
   abrir(n: Notificacion): void {
     if (!n.leida) {
       this.notificaciones.marcarLeida(n.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => this.notificaciones.refrescar().subscribe());
     }
-    const codigo = n.data?.codigo;
-    if (n.pedido_id) {
-      void this.router.navigate(['/admin/pedidos'], {
-        queryParams: codigo ? { codigo } : {},
-      });
+    const destino = rutaDeNotificacion(n);
+    if (destino) {
+      void this.router.navigate(destino.path, destino.extras);
     }
   }
 
@@ -124,12 +125,37 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
       });
   }
 
+  /** Borra TODAS las notificaciones (con confirmación). */
+  async borrarTodas(): Promise<void> {
+    if (this.notifs.length === 0) {
+      return;
+    }
+    const alert = await this.alertCtrl.create({
+      header: 'Borrar notificaciones',
+      message: '¿Borrar todas las notificaciones? Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Borrar todas',
+          role: 'destructive',
+          handler: () => {
+            this.borrandoTodas = true;
+            this.notificaciones.eliminarTodas()
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: () => (this.borrandoTodas = false),
+                error: () => (this.borrandoTodas = false),
+              });
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   /** Ícono según el tipo de notificación. */
   icono(n: Notificacion): string {
-    switch (n.tipo) {
-      case 'pedido_nuevo': return 'clipboard-outline';
-      default: return 'notifications-outline';
-    }
+    return iconoDeNotificacion(n.tipo);
   }
 
   /** Tiempo relativo simple ("hace 2 min", "hace 1 h", "ayer"). */

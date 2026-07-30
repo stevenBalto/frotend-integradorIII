@@ -118,3 +118,36 @@
 }
 .notif-empty ion-icon { font-size: 40px; opacity: 0.5; }
 .notif-empty p { font-size: 13px; margin: 0; }
+
+/* Botón "Borrar todas" del header */
+.notif-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  font-family: var(--rooster-font-sans);
+}
+.notif-clear ion-icon { font-size: 14px; }
+.notif-clear:disabled { opacity: 0.45; cursor: default; }
+
+/* Borrar una notificación (dentro del item) */
+.notif__del {
+  flex-shrink: 0;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b9b2a7;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.notif__del:hover { background: #dc26261a; color: #dc2626; }
+.notif__del ion-icon { font-size: 15px; }

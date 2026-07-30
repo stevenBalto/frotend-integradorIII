@@ -213,6 +213,7 @@
 .admin-header__submeta { font-size: 11px; color: var(--admin-text-muted); }
 
 .admin-header__right { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.admin-header__bell-wrap { position: relative; }
 /* Portal de acciones de la página (crear, filtros, avisos) junto a la campana. */
 .admin-header__actions {
   display: flex;
@@ -228,18 +229,93 @@
   justify-content: center;
   padding: 8px;
   border-radius: 8px;
+  border: none;
   background: var(--admin-panel);
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.admin-header__bell:hover { background: var(--admin-border); }
 .admin-header__bell ion-icon { font-size: 16px; color: var(--admin-text); }
-.admin-header__bell-dot {
+.admin-header__bell-count {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
   background: var(--admin-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
 }
+
+// ── Panel desplegable de la campana ──
+.bell-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 300; }
+.bell-panel__backdrop { position: fixed; inset: 0; z-index: -1; }
+.bell-panel__box {
+  width: 340px;
+  max-width: 90vw;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  font-family: var(--rooster-font-sans);
+}
+.bell-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+.bell-panel__title { font-size: 13px; font-weight: 700; color: var(--admin-text); }
+.bell-panel__mark {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; font-weight: 600; color: var(--rooster-red, #e13642);
+  font-family: var(--rooster-font-sans);
+}
+.bell-panel__list { max-height: 340px; overflow-y: auto; }
+.bell-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--admin-border);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--rooster-font-sans);
+}
+.bell-item:hover { background: var(--admin-panel); }
+.bell-item--unread { background: rgba(225, 54, 66, 0.05); }
+.bell-item__icon {
+  width: 30px; height: 30px; flex-shrink: 0;
+  border-radius: 8px;
+  background: rgba(225, 54, 66, 0.1);
+  display: flex; align-items: center; justify-content: center;
+}
+.bell-item__icon ion-icon { font-size: 15px; color: var(--rooster-red, #e13642); }
+.bell-item__body { flex: 1; min-width: 0; }
+.bell-item__title { font-size: 12px; font-weight: 600; color: var(--admin-text); margin: 0; }
+.bell-item__msg {
+  font-size: 11px; color: var(--admin-text-muted); margin: 2px 0 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bell-item__time { font-size: 10px; color: var(--admin-text-muted); flex-shrink: 0; }
+.bell-panel__empty { font-size: 12px; color: var(--admin-text-muted); text-align: center; padding: 24px 0; margin: 0; }
+.bell-panel__all {
+  width: 100%; padding: 11px;
+  background: var(--admin-panel); border: none; cursor: pointer;
+  font-size: 12px; font-weight: 700; color: var(--admin-text);
+  font-family: var(--rooster-font-sans);
+}
+.bell-panel__all:hover { background: var(--admin-border); }
 .admin-header__user { display: flex; align-items: center; gap: 8px; }
 .admin-header__avatar {
   width: 32px;

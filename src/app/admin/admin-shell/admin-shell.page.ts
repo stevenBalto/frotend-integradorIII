@@ -6,7 +6,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { SucursalService } from '../../core/services/sucursal.service';
 import { Usuario } from '../../core/models/usuario.model';
 import { NotificacionService } from '../../core/services/notificacion.service';
-import { Notificacion } from '../../core/models/notificacion.model';
+import {
+  Notificacion,
+  rutaDeNotificacion,
+  iconoDeNotificacion,
+} from '../../core/models/notificacion.model';
 import { AdminHeaderService } from '../shared/admin-header.service';
 
 interface NavItem {
@@ -58,6 +62,11 @@ export class AdminShellPage implements OnInit, OnDestroy {
     resenas:        { titulo: 'Reseñas y calificaciones', subtitulo: 'Gestión y moderación' },
     configuracion:  { titulo: 'Configuración general',   subtitulo: 'Dashboard / Configuración' },
   };
+
+  // Campana del header (panel desplegable con las últimas notificaciones).
+  bellOpen = false;
+  noLeidasCount = 0;
+  notifsRecientes: Notificacion[] = [];
 
   readonly usuario$: Observable<Usuario | null>;
   readonly avatarInicial$: Observable<string>;
@@ -129,7 +138,15 @@ export class AdminShellPage implements OnInit, OnDestroy {
     // Notificaciones en tiempo real: badge en vivo + toast global (polling).
     this.notificaciones.noLeidas$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((n) => this.setBadge(n));
+      .subscribe((n) => {
+        this.noLeidasCount = n;
+        this.setBadge(n);
+      });
+
+    // Lista para el panel de la campana (las últimas).
+    this.notificaciones.notificaciones$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((lista) => (this.notifsRecientes = lista.slice(0, 6)));
 
     this.notificaciones.nuevas$
       .pipe(takeUntil(this.destroy$))
@@ -172,26 +189,60 @@ export class AdminShellPage implements OnInit, OnDestroy {
       message: n.mensaje,
       duration: 6000,
       position: 'top',
-      icon: 'notifications-outline',
+      icon: iconoDeNotificacion(n.tipo),
       cssClass: 'notif-toast',
       buttons: [
-        {
-          text: 'Ver',
-          handler: () => this.abrirPedido(n),
-        },
+        { text: 'Ver', handler: () => this.abrirNotificacion(n) },
         { text: 'Cerrar', role: 'cancel' },
       ],
     });
     await toast.present();
   }
 
-  /** Abre el pedido de la notificación en el módulo de Pedidos. */
-  private abrirPedido(n: Notificacion): void {
-    const codigo = n.data?.codigo;
+  // ── Campana del header ──
+
+  toggleBell(): void {
+    this.bellOpen = !this.bellOpen;
+  }
+
+  cerrarBell(): void {
+    this.bellOpen = false;
+  }
+
+  iconoNotif(n: Notificacion): string {
+    return iconoDeNotificacion(n.tipo);
+  }
+
+  /** Marca leída y navega a la sección del evento (según el tipo). */
+  abrirNotificacion(n: Notificacion): void {
+    this.cerrarBell();
     this.closeSidebar();
-    void this.router.navigate(['/admin/pedidos'], {
-      queryParams: codigo ? { codigo } : {},
-    });
+    if (!n.leida) {
+      this.notificaciones.marcarLeida(n.id).subscribe(() => this.notificaciones.refrescar().subscribe());
+    }
+    const destino = rutaDeNotificacion(n);
+    if (destino) {
+      void this.router.navigate(destino.path, destino.extras);
+    }
+  }
+
+  verTodas(): void {
+    this.cerrarBell();
+    void this.router.navigate(['/admin/notificaciones']);
+  }
+
+  marcarTodasLeidas(): void {
+    this.notificaciones.marcarTodasLeidas().subscribe(() => this.notificaciones.refrescar().subscribe());
+  }
+
+  tiempoNotif(n: Notificacion): string {
+    if (!n.created_at) return '';
+    const min = Math.floor((Date.now() - new Date(n.created_at).getTime()) / 60000);
+    if (min < 1) return 'ahora';
+    if (min < 60) return `${min} min`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h} h`;
+    return `${Math.floor(h / 24)} d`;
   }
 
   /** Temporal: vuelve a la app cliente (sin invalidar token, es otro contexto). */

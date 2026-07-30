@@ -62,9 +62,39 @@
         <div class="admin-header__actions" *ngIf="headerActions$ | async as tpl">
           <ng-container [ngTemplateOutlet]="tpl"></ng-container>
         </div>
-        <div class="admin-header__bell">
-          <ion-icon name="notifications-outline"></ion-icon>
-          <span class="admin-header__bell-dot"></span>
+        <div class="admin-header__bell-wrap">
+          <button type="button" class="admin-header__bell" (click)="toggleBell()" aria-label="Notificaciones">
+            <ion-icon name="notifications-outline"></ion-icon>
+            <span class="admin-header__bell-count" *ngIf="noLeidasCount > 0">
+              {{ noLeidasCount > 99 ? '99+' : noLeidasCount }}
+            </span>
+          </button>
+
+          <div class="bell-panel" *ngIf="bellOpen">
+            <div class="bell-panel__backdrop" (click)="cerrarBell()"></div>
+            <div class="bell-panel__box">
+              <div class="bell-panel__head">
+                <span class="bell-panel__title">Notificaciones</span>
+                <button type="button" class="bell-panel__mark" *ngIf="noLeidasCount > 0"
+                  (click)="marcarTodasLeidas()">Marcar leídas</button>
+              </div>
+              <div class="bell-panel__list">
+                <button type="button" class="bell-item" *ngFor="let n of notifsRecientes"
+                  [class.bell-item--unread]="!n.leida" (click)="abrirNotificacion(n)">
+                  <div class="bell-item__icon"><ion-icon [name]="iconoNotif(n)"></ion-icon></div>
+                  <div class="bell-item__body">
+                    <p class="bell-item__title">{{ n.titulo }}</p>
+                    <p class="bell-item__msg">{{ n.mensaje }}</p>
+                  </div>
+                  <span class="bell-item__time">{{ tiempoNotif(n) }}</span>
+                </button>
+                <p class="bell-panel__empty" *ngIf="notifsRecientes.length === 0">
+                  No hay notificaciones.
+                </p>
+              </div>
+              <button type="button" class="bell-panel__all" (click)="verTodas()">Ver todas</button>
+            </div>
+          </div>
         </div>
         <div class="admin-header__user" *ngIf="usuario$ | async as u">
           <div class="admin-header__avatar">{{ avatarInicial$ | async }}</div>

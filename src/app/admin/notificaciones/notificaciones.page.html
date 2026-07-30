@@ -10,6 +10,14 @@
         (click)="marcarTodas()">
         Marcar todas como leídas
       </button>
+      <button
+        type="button"
+        header-right
+        class="notif-clear"
+        [disabled]="notifs.length === 0 || borrandoTodas"
+        (click)="borrarTodas()">
+        <ion-icon name="trash-outline"></ion-icon> Borrar todas
+      </button>
     </admin-page-header>
 
     <!-- Cargando -->

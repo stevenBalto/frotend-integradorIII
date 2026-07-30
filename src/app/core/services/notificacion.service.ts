@@ -136,4 +136,18 @@ export class NotificacionService {
         }),
       );
   }
+
+  /** Borra TODAS las notificaciones y limpia la lista + contador en memoria. */
+  eliminarTodas(): Observable<number> {
+    return this.http
+      .delete<{ eliminadas: number }>(`${this.base}/admin/notificaciones`)
+      .pipe(
+        map((res) => {
+          this._notificaciones$.next([]);
+          this._noLeidas$.next(0);
+          this.idsVistos.clear();
+          return res.eliminadas;
+        }),
+      );
+  }
 }
