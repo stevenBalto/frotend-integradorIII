@@ -87,7 +87,7 @@ export class AdminOfertasPage implements OnInit {
       activa: [true],
     });
     this.formCupon = this.fb.group({
-      codigo: ['', [Validators.required]],
+      codigo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[A-Za-z0-9]+$/)]],
       tipo: ['porcentaje', [Validators.required]],
       valor: [null, [Validators.required, Validators.min(0)]],
       monto_minimo: [null],

@@ -253,7 +253,8 @@
       <form [formGroup]="formCupon" (ngSubmit)="guardarCupon()" class="of-form">
         <label class="of-form__label">
           Código
-          <input type="text" formControlName="codigo" class="of-form__input" placeholder="Ej. ROOSTER20" />
+          <input type="text" formControlName="codigo" class="of-form__input" placeholder="Ej. ROOSTER20" maxlength="20" />
+          <span class="of-form__note">Solo letras y números, sin espacios (es lo que el cliente muestra en el QR).</span>
         </label>
 
         <div class="of-form__row">

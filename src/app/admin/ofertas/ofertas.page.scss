@@ -199,6 +199,7 @@
   &:focus { border-color: var(--rooster-red, #e13642); background: #fff; }
 }
 textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
+.of-form__note { font-size: 11px; font-weight: 500; color: var(--admin-text-soft, #9ca3af); }
 .of-form__row { display: flex; gap: 12px; }
 .of-form__label--half { flex: 1; }
 .of-form__products {
