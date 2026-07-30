@@ -23,8 +23,7 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
   // #17 Filtros de la bandeja.
   filtroEstado: 'todas' | 'no_leidas' | 'leidas' = 'todas';
   filtroPeriodo: 'todas' | 'hoy' | 'ayer' | 'semana' | 'mes' = 'todas';
-  readonly periodos: { v: 'todas' | 'hoy' | 'ayer' | 'semana' | 'mes'; l: string }[] = [
-    { v: 'todas', l: 'Todas' },
+  readonly periodos: { v: 'hoy' | 'ayer' | 'semana' | 'mes'; l: string }[] = [
     { v: 'hoy', l: 'Hoy' },
     { v: 'ayer', l: 'Ayer' },
     { v: 'semana', l: 'Semana' },

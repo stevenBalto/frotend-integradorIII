@@ -21,12 +21,25 @@ export class AdminConfiguracionPage implements OnInit {
     negocio_telefono: '',
     negocio_direccion: '',
     negocio_sitio_web: '',
-    horario_apertura: '',
-    horario_cierre: '',
-    iva_porcentaje: 13,
+    negocio_maps_url: '',
+    pedidos_activos: true,
+    modalidad_comer_aqui: true,
+    modalidad_para_llevar: true,
+    pedido_monto_minimo: 0,
+    horario_activo: true,
+    horario_apertura: '11:00',
+    horario_cierre: '22:00',
+    cerrado_temporalmente: false,
+    roosters_activo: true,
+    roosters_porcentaje: 5,
+    resenas_moderacion: false,
+    resenas_umbral_destacado: 4,
     notif_nuevos_pedidos: true,
     notif_resenas_nuevas: true,
     notif_stock_bajo: true,
+    notif_producto_nuevo: true,
+    notif_cliente_nuevo: true,
+    notif_usuario_nuevo: true,
   };
   cargandoAjustes = false;
   guardandoAjustes = false;
@@ -72,7 +85,39 @@ export class AdminConfiguracionPage implements OnInit {
     });
   }
 
-  toggleNotif(clave: 'notif_nuevos_pedidos' | 'notif_resenas_nuevas' | 'notif_stock_bajo'): void {
+  /** Claves booleanas de los ajustes (las que se muestran como interruptor). */
+  private static readonly BOOLEANAS = [
+    'pedidos_activos', 'modalidad_comer_aqui', 'modalidad_para_llevar',
+    'horario_activo', 'cerrado_temporalmente', 'roosters_activo', 'resenas_moderacion',
+    'notif_nuevos_pedidos', 'notif_resenas_nuevas', 'notif_stock_bajo',
+    'notif_producto_nuevo', 'notif_cliente_nuevo', 'notif_usuario_nuevo',
+  ] as const;
+
+  /** Alterna cualquier ajuste booleano (operación, horario, roosters, notificaciones). */
+  toggle(clave: (typeof AdminConfiguracionPage.BOOLEANAS)[number]): void {
     this.ajustes[clave] = !this.ajustes[clave];
+  }
+
+  /**
+   * Estado actual del negocio según los ajustes (lo mismo que valida el backend
+   * al recibir un pedido), para que el admin vea el efecto real de lo que activa.
+   */
+  get estadoNegocio(): { abierto: boolean; texto: string } {
+    if (!this.ajustes.pedidos_activos) {
+      return { abierto: false, texto: 'No se están recibiendo pedidos' };
+    }
+    if (this.ajustes.cerrado_temporalmente) {
+      return { abierto: false, texto: 'Cerrado temporalmente' };
+    }
+    if (this.ajustes.horario_activo && this.ajustes.horario_apertura && this.ajustes.horario_cierre) {
+      const ahora = new Date();
+      const hhmm = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
+      const { horario_apertura: ap, horario_cierre: ci } = this.ajustes;
+      const dentro = ap <= ci ? (hhmm >= ap && hhmm <= ci) : (hhmm >= ap || hhmm <= ci);
+      if (!dentro) {
+        return { abierto: false, texto: `Fuera de horario (${ap} a ${ci})` };
+      }
+    }
+    return { abierto: true, texto: 'Abierto · recibiendo pedidos' };
   }
 }

@@ -1,47 +1,83 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- Estado actual del negocio: refleja lo que el backend valida al recibir
+         un pedido, para que el admin vea el efecto real de sus ajustes. -->
+    <div class="cfg-estado" [class.cfg-estado--cerrado]="!estadoNegocio.abierto">
+      <span class="cfg-estado__dot"></span>
+      <div class="cfg-estado__texto">
+        <strong>{{ estadoNegocio.abierto ? 'Abierto' : 'Cerrado' }}</strong>
+        <span>{{ estadoNegocio.texto }}</span>
+      </div>
+    </div>
+
     <div class="cfg-grid">
 
-      <!-- Información general -->
-      <div class="cfg-card cfg-card--tall">
-        <p class="cfg-card__title">Información general</p>
+      <!-- Operación y pedidos -->
+      <div class="cfg-card">
+        <p class="cfg-card__title">Operación y pedidos</p>
         <div class="cfg-card__fields">
-          <div class="cfg-field">
-            <p class="cfg-field__label">Nombre del restaurante</p>
-            <div class="cfg-input">
-              <ion-icon name="storefront-outline"></ion-icon>
-              <input [(ngModel)]="ajustes.negocio_nombre" maxlength="120" placeholder="Ej. Rooster La Fortuna" />
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Recibir pedidos</p>
+              <p class="cfg-toggle-row__sub">Apagalo para pausar los pedidos (cocina saturada, cierre)</p>
             </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.pedidos_activos"
+              (click)="toggle('pedidos_activos')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
           </div>
-          <div class="cfg-field">
-            <p class="cfg-field__label">Teléfono de contacto</p>
-            <div class="cfg-input">
-              <ion-icon name="call-outline"></ion-icon>
-              <input [(ngModel)]="ajustes.negocio_telefono" maxlength="40" placeholder="Ej. 2479-0000" />
+
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Comer en el restaurante</p>
+              <p class="cfg-toggle-row__sub">Permitir pedidos para consumir en el local</p>
             </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.modalidad_comer_aqui"
+              (click)="toggle('modalidad_comer_aqui')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
           </div>
-          <div class="cfg-field">
-            <p class="cfg-field__label">Dirección</p>
-            <div class="cfg-input">
-              <ion-icon name="globe-outline"></ion-icon>
-              <input [(ngModel)]="ajustes.negocio_direccion" maxlength="200" placeholder="Ej. La Fortuna, San Carlos" />
+
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Para llevar</p>
+              <p class="cfg-toggle-row__sub">Permitir pedidos para retirar</p>
             </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.modalidad_para_llevar"
+              (click)="toggle('modalidad_para_llevar')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
           </div>
+
           <div class="cfg-field">
-            <p class="cfg-field__label">Sitio web</p>
+            <p class="cfg-field__label">Pedido mínimo (₡)</p>
             <div class="cfg-input">
-              <ion-icon name="globe-outline"></ion-icon>
-              <input [(ngModel)]="ajustes.negocio_sitio_web" maxlength="120" placeholder="Ej. rooster.cr" />
+              <input type="number" min="0" step="100" [(ngModel)]="ajustes.pedido_monto_minimo" />
             </div>
+            <p class="cfg-field__hint">
+              Monto mínimo de compra para aceptar un pedido.
+              Dejalo en <strong>0</strong> si no querés mínimo.
+            </p>
           </div>
         </div>
       </div>
 
-      <!-- Horario y operación -->
+      <!-- Horario -->
       <div class="cfg-card">
-        <p class="cfg-card__title">Horario y operación</p>
+        <p class="cfg-card__title">Horario de atención</p>
         <div class="cfg-card__fields">
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Respetar horario</p>
+              <p class="cfg-toggle-row__sub">Fuera del horario no se aceptan pedidos</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.horario_activo"
+              (click)="toggle('horario_activo')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+
           <div class="cfg-hours">
             <div class="cfg-field">
               <p class="cfg-field__label">Hora de apertura</p>
@@ -54,45 +90,189 @@
                 <input type="time" [(ngModel)]="ajustes.horario_cierre" /></div>
             </div>
           </div>
-          <div class="cfg-field">
-            <p class="cfg-field__label">IVA (%)</p>
-            <div class="cfg-input">
-              <input type="number" min="0" max="100" step="0.01" [(ngModel)]="ajustes.iva_porcentaje" /></div>
+
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Cerrado temporalmente</p>
+              <p class="cfg-toggle-row__sub">Cierre puntual (feriado, imprevisto)</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.cerrado_temporalmente"
+              (click)="toggle('cerrado_temporalmente')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
           </div>
         </div>
       </div>
 
-      <!-- Notificaciones -->
+      <!-- Programa de Roosters -->
       <div class="cfg-card">
-        <p class="cfg-card__title">Notificaciones</p>
+        <p class="cfg-card__title">Programa de Roosters</p>
         <div class="cfg-card__fields">
-          <div class="cfg-notif">
+          <div class="cfg-toggle-row">
             <div>
-              <p class="cfg-notif__label">Nuevos pedidos</p>
-              <p class="cfg-notif__sub">Recibir alerta al llegar un pedido</p>
+              <p class="cfg-toggle-row__label">Acumular Roosters</p>
+              <p class="cfg-toggle-row__sub">Los clientes ganan puntos en cada compra</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.roosters_activo"
+              (click)="toggle('roosters_activo')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+
+          <div class="cfg-field">
+            <p class="cfg-field__label">Roosters por compra (%)</p>
+            <div class="cfg-input">
+              <input type="number" min="0" max="100" step="0.5" [(ngModel)]="ajustes.roosters_porcentaje" />
+            </div>
+            <p class="cfg-field__hint">
+              En un pedido de ₡10.000 el cliente gana
+              <strong>{{ (10000 * ajustes.roosters_porcentaje / 100) | number:'1.0-0' }}</strong> Roosters
+              (1 Rooster = ₡1 de descuento).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reseñas -->
+      <div class="cfg-card">
+        <p class="cfg-card__title">Reseñas</p>
+        <div class="cfg-card__fields">
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Revisar antes de publicar</p>
+              <p class="cfg-toggle-row__sub">Las reseñas nuevas quedan ocultas hasta que las aprobés</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.resenas_moderacion"
+              (click)="toggle('resenas_moderacion')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+
+          <div class="cfg-field">
+            <p class="cfg-field__label">Calificación para sugerir destacados (★)</p>
+            <div class="cfg-input">
+              <input type="number" min="1" max="5" step="0.5" [(ngModel)]="ajustes.resenas_umbral_destacado" />
+            </div>
+            <p class="cfg-field__hint">
+              En <strong>Menú</strong> se te sugiere destacar los productos con
+              <strong>{{ ajustes.resenas_umbral_destacado }}★</strong> o más.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del negocio: alimenta la pantalla "Restaurantes" del cliente -->
+      <div class="cfg-card cfg-card--full">
+        <p class="cfg-card__title">Información del negocio</p>
+        <p class="cfg-card__hint">
+          Estos datos son los que ven los clientes en <strong>Mi cuenta → Restaurantes</strong>.
+          Al guardarlos, la tarjeta de tu sucursal se actualiza sola.
+        </p>
+        <div class="cfg-card__grid">
+          <div class="cfg-field">
+            <p class="cfg-field__label">Nombre del restaurante</p>
+            <div class="cfg-input">
+              <ion-icon name="storefront-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_nombre" maxlength="120" placeholder="Ej. Rooster La Fortuna" />
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Dirección</p>
+            <div class="cfg-input">
+              <ion-icon name="location-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_direccion" maxlength="200" placeholder="Ej. La Fortuna, San Carlos" />
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Teléfono de contacto</p>
+            <div class="cfg-input">
+              <ion-icon name="call-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_telefono" maxlength="40" placeholder="Ej. 2479-0000" />
+            </div>
+          </div>
+          <div class="cfg-field">
+            <p class="cfg-field__label">Sitio web</p>
+            <div class="cfg-input">
+              <ion-icon name="globe-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_sitio_web" maxlength="120" placeholder="Ej. rooster.cr" />
+            </div>
+          </div>
+          <div class="cfg-field cfg-field--wide">
+            <p class="cfg-field__label">Enlace de Google Maps</p>
+            <div class="cfg-input">
+              <ion-icon name="navigate-outline"></ion-icon>
+              <input [(ngModel)]="ajustes.negocio_maps_url" maxlength="500" placeholder="Pegá acá el enlace de tu ubicación" />
+            </div>
+            <p class="cfg-field__hint">
+              Es el que abre el botón <strong>"Abrir en Google Maps"</strong>. Si lo dejás vacío,
+              se busca por nombre y dirección.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notificaciones: un interruptor por cada evento del sistema -->
+      <div class="cfg-card cfg-card--full">
+        <p class="cfg-card__title">Notificaciones</p>
+        <p class="cfg-card__hint">Elegí de qué te querés enterar. Los avisos aparecen en la campana y en el módulo de Notificaciones.</p>
+        <div class="cfg-card__grid">
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Nuevos pedidos</p>
+              <p class="cfg-toggle-row__sub">Cuando un cliente hace un pedido</p>
             </div>
             <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_nuevos_pedidos"
-              (click)="toggleNotif('notif_nuevos_pedidos')">
+              (click)="toggle('notif_nuevos_pedidos')">
               <span class="cfg-toggle__knob"></span>
             </span>
           </div>
-          <div class="cfg-notif">
+          <div class="cfg-toggle-row">
             <div>
-              <p class="cfg-notif__label">Reseñas nuevas</p>
-              <p class="cfg-notif__sub">Recibir alerta cuando hay reseñas</p>
+              <p class="cfg-toggle-row__label">Reseñas nuevas</p>
+              <p class="cfg-toggle-row__sub">Cuando un cliente califica su pedido</p>
             </div>
             <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_resenas_nuevas"
-              (click)="toggleNotif('notif_resenas_nuevas')">
+              (click)="toggle('notif_resenas_nuevas')">
               <span class="cfg-toggle__knob"></span>
             </span>
           </div>
-          <div class="cfg-notif">
+          <div class="cfg-toggle-row">
             <div>
-              <p class="cfg-notif__label">Stock bajo</p>
-              <p class="cfg-notif__sub">Alertar cuando un producto se agota</p>
+              <p class="cfg-toggle-row__label">Stock bajo</p>
+              <p class="cfg-toggle-row__sub">Cuando un insumo llega a su mínimo</p>
             </div>
             <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_stock_bajo"
-              (click)="toggleNotif('notif_stock_bajo')">
+              (click)="toggle('notif_stock_bajo')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Producto nuevo</p>
+              <p class="cfg-toggle-row__sub">Cuando se agrega un producto al menú</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_producto_nuevo"
+              (click)="toggle('notif_producto_nuevo')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Cliente nuevo</p>
+              <p class="cfg-toggle-row__sub">Cuando alguien se registra en la app</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_cliente_nuevo"
+              (click)="toggle('notif_cliente_nuevo')">
+              <span class="cfg-toggle__knob"></span>
+            </span>
+          </div>
+          <div class="cfg-toggle-row">
+            <div>
+              <p class="cfg-toggle-row__label">Usuario nuevo</p>
+              <p class="cfg-toggle-row__sub">Cuando se crea un administrador o usuario</p>
+            </div>
+            <span class="cfg-toggle" [class.cfg-toggle--on]="ajustes.notif_usuario_nuevo"
+              (click)="toggle('notif_usuario_nuevo')">
               <span class="cfg-toggle__knob"></span>
             </span>
           </div>

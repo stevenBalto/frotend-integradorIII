@@ -1,25 +1,6 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <admin-page-header [actionsOnly]="true">
-      <button
-        type="button"
-        header-right
-        class="notif-mark"
-        [disabled]="noLeidas === 0 || marcandoTodas"
-        (click)="marcarTodas()">
-        Marcar todas como leídas
-      </button>
-      <button
-        type="button"
-        header-right
-        class="notif-clear"
-        [disabled]="notifs.length === 0 || borrandoTodas"
-        (click)="borrarTodas()">
-        <ion-icon name="trash-outline"></ion-icon> Borrar todas
-      </button>
-    </admin-page-header>
-
     <!-- Cargando -->
     <div class="notif-empty" *ngIf="cargando">
       <ion-spinner name="crescent"></ion-spinner>
@@ -31,22 +12,51 @@
       <p>No hay notificaciones todavía.</p>
     </div>
 
-    <!-- Barra: contador + filtros (estado y periodo) -->
+    <!-- Barra única: filtros a la izquierda, acciones a la derecha -->
     <div class="notif-bar" *ngIf="!cargando && notifs.length > 0">
-      <p class="notif-bar__count">
-        <strong>{{ notifsFiltradas.length }}</strong>
-        notificaci{{ notifsFiltradas.length === 1 ? 'ón' : 'ones' }}
-        <span class="notif-bar__unread" *ngIf="noLeidas > 0">· {{ noLeidas }} sin leer</span>
-      </p>
-      <div class="notif-bar__chips">
-        <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'todas'" (click)="filtroEstado = 'todas'">Todas</button>
-        <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'no_leidas'" (click)="filtroEstado = 'no_leidas'">No leídas</button>
-        <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'leidas'" (click)="filtroEstado = 'leidas'">Leídas</button>
+      <div class="notif-bar__filtros">
+        <p class="notif-bar__count">
+          <strong>{{ notifsFiltradas.length }}</strong>
+          notificaci{{ notifsFiltradas.length === 1 ? 'ón' : 'ones' }}
+          <span class="notif-bar__unread" *ngIf="noLeidas > 0">· {{ noLeidas }} sin leer</span>
+        </p>
         <span class="notif-bar__sep"></span>
-        <button type="button" class="notif-chip" *ngFor="let p of periodos"
-          [class.notif-chip--on]="filtroPeriodo === p.v" (click)="filtroPeriodo = p.v">{{ p.l }}</button>
+        <div class="notif-bar__grupo">
+          <span class="notif-bar__label">Estado</span>
+          <div class="notif-bar__chips">
+            <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'todas'" (click)="filtroEstado = 'todas'">Todas</button>
+            <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'no_leidas'" (click)="filtroEstado = 'no_leidas'">No leídas</button>
+            <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'leidas'" (click)="filtroEstado = 'leidas'">Leídas</button>
+          </div>
+        </div>
+        <div class="notif-bar__grupo">
+          <span class="notif-bar__label">Fecha</span>
+          <div class="notif-bar__chips">
+            <button type="button" class="notif-chip" *ngFor="let p of periodos"
+              [class.notif-chip--on]="filtroPeriodo === p.v"
+              (click)="filtroPeriodo = filtroPeriodo === p.v ? 'todas' : p.v">{{ p.l }}</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="notif-bar__acciones">
+        <button
+          type="button"
+          class="notif-mark"
+          [disabled]="noLeidas === 0 || marcandoTodas"
+          (click)="marcarTodas()">
+          Marcar todas como leídas
+        </button>
+        <button
+          type="button"
+          class="notif-clear"
+          [disabled]="notifs.length === 0 || borrandoTodas"
+          (click)="borrarTodas()">
+          <ion-icon name="trash-outline"></ion-icon> Borrar todas
+        </button>
       </div>
     </div>
+
 
     <!-- Lista real (alto fijo con scroll interno) -->
     <div class="notif-list" *ngIf="!cargando && notifs.length > 0">

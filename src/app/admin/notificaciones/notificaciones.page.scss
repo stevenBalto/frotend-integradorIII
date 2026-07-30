@@ -9,19 +9,39 @@
 }
 
 /* #17 Barra de contador + filtros (estado y periodo). */
+/* Barra superior: filtros a la izquierda, acciones (marcar/borrar) a la derecha,
+   todo en la misma altura. */
 .notif-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
-.notif-bar__count { font-size: 13px; color: var(--admin-text); margin: 0; }
+.notif-bar__acciones { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.notif-bar__count {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin: 0;
+  white-space: nowrap;
+}
 .notif-bar__count strong { color: var(--rooster-red); }
 .notif-bar__unread { color: var(--admin-text-muted); font-weight: 600; }
 .notif-bar__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .notif-bar__sep { width: 1px; height: 18px; background: var(--admin-border); margin: 0 2px; }
+
+/* Filtros agrupados: "Estado" y "Fecha" con su etiqueta, para que se lea
+   claro que son dos criterios distintos. */
+.notif-bar__filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.notif-bar__grupo { display: flex; align-items: center; gap: 8px; }
+.notif-bar__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-text-muted);
+}
 .notif-chip {
   border: 1px solid rgba(168, 137, 94, 0.3);
   background: #fff;

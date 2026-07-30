@@ -3,11 +3,84 @@
   grid-template-columns: 1fr;
   gap: 20px;
 }
+/* Escritorio: 2 columnas emparejadas de a dos. Las tarjetas se estiran a la
+   altura de su fila (stretch), asi no quedan huecos irregulares entre ellas.
+   Orden pensado para que cada fila tenga tarjetas de tamaño parecido:
+   fila 1 = Operación | Horario, fila 2 = Roosters | Reseñas. */
 @media (min-width: 1024px) {
   .cfg-grid { grid-template-columns: repeat(2, 1fr); }
-  /* La tarjeta alta (Info general) ocupa las dos filas de la izquierda y se
-     estira (stretch por defecto) para igualar la altura de Horario+Notificaciones. */
-  .cfg-card--tall { grid-column: 1; grid-row: 1 / span 2; }
+  /* Info del negocio y Notificaciones van a lo ancho, debajo. */
+  .cfg-card--full { grid-column: 1 / -1; }
+}
+
+/* Banner de estado: refleja si el negocio acepta pedidos ahora mismo. */
+.cfg-estado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+}
+.cfg-estado__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #16a34a;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+}
+.cfg-estado__texto { display: flex; flex-direction: column; }
+.cfg-estado__texto strong { font-size: 13px; color: #15803d; }
+.cfg-estado__texto span { font-size: 11px; color: var(--rooster-brown); }
+.cfg-estado--cerrado {
+  background: rgba(220, 38, 38, 0.07);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+.cfg-estado--cerrado .cfg-estado__dot {
+  background: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
+}
+.cfg-estado--cerrado .cfg-estado__texto strong { color: #b91c1c; }
+
+/* Fila con etiqueta + interruptor (operación, horario, roosters, notificaciones). */
+.cfg-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cfg-toggle-row__label { font-size: 12px; font-weight: 600; color: #1e1e1e; margin: 0; }
+.cfg-toggle-row__sub { font-size: 10px; color: var(--rooster-brown); margin: 2px 0 0; }
+
+/* Grid interno para la tarjeta ancha de datos del negocio. */
+.cfg-card__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .cfg-card__grid { grid-template-columns: repeat(2, 1fr); }
+  /* Campo que ocupa toda la fila (ej. el enlace de Maps, que lleva su nota). */
+  .cfg-field--wide { grid-column: 1 / -1; }
+}
+
+.cfg-field__hint {
+  font-size: 10px;
+  color: var(--rooster-brown);
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+.cfg-field__hint strong { color: var(--rooster-red); }
+
+/* Bajada explicativa de una tarjeta (debajo del título). */
+.cfg-card__hint {
+  font-size: 11px;
+  color: var(--rooster-brown);
+  margin: -10px 0 16px;
+  line-height: 1.5;
 }
 
 .cfg-card {

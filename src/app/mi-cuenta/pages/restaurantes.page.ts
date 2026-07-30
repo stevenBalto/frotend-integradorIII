@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { SucursalService } from '../../core/services/sucursal.service';
-import { Sucursal } from '../../core/models/sucursal.model';
+import { ConfiguracionService, Restaurante } from '../../core/services/configuracion.service';
 
-/** Lista de restaurantes (sucursales) con ubicacion y contacto. */
+/**
+ * Lista de restaurantes con ubicacion y contacto.
+ *
+ * La lista es DINAMICA: sale de la "Informacion del negocio" que cada sucursal
+ * (instancia) carga en su Configuracion. Al crear una instancia nueva y llenar
+ * sus datos, aparece sola — no hay restaurantes escritos en el codigo.
+ */
 @Component({
   selector: 'app-restaurantes',
   standalone: false,
@@ -56,22 +61,26 @@ import { Sucursal } from '../../core/models/sucursal.model';
         <p class="sub-status" *ngIf="cargando">Cargando restaurantes...</p>
         <p class="sub-status" *ngIf="error">{{ error }}</p>
 
-        <div class="sub-card rest-card" *ngFor="let s of sucursales">
-          <p class="rest-name">{{ s.nombre }}</p>
+        <div class="sub-card rest-card" *ngFor="let r of restaurantes">
+          <p class="rest-name">{{ r.nombre }}</p>
           <div class="rest-row">
             <ion-icon name="location-outline"></ion-icon>
-            <span>{{ s.direccion || 'Dirección no disponible' }}</span>
+            <span>{{ r.direccion || 'Dirección no disponible' }}</span>
           </div>
-          <div class="rest-row" *ngIf="s.telefono">
+          <div class="rest-row" *ngIf="r.telefono">
             <ion-icon name="call-outline"></ion-icon>
-            <span>{{ s.telefono }}</span>
+            <span>{{ r.telefono }}</span>
           </div>
-          <button class="rest-map" (click)="abrirMapa(s)">
+          <div class="rest-row" *ngIf="r.sitio_web">
+            <ion-icon name="globe-outline"></ion-icon>
+            <span>{{ r.sitio_web }}</span>
+          </div>
+          <button class="rest-map" (click)="abrirMapa(r)">
             <ion-icon name="navigate-outline"></ion-icon> Abrir en Google Maps
           </button>
         </div>
 
-        <p class="sub-empty" *ngIf="!cargando && !error && sucursales.length === 0">
+        <p class="sub-empty" *ngIf="!cargando && !error && restaurantes.length === 0">
           No hay restaurantes para mostrar.
         </p>
       </div>
@@ -79,17 +88,17 @@ import { Sucursal } from '../../core/models/sucursal.model';
   `,
 })
 export class RestaurantesPage implements OnInit {
-  sucursales: Sucursal[] = [];
+  restaurantes: Restaurante[] = [];
   cargando = false;
   error: string | null = null;
 
-  constructor(private sucursalService: SucursalService) {}
+  constructor(private configuracionService: ConfiguracionService) {}
 
   ngOnInit(): void {
     this.cargando = true;
-    this.sucursalService.listarActivas().subscribe({
-      next: (s) => {
-        this.sucursales = s.filter((x) => x.activa);
+    this.configuracionService.listarRestaurantes().subscribe({
+      next: (lista) => {
+        this.restaurantes = lista;
         this.cargando = false;
       },
       error: () => {
@@ -99,11 +108,14 @@ export class RestaurantesPage implements OnInit {
     });
   }
 
-  abrirMapa(s: Sucursal): void {
-    const query =
-      s.latitud != null && s.longitud != null
-        ? `${s.latitud},${s.longitud}`
-        : encodeURIComponent(`${s.nombre} ${s.direccion ?? ''}`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  /**
+   * Abre la ubicación: usa la URL de Google Maps que cargó la sucursal. Si no
+   * la configuró, cae a una búsqueda por nombre + dirección.
+   */
+  abrirMapa(r: Restaurante): void {
+    const url = r.maps_url?.trim()
+      ? r.maps_url.trim()
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.nombre} ${r.direccion ?? ''}`)}`;
+    window.open(url, '_blank');
   }
 }
