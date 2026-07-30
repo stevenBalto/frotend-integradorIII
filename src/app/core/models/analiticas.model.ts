@@ -1,4 +1,7 @@
-/** Respuesta del endpoint GET /admin/analiticas?mes=YYYY-MM */
+/** Granularidad del filtro de analíticas. */
+export type Granularidad = 'mes' | 'semana' | 'dia';
+
+/** Respuesta del endpoint GET /admin/analiticas?granularidad=mes|semana|dia&mes=YYYY-MM&fecha=YYYY-MM-DD */
 export interface AnaliticasResponse {
   ventas_mes: number;
   pedidos_mes: number;
@@ -7,7 +10,7 @@ export interface AnaliticasResponse {
   horas_pico: HoraPico[];
   top_productos: TopProductoApi[];
   modalidad: ModalidadApi[];
-  comparacion_mes_anterior: ComparacionMesAnterior;
+  comparacion_periodo_anterior: ComparacionMesAnterior;
   ventas_por_categoria: VentaCategoria[];
   /** Metadatos de caché (30 min) para el contador de próxima actualización. */
   generado_en?: string | null;
@@ -15,7 +18,7 @@ export interface AnaliticasResponse {
   ttl_minutos?: number;
 }
 
-/** ventas_pct/pedidos_pct: null cuando el mes anterior no tuvo ventas/pedidos. ventas_mes_anterior/pedidos_mes_anterior son siempre numéricos (0 si no hubo datos). */
+/** ventas_pct/pedidos_pct: null cuando el periodo anterior no tuvo ventas/pedidos. ventas_mes_anterior/pedidos_mes_anterior son siempre numéricos (0 si no hubo datos). */
 export interface ComparacionMesAnterior {
   ventas_pct: number | null;
   pedidos_pct: number | null;

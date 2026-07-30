@@ -2,7 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AnaliticasResponse } from '../models/analiticas.model';
+import { AnaliticasResponse, Granularidad } from '../models/analiticas.model';
+
+/** Parametros de consulta para el endpoint de analiticas. */
+export interface AnaliticasParams {
+  granularidad: Granularidad;
+  /** YYYY-MM, solo cuando granularidad='mes'. */
+  mes?: string;
+  /** YYYY-MM-DD, fecha ancla cuando granularidad='semana' o 'dia'. */
+  fecha?: string;
+  sucursalId?: number;
+}
 
 /** Servicio para obtener reportes y analiticas del panel admin. */
 @Injectable({ providedIn: 'root' })
@@ -11,19 +21,33 @@ export class AnaliticasService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * GET /admin/analiticas?mes=YYYY-MM
-   * Si no se pasa mes, usa el mes actual.
-   */
-  obtenerAnaliticas(mes?: string): Observable<AnaliticasResponse> {
-    const mesParam = mes ?? this.getMesActual();
-    return this.http.get<AnaliticasResponse>(`${this.base}/admin/analiticas?mes=${mesParam}`);
+  /** GET /admin/analiticas?granularidad=mes|semana|dia&mes=YYYY-MM&fecha=YYYY-MM-DD&sucursal_id=N */
+  obtenerAnaliticas(params: AnaliticasParams): Observable<AnaliticasResponse> {
+    return this.http.get<AnaliticasResponse>(`${this.base}/admin/analiticas?${this.query(params)}`);
   }
 
-  private getMesActual(): string {
-    const hoy = new Date();
-    const year = hoy.getFullYear();
-    const month = String(hoy.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
+  /** GET /admin/analiticas/exportar/excel — descarga el resumen del periodo actual en .xlsx. */
+  exportarExcel(params: AnaliticasParams): Observable<Blob> {
+    return this.http.get(`${this.base}/admin/analiticas/exportar/excel?${this.query(params)}`, { responseType: 'blob' });
+  }
+
+  /** GET /admin/analiticas/exportar/pdf — descarga el resumen del periodo actual en .pdf. */
+  exportarPdf(params: AnaliticasParams): Observable<Blob> {
+    return this.http.get(`${this.base}/admin/analiticas/exportar/pdf?${this.query(params)}`, { responseType: 'blob' });
+  }
+
+  private query(params: AnaliticasParams): string {
+    const query = new URLSearchParams();
+    query.set('granularidad', params.granularidad);
+    if (params.mes) {
+      query.set('mes', params.mes);
+    }
+    if (params.fecha) {
+      query.set('fecha', params.fecha);
+    }
+    if (params.sucursalId) {
+      query.set('sucursal_id', String(params.sucursalId));
+    }
+    return query.toString();
   }
 }

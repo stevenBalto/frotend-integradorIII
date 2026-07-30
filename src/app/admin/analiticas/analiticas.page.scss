@@ -1,3 +1,6 @@
+/* Botones del header global: exportar (Excel/PDF) + caché. */
+.an-header-actions { display: flex; align-items: center; gap: 8px; }
+
 /* Botón de caché (junto a la campana): reloj + contador. Abre el modal. */
 .an-cache-btn {
   display: inline-flex;
@@ -15,9 +18,11 @@
   transition: border-color 0.15s, transform 0.1s;
 
   ion-icon { font-size: 15px; color: var(--rooster-red); }
+  ion-spinner { width: 15px; height: 15px; color: var(--rooster-red); }
 }
 .an-cache-btn:hover { border-color: rgba(225, 54, 66, 0.4); }
 .an-cache-btn:active { transform: scale(0.96); }
+.an-cache-btn:disabled { opacity: 0.6; cursor: default; }
 .an-cache-btn__time { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* Modal de caché + contador de próxima actualización */
@@ -103,6 +108,104 @@
 }
 .an-modal__cta:active { transform: scale(0.97); }
 
+/* ── Filtro de periodo (Mes/Semana/Día + navegación) ─────────────────────────── */
+.an-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (min-width: 640px) {
+  .an-filtro { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+.an-filtro__tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  width: fit-content;
+}
+.an-filtro__tab {
+  border: none;
+  background: transparent;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--rooster-font-sans);
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.an-filtro__tab.is-active {
+  background: var(--rooster-red);
+  color: #fff;
+}
+.an-filtro__nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.an-filtro__nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card, #fff);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+
+  ion-icon { font-size: 16px; }
+}
+.an-filtro__nav-btn:hover { border-color: rgba(225, 54, 66, 0.4); }
+.an-filtro__nav-btn:active { transform: scale(0.94); }
+.an-filtro__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--admin-text);
+  min-width: 160px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.an-filtro__label:hover { background: var(--admin-panel); }
+
+.an-modal__panel--picker {
+  max-width: 320px;
+  width: calc(100% - 32px);
+  padding: 40px 16px 20px;
+}
+.an-picker__datetime {
+  display: block;
+  width: auto;
+  margin: 0 -16px;
+  --background: var(--admin-card, #fff);
+  --border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+.an-picker__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+
+  admin-btn { flex: 1; display: flex; }
+  ::ng-deep admin-btn .admin-btn { width: 100%; justify-content: center; }
+}
+
+
 .an-charts-5 {
   display: grid;
   grid-template-columns: 1fr;
@@ -156,25 +259,57 @@
 .an-modality {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  flex: 1;
   gap: 20px;
 }
-@media (min-width: 640px) {
-  .an-modality { flex-direction: row; }
+.an-modality__chart {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
 }
-.an-modality__legend { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-.an-legend {
+.an-modality__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  flex: 1;
+  align-content: center;
+}
+.an-modality__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 16px 10px;
+  border-radius: 12px;
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+}
+.an-modality__card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 12px;
-  padding: 10px;
+  justify-content: center;
+  margin-bottom: 4px;
+
+  ion-icon { font-size: 16px; color: #fff; }
 }
-.an-legend__dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.an-legend__info { flex: 1; min-width: 0; }
-.an-legend__label { font-size: 11px; color: var(--admin-text); font-weight: 600; }
-.an-legend__value { font-size: 9px; color: var(--admin-text-muted); margin: 0; }
-.an-legend__pct { font-size: 13px; font-weight: 800; }
+.an-modality__card-label { font-size: 11px; font-weight: 700; color: var(--admin-text); }
+.an-modality__card-val { font-size: 22px; font-weight: 800; }
+.an-modality__card-sub { font-size: 10px; color: var(--admin-text-muted); }
+.an-modality__callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(225, 54, 66, 0.06);
+
+  ion-icon { font-size: 18px; color: var(--rooster-red); flex-shrink: 0; margin-top: 1px; }
+  p { margin: 0; font-size: 11px; color: var(--admin-text); line-height: 1.5; }
+}
 
 /* -- Ventas por categoria -------------------------------------------------- */
 .an-categoria { display: flex; flex-direction: column; gap: 14px; }

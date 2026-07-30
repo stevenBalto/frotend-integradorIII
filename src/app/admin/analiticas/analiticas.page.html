@@ -1,13 +1,24 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- Botón de caché en el header global (junto a la campana). Abre el modal con el contador. -->
+    <!-- Botones del header global (junto a la campana): exportar y caché. -->
     <ng-template adminHeaderActions>
-      <button type="button" class="an-cache-btn" (click)="cacheModalOpen = true"
-        title="Actualización de datos">
-        <ion-icon name="time-outline"></ion-icon>
-        <span class="an-cache-btn__time hide-on-mobile">{{ restanteTexto }}</span>
-      </button>
+      <div class="an-header-actions">
+        <button type="button" class="an-cache-btn" [disabled]="exportando === 'excel'" (click)="exportarExcel()" title="Exportar a Excel">
+          <ion-spinner *ngIf="exportando === 'excel'" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="exportando !== 'excel'" name="document-text-outline"></ion-icon>
+          <span class="hide-on-mobile">Excel</span>
+        </button>
+        <button type="button" class="an-cache-btn" [disabled]="exportando === 'pdf'" (click)="exportarPdf()" title="Exportar a PDF">
+          <ion-spinner *ngIf="exportando === 'pdf'" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="exportando !== 'pdf'" name="document-outline"></ion-icon>
+          <span class="hide-on-mobile">PDF</span>
+        </button>
+        <button type="button" class="an-cache-btn" (click)="cacheModalOpen = true" title="Actualización de datos">
+          <ion-icon name="time-outline"></ion-icon>
+          <span class="an-cache-btn__time hide-on-mobile">{{ restanteTexto }}</span>
+        </button>
+      </div>
     </ng-template>
 
     <!-- Error -->
@@ -24,11 +35,29 @@
 
     <!-- Contenido principal -->
     <ng-container *ngIf="!cargando && !error">
+      <!-- Filtro de periodo -->
+      <div class="an-filtro">
+        <div class="an-filtro__tabs">
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+        </div>
+        <div class="an-filtro__nav">
+          <button type="button" class="an-filtro__nav-btn" (click)="periodoAnterior()" aria-label="Periodo anterior">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button type="button" class="an-filtro__label" (click)="abrirPicker()" title="Elegir fecha">{{ etiquetaPeriodo() }}</button>
+          <button type="button" class="an-filtro__nav-btn" (click)="periodoSiguiente()" aria-label="Periodo siguiente">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
       <!-- KPIs -->
       <div class="admin-grid-4">
-        <admin-kpi-card label="Ventas del mes" [value]="formatMonto(ventasMes)" [sub]="compVentas.texto" [subColor]="compVentas.color" [accent]="true"></admin-kpi-card>
-        <admin-kpi-card label="Pedidos del mes" [value]="pedidosMes" [sub]="compPedidos.texto" [subColor]="compPedidos.color"></admin-kpi-card>
-        <admin-kpi-card label="Ticket promedio" [value]="formatMonto(ticketPromedio)" sub="vs mes anterior"></admin-kpi-card>
+        <admin-kpi-card [label]="'Ventas ' + etiquetaKpi()" [value]="formatMonto(ventasMes)" [sub]="compVentas.texto" [subColor]="compVentas.color" [accent]="true"></admin-kpi-card>
+        <admin-kpi-card [label]="'Pedidos ' + etiquetaKpi()" [value]="pedidosMes" [sub]="compPedidos.texto" [subColor]="compPedidos.color"></admin-kpi-card>
+        <admin-kpi-card label="Ticket promedio" [value]="formatMonto(ticketPromedio)" [sub]="'vs ' + etiquetaAnteriorCorta()"></admin-kpi-card>
         <admin-kpi-card label="Calificación promedio" value="4.6" sub="312 reseñas" subColor="#6B7280"></admin-kpi-card>
       </div>
 
@@ -42,6 +71,7 @@
         <div class="an-charts-5__side">
           <admin-section-card title="Horas pico">
             <sales-bar-chart [data]="peakHours" [height]="150" suffix=" pedidos"></sales-bar-chart>
+            <p *ngIf="peakHours.length === 0" class="an-empty">Sin datos de horas pico.</p>
           </admin-section-card>
         </div>
       </div>
@@ -80,17 +110,25 @@
 
         <admin-section-card title="Modalidad de pedido" [fill]="true">
           <div class="an-modality">
-            <modality-donut-chart [data]="modalityData"></modality-donut-chart>
-            <div class="an-modality__legend">
-              <div class="an-legend" *ngFor="let l of legend" [style.background]="l.bg">
-                <span class="an-legend__dot" [style.background]="l.c"></span>
-                <div class="an-legend__info">
-                  <span class="an-legend__label">{{ l.label }}</span>
-                  <p class="an-legend__value">{{ l.value }} pedidos</p>
-                </div>
-                <span class="an-legend__pct" [style.color]="l.c">{{ l.pct }}</span>
+            <div class="an-modality__chart">
+              <modality-donut-chart [data]="modalityData" [size]="176"></modality-donut-chart>
+            </div>
+
+            <div class="an-modality__grid">
+              <div class="an-modality__card" *ngFor="let l of legend">
+                <span class="an-modality__card-icon" [style.background]="l.c">
+                  <ion-icon [name]="iconoModalidad(l.label)"></ion-icon>
+                </span>
+                <span class="an-modality__card-label">{{ l.label }}</span>
+                <span class="an-modality__card-val" [style.color]="l.c">{{ l.pct }}</span>
+                <span class="an-modality__card-sub">{{ l.value }} pedidos</span>
               </div>
               <p *ngIf="legend.length === 0" class="an-empty">Sin datos de modalidad.</p>
+            </div>
+
+            <div class="an-modality__callout" *ngIf="modalidadInsight">
+              <ion-icon name="bulb-outline"></ion-icon>
+              <p>{{ modalidadInsight }}</p>
             </div>
           </div>
         </admin-section-card>
@@ -127,6 +165,31 @@
         <span class="an-modal__count-val">{{ restanteTexto }}</span>
       </div>
       <button type="button" class="an-modal__cta" (click)="cacheModalOpen = false">Entendido</button>
+    </div>
+  </div>
+
+  <!-- Modal: selector de calendario para saltar directo a un mes/semana/dia -->
+  <div class="an-modal" *ngIf="pickerOpen">
+    <div class="an-modal__backdrop" (click)="cerrarPicker()"></div>
+    <div class="an-modal__panel an-modal__panel--picker">
+      <button type="button" class="an-modal__close" (click)="cerrarPicker()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <p class="an-modal__title">{{ granularidad === 'mes' ? 'Elegir mes' : 'Elegir fecha' }}</p>
+      <ion-datetime
+        class="an-picker__datetime"
+        size="cover"
+        [presentation]="pickerPresentation()"
+        [value]="pickerValue"
+        [max]="pickerMax()"
+        [preferWheel]="true"
+        locale="es-CR"
+        (ionChange)="onFechaPicker($event)">
+      </ion-datetime>
+      <div class="an-picker__actions">
+        <admin-btn [outline]="true" (clicked)="cerrarPicker()">Cancelar</admin-btn>
+        <admin-btn (clicked)="confirmarPicker()">Aplicar</admin-btn>
+      </div>
     </div>
   </div>
 </ion-content>

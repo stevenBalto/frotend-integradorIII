@@ -39,7 +39,7 @@ const COLOR_NEUTRAL = '#374151';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="mdc-wrap">
+    <div class="mdc-wrap" [style.width.px]="size" [style.height.px]="size">
       <canvas #canvas role="img" [attr.aria-label]="ariaLabel"></canvas>
       <div class="mdc-center" *ngIf="centerLabel">
         <span class="mdc-pct">{{ centerPct }}%</span>
@@ -76,6 +76,8 @@ const COLOR_NEUTRAL = '#374151';
 })
 export class ModalityDonutChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() data: ModalityDatum[] = [];
+  /** Diametro del donut en px (por defecto 140). */
+  @Input() size = 140;
 
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
