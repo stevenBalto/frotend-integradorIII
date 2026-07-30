@@ -1,10 +1,8 @@
-<ion-modal
-  [isOpen]="isOpen"
-  [initialBreakpoint]="1"
-  [breakpoints]="[0, 1]"
-  handle="true"
-  (ionModalDidDismiss)="ahoraNo()">
-  <ng-template>
+<!-- Overlay propio (no ion-modal): al cerrar, isOpen=false desmonta TODO el nodo,
+     asi que es imposible que quede un backdrop "pegado" bloqueando la app (bug que
+     tenia el ion-modal [isOpen] al navegar entre secciones). -->
+<div class="rp-modal" *ngIf="isOpen">
+  <div class="rp-modal__backdrop" (click)="ahoraNo()"></div>
     <div class="rp" *ngIf="actual as p">
 
       <div class="rp__head">
@@ -63,5 +61,4 @@
       </div>
 
     </div>
-  </ng-template>
-</ion-modal>
+</div>

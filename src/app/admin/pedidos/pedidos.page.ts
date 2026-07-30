@@ -34,9 +34,17 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   filtroEstado: FiltroEstado = 'todos';
   busqueda = '';
 
+  // Filtro por fecha (a la par de "Pedidos recientes"): todos / hoy / semana / una fecha puntual.
+  filtroFecha: 'todos' | 'hoy' | 'semana' | 'fecha' = 'todos';
+  fechaEspecifica = '';
+
   // Modal detalle
   modalOpen = false;
   pedidoSeleccionado: PedidoAdmin | null = null;
+
+  // Modal "pantalla completa": lista todos los pedidos del filtro actual en grande
+  // (util cuando entran muchos pendientes y hay que verlos de un vistazo).
+  pantallaCompletaOpen = false;
   cambiandoEstado = false;
   registrandoPago = false;
   accionError: string | null = null;
@@ -90,6 +98,62 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     this.filtroEstado = this.filtroEstado === filtro ? 'todos' : filtro;
   }
 
+  /** Etiqueta legible del filtro de estado actual (para el titulo de la pantalla completa). */
+  get filtroEstadoLabel(): string {
+    return this.filtroEstado === 'todos' ? 'Todos los pedidos' : this.getEstadoLabel(this.filtroEstado);
+  }
+
+  // ── Pantalla completa (todos los pedidos del filtro) ──
+
+  abrirPantallaCompleta(): void {
+    this.pantallaCompletaOpen = true;
+  }
+
+  cerrarPantallaCompleta(): void {
+    this.pantallaCompletaOpen = false;
+  }
+
+  // ── Filtro por fecha ──
+
+  setFiltroFecha(f: 'todos' | 'hoy' | 'semana' | 'fecha'): void {
+    this.filtroFecha = f;
+    if (f !== 'fecha') {
+      this.fechaEspecifica = '';
+    }
+  }
+
+  /** Al elegir una fecha en el calendario, activa el filtro "fecha". */
+  onFechaEspecifica(): void {
+    this.filtroFecha = this.fechaEspecifica ? 'fecha' : 'todos';
+  }
+
+  private mismaFecha(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  private enFiltroFecha(p: PedidoAdmin): boolean {
+    if (this.filtroFecha === 'todos') {
+      return true;
+    }
+    const d = new Date(p.created_at);
+    const hoy = new Date();
+    if (this.filtroFecha === 'hoy') {
+      return this.mismaFecha(d, hoy);
+    }
+    if (this.filtroFecha === 'semana') {
+      const inicio = new Date(hoy);
+      inicio.setDate(hoy.getDate() - 6);
+      inicio.setHours(0, 0, 0, 0);
+      return d >= inicio;
+    }
+    // 'fecha': un dia puntual elegido en el calendario.
+    if (!this.fechaEspecifica) {
+      return true;
+    }
+    const sel = new Date(this.fechaEspecifica + 'T00:00:00');
+    return this.mismaFecha(d, sel);
+  }
+
   // ── Lista filtrada ──
 
   get pedidosFiltrados(): PedidoAdmin[] {
@@ -98,6 +162,11 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     // Filtrar por estado
     if (this.filtroEstado !== 'todos') {
       resultado = resultado.filter((p) => p.estado === this.filtroEstado);
+    }
+
+    // Filtrar por fecha (todos / hoy / semana / fecha puntual)
+    if (this.filtroFecha !== 'todos') {
+      resultado = resultado.filter((p) => this.enFiltroFecha(p));
     }
 
     // Filtrar por busqueda (codigo o nombre de cliente)

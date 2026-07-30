@@ -19,8 +19,29 @@
 
     <!-- Tabla -->
     <admin-section-card title="Pedidos recientes">
-      <admin-search-input card-action placeholder="Buscar pedido o cliente..."
-        [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
+      <div card-action class="ped-toolbar">
+        <div class="ped-datefilter">
+          <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'todos'"
+            (click)="setFiltroFecha('todos')">Todos</button>
+          <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'hoy'"
+            (click)="setFiltroFecha('hoy')">Hoy</button>
+          <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'semana'"
+            (click)="setFiltroFecha('semana')">Semana</button>
+          <label class="ped-datechip ped-datechip--date" [class.ped-datechip--active]="filtroFecha === 'fecha'"
+            title="Filtrar por una fecha">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+          </label>
+        </div>
+        <div class="ped-toolbar__searchrow">
+          <admin-search-input class="ped-toolbar__search" placeholder="Buscar pedido o cliente..."
+            [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
+          <button type="button" class="ped-expand-btn" (click)="abrirPantallaCompleta()"
+            aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
+            <ion-icon name="scan-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
 
       <p *ngIf="error" class="ped-error">{{ error }}</p>
       <p *ngIf="cargando" class="ped-loading">Cargando pedidos...</p>
@@ -204,5 +225,73 @@
         </button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ── Pantalla completa: todos los pedidos del filtro actual ──────────────── -->
+<div class="ped-fs" *ngIf="pantallaCompletaOpen">
+  <div class="ped-fs__head">
+    <div class="ped-fs__head-left">
+      <h2 class="ped-fs__title">{{ filtroEstadoLabel }}</h2>
+      <span class="ped-fs__count">{{ pedidosFiltrados.length }} pedido{{ pedidosFiltrados.length === 1 ? '' : 's' }}</span>
+    </div>
+    <button type="button" class="ped-fs__close" (click)="cerrarPantallaCompleta()" aria-label="Cerrar">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Chips de filtro por estado (mismos que los KPIs) -->
+  <div class="ped-fs__filters">
+    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'todos'"
+      (click)="setFiltroEstado('todos')">Todos <span>{{ totalPedidos }}</span></button>
+    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'pendiente'"
+      (click)="setFiltroEstado('pendiente')">Pendientes <span>{{ totalPendientes }}</span></button>
+    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'en_proceso'"
+      (click)="setFiltroEstado('en_proceso')">En preparación <span>{{ totalEnProceso }}</span></button>
+    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'listo'"
+      (click)="setFiltroEstado('listo')">Listos <span>{{ totalListos }}</span></button>
+    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'entregado'"
+      (click)="setFiltroEstado('entregado')">Entregados <span>{{ totalEntregados }}</span></button>
+  </div>
+
+  <div class="ped-fs__body">
+    <div class="ped-fs__grid">
+      <button type="button" class="ped-fs-card" *ngFor="let p of pedidosFiltrados" (click)="abrirDetalle(p)">
+        <div class="ped-fs-card__top">
+          <span class="ped-fs-card__codigo">{{ p.codigo }}</span>
+          <status-badge [type]="estadoToStatusType(p.estado)"></status-badge>
+        </div>
+        <div class="ped-fs-card__cust">
+          <p class="ped-fs-card__cliente">{{ p.nombre_cliente || p.cliente.nombre }}</p>
+          <modality-pill [mode]="p.modalidad === 'comer_aqui' ? 'aqui' : 'llevar'"></modality-pill>
+        </div>
+
+        <!-- Productos pedidos (lo que el usuario pidio) -->
+        <div class="ped-fs-card__prods">
+          <div class="ped-fs-card__prod" *ngFor="let it of p.items">
+            <div class="ped-fs-card__prod-line">
+              <span class="ped-fs-card__prod-name">{{ it.cantidad }}x {{ it.producto_nombre }}<span *ngIf="it.tamano_nombre" class="ped-fs-card__prod-size"> ({{ it.tamano_nombre }})</span></span>
+              <span class="ped-fs-card__prod-price">{{ it.subtotal | crcCurrency }}</span>
+            </div>
+            <p class="ped-fs-card__prod-extras" *ngIf="it.extras && it.extras.length > 0">
+              <span *ngFor="let e of it.extras; let last = last">+ {{ e.nombre }}{{ last ? '' : ', ' }}</span>
+            </p>
+          </div>
+          <p class="ped-fs-card__note" *ngIf="p.notas">
+            <ion-icon name="chatbubble-outline"></ion-icon> "{{ p.notas }}"
+          </p>
+        </div>
+
+        <div class="ped-fs-card__bottom">
+          <span class="ped-fs-card__total">{{ p.total | crcCurrency }}</span>
+          <span class="ped-pago" [class.ped-pago--si]="p.pagado">{{ p.pagado ? 'Pagado' : 'Pendiente' }}</span>
+        </div>
+        <span class="ped-fs-card__fecha">{{ formatFecha(p.created_at) }}</span>
+      </button>
+    </div>
+
+    <p *ngIf="pedidosFiltrados.length === 0" class="ped-fs__empty">
+      No hay pedidos que coincidan con este filtro.
+    </p>
   </div>
 </div>

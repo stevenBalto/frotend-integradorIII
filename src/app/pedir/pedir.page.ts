@@ -13,7 +13,7 @@ import { ResenaService } from '../core/services/resena.service';
 import { ResenaPublica, ResumenProducto } from '../core/models/resena.model';
 import { Sucursal } from '../core/models/sucursal.model';
 import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
-import { Pedido, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
+import { Pedido, PedidoPublico, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
 import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 
@@ -28,8 +28,15 @@ type VistaCarrito = 'menu' | 'carrito' | 'checkout' | 'confirmacion';
 export class PedirPage implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  // Vista actual
-  vista: VistaCarrito = 'menu';
+  // Vista actual. Al cambiar, oculta/muestra el tab bar (inmersivo en carrito).
+  private _vista: VistaCarrito = 'menu';
+  get vista(): VistaCarrito {
+    return this._vista;
+  }
+  set vista(v: VistaCarrito) {
+    this._vista = v;
+    this.aplicarTabBar();
+  }
 
   // Sucursales
   sucursales: Sucursal[] = [];
@@ -71,12 +78,14 @@ export class PedirPage implements OnInit, OnDestroy {
   // Confirmacion
   pedidoConfirmado: Pedido | null = null;
 
-  // Buscar mi pedido (modal, endpoint autenticado)
+  // Buscar mi pedido (modal). Logueado -> endpoint autenticado (detalle completo);
+  // invitado -> endpoint publico por codigo (solo estado/sucursal/fecha).
   buscarModalAbierto = false;
   codigoBusqueda = '';
   buscandoPedido = false;
   buscarError: string | null = null;
   pedidoBuscado: Pedido | null = null;
+  pedidoBuscadoPublico: PedidoPublico | null = null;
 
   // Etiquetas compartidas para el template
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
@@ -113,6 +122,22 @@ export class PedirPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    document.body.classList.remove('tabbar-oculto');
+  }
+
+  /** Al entrar a la pestana, aplica el estado del tab bar segun la vista actual. */
+  ionViewWillEnter(): void {
+    this.aplicarTabBar();
+  }
+
+  /** Al salir de la pestana, SIEMPRE restaura el tab bar (las otras tabs lo necesitan). */
+  ionViewWillLeave(): void {
+    document.body.classList.remove('tabbar-oculto');
+  }
+
+  /** Tab bar oculto (inmersivo) en carrito/checkout/confirmacion; visible en el menu. */
+  private aplicarTabBar(): void {
+    document.body.classList.toggle('tabbar-oculto', this._vista !== 'menu');
   }
 
   // ── Sucursales ──
@@ -332,10 +357,8 @@ export class PedirPage implements OnInit, OnDestroy {
     if (this.carritoService.estaVacio) {
       return;
     }
-    if (!this.carritoService.datos.sucursalId) {
-      this.mostrarError('Selecciona una sucursal primero');
-      return;
-    }
+    // La sucursal ahora se elige aqui, en el checkout (no en el menu). El boton
+    // "Confirmar pedido" queda deshabilitado hasta que haya sucursal (puedeEnviarPedido).
     this.vista = 'checkout';
   }
 
@@ -444,6 +467,7 @@ export class PedirPage implements OnInit, OnDestroy {
     this.codigoBusqueda = '';
     this.buscarError = null;
     this.pedidoBuscado = null;
+    this.pedidoBuscadoPublico = null;
   }
 
   cerrarBuscarPedido(): void {
@@ -459,6 +483,25 @@ export class PedirPage implements OnInit, OnDestroy {
     this.buscandoPedido = true;
     this.buscarError = null;
     this.pedidoBuscado = null;
+    this.pedidoBuscadoPublico = null;
+
+    // Invitado (sin sesion) no puede usar el endpoint autenticado (401): usa la
+    // busqueda publica por codigo, que devuelve estado/sucursal/fecha del pedido.
+    if (this.esInvitado) {
+      this.pedidoService.buscarPorCodigo(codigo)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (pedido) => {
+            this.pedidoBuscadoPublico = pedido;
+            this.buscandoPedido = false;
+          },
+          error: (err) => {
+            this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código.';
+            this.buscandoPedido = false;
+          },
+        });
+      return;
+    }
 
     this.pedidoService.buscarPropioPorCodigo(codigo)
       .pipe(takeUntil(this.destroy$))
@@ -515,15 +558,5 @@ export class PedirPage implements OnInit, OnDestroy {
     } catch {
       // Clipboard API no disponible en este contexto (ej. http sin TLS); no interrumpe el flujo.
     }
-  }
-
-  private async mostrarError(mensaje: string): Promise<void> {
-    const t = await this.toast.create({
-      message: mensaje,
-      duration: 3000,
-      position: 'bottom',
-      color: 'danger',
-    });
-    await t.present();
   }
 }

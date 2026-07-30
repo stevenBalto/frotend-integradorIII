@@ -1,57 +1,39 @@
-<ion-content [fullscreen]="true" class="pedir-content">
+<ion-content [fullscreen]="true" class="pedir-content" [class.pedir-content--dark]="vista !== 'menu'">
+
+  <!-- Fondo oscuro con roosters en mosaico diagonal (solo carrito/checkout/confirmacion). -->
+  <div class="pedir-rooster-bg" *ngIf="vista !== 'menu'" aria-hidden="true"></div>
 
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <!-- VISTA: MENU -->
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <ng-container *ngIf="vista === 'menu'">
-    <!-- Encabezado -->
-    <div class="pedir-header">
-      <div>
+    <!-- Encabezado del menu. En PC: titulo + buscar platillo + categorias + boton
+         de codigo + logo, TODO en una misma fila. En movil se apila (titulo/codigo/logo
+         arriba, buscador y categorias debajo). -->
+    <div class="pedir-menu-head">
+      <div class="pedir-menu-head__titles">
         <h2 class="pedir-header__title">Menu</h2>
         <p class="pedir-header__sub">Elige tu platillo favorito</p>
       </div>
-      <button type="button" class="pedir-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
-        <ion-icon name="receipt-outline"></ion-icon>
-      </button>
-      <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-header__logo" />
-    </div>
 
-    <!-- Selector de sucursal + busqueda -->
-    <div class="pedir-toolbar">
-      <div class="pedir-config">
-        <div class="pedir-config__row">
-          <label class="pedir-config__label">Sucursal</label>
-          <ion-select class="pedir-config__select-ion"
-            interface="action-sheet"
-            [interfaceOptions]="sucursalSelectOptions"
-            placeholder="Selecciona sucursal"
-            [disabled]="sucursales.length === 0"
-            [ngModel]="carritoService.datos.sucursalId"
-            (ngModelChange)="seleccionarSucursal($event)">
-            <ion-select-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</ion-select-option>
-          </ion-select>
-          <p class="pedir-config__hint" *ngIf="sucursales.length === 0 && !cargandoSucursales">
-            No hay sucursales disponibles por ahora.
-          </p>
-        </div>
-      </div>
-
-      <div class="pedir-search-wrap">
-        <label class="pedir-config__label pedir-search__ghost-label">Buscar</label>
+      <div class="pedir-menu-head__tools">
         <div class="pedir-search">
           <ion-icon name="search-outline"></ion-icon>
           <input type="text" placeholder="Buscar platillo..." [(ngModel)]="busqueda" />
         </div>
+        <div class="pedir-cats">
+          <button class="pedir-cat" [class.pedir-cat--active]="activeCat === null"
+            (click)="seleccionarCategoria(null)">Todos</button>
+          <button class="pedir-cat" *ngFor="let c of categorias"
+            [class.pedir-cat--active]="activeCat === c.id"
+            (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
+        </div>
       </div>
-    </div>
 
-    <!-- Categorias (tabs) -->
-    <div class="pedir-cats">
-      <button class="pedir-cat" [class.pedir-cat--active]="activeCat === null"
-        (click)="seleccionarCategoria(null)">Todos</button>
-      <button class="pedir-cat" *ngFor="let c of categorias"
-        [class.pedir-cat--active]="activeCat === c.id"
-        (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
+      <button type="button" class="pedir-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
+        <ion-icon name="receipt-outline"></ion-icon>
+      </button>
+      <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-menu-head__logo pedir-header__logo" />
     </div>
 
     <!-- Estados de carga/error -->
@@ -105,7 +87,7 @@
       </button>
       <div>
         <h2 class="pedir-header__title">Tu carrito</h2>
-        <p class="pedir-header__sub">{{ sucursalSeleccionada?.nombre || 'Sin sucursal' }} - {{ modalidadLabel }}</p>
+        <p class="pedir-header__sub">{{ modalidadLabel }}</p>
       </div>
     </div>
 
@@ -163,7 +145,7 @@
   <!-- VISTA: CHECKOUT -->
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <ng-container *ngIf="vista === 'checkout'">
-   <div class="pedir-narrow">
+   <div class="pedir-narrow pedir-narrow--checkout">
     <div class="pedir-header">
       <button type="button" class="pedir-header__back" (click)="irACarrito()">
         <ion-icon name="arrow-back-outline"></ion-icon>
@@ -175,6 +157,25 @@
     </div>
 
     <div class="checkout-form">
+      <div class="checkout-section">
+        <label class="checkout-label">Sucursal</label>
+        <div class="checkout-select" [class.checkout-select--empty]="sucursales.length === 0">
+          <ion-icon name="storefront-outline" class="checkout-select__icon"></ion-icon>
+          <ion-select class="checkout-select__ion"
+            interface="action-sheet"
+            [interfaceOptions]="sucursalSelectOptions"
+            placeholder="Elegí tu sucursal"
+            [disabled]="sucursales.length === 0"
+            [ngModel]="carritoService.datos.sucursalId"
+            (ngModelChange)="seleccionarSucursal($event)">
+            <ion-select-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</ion-select-option>
+          </ion-select>
+        </div>
+        <p class="checkout-hint" *ngIf="sucursales.length === 0 && !cargandoSucursales">
+          No hay sucursales disponibles por ahora.
+        </p>
+      </div>
+
       <div class="checkout-section">
         <label class="checkout-label">A nombre de quien?</label>
         <input type="text" class="checkout-input" [placeholder]="nombreClientePlaceholder" [(ngModel)]="nombreCliente" />
@@ -482,6 +483,36 @@
           <span>Total</span>
           <span>{{ pedidoBuscado.total | crcCurrency }}</span>
         </div>
+      </div>
+
+      <!-- Resultado publico (invitado): solo estado + sucursal + fecha. -->
+      <div class="buscar-resultado" *ngIf="pedidoBuscadoPublico">
+        <div class="buscar-resultado__head">
+          <div class="buscar-resultado__codigo-row">
+            <span class="buscar-resultado__codigo">{{ pedidoBuscadoPublico.codigo }}</span>
+            <button type="button" class="buscar-resultado__copy" (click)="copiarCodigo(pedidoBuscadoPublico.codigo)" aria-label="Copiar código">
+              <ion-icon name="copy-outline"></ion-icon>
+            </button>
+          </div>
+          <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoBuscadoPublico.estado)">
+            {{ getEstadoLabel(pedidoBuscadoPublico.estado) }}
+          </span>
+        </div>
+
+        <div class="buscar-resultado__meta">
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ formatFecha(pedidoBuscadoPublico.creado_en) }}</span>
+          </div>
+          <div class="buscar-resultado__meta-row">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>{{ pedidoBuscadoPublico.sucursal }} · {{ MODALIDAD_LABEL[pedidoBuscadoPublico.modalidad] }}</span>
+          </div>
+        </div>
+
+        <p class="buscar-resultado__nota">
+          Pediste como invitado. Guardá tu código para seguir el estado de tu pedido.
+        </p>
       </div>
     </div>
   </div>

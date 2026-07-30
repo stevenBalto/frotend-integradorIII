@@ -91,6 +91,71 @@
   }
 }
 
+/* ── Encabezado del menu (titulo + buscar platillo + categorias + codigo + logo) ── */
+/* Movil: se apila (titulo/codigo/logo en la primera linea, buscador y categorias
+   debajo). PC: TODO en una sola fila. */
+.pedir-menu-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 16px 20px 4px;
+
+  /* MOVIL (base): fila 1 = titulo + boton codigo + logo; fila 2 = buscar + categorias.
+     Ordenes explicitos para que el wrap sea predecible (antes se "descontrolaba"). */
+  &__titles { order: 1; flex: 1 1 auto; min-width: 0; }
+  .pedir-header__icon-btn { order: 2; flex-shrink: 0; }
+  .pedir-header__logo { order: 3; flex-shrink: 0; }
+
+  &__tools {
+    order: 4;
+    flex: 0 0 100%;
+    /* min-width:0 clave: sin esto el item flex toma min-width:auto (= min-content =
+       todos los chips de categoria sin envolver) y se estira mas alla del viewport
+       ("ancho infinito"), ademas de romper el scroll horizontal de las categorias. */
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 6px;
+
+    .pedir-search { width: 100%; min-width: 0; box-sizing: border-box; }
+    .pedir-cats {
+      min-width: 0;
+      max-width: 100%;
+      padding-left: 0;
+      padding-right: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      /* overflow-x: auto viene del bloque base .pedir-cats -> vuelve a scrollear. */
+    }
+  }
+
+  /* PC: TODO en una sola fila -> titulo, buscar+categorias, boton codigo, logo. */
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding: 24px 32px 12px;
+
+    &__titles { order: 1; flex: 0 0 auto; }
+    &__tools {
+      order: 2;
+      flex: 1 1 auto;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      margin-top: 0;
+
+      .pedir-search { flex: 0 0 220px; width: auto; }
+      .pedir-cats { flex: 1 1 auto; min-width: 0; padding-bottom: 0; }
+    }
+    .pedir-header__icon-btn { order: 3; }
+    .pedir-header__logo { order: 4; }
+  }
+}
+
 /* ── Wrapper de centrado para vistas de contenido angosto (carrito/checkout) ── */
 /* En viewports anchos el contenido queda centrado horizontal Y verticalmente,
    en vez de pegado arriba-izquierda con un vacio enorme alrededor (mismo
@@ -110,6 +175,31 @@
       width: 100%;
       max-width: 600px;
     }
+  }
+}
+
+/* Checkout (Confirmar pedido) en PC: NO centrar vertical (eso hacia que el form se
+   "flotara" y el aviso de invitado apareciera como un badge en el centro). En su
+   lugar, alto fijo + top-align: los componentes se acomodan en un panel estable y
+   el aviso de invitado se ve como bloque normal en su seccion. */
+@media (min-width: 768px) {
+  .pedir-narrow--checkout {
+    justify-content: flex-start;
+    padding: 12px 0 32px;
+
+    > * { max-width: 560px; width: 100%; }
+  }
+
+  .pedir-narrow--checkout .checkout-form {
+    max-width: 560px;
+    height: 62vh;
+    min-height: 440px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--rooster-border);
+    border-radius: 18px;
+    padding: 22px 22px 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -689,16 +779,24 @@
 
 /* ── FAB del carrito ────────────────────────────────────────────────────────── */
 .pedir-fab {
+  /* Pill compacto anclado abajo-derecha, por ENCIMA del tab bar (con safe-area),
+     para que no estorbe sobre el listado de platillos (antes era una barra full-width
+     flotando a 80px que tapaba las ultimas cards). */
   position: fixed;
-  bottom: 80px;
-  left: 20px;
-  right: 20px;
+  left: auto;
+  right: 16px;
+  /* El FAB es position:fixed pero su bloque contenedor es el <ion-content>, cuyo
+     borde inferior YA queda justo sobre el tab bar. Por eso el offset se mide desde
+     ahi (no desde el fondo del viewport): 16px lo deja pegadito arriba del tab bar.
+     Antes usaba 72px (+safe-area) y quedaba flotando muy alto. */
+  bottom: 16px;
+  width: auto;
+  max-width: calc(100vw - 32px);
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 10px;
-  padding: 16px 24px;
-  border-radius: 16px;
+  padding: 14px 20px;
+  border-radius: 9999px;
   background: var(--rooster-red);
   border: none;
   color: #fff;
@@ -711,10 +809,8 @@
   transition: transform 0.2s;
 
   @media (min-width: 768px) {
-    left: auto;
     right: 32px;
-    max-width: 280px;
-    bottom: 100px;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
 
   &:active {
@@ -735,7 +831,7 @@
   }
 
   &__total {
-    margin-left: auto;
+    white-space: nowrap;
   }
 }
 
@@ -1366,10 +1462,19 @@
   padding: 40px 20px;
   text-align: center;
 
+  /* PC: card blanca centrada, con TOPE de alto para que no se salga del viewport
+     (antes con min-height:62vh + contenido largo la carta se desbordaba). Si el
+     contenido no cabe, scrollea dentro de la card. */
   @media (min-width: 768px) {
-    padding: 60px 32px;
-    max-width: 400px;
-    margin: 0 auto;
+    max-width: 480px;
+    margin: 20px auto;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 36px 32px;
+    background: #fff;
+    border: 1px solid var(--rooster-border);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -1852,3 +1957,118 @@
 .dish-review__stars ion-icon { font-size: 12px; color: #e2dbcf; }
 .dish-review__stars ion-icon.dish-review__star--on { color: #f59e0b; }
 .dish-review__text { font-size: 13px; color: #4b4b4b; margin: 0; line-height: 1.5; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Sucursal en el checkout (movida desde el menu)
+   ══════════════════════════════════════════════════════════════════════════ */
+.checkout-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--rooster-border);
+  background: #fff;
+
+  &--empty { opacity: 0.6; }
+
+  &__icon { font-size: 20px; color: var(--rooster-red); flex-shrink: 0; }
+  &__ion {
+    flex: 1;
+    min-height: 46px;
+    color: var(--rooster-dark);
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+}
+.checkout-hint {
+  font-size: 12px;
+  color: var(--rooster-brown);
+  margin: 6px 0 0;
+}
+.buscar-resultado__nota {
+  font-size: 12px;
+  color: var(--rooster-brown);
+  line-height: 1.4;
+  margin: 12px 0 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Fondo oscuro + roosters en mosaico diagonal (vistas carrito/checkout/confirmacion)
+   El usuario pidio fondo #0E0E0E con el icono de rooster repetido en diagonal por
+   toda la pantalla y con un movimiento minimo. Las cards siguen siendo blancas;
+   solo el texto que va DIRECTO sobre el fondo pasa a claro.
+   ══════════════════════════════════════════════════════════════════════════ */
+.pedir-content--dark {
+  --background: #0E0E0E;
+}
+
+.pedir-rooster-bg {
+  /* Full bleed: en carrito/checkout/confirmacion el tab bar se oculta (modo
+     inmersivo, ver body.tabbar-oculto), asi que el fondo cubre toda la pantalla. */
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #0E0E0E;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    background-image: url('/assets/logo/rooster-logo.png');
+    background-repeat: repeat;
+    background-size: 84px 84px;
+    /* Roosters mas brillantes sobre el negro: mas opacidad + brillo para que
+       "prendan" fuerte en vez de verse apagados. */
+    opacity: 0.38;
+    filter: brightness(2);
+    transform: rotate(-18deg);
+    animation: roosterDrift 70s linear infinite;
+  }
+}
+
+@keyframes roosterDrift {
+  from { background-position: 0 0; }
+  to   { background-position: 336px 336px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pedir-rooster-bg::before { animation: none; }
+}
+
+/* El contenido va por encima del fondo. */
+.pedir-content--dark {
+  .pedir-narrow,
+  .confirm-page { position: relative; z-index: 1; }
+
+  /* Texto directo sobre el fondo oscuro -> claro (las cards blancas no se tocan). */
+  .pedir-header__title { color: #fff; }
+  .pedir-header__sub { color: rgba(255, 255, 255, 0.6); }
+  .checkout-label { color: rgba(255, 255, 255, 0.75); }
+  .checkout-hint { color: rgba(255, 255, 255, 0.7); }
+  .cart-empty { color: rgba(255, 255, 255, 0.75); }
+  .confirm-title { color: #fff; }
+  .confirm-sub { color: rgba(255, 255, 255, 0.65); }
+
+  .confirm-info__row {
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+
+    ion-icon { color: rgba(255, 255, 255, 0.6); }
+  }
+}
+
+/* PC: checkout y confirmacion son cards BLANCAS. El texto que en movil va claro
+   (sobre el fondo oscuro) debe volver a oscuro dentro de la card, si no queda
+   invisible (blanco sobre blanco). Va al final para ganar por orden de fuente. */
+@media (min-width: 768px) {
+  .pedir-content--dark .pedir-narrow--checkout .checkout-label { color: var(--rooster-brown); }
+  .pedir-content--dark .confirm-title { color: var(--rooster-dark); }
+  .pedir-content--dark .confirm-sub { color: var(--rooster-brown); }
+  .pedir-content--dark .confirm-info__row {
+    color: var(--rooster-dark);
+    border-bottom-color: var(--rooster-border);
+  }
+  .pedir-content--dark .confirm-info__row ion-icon { color: var(--rooster-brown); }
+}

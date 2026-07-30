@@ -6,11 +6,31 @@
 .home-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   padding: 16px 20px 12px;
 
   @media (min-width: 768px) {
     padding: 32px 32px 24px;
+  }
+
+  &__titles { flex: 1 1 auto; min-width: 0; }
+
+  &__icon-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: none;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.1s;
+
+    &:active { transform: scale(0.94); }
+    ion-icon { font-size: 20px; color: var(--rooster-red); }
   }
 
   &__sub {
@@ -37,13 +57,10 @@
   }
 
   &__logo {
+    flex-shrink: 0;
     width: 44px;
     height: 44px;
     object-fit: contain;
-
-    @media (min-width: 1024px) {
-      display: none;
-    }
   }
 }
 

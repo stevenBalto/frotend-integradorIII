@@ -41,7 +41,11 @@ export class AuthInterceptor implements HttpInterceptor {
             // Sesión de superadmin vencida → al login único.
             this.superAuth.limpiarSesion();
             void this.router.navigateByUrl('/login');
-          } else if (!req.url.includes('/login')) {
+          } else if (token && !req.url.includes('/login')) {
+            // Solo expulsamos al login si HABIA sesion (token vencido/invalido).
+            // Un INVITADO (sin token) que toca un endpoint protegido no debe ser
+            // enviado al login: la app permite navegar/pedir sin cuenta y el login
+            // vive solo en "Mi cuenta". Las rutas privadas ya las protege authGuard.
             this.auth.limpiarSesion();
             void this.router.navigateByUrl('/login');
           }
