@@ -341,7 +341,7 @@
           {{ canjeOferta.tipo_descuento === 'porcentaje' ? canjeOferta.valor + '% de descuento' : ('₡' + canjeOferta.valor + ' de descuento') }}
         </p>
         <p class="canje-hint">Válida solo para: {{ canjeOfertaProductosTexto }}</p>
-        <p class="canje-hint">Esta oferta es solo informativa: el descuento se aplica manualmente al cobrar.</p>
+        <button type="button" class="order-modal__cta" (click)="irAPedidoDeMostradorOferta()">Armar pedido de mostrador</button>
       </div>
     </div>
   </div>

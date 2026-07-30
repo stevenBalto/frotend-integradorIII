@@ -4,10 +4,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ProductoService } from '../../core/services/producto.service';
 import { SucursalService } from '../../core/services/sucursal.service';
 import { CuponService } from '../../core/services/cupon.service';
+import { OfertaService } from '../../core/services/oferta.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { Producto } from '../../core/models/producto.model';
 import { Sucursal } from '../../core/models/sucursal.model';
 import { Cupon } from '../../core/models/cupon.model';
+import { Oferta } from '../../core/models/oferta.model';
 import { CrearPedidoPayload, PedidoAdmin } from '../../core/models/pedido.model';
 import { Modalidad } from '../../shared/constants/modalidad';
 
@@ -45,8 +47,12 @@ export class PedidosMostradorPage implements OnInit {
 
   cuponCodigo: string | null = null;
   cupon: Cupon | null = null;
-  cargandoCupon = false;
-  errorCupon: string | null = null;
+
+  ofertaId: number | null = null;
+  oferta: Oferta | null = null;
+
+  cargandoCanje = false;
+  errorCanje: string | null = null;
 
   enviando = false;
   errorEnvio: string | null = null;
@@ -58,6 +64,7 @@ export class PedidosMostradorPage implements OnInit {
     private productoService: ProductoService,
     private sucursalService: SucursalService,
     private cuponService: CuponService,
+    private ofertaService: OfertaService,
     private pedidoService: PedidoService,
   ) {}
 
@@ -73,26 +80,57 @@ export class PedidosMostradorPage implements OnInit {
     });
 
     const codigo = this.route.snapshot.queryParamMap.get('cupon');
+    const ofertaIdParam = this.route.snapshot.queryParamMap.get('oferta');
+
     if (codigo) {
       this.cuponCodigo = codigo;
       this.validarCupon(codigo);
+    } else if (ofertaIdParam) {
+      this.ofertaId = Number(ofertaIdParam);
+      this.validarOferta(this.ofertaId);
     }
   }
 
   private validarCupon(codigo: string): void {
-    this.cargandoCupon = true;
-    this.errorCupon = null;
+    this.cargandoCanje = true;
+    this.errorCanje = null;
     this.cuponService.validar(codigo).subscribe({
       next: (res) => {
         this.cupon = res.data;
-        this.cargandoCupon = false;
+        this.cargandoCanje = false;
       },
       error: (err: HttpErrorResponse) => {
         this.cupon = null;
-        this.errorCupon = this.primerError(err);
-        this.cargandoCupon = false;
+        this.errorCanje = this.primerError(err);
+        this.cargandoCanje = false;
       },
     });
+  }
+
+  private validarOferta(id: number): void {
+    this.cargandoCanje = true;
+    this.errorCanje = null;
+    this.ofertaService.listarTodos().subscribe({
+      next: (ofertas) => {
+        this.oferta = ofertas.find((o) => o.id === id) ?? null;
+        this.errorCanje = this.oferta ? null : 'Esta oferta ya no existe.';
+        this.cargandoCanje = false;
+      },
+      error: () => {
+        this.errorCanje = 'No se pudo validar la oferta.';
+        this.cargandoCanje = false;
+      },
+    });
+  }
+
+  /** Si hay una oferta activa, indica si un producto es elegible para su descuento. */
+  esProductoDeLaOferta(producto: Producto): boolean {
+    return this.oferta?.productos.some((p) => p.id === producto.id) ?? false;
+  }
+
+  get ofertaProductosTexto(): string {
+    const nombres = this.oferta?.productos.map((p) => p.nombre) ?? [];
+    return nombres.length > 0 ? nombres.join(', ') : 'todos los productos';
   }
 
   get productosFiltrados(): Producto[] {
@@ -142,11 +180,20 @@ export class PedidosMostradorPage implements OnInit {
 
   /** Estimado en pantalla — el backend recalcula el descuento real al confirmar. */
   get descuentoEstimado(): number {
-    if (!this.cupon) {
-      return 0;
+    if (this.cupon) {
+      const monto = this.cupon.tipo === 'porcentaje' ? this.subtotal * (this.cupon.valor / 100) : this.cupon.valor;
+      return Math.min(monto, this.subtotal);
     }
-    const monto = this.cupon.tipo === 'porcentaje' ? this.subtotal * (this.cupon.valor / 100) : this.cupon.valor;
-    return Math.min(monto, this.subtotal);
+
+    if (this.oferta) {
+      const subtotalElegible = this.lineas
+        .filter((l) => this.esProductoDeLaOferta(l.producto))
+        .reduce((acc, l) => acc + l.precioUnitario * l.cantidad, 0);
+      const monto = this.oferta.tipo_descuento === 'porcentaje' ? subtotalElegible * (this.oferta.valor / 100) : this.oferta.valor;
+      return Math.min(monto, subtotalElegible);
+    }
+
+    return 0;
   }
 
   get total(): number {
@@ -176,6 +223,7 @@ export class PedidosMostradorPage implements OnInit {
       nombre_cliente: this.nombreCliente.trim(),
       notas: this.notas.trim() || undefined,
       cupon_codigo: this.cuponCodigo ?? undefined,
+      oferta_id: this.ofertaId ?? undefined,
       items: this.lineas.map((l) => ({
         producto_id: l.producto.id,
         cantidad: l.cantidad,
@@ -206,6 +254,8 @@ export class PedidosMostradorPage implements OnInit {
     this.notas = '';
     this.cuponCodigo = null;
     this.cupon = null;
+    this.ofertaId = null;
+    this.oferta = null;
     this.pedidoCreado = null;
   }
 

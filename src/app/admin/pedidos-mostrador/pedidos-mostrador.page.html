@@ -15,14 +15,21 @@
 
     <ng-container *ngIf="!pedidoCreado">
 
-      <!-- Estado del cupón -->
-      <admin-section-card title="Cupón" *ngIf="cuponCodigo">
-        <p *ngIf="cargandoCupon" class="mostrador-hint">Validando código {{ cuponCodigo }}...</p>
-        <p *ngIf="errorCupon" class="mostrador-error">{{ errorCupon }}</p>
+      <!-- Estado del canje (cupón u oferta) -->
+      <admin-section-card title="Canje" *ngIf="cuponCodigo || ofertaId">
+        <p *ngIf="cargandoCanje" class="mostrador-hint">Validando código...</p>
+        <p *ngIf="errorCanje" class="mostrador-error">{{ errorCanje }}</p>
+
         <div class="mostrador-cupon" *ngIf="cupon">
           <span class="mostrador-cupon__codigo">{{ cupon.codigo }}</span>
           <span class="mostrador-cupon__valor">{{ cupon.tipo === 'porcentaje' ? cupon.valor + '% OFF' : (cupon.valor | crcCurrency) + ' OFF' }}</span>
         </div>
+
+        <div class="mostrador-cupon" *ngIf="oferta">
+          <span class="mostrador-cupon__codigo">{{ oferta.nombre }}</span>
+          <span class="mostrador-cupon__valor">{{ oferta.tipo_descuento === 'porcentaje' ? oferta.valor + '% OFF' : (oferta.valor | crcCurrency) + ' OFF' }}</span>
+        </div>
+        <p class="mostrador-hint" *ngIf="oferta">Aplica solo a: {{ ofertaProductosTexto }}</p>
       </admin-section-card>
 
       <div class="mostrador-grid">
@@ -34,9 +41,12 @@
           </label>
 
           <div class="mostrador-productos">
-            <div class="mostrador-producto" *ngFor="let p of productosFiltrados">
+            <div class="mostrador-producto" [class.mostrador-producto--oferta]="esProductoDeLaOferta(p)" *ngFor="let p of productosFiltrados">
               <div class="mostrador-producto__info">
-                <p class="mostrador-producto__nombre">{{ p.nombre }}</p>
+                <p class="mostrador-producto__nombre">
+                  {{ p.nombre }}
+                  <span class="mostrador-producto__tag" *ngIf="esProductoDeLaOferta(p)">oferta</span>
+                </p>
                 <p class="mostrador-producto__precio">{{ p.precio_base | crcCurrency }}</p>
               </div>
 

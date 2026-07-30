@@ -443,6 +443,14 @@ export class AdminOfertasPage implements OnInit {
     void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { cupon: this.canjeCupon.codigo } });
   }
 
+  /** Arma el pedido de mostrador con la oferta ya validada. */
+  irAPedidoDeMostradorOferta(): void {
+    if (!this.canjeOferta) {
+      return;
+    }
+    void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { oferta: this.canjeOferta.id } });
+  }
+
   // ── Formateo / helpers de vista ───────────────────────────────────
   formatValorOferta(o: Oferta): string {
     return o.tipo_descuento === 'porcentaje' ? `${o.valor}% de descuento` : `₡${this.num(o.valor)} precio fijo`;

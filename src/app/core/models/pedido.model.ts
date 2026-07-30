@@ -100,6 +100,8 @@ export interface CrearPedidoPayload {
   roosters_a_usar?: number;
   /** Codigo de cupon a canjear (checkout normal o pedido de mostrador via QR). */
   cupon_codigo?: string;
+  /** Id de oferta a canjear (pedido de mostrador via QR). */
+  oferta_id?: number;
   items: ItemPedidoPayload[];
 }
 
