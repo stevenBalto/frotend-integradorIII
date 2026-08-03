@@ -1,11 +1,16 @@
 export interface Usuario {
   id: number;
   nombre: string;
+  /** Nombre de usuario (login) del staff; puede faltar en clientes. */
+  usuario?: string | null;
   email: string;
   telefono: string | null;
+  activo?: boolean;
   puntos_balance: number;
   sucursal_id: number | null;
   rol: string;
+  /** Módulos del panel con su nivel de acceso (solo lo trae GET /me para staff). */
+  modulos?: { id: number; clave: string; nombre: string; permiso: 'lectura' | 'editor' }[];
   must_change_password?: boolean;
 }
 

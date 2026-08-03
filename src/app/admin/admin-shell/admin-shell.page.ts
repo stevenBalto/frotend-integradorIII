@@ -66,6 +66,8 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   // Campana del header (panel desplegable con las últimas notificaciones).
   bellOpen = false;
+  // Modal de perfil del usuario admin (datos + accesos por módulo) — item 30.
+  perfilOpen = false;
   noLeidasCount = 0;
   notifsRecientes: Notificacion[] = [];
 
@@ -241,6 +243,16 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   cerrarBell(): void {
     this.bellOpen = false;
+  }
+
+  /** Abre el modal de perfil y refresca /me para traer los módulos/permisos del usuario. */
+  abrirPerfil(): void {
+    this.perfilOpen = true;
+    this.auth.refrescarPerfil().subscribe({ error: () => { /* usa lo que ya haya en sesión */ } });
+  }
+
+  cerrarPerfil(): void {
+    this.perfilOpen = false;
   }
 
   iconoNotif(n: Notificacion): string {

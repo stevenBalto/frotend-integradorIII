@@ -96,17 +96,58 @@
             </div>
           </div>
         </div>
-        <div class="admin-header__user" *ngIf="usuario$ | async as u">
+        <button type="button" class="admin-header__user" *ngIf="usuario$ | async as u"
+          (click)="abrirPerfil()" aria-label="Ver mi perfil y accesos">
           <div class="admin-header__avatar">{{ avatarInicial$ | async }}</div>
           <div class="admin-header__user-info">
             <p class="admin-header__user-name">{{ u.nombre }}</p>
             <p class="admin-header__user-role">{{ rolLabel$ | async }}</p>
           </div>
-        </div>
+        </button>
       </div>
     </header>
 
     <ion-router-outlet class="admin-outlet"></ion-router-outlet>
+  </div>
+
+  <!-- Item 30: modal de perfil del usuario admin (datos + accesos por módulo). -->
+  <div class="admin-perfil" *ngIf="perfilOpen">
+    <div class="admin-perfil__backdrop" (click)="cerrarPerfil()"></div>
+    <div class="admin-perfil__panel" *ngIf="(usuario$ | async) as u">
+      <div class="admin-perfil__head">
+        <div class="admin-perfil__avatar">{{ avatarInicial$ | async }}</div>
+        <div class="admin-perfil__id">
+          <p class="admin-perfil__name">{{ u.nombre }}</p>
+          <p class="admin-perfil__role">{{ rolLabel$ | async }}</p>
+        </div>
+        <button type="button" class="admin-perfil__close" (click)="cerrarPerfil()" aria-label="Cerrar">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="admin-perfil__body">
+        <div class="admin-perfil__section">
+          <p class="admin-perfil__caption">Datos generales</p>
+          <p class="admin-perfil__row"><ion-icon name="person-outline"></ion-icon> {{ u.usuario || '—' }}</p>
+          <p class="admin-perfil__row"><ion-icon name="mail-outline"></ion-icon> {{ u.email }}</p>
+          <p class="admin-perfil__row"><ion-icon name="call-outline"></ion-icon> {{ u.telefono || 'Sin teléfono' }}</p>
+          <p class="admin-perfil__row" *ngIf="sucursalNombre"><ion-icon name="storefront-outline"></ion-icon> {{ sucursalNombre }}</p>
+        </div>
+        <div class="admin-perfil__section">
+          <p class="admin-perfil__caption">Accesos por módulo</p>
+          <div class="admin-perfil__mods" *ngIf="u.modulos && u.modulos.length; else sinMods">
+            <div class="admin-perfil__mod" *ngFor="let m of u.modulos">
+              <span class="admin-perfil__mod-name">{{ m.nombre }}</span>
+              <span class="admin-perfil__mod-perm" [class.admin-perfil__mod-perm--editor]="m.permiso === 'editor'">
+                {{ m.permiso === 'editor' ? 'Editor' : 'Lectura' }}
+              </span>
+            </div>
+          </div>
+          <ng-template #sinMods>
+            <p class="admin-perfil__empty">Acceso total al panel (administrador).</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
