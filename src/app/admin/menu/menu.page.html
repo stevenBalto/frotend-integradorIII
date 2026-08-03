@@ -30,16 +30,6 @@
         [clickable]="true" [active]="filtroEstadoMenu === 'destacados'" (cardClick)="filtrarMenu('destacados')"></admin-kpi-card>
     </div>
 
-    <!-- Sugerencias de destacado por reseñas -->
-    <div class="menu-suggest" *ngIf="totalSugeridos > 0">
-      <ion-icon name="sparkles"></ion-icon>
-      <div class="menu-suggest__text">
-        <strong>{{ totalSugeridos }}</strong> producto{{ totalSugeridos === 1 ? '' : 's' }}
-        con buena calificación que podrías destacar.
-        <span>Mirá la etiqueta <em>Sugerido</em> en la tabla y tocá "Destacar".</span>
-      </div>
-    </div>
-
     <admin-section-card id="menu-tabla">
       <div class="menu-toolbar">
         <div class="menu-toolbar__left">
@@ -84,14 +74,7 @@
               <td><span class="menu-cat">{{ p.categoria }}</span></td>
               <td class="admin-table__semi" style="font-size: 12px;">{{ p.precio_base | crcCurrency }}</td>
               <td>
-                <div class="menu-destacado">
-                  <span class="menu-star" [class.menu-star--on]="p.destacado">{{ p.destacado ? '★' : '☆' }}</span>
-                  <button *ngIf="esSugerido(p)" type="button" class="menu-suggest-btn"
-                    (click)="destacarRapido(p); $event.stopPropagation()" [disabled]="destacandoId === p.id">
-                    <ion-icon name="sparkles"></ion-icon>
-                    {{ destacandoId === p.id ? 'Destacando…' : 'Destacar' }}
-                  </button>
-                </div>
+                <span class="menu-star" [class.menu-star--on]="p.destacado">{{ p.destacado ? '★' : '☆' }}</span>
               </td>
               <td>
                 <div class="menu-avail">
@@ -190,16 +173,25 @@
 
     <div class="order-modal__body">
       <form [formGroup]="form" (ngSubmit)="guardar()" class="menu-form">
-        <label class="menu-form__label">
-          Foto del producto
+        <div class="menu-form__label">
+          Imagen (opcional)
+          <span class="menu-form__hint">Podes dejarlo vacio.</span>
           <div class="menu-form__photo">
             <div class="menu-form__photo-preview">
               <img *ngIf="imagenPreview" [src]="imagenPreview" alt="Preview" />
               <ion-icon *ngIf="!imagenPreview" name="image-outline"></ion-icon>
             </div>
-            <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagen($event)" class="menu-form__file" />
+            <div class="menu-form__file-wrap">
+              <label class="menu-form__file-btn">
+                <ion-icon name="cloud-upload-outline"></ion-icon> Seleccionar imagen
+                <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagen($event)" />
+              </label>
+              <span class="menu-form__file-name" adminMarquee>
+                <span>{{ imagenNombreArchivo || 'Sin archivo' }}</span>
+              </span>
+            </div>
           </div>
-        </label>
+        </div>
 
         <label class="menu-form__label">
           Nombre
@@ -365,16 +357,25 @@
         </div>
 
         <form [formGroup]="extraNuevaForm" (ngSubmit)="guardarExtraNueva()" class="menu-form">
-          <label class="menu-form__label">
-            Foto del extra
+          <div class="menu-form__label">
+            Imagen (opcional)
+            <span class="menu-form__hint">Podes dejarlo vacio.</span>
             <div class="menu-form__photo">
               <div class="menu-form__photo-preview">
                 <img *ngIf="extraImagenPreview" [src]="extraImagenPreview" alt="Preview" />
                 <ion-icon *ngIf="!extraImagenPreview" name="image-outline"></ion-icon>
               </div>
-              <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarExtraImagen($event)" class="menu-form__file" />
+              <div class="menu-form__file-wrap">
+                <label class="menu-form__file-btn">
+                  <ion-icon name="cloud-upload-outline"></ion-icon> Seleccionar imagen
+                  <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarExtraImagen($event)" />
+                </label>
+                <span class="menu-form__file-name" adminMarquee>
+                  <span>{{ extraNombreArchivo || 'Sin archivo' }}</span>
+                </span>
+              </div>
             </div>
-          </label>
+          </div>
 
           <label class="menu-form__label">
             Nombre
@@ -436,7 +437,10 @@
       <div class="picker-list">
         <button type="button" class="picker-card picker-card--btn" *ngFor="let p of productosParaElegir"
           (click)="elegirProductoParaExtras(p)">
-          <div class="picker-card__icon"><ion-icon name="fast-food-outline"></ion-icon></div>
+          <div class="picker-card__thumb" *ngIf="p.imagen_url">
+            <img [src]="p.imagen_url" [alt]="p.nombre" />
+          </div>
+          <div class="picker-card__icon" *ngIf="!p.imagen_url"><ion-icon name="fast-food-outline"></ion-icon></div>
           <div class="picker-card__info">
             <span class="picker-card__name">{{ p.nombre }}</span>
             <span class="picker-card__meta">{{ p.categoria || 'Sin categoría' }} · {{ p.extras?.length ?? 0 }} extra(s)</span>
