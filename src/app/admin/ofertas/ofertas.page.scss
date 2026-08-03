@@ -1,5 +1,5 @@
 /* Toolbar de la tabla: tabs (Ofertas/Cupones) a la izquierda, buscador a la
-   derecha. Mismo patrón que la tabla de Menú. */
+   derecha. Mismo patron que la tabla de Menu. */
 .of-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -10,7 +10,7 @@
 }
 .of-toolbar__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
 
-/* Móvil: apilar los tabs y dejar el buscador a lo ancho (sin desperdiciar espacio). */
+/* Movil: apilar los tabs y dejar el buscador a lo ancho (sin desperdiciar espacio). */
 @media (max-width: 767px) {
   .of-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
   .of-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; }
@@ -37,7 +37,7 @@
   border-color: var(--rooster-red);
 }
 
-/* ── Tablas (paleta cálida) ────────────────────────────────────────────────── */
+/* ── Tablas (paleta calida) ────────────────────────────────────────────────── */
 .of-table-wrap { overflow: auto; }
 .of-table {
   width: 100%;
@@ -45,7 +45,7 @@
   border-collapse: collapse;
   font-family: var(--rooster-font-sans);
 }
-/* Móvil: mismo patrón anidado 1D que las tablas globales (alto fijo sin diagonal). */
+/* Movil: mismo patron anidado 1D que las tablas globales (alto fijo sin diagonal). */
 @media (max-width: 767px) {
   .of-table-wrap {
     max-height: 60vh;
@@ -64,7 +64,7 @@
   }
 }
 .of-table td, .of-table th { padding-left: 4px; }
-/* Primera columna (logo de oferta / código de cupón) con aire, no pegada al borde. */
+/* Primera columna (logo de oferta / codigo de cupon) con aire, no pegada al borde. */
 .of-table td:first-child, .of-table th:first-child { padding-left: 12px; }
 .of-table thead tr { border-bottom: 0.5px solid rgba(168, 137, 94, 0.25); }
 .of-table th {
@@ -89,8 +89,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 .of-combo-icon ion-icon { font-size: 16px; color: #fff; }
+.of-combo-icon__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .of-combo__name { font-size: 12px; font-weight: 700; color: #1e1e1e; margin: 0; }
 .of-combo__price { font-size: 9px; color: var(--rooster-red); font-weight: 600; margin: 0; }
 
@@ -118,12 +124,12 @@
 .of-action--del { background: rgba(225, 54, 66, 0.08); }
 .of-action--del ion-icon { color: var(--rooster-red); }
 
-/* ── Estados de carga/error/vacío (faltaban) ─────────────────────────── */
+/* ── Estados de carga/error/vacio (faltaban) ─────────────────────────── */
 .of-error { color: var(--admin-red-alt, #dc2626); font-size: 13px; margin: 8px 0; }
 .of-loading { color: var(--admin-text-muted, #6b7280); font-size: 14px; margin: 12px 0; }
 .of-empty { text-align: center; color: var(--admin-text-soft, #9ca3af); padding: 24px 0; }
 
-/* ── Modal (faltaba todo) ────────────────────────────────────────────── */
+/* ── Modal (responsive) ────────────────────────────────────────────── */
 .order-modal {
   position: fixed;
   inset: 0;
@@ -138,7 +144,7 @@
 .order-modal__panel {
   position: relative;
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   max-height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
@@ -161,7 +167,7 @@
   background: none; border: none; color: #fff; cursor: pointer;
   display: flex; align-items: center; font-size: 18px;
 }
-.order-modal__body { padding: 20px; overflow-y: auto; min-height: 0; }
+.order-modal__body { padding: 20px; overflow-y: auto; min-height: 0; flex: 1; }
 .order-modal__cta {
   width: 100%;
   height: 46px;
@@ -176,7 +182,7 @@
   &:disabled { opacity: 0.7; }
 }
 
-/* ── Formulario (faltaba todo) ───────────────────────────────────────── */
+/* ── Formulario ───────────────────────────────────────── */
 .of-form { display: flex; flex-direction: column; gap: 14px; }
 .of-form__label {
   display: flex;
@@ -200,8 +206,22 @@
 }
 textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
 .of-form__note { font-size: 11px; font-weight: 500; color: var(--admin-text-soft, #9ca3af); }
+.of-form__hint { font-size: 11px; font-weight: 500; color: var(--admin-text-soft, #9ca3af); font-style: italic; }
 .of-form__row { display: flex; gap: 12px; }
-.of-form__label--half { flex: 1; }
+.of-form__label--half { flex: 1; min-width: 0; }
+
+/* ── ITEM 13: Responsive para filas de campos lado a lado ──────────── */
+@media (max-width: 559px) {
+  .of-form__row {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .of-form__label--half {
+    flex: none;
+    width: 100%;
+  }
+}
+
 .of-form__products {
   display: flex;
   flex-direction: column;
@@ -243,7 +263,149 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
   input { width: 16px; height: 16px; }
 }
 
-/* ── Modal canjear código (QR) ──────────────────────────────────────────────── */
+/* ── Selector de imagen (patron de menu.page) ────────────────────────── */
+.of-form__photo { display: flex; align-items: center; gap: 12px; }
+.of-form__photo-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--admin-neutral1, #f3f4f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.of-form__photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.of-form__photo-preview ion-icon { font-size: 24px; color: var(--admin-neutral4, #9ca3af); }
+
+/* Custom file input wrapper: evita desborde horizontal */
+.of-form__file-wrap {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.of-form__file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--admin-neutral1, #f3f4f6);
+  color: var(--admin-text, #1e1e1e);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  transition: background 0.15s;
+  width: fit-content;
+
+  ion-icon { font-size: 14px; color: var(--rooster-red, #e13642); }
+
+  input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+}
+.of-form__file-btn:hover { background: var(--admin-border, #e5e7eb); }
+.of-form__file-name {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  color: var(--admin-text-muted, #6b7280);
+  font-style: italic;
+
+  > span { display: block; white-space: nowrap; }
+}
+/* Marquee animation for long filenames */
+.of-form__file-name.marquee--run > span {
+  animation: marquee-bounce var(--marquee-time, 4s) ease-in-out infinite alternate;
+}
+@keyframes marquee-bounce {
+  0%, 15% { transform: translateX(0); }
+  85%, 100% { transform: translateX(var(--marquee-shift, -50px)); }
+}
+
+/* Galeria de imagenes por defecto */
+.of-form__defaults {
+  margin-top: 8px;
+}
+.of-form__defaults-title {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--admin-text-muted, #6b7280);
+  margin-bottom: 6px;
+}
+.of-form__defaults-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.of-form__default-item {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: var(--admin-neutral1, #f3f4f6);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, transform 0.1s;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &--selected {
+    border-color: var(--rooster-red, #e13642);
+  }
+}
+
+/* Boton para quitar imagen */
+.of-form__clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--admin-red-alt, #dc2626);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  width: fit-content;
+
+  ion-icon { font-size: 14px; }
+
+  &:hover {
+    background: rgba(220, 38, 38, 0.15);
+  }
+}
+
+/* ── Modal canjear codigo (QR) ──────────────────────────────────────────────── */
 .canje-hint { font-size: 12px; color: var(--admin-text-muted, #6b7280); margin: 10px 0 0; text-align: center; }
 .canje-error { font-size: 12px; color: var(--rooster-red, #e13642); margin: 10px 0 0; text-align: center; }
 .canje-resultado {

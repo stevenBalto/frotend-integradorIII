@@ -10,6 +10,7 @@ export interface Cupon {
   usos_max: number | null;
   usos_actuales: number;
   activo: boolean;
+  imagen_url: string | null;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -24,4 +25,14 @@ export interface CuponPayload {
   fecha_fin?: string | null;
   usos_max?: number | null;
   activo?: boolean;
+  /** URL de imagen por defecto (del sistema). */
+  imagen_url?: string | null;
+}
+
+/** Opciones de imagen para crear/actualizar cupon. */
+export interface CuponImagenOpts {
+  /** Archivo subido por el usuario. */
+  imagen?: File | null;
+  /** URL de imagen por defecto (si no se sube archivo). */
+  imagen_url?: string | null;
 }
