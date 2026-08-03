@@ -349,6 +349,23 @@
   &__search { display: block; flex: 1 1 auto; min-width: 0; }
 }
 
+/* En móvil: dos filas para que TODO sea visible sin scroll horizontal.
+   Fila 1 = chips de fecha; fila 2 = buscador + botón pantalla completa. */
+@media (max-width: 767px) {
+  .ped-toolbar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .ped-toolbar .ped-datefilter {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+  .ped-toolbar__searchrow {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+
 /* Filtro por fecha (Todos / Hoy / Semana / una fecha puntual). Nunca se parte a
    otra fila: va en la misma linea que el buscador. */
 .ped-datefilter {
