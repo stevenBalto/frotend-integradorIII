@@ -11,11 +11,21 @@ export class ProductoService {
 
   constructor(private http: HttpClient) {}
 
-  /** GET /productos — catalogo publico, solo disponibles (Home cliente). */
-  listarDisponibles(): Observable<Producto[]> {
-    return this.http
-      .get<ApiCollection<Producto>>(`${this.base}/productos`)
-      .pipe(map((res) => res.data));
+  /**
+   * GET /productos — catalogo publico.
+   * Si se pasan `porPagina`, el backend devuelve paginador y aquí retornamos
+   * el objeto completo; si no, devolvemos la lista simple (compatibilidad).
+   */
+  listarDisponibles(porPagina?: number, pagina?: number): Observable<any> {
+    const url = `${this.base}/productos`;
+
+    if (porPagina !== undefined && porPagina !== null) {
+      const params: Record<string, any> = { por_pagina: porPagina };
+      if (pagina !== undefined) params['pagina'] = pagina;
+      return this.http.get<any>(url, { params });
+    }
+
+    return this.http.get<ApiCollection<Producto>>(url).pipe(map((res) => res.data));
   }
 
   /** GET /admin/productos — listado completo (panel admin). */

@@ -96,7 +96,7 @@
 
     <!-- Lista -->
     <div class="res-list" *ngIf="!cargando && !error && resenasFiltradas.length > 0">
-      <div class="res-card" *ngFor="let r of resenasFiltradas" [class.res-card--oculta]="r.estado === 'oculta'">
+      <div class="res-card" *ngFor="let r of resenasFiltradas; trackBy: trackByResena" [class.res-card--oculta]="r.estado === 'oculta'">
         <div class="res-card__head">
           <div class="res-card__user">
             <div class="res-card__avatar">{{ iniciales(r.cliente?.nombre) }}</div>

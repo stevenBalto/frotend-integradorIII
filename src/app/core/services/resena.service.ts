@@ -30,8 +30,10 @@ export class ResenaService {
 
   // ── Admin ──
 
-  listarAdmin(filtros?: FiltrosResenaAdmin): Observable<ResenaAdmin[]> {
-    let params = new HttpParams();
+  listarAdmin(filtros?: FiltrosResenaAdmin, porPagina: number = 24, pagina: number = 1): Observable<ResenaAdmin[]> {
+    let params = new HttpParams()
+      .set('por_pagina', String(porPagina))
+      .set('pagina', String(pagina));
     if (filtros) {
       Object.entries(filtros).forEach(([k, v]) => {
         if (v !== undefined && v !== null && v !== '') {

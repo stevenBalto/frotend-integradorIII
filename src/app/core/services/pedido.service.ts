@@ -73,8 +73,10 @@ export class PedidoService {
   // ── Admin ──
 
   /** GET /admin/pedidos — listado de pedidos (admin). */
-  listarAdmin(filtros?: FiltrosPedidoAdmin): Observable<PedidoAdmin[]> {
-    let params = new HttpParams();
+  listarAdmin(filtros?: FiltrosPedidoAdmin, porPagina: number = 24, pagina: number = 1): Observable<PedidoAdmin[]> {
+    let params = new HttpParams()
+      .set('por_pagina', String(porPagina))
+      .set('pagina', String(pagina));
     if (filtros?.estado) {
       params = params.set('estado', filtros.estado);
     }

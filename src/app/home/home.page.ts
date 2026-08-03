@@ -325,8 +325,11 @@ export class HomePage implements OnInit {
     this.cargando = true;
     this.error = null;
 
-    this.productoService.listarDisponibles().subscribe({
-      next: (productos) => {
+    // Pedimos solo una página pequeña para la vitrina (mejora TTFB y reduce payload)
+    this.productoService.listarDisponibles(24, 1).subscribe({
+      next: (res) => {
+        // Si viene paginado, la lista está en res.data, si no, el servicio ya devolvió el array
+        const productos: Producto[] = Array.isArray(res) ? res : res.data ?? [];
         this.destacados = productos.filter((p) => p.destacado);
         this.populares = productos.filter((p) => p.popular);
         this.nuevos = productos.filter((p) => p.nuevo);

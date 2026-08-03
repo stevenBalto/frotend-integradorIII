@@ -32,6 +32,15 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   busqueda = '';
   desde = '';
   hasta = '';
+  // Caching helpers to avoid returning new arrays on every CD cycle
+  private _resenasCacheKey = '';
+  private _resenasFiltradasCache: ResenaAdmin[] = [];
+  // Derived caches
+  private _baseResenasKey = '';
+  private _publicadasCache: ResenaAdmin[] = [];
+  private _distribucionCache: { estrella: number; cantidad: number }[] = [];
+  private _productosCache: { id: number; nombre: string }[] = [];
+  private _promedioCache: number | null = null;
 
   constructor(
     private resenaService: ResenaService,
@@ -56,6 +65,14 @@ export class AdminResenasPage implements OnInit, OnDestroy {
       .subscribe({
         next: (r) => {
           this.resenas = r;
+          // clear derived caches when new data arrives
+          this._resenasCacheKey = '';
+          this._resenasFiltradasCache = [];
+          this._baseResenasKey = this.resenas.map((x) => x.id).join(',');
+          this._publicadasCache = [];
+          this._distribucionCache = [];
+          this._productosCache = [];
+          this._promedioCache = null;
           this.cargando = false;
         },
         error: () => {
@@ -68,7 +85,12 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   // ── Derivados / KPIs ──
 
   private get publicadas(): ResenaAdmin[] {
-    return this.resenas.filter((r) => r.estado === 'publicada');
+    const key = this._baseResenasKey;
+    if (key === this._baseResenasKey && this._publicadasCache.length > 0) {
+      return this._publicadasCache;
+    }
+    this._publicadasCache = this.resenas.filter((r) => r.estado === 'publicada');
+    return this._publicadasCache;
   }
 
   get total(): number {
@@ -76,9 +98,14 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   }
 
   get promedioGeneral(): number {
+    if (this._promedioCache !== null) return this._promedioCache;
     const pub = this.publicadas;
-    if (pub.length === 0) return 0;
-    return Math.round((pub.reduce((s, r) => s + r.calificacion, 0) / pub.length) * 10) / 10;
+    if (pub.length === 0) {
+      this._promedioCache = 0;
+      return 0;
+    }
+    this._promedioCache = Math.round((pub.reduce((s, r) => s + r.calificacion, 0) / pub.length) * 10) / 10;
+    return this._promedioCache;
   }
 
   get ocultasCount(): number {
@@ -87,11 +114,13 @@ export class AdminResenasPage implements OnInit, OnDestroy {
 
   /** Distribución 1..5 sobre las reseñas publicadas (lo que ven los clientes). */
   get distribucion(): { estrella: number; cantidad: number }[] {
+    if (this._distribucionCache.length > 0) return this._distribucionCache;
     const pub = this.publicadas;
-    return [5, 4, 3, 2, 1].map((estrella) => ({
+    this._distribucionCache = [5, 4, 3, 2, 1].map((estrella) => ({
       estrella,
       cantidad: pub.filter((r) => r.calificacion === estrella).length,
     }));
+    return this._distribucionCache;
   }
 
   get maxDistribucion(): number {
@@ -100,18 +129,25 @@ export class AdminResenasPage implements OnInit, OnDestroy {
 
   /** Productos presentes en las reseñas (para el filtro por producto). */
   get productos(): { id: number; nombre: string }[] {
+    if (this._productosCache.length > 0) return this._productosCache;
     const map = new Map<number, string>();
     this.resenas.forEach((r) => {
       if (r.producto) map.set(r.producto.id, r.producto.nombre);
     });
-    return [...map.entries()].map(([id, nombre]) => ({ id, nombre }));
+    this._productosCache = [...map.entries()].map(([id, nombre]) => ({ id, nombre }));
+    return this._productosCache;
   }
 
   // ── Filtrado (en memoria) ──
 
   get resenasFiltradas(): ResenaAdmin[] {
     const q = this.busqueda.trim().toLowerCase();
-    return this.resenas.filter((r) => {
+    const key = `${this.resenas.map((x) => x.id).join(',')}|${this.filtroEstrella}|${this.filtroEstado}|${this.filtroTipo}|${this.filtroProductoId}|${q}|${this.desde}|${this.hasta}`;
+    if (key === this._resenasCacheKey) {
+      return this._resenasFiltradasCache;
+    }
+
+    const result = this.resenas.filter((r) => {
       if (this.filtroEstrella !== 0 && r.calificacion !== this.filtroEstrella) return false;
       if (this.filtroEstado !== 'todas' && r.estado !== this.filtroEstado) return false;
       if (this.filtroTipo !== 'todas' && r.tipo !== this.filtroTipo) return false;
@@ -124,6 +160,10 @@ export class AdminResenasPage implements OnInit, OnDestroy {
       if (this.hasta && (!r.created_at || r.created_at.slice(0, 10) > this.hasta)) return false;
       return true;
     });
+
+    this._resenasCacheKey = key;
+    this._resenasFiltradasCache = result;
+    return result;
   }
 
   hayFiltros(): boolean {
@@ -212,5 +252,10 @@ export class AdminResenasPage implements OnInit, OnDestroy {
       color: error ? 'danger' : 'dark',
     });
     await t.present();
+  }
+
+  // trackBy for *ngFor
+  trackByResena(index: number, item: ResenaAdmin): number {
+    return item.id;
   }
 }

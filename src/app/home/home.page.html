@@ -96,7 +96,7 @@
       <div class="dish-card__img dish-card__img--placeholder" *ngIf="!p.imagen_url">
         <ion-icon name="restaurant-outline"></ion-icon>
       </div>
-      <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="dish-card__img" />
+      <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="dish-card__img" loading="lazy" />
       <div class="dish-card__body">
         <span class="dish-card__name">{{ p.nombre }}</span>
         <span class="dish-card__rating" *ngIf="p.resenas_count > 0">
@@ -119,7 +119,7 @@
     </button>
 
     <div class="dish-modal__img">
-      <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" />
+    <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" loading="lazy" />
       <ion-icon *ngIf="!productoDetalle.imagen_url" name="restaurant-outline"></ion-icon>
     </div>
 

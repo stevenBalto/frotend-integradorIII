@@ -13,9 +13,15 @@ export class ClienteService {
   constructor(private http: HttpClient) {}
 
   /** GET /admin/clientes — listado con estadisticas agregadas de compra. */
-  listarConEstadisticas(): Observable<Cliente[]> {
+  listarConEstadisticas(porPagina: number = 24, pagina: number = 1): Observable<Cliente[]> {
+    const params: Record<string, string> = {
+      por_pagina: String(porPagina),
+      pagina: String(pagina),
+    };
+    const httpParams = new URLSearchParams(params as any).toString();
+
     return this.http
-      .get<ApiCollection<Cliente>>(`${this.base}/admin/clientes`)
+      .get<ApiCollection<Cliente>>(`${this.base}/admin/clientes?${httpParams}`)
       .pipe(map((res) => res.data));
   }
 
