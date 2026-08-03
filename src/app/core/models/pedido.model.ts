@@ -68,6 +68,8 @@ export interface PedidoAdmin extends Pedido {
   pagado_en: string | null;
   historial: HistorialEstado[];
   cupon: CuponPedido | null;
+  /** true = pedido hecho por un visitante sin sesión (cliente centinela "Invitado"). */
+  es_invitado: boolean;
 }
 
 /** Respuesta publica (buscar por codigo, sin auth). */

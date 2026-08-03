@@ -45,6 +45,10 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // Modal "pantalla completa": lista todos los pedidos del filtro actual en grande
   // (util cuando entran muchos pendientes y hay que verlos de un vistazo).
   pantallaCompletaOpen = false;
+
+  // Modal de ayuda: explica los colores de cliente registrado vs invitado (item 29).
+  ayudaColoresOpen = false;
+
   cambiandoEstado = false;
   registrandoPago = false;
   accionError: string | null = null;
@@ -111,6 +115,14 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
 
   cerrarPantallaCompleta(): void {
     this.pantallaCompletaOpen = false;
+  }
+
+  abrirAyudaColores(): void {
+    this.ayudaColoresOpen = true;
+  }
+
+  cerrarAyudaColores(): void {
+    this.ayudaColoresOpen = false;
   }
 
   // ── Filtro por fecha ──

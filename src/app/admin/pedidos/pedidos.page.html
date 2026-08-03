@@ -1,6 +1,15 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- Botón de ayuda en el header (a la par de la campana): explica los colores. -->
+    <ng-template adminHeaderActions>
+      <button type="button" class="ped-help-btn" (click)="abrirAyudaColores()"
+        title="¿Qué significan los colores de la tabla?">
+        <ion-icon name="help-circle-outline"></ion-icon>
+        <span class="hide-on-mobile">Colores</span>
+      </button>
+    </ng-template>
+
     <!-- KPIs / Filtros -->
     <div class="admin-grid-4">
       <admin-kpi-card label="Pedidos totales" [value]="totalPedidos"
@@ -62,7 +71,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of pedidosFiltrados" class="ped-row" (click)="abrirDetalle(p)">
+            <tr *ngFor="let p of pedidosFiltrados" class="ped-row"
+              [class.ped-row--invitado]="p.es_invitado" [class.ped-row--registrado]="!p.es_invitado"
+              (click)="abrirDetalle(p)">
               <td class="admin-table__strong">{{ p.codigo }}</td>
               <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>
               <td class="admin-table__semi">{{ p.nombre_cliente || p.cliente.nombre }}</td>
@@ -256,7 +267,9 @@
 
   <div class="ped-fs__body">
     <div class="ped-fs__grid">
-      <button type="button" class="ped-fs-card" *ngFor="let p of pedidosFiltrados" (click)="abrirDetalle(p)">
+      <button type="button" class="ped-fs-card"
+        [class.ped-fs-card--invitado]="p.es_invitado" [class.ped-fs-card--registrado]="!p.es_invitado"
+        *ngFor="let p of pedidosFiltrados" (click)="abrirDetalle(p)">
         <div class="ped-fs-card__top">
           <span class="ped-fs-card__codigo">{{ p.codigo }}</span>
           <status-badge [type]="estadoToStatusType(p.estado)"></status-badge>
@@ -293,5 +306,34 @@
     <p *ngIf="pedidosFiltrados.length === 0" class="ped-fs__empty">
       No hay pedidos que coincidan con este filtro.
     </p>
+  </div>
+</div>
+
+<!-- Modal de ayuda: qué significan los colores de la tabla (item 29). -->
+<div class="ped-help-modal" *ngIf="ayudaColoresOpen">
+  <div class="ped-help-modal__backdrop" (click)="cerrarAyudaColores()"></div>
+  <div class="ped-help-modal__panel">
+    <div class="ped-help-modal__head">
+      <p class="ped-help-modal__title">Colores de la tabla</p>
+      <button type="button" class="ped-help-modal__close" (click)="cerrarAyudaColores()" aria-label="Cerrar">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="ped-help-modal__body">
+      <div class="ped-help-row">
+        <span class="ped-help-swatch ped-help-swatch--reg"></span>
+        <div class="ped-help-row__txt">
+          <strong>Cliente registrado</strong>
+          <p>Pidió con su cuenta: acumula Roosters y queda en su historial.</p>
+        </div>
+      </div>
+      <div class="ped-help-row">
+        <span class="ped-help-swatch ped-help-swatch--inv"></span>
+        <div class="ped-help-row__txt">
+          <strong>Cliente no registrado</strong>
+          <p>Pidió como invitado; se identifica por su código y el nombre que dejó.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
