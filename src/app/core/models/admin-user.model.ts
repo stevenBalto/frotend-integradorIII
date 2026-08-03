@@ -1,14 +1,21 @@
+/** Permiso individual para un modulo asignado a un usuario. */
+export interface ModuloUsuario {
+  id: number;
+  clave: string;
+  nombre: string;
+  permiso: 'lectura' | 'editor';
+}
+
+/** Modulo disponible en el catalogo (para selector de permisos). */
 export interface ModuloOpt {
   id: number;
   clave: string;
   nombre: string;
-  orden: number;
 }
 
 export interface RolOpt {
   id: number;
   nombre: string;
-  descripcion: string | null;
 }
 
 export interface AdminUser {
@@ -20,12 +27,10 @@ export interface AdminUser {
   activo: boolean;
   role_id: number;
   rol: string;
-  sucursal_id: number | null;
-  password_temporal: boolean;
-  cambio_password_obligatorio: boolean;
-  ultimo_acceso_en: string | null;
-  created_at: string | null;
-  modulos: number[];
+  dias_expiracion_password: number;
+  password_expira_en: string | null;
+  password_vencida: boolean;
+  modulos: ModuloUsuario[];
 }
 
 export interface OpcionesUsuario {
@@ -33,6 +38,7 @@ export interface OpcionesUsuario {
   modulos: ModuloOpt[];
 }
 
+/** Body para crear un usuario (POST /api/admin/usuarios). */
 export interface CrearUsuarioBody {
   nombre: string;
   usuario: string;
@@ -40,15 +46,17 @@ export interface CrearUsuarioBody {
   telefono?: string | null;
   password: string;
   role_id: number;
-  modulos: number[];
+  dias_expiracion_password: number;
+  modulos: { modulo_id: number; permiso: 'lectura' | 'editor' }[];
 }
 
+/** Body para actualizar un usuario (PUT/PATCH, nunca incluye password). */
 export interface ActualizarUsuarioBody {
   nombre?: string;
   usuario?: string;
   email?: string;
   telefono?: string | null;
   role_id?: number;
-  activo?: boolean;
-  modulos?: number[];
+  dias_expiracion_password?: number;
+  modulos?: { modulo_id: number; permiso: 'lectura' | 'editor' }[];
 }

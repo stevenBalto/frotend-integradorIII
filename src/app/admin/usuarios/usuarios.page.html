@@ -1,30 +1,18 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- Acción en el header global (junto a la campana) -->
+    <!-- Accion en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
       <admin-btn (clicked)="abrirCrear()">
         <ion-icon name="person-add-outline"></ion-icon> <span class="hide-on-mobile">Crear usuario</span>
       </admin-btn>
     </ng-template>
 
-    <!-- Stats (clic = filtro con focus) -->
-    <div class="usr-stats">
-      <admin-kpi-card label="Usuarios totales" [value]="totalUsuarios"
-        icon="people-outline" iconBg="#6B728014" iconColor="#374151"
-        [clickable]="true" [active]="activeFilter === 'todos'" (cardClick)="filtrar('todos')"></admin-kpi-card>
-      <admin-kpi-card label="Administradores" [value]="totalAdmins"
-        icon="shield-checkmark-outline" iconBg="#E136421a" iconColor="#E13642"
-        [clickable]="true" [active]="activeFilter === 'admin'" (cardClick)="filtrar('admin')"></admin-kpi-card>
-    </div>
-
+    <!-- Item 18: Toolbar compacto - solo buscador y total en la misma fila -->
     <admin-section-card id="usr-tabla">
-      <div class="usr-toolbar">
-        <div class="usr-toolbar__tabs">
-          <filter-tab *ngFor="let f of filters" [label]="f.label"
-            [active]="activeFilter === f.id" (select)="activeFilter = f.id"></filter-tab>
-        </div>
-        <admin-search-input placeholder="Buscar usuario..."></admin-search-input>
+      <div class="usr-toolbar-compact">
+        <admin-search-input placeholder="Buscar usuario..." (searchChange)="onBuscar($event)"></admin-search-input>
+        <span class="usr-total">{{ totalUsuarios }} usuarios</span>
       </div>
 
       <div class="admin-table-wrap">
@@ -37,7 +25,7 @@
           </thead>
           <tbody>
             <tr *ngIf="cargando">
-              <td colspan="7" class="usr-empty"><ion-spinner name="crescent"></ion-spinner> Cargando…</td>
+              <td colspan="7" class="usr-empty"><ion-spinner name="crescent"></ion-spinner> Cargando...</td>
             </tr>
             <tr *ngIf="!cargando && usuariosFiltrados.length === 0">
               <td colspan="7" class="usr-empty">No hay usuarios para mostrar.</td>
@@ -47,7 +35,7 @@
                 <div class="usr-avatar" [style.background]="u.rol !== 'cliente' ? '#E13642' : '#6B7280'">{{ u.nombre[0] }}</div>
               </td>
               <td class="admin-table__strong" style="font-size: 12px;">{{ u.nombre }}</td>
-              <td class="admin-table__muted">{{ u.usuario || '—' }}</td>
+              <td class="admin-table__muted">{{ u.usuario || '-' }}</td>
               <td class="admin-table__muted">{{ u.email }}</td>
               <td>
                 <span class="usr-role" [class.usr-role--super]="u.rol !== 'cliente'">
@@ -55,13 +43,22 @@
                   {{ etiquetaRol(u.rol) }}
                 </span>
               </td>
-              <td><status-badge [type]="u.activo ? 'active' : 'inactive'"></status-badge></td>
+              <td>
+                <status-badge [type]="u.activo ? 'active' : 'inactive'"></status-badge>
+              </td>
               <td>
                 <div class="usr-actions">
-                  <button type="button" class="usr-action" (click)="abrirEditar(u)">
+                  <button type="button" class="usr-action" (click)="abrirEditar(u)" title="Editar">
                     <ion-icon name="create-outline"></ion-icon>
                   </button>
-                  <button type="button" class="usr-action usr-action--danger" (click)="eliminar(u)">
+                  <button type="button" class="usr-action"
+                    [class.usr-action--enable]="!u.activo"
+                    [class.usr-action--disable]="u.activo"
+                    (click)="toggleEstado(u)"
+                    [title]="u.activo ? 'Deshabilitar' : 'Habilitar'">
+                    <ion-icon [name]="u.activo ? 'ban-outline' : 'checkmark-circle-outline'"></ion-icon>
+                  </button>
+                  <button type="button" class="usr-action usr-action--danger" (click)="eliminar(u)" title="Eliminar">
                     <ion-icon name="trash-outline"></ion-icon>
                   </button>
                 </div>
@@ -75,7 +72,7 @@
   </div>
 </ion-content>
 
-<!-- ── Modal crear/editar usuario ──────────────────────────────────────────── -->
+<!-- Modal crear/editar usuario -->
 <div class="usr-modal" *ngIf="showModal">
   <div class="usr-modal__backdrop" (click)="cerrarModal()"></div>
   <div class="usr-modal__panel">
@@ -89,24 +86,24 @@
     <form class="usr-modal__body" [formGroup]="form" (ngSubmit)="guardar()">
       <div class="usr-field">
         <p class="usr-field__label">Nombre completo</p>
-        <input class="usr-input" formControlName="nombre" placeholder="Ej: Bryan Vega Ordoñez" />
+        <input class="usr-input" formControlName="nombre" placeholder="Ej: Bryan Vega Ordonez" />
       </div>
       <div class="usr-field">
         <p class="usr-field__label">Usuario</p>
         <input class="usr-input" formControlName="usuario" placeholder="Ej: bvega" autocomplete="off" />
       </div>
       <div class="usr-field">
-        <p class="usr-field__label">Correo electrónico</p>
+        <p class="usr-field__label">Correo electronico</p>
         <input class="usr-input" formControlName="email" placeholder="correo@rooster.com" autocomplete="off" />
       </div>
       <div class="usr-field">
-        <p class="usr-field__label">Teléfono (opcional)</p>
+        <p class="usr-field__label">Telefono (opcional)</p>
         <input class="usr-input" formControlName="telefono" placeholder="8888-8888" />
       </div>
 
-      <!-- Contraseña temporal: solo al crear -->
+      <!-- Item 21: Contrasena solo al crear (no al editar) -->
       <div class="usr-field" *ngIf="!editandoId">
-        <p class="usr-field__label">Contraseña temporal</p>
+        <p class="usr-field__label">Contrasena</p>
         <div class="usr-pass">
           <input class="usr-input usr-pass__input" [type]="showPassword ? 'text' : 'password'"
             formControlName="password" readonly />
@@ -117,33 +114,29 @@
             <ion-icon name="refresh-outline"></ion-icon>
           </button>
         </div>
-        <p class="usr-field__hint">Entregala al usuario. Deberá cambiarla en su primer inicio de sesión.</p>
+        <p class="usr-field__hint">Entregala al usuario. Debera cambiarla al expirar.</p>
       </div>
 
-      <!-- Rol -->
+      <!-- Item 19: Selector de expiracion de contrasena -->
       <div class="usr-field">
-        <p class="usr-field__label">Rol</p>
-        <div class="usr-roles">
-          <button type="button" class="usr-role-opt" *ngFor="let r of rolesAsignables"
-            [class.usr-role-opt--active]="form.value.role_id === r.id"
-            (click)="form.patchValue({ role_id: r.id })">
-            <ion-icon [name]="r.nombre === 'cliente' ? 'person-outline' : 'shield-checkmark-outline'"></ion-icon>
-            <span>{{ etiquetaRol(r.nombre) }}</span>
+        <p class="usr-field__label">La contrasena expira cada</p>
+        <div class="usr-expiracion">
+          <button type="button" class="usr-exp-opt" *ngFor="let opt of opcionesExpiracion"
+            [class.usr-exp-opt--active]="form.value.dias_expiracion_password === opt.value"
+            (click)="form.patchValue({ dias_expiracion_password: opt.value })">
+            {{ opt.label }}
           </button>
         </div>
       </div>
 
-      <!-- Permisos por módulo: solo para roles de staff (admin) -->
-      <div class="usr-field" *ngIf="rolEsAdmin">
-        <p class="usr-field__label">Módulos a los que puede entrar</p>
-        <div class="usr-modulos">
-          <button type="button" class="usr-modulo" *ngFor="let m of modulos"
-            [class.usr-modulo--on]="modulosSel.has(m.id)" (click)="toggleModulo(m.id)">
-            <ion-icon [name]="modulosSel.has(m.id) ? 'checkbox' : 'square-outline'"></ion-icon>
-            <span>{{ m.nombre }}</span>
-          </button>
-        </div>
-        <p class="usr-field__hint">Definí exactamente a qué secciones tendrá acceso este usuario.</p>
+      <!-- Item 16: Boton para abrir modal de modulos y permisos -->
+      <div class="usr-field">
+        <p class="usr-field__label">Acceso a modulos</p>
+        <button type="button" class="usr-modulos-btn" (click)="abrirModulosModal()">
+          <ion-icon name="apps-outline"></ion-icon>
+          <span>Modulos y permisos ({{ modulosSelCount }} seleccionados)</span>
+          <ion-icon name="chevron-forward-outline" class="usr-modulos-btn__arrow"></ion-icon>
+        </button>
       </div>
 
       <button type="submit" class="usr-modal__cta" [disabled]="guardando">
@@ -151,5 +144,52 @@
         <ion-spinner *ngIf="guardando" name="crescent"></ion-spinner>
       </button>
     </form>
+  </div>
+</div>
+
+<!-- Item 16: Modal de modulos y permisos -->
+<div class="usr-modal" *ngIf="showModulosModal">
+  <div class="usr-modal__backdrop" (click)="cerrarModulosModal()"></div>
+  <div class="usr-modal__panel usr-modal__panel--wide">
+    <div class="usr-modal__head">
+      <span class="usr-modal__title">Modulos y permisos</span>
+      <button type="button" class="usr-modal__close" (click)="cerrarModulosModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="usr-modal__body">
+      <p class="usr-modulos-intro">Selecciona los modulos a los que tendra acceso y define el nivel de permiso para cada uno.</p>
+
+      <div class="usr-modulos-list">
+        <div class="usr-modulo-item" *ngFor="let m of modulos">
+          <div class="usr-modulo-item__toggle">
+            <button type="button" class="usr-modulo-check"
+              [class.usr-modulo-check--on]="modulosSel.has(m.id)"
+              (click)="toggleModulo(m.id)">
+              <ion-icon [name]="modulosSel.has(m.id) ? 'checkbox' : 'square-outline'"></ion-icon>
+            </button>
+            <span class="usr-modulo-item__nombre">{{ m.nombre }}</span>
+          </div>
+
+          <div class="usr-modulo-item__permiso" *ngIf="modulosSel.has(m.id)">
+            <button type="button" class="usr-perm-btn"
+              [class.usr-perm-btn--active]="modulosSel.get(m.id) === 'lectura'"
+              (click)="setPermisoModulo(m.id, 'lectura')">
+              <ion-icon name="eye-outline"></ion-icon> Lectura
+            </button>
+            <button type="button" class="usr-perm-btn"
+              [class.usr-perm-btn--active]="modulosSel.get(m.id) === 'editor'"
+              (click)="setPermisoModulo(m.id, 'editor')">
+              <ion-icon name="create-outline"></ion-icon> Editor
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="usr-modal__cta" (click)="cerrarModulosModal()">
+        Confirmar seleccion
+      </button>
+    </div>
   </div>
 </div>

@@ -5,12 +5,7 @@ import { AlertController, ToastController } from '@ionic/angular';
 import { UsuarioAdminService } from '../../core/services/usuario-admin.service';
 import { AdminUser, ModuloOpt, RolOpt } from '../../core/models/admin-user.model';
 
-interface FilterOpt {
-  id: string;
-  label: string;
-}
-
-/** Usuarios y roles del panel admin — CRUD real, aislado por instancia. */
+/** Usuarios y roles del panel admin - CRUD real, aislado por instancia. */
 @Component({
   selector: 'app-admin-usuarios',
   templateUrl: './usuarios.page.html',
@@ -19,20 +14,11 @@ interface FilterOpt {
 })
 export class AdminUsuariosPage implements OnInit {
   usuarios: AdminUser[] = [];
+  usuariosFiltrados: AdminUser[] = [];
   roles: RolOpt[] = [];
   modulos: ModuloOpt[] = [];
   cargando = false;
-
-  // KPIs (se recalculan al cargar la lista)
-  totalUsuarios = 0;
-  totalAdmins = 0;
-  totalClientes = 0;
-
-  activeFilter = 'todos';
-  readonly filters: FilterOpt[] = [
-    { id: 'todos', label: 'Todos' },
-    { id: 'admin', label: 'Administradores' },
-  ];
+  busqueda = '';
 
   // Modal crear/editar
   showModal = false;
@@ -40,7 +26,17 @@ export class AdminUsuariosPage implements OnInit {
   guardando = false;
   showPassword = false;
   readonly form: FormGroup;
-  modulosSel = new Set<number>();
+
+  // Item 16: Map de modulos seleccionados con su nivel de permiso
+  modulosSel = new Map<number, 'lectura' | 'editor'>();
+  showModulosModal = false;
+
+  // Item 19: opciones de expiracion de password
+  readonly opcionesExpiracion = [
+    { value: 15, label: '15 dias' },
+    { value: 30, label: '30 dias' },
+    { value: 60, label: '60 dias' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -54,7 +50,7 @@ export class AdminUsuariosPage implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       telefono: [''],
       password: [''],
-      role_id: [null, [Validators.required]],
+      dias_expiracion_password: [30, [Validators.required]],
     });
   }
 
@@ -63,13 +59,13 @@ export class AdminUsuariosPage implements OnInit {
     this.cargarOpciones();
   }
 
-  // ── Carga de datos ────────────────────────────────────────────────
+  // -- Carga de datos --
   cargar(): void {
     this.cargando = true;
     this.service.listar().subscribe({
       next: (res) => {
         this.usuarios = res.data;
-        this.recalcularKpis();
+        this.aplicarFiltro();
         this.cargando = false;
       },
       error: () => {
@@ -88,40 +84,27 @@ export class AdminUsuariosPage implements OnInit {
     });
   }
 
-  // ── Filtros y KPIs ────────────────────────────────────────────────
-  get usuariosFiltrados(): AdminUser[] {
-    if (this.activeFilter === 'admin') {
-      return this.usuarios.filter((u) => u.rol !== 'cliente');
+  // -- Busqueda --
+  onBuscar(valor: string): void {
+    this.busqueda = valor.toLowerCase().trim();
+    this.aplicarFiltro();
+  }
+
+  private aplicarFiltro(): void {
+    if (!this.busqueda) {
+      this.usuariosFiltrados = [...this.usuarios];
+    } else {
+      this.usuariosFiltrados = this.usuarios.filter(
+        (u) =>
+          u.nombre.toLowerCase().includes(this.busqueda) ||
+          (u.usuario?.toLowerCase() || '').includes(this.busqueda) ||
+          u.email.toLowerCase().includes(this.busqueda)
+      );
     }
-    if (this.activeFilter === 'cliente') {
-      return this.usuarios.filter((u) => u.rol === 'cliente');
-    }
-    return this.usuarios;
   }
 
-  private recalcularKpis(): void {
-    this.totalUsuarios = this.usuarios.length;
-    this.totalAdmins = this.usuarios.filter((u) => u.rol !== 'cliente').length;
-    this.totalClientes = this.usuarios.filter((u) => u.rol === 'cliente').length;
-  }
-
-  /** Roles asignables desde el panel: NO se crea/edita clientes aquí. */
-  get rolesAsignables(): RolOpt[] {
-    return this.roles.filter((r) => r.nombre !== 'cliente');
-  }
-
-  /** #11 KPI como filtro: aplica el filtro y enfoca la tabla. */
-  filtrar(f: string): void {
-    this.activeFilter = f;
-    setTimeout(() => {
-      document.getElementById('usr-tabla')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 0);
-  }
-
-  /** El rol elegido en el modal es de staff (admin_sede) → muestra módulos. */
-  get rolEsAdmin(): boolean {
-    const rol = this.roles.find((r) => r.id === this.form.value.role_id);
-    return rol?.nombre === 'admin_sede';
+  get totalUsuarios(): number {
+    return this.usuarios.length;
   }
 
   etiquetaRol(nombre: string): string {
@@ -131,10 +114,19 @@ export class AdminUsuariosPage implements OnInit {
     return nombre;
   }
 
-  // ── Modal ─────────────────────────────────────────────────────────
+  // -- ID del rol admin_sede (se setea automaticamente) --
+  private get roleIdAdminSede(): number | null {
+    const rol = this.roles.find((r) => r.nombre === 'admin_sede');
+    return rol?.id ?? null;
+  }
+
+  // -- Modal crear/editar --
   abrirCrear(): void {
     this.editandoId = null;
-    this.form.reset({ telefono: '', role_id: null });
+    this.form.reset({
+      telefono: '',
+      dias_expiracion_password: 30,
+    });
     this.form.patchValue({ password: this.generarPassword() });
     this.modulosSel.clear();
     this.showPassword = false;
@@ -149,9 +141,13 @@ export class AdminUsuariosPage implements OnInit {
       email: u.email,
       telefono: u.telefono ?? '',
       password: '',
-      role_id: u.role_id,
+      dias_expiracion_password: u.dias_expiracion_password || 30,
     });
-    this.modulosSel = new Set(u.modulos);
+    // Cargar modulos desde el usuario (ahora es array de objetos con permiso)
+    this.modulosSel.clear();
+    for (const m of u.modulos) {
+      this.modulosSel.set(m.id, m.permiso);
+    }
     this.showModal = true;
   }
 
@@ -164,23 +160,52 @@ export class AdminUsuariosPage implements OnInit {
     this.showPassword = true;
   }
 
+  // -- Modal de modulos y permisos --
+  abrirModulosModal(): void {
+    this.showModulosModal = true;
+  }
+
+  cerrarModulosModal(): void {
+    this.showModulosModal = false;
+  }
+
   toggleModulo(id: number): void {
     if (this.modulosSel.has(id)) {
       this.modulosSel.delete(id);
     } else {
-      this.modulosSel.add(id);
+      this.modulosSel.set(id, 'lectura'); // Default: lectura
     }
+  }
+
+  setPermisoModulo(id: number, permiso: 'lectura' | 'editor'): void {
+    if (this.modulosSel.has(id)) {
+      this.modulosSel.set(id, permiso);
+    }
+  }
+
+  get modulosSelCount(): number {
+    return this.modulosSel.size;
   }
 
   guardar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      void this.notificar('Completá los campos obligatorios.', 'warning');
+      void this.notificar('Completa los campos obligatorios.', 'warning');
       return;
     }
 
     const v = this.form.getRawValue();
-    const modulos = this.rolEsAdmin ? Array.from(this.modulosSel) : [];
+    const modulos = Array.from(this.modulosSel.entries()).map(([id, permiso]) => ({
+      modulo_id: id,
+      permiso,
+    }));
+    const roleId = this.roleIdAdminSede;
+
+    if (roleId === null) {
+      void this.notificar('No se encontro el rol admin_sede.', 'danger');
+      return;
+    }
+
     this.guardando = true;
 
     if (this.editandoId === null) {
@@ -192,22 +217,24 @@ export class AdminUsuariosPage implements OnInit {
           email: v.email,
           telefono: v.telefono || null,
           password: v.password,
-          role_id: v.role_id,
+          role_id: roleId,
+          dias_expiracion_password: v.dias_expiracion_password,
           modulos,
         })
         .subscribe({
-          next: () => this.trasGuardar('Usuario creado. Contraseña temporal entregada.'),
+          next: () => this.trasGuardar('Usuario creado correctamente.'),
           error: (err) => this.errorGuardar(err),
         });
     } else {
-      // Editar
+      // Editar (nunca envia password)
       this.service
         .actualizar(this.editandoId, {
           nombre: v.nombre,
           usuario: v.usuario,
           email: v.email,
           telefono: v.telefono || null,
-          role_id: v.role_id,
+          role_id: roleId,
+          dias_expiracion_password: v.dias_expiracion_password,
           modulos,
         })
         .subscribe({
@@ -217,10 +244,47 @@ export class AdminUsuariosPage implements OnInit {
     }
   }
 
+  // -- Item 20: Deshabilitar/habilitar cuenta --
+  async toggleEstado(u: AdminUser): Promise<void> {
+    const nuevoEstado = !u.activo;
+    const accion = nuevoEstado ? 'habilitar' : 'deshabilitar';
+
+    const a = await this.alert.create({
+      header: nuevoEstado ? 'Habilitar usuario' : 'Deshabilitar usuario',
+      message: `¿Deseas ${accion} a "${u.nombre}"?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: nuevoEstado ? 'Habilitar' : 'Deshabilitar',
+          role: nuevoEstado ? 'confirm' : 'destructive',
+          handler: () => {
+            this.service.cambiarEstado(u.id, nuevoEstado).subscribe({
+              next: (res) => {
+                // Actualizar el usuario en la lista
+                const idx = this.usuarios.findIndex((x) => x.id === u.id);
+                if (idx !== -1) {
+                  this.usuarios[idx] = res.data;
+                  this.aplicarFiltro();
+                }
+                void this.notificar(
+                  nuevoEstado ? 'Usuario habilitado.' : 'Usuario deshabilitado.',
+                  'success'
+                );
+              },
+              error: (err: HttpErrorResponse) =>
+                void this.notificar(this.primerError(err), 'danger'),
+            });
+          },
+        },
+      ],
+    });
+    await a.present();
+  }
+
   async eliminar(u: AdminUser): Promise<void> {
     const a = await this.alert.create({
       header: 'Eliminar usuario',
-      message: `¿Eliminar a "${u.nombre}"? Esta acción se puede revertir en la base (soft delete).`,
+      message: `¿Eliminar a "${u.nombre}"? Esta accion se puede revertir en la base (soft delete).`,
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
@@ -242,7 +306,7 @@ export class AdminUsuariosPage implements OnInit {
     await a.present();
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────
+  // -- Helpers --
   private trasGuardar(msg: string): void {
     this.guardando = false;
     this.showModal = false;
@@ -261,10 +325,10 @@ export class AdminUsuariosPage implements OnInit {
       const primero = Object.values(errores)[0];
       if (Array.isArray(primero)) return primero[0] as string;
     }
-    return err.error?.message ?? 'Ocurrió un error.';
+    return err.error?.message ?? 'Ocurrio un error.';
   }
 
-  /** Genera una contraseña temporal fuerte (12+, mayús/minús/número/símbolo). */
+  /** Genera una contrasena fuerte (12+, mayus/minus/numero/simbolo). */
   private generarPassword(): string {
     const may = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const min = 'abcdefghijkmnpqrstuvwxyz';

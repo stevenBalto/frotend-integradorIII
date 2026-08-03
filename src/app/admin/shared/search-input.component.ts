@@ -41,9 +41,11 @@ export class SearchInputComponent {
   @Input() placeholder = '';
   @Input() value = '';
   @Output() valueChange = new EventEmitter<string>();
+  @Output() searchChange = new EventEmitter<string>();
 
   onInput(event: Event): void {
     const texto = (event.target as HTMLInputElement).value;
     this.valueChange.emit(texto);
+    this.searchChange.emit(texto);
   }
 }

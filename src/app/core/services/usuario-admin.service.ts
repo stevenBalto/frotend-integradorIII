@@ -11,7 +11,7 @@ import {
 
 /**
  * CRUD de usuarios de la instancia (panel admin) contra el backend.
- * El interceptor adjunta el token del admin automáticamente.
+ * El interceptor adjunta el token del admin automaticamente.
  */
 @Injectable({ providedIn: 'root' })
 export class UsuarioAdminService {
@@ -31,8 +31,20 @@ export class UsuarioAdminService {
     return this.http.post<{ data: AdminUser }>(this.base, body);
   }
 
+  /**
+   * Actualiza un usuario. NUNCA envia password (solo se setea al crear).
+   */
   actualizar(id: number, body: ActualizarUsuarioBody): Observable<{ data: AdminUser }> {
-    return this.http.put<{ data: AdminUser }>(`${this.base}/${id}`, body);
+    // Garantizamos que password nunca se envie
+    const { ...payload } = body;
+    return this.http.put<{ data: AdminUser }>(`${this.base}/${id}`, payload);
+  }
+
+  /**
+   * Cambia el estado activo/inactivo de un usuario.
+   */
+  cambiarEstado(id: number, activo: boolean): Observable<{ data: AdminUser }> {
+    return this.http.patch<{ data: AdminUser }>(`${this.base}/${id}/estado`, { activo });
   }
 
   eliminar(id: number): Observable<unknown> {
