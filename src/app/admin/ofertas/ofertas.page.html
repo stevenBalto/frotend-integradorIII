@@ -199,18 +199,10 @@
               </span>
             </div>
           </div>
-          <!-- Galeria de imagenes por defecto -->
-          <div class="of-form__defaults">
-            <span class="of-form__defaults-title">O elegir una imagen del sistema:</span>
-            <div class="of-form__defaults-list">
-              <button type="button" class="of-form__default-item"
-                *ngFor="let img of imagenesPorDefecto"
-                [class.of-form__default-item--selected]="ofertaImagenUrlDefault === img.url"
-                (click)="seleccionarImagenOfertaDefault(img)">
-                <img [src]="img.url" [alt]="img.nombre" />
-              </button>
-            </div>
-          </div>
+          <!-- Elegir imagen del sistema (abre modal con todas las opciones) -->
+          <button type="button" class="of-form__sysbtn" (click)="abrirPickerImagen('oferta')">
+            <ion-icon name="images-outline"></ion-icon> Elegir imagen del sistema
+          </button>
           <!-- Boton quitar imagen -->
           <button type="button" class="of-form__clear-btn" *ngIf="ofertaImagenPreview" (click)="quitarImagenOferta()">
             <ion-icon name="close-circle-outline"></ion-icon> Quitar imagen
@@ -316,18 +308,10 @@
               </span>
             </div>
           </div>
-          <!-- Galeria de imagenes por defecto -->
-          <div class="of-form__defaults">
-            <span class="of-form__defaults-title">O elegir una imagen del sistema:</span>
-            <div class="of-form__defaults-list">
-              <button type="button" class="of-form__default-item"
-                *ngFor="let img of imagenesPorDefecto"
-                [class.of-form__default-item--selected]="cuponImagenUrlDefault === img.url"
-                (click)="seleccionarImagenCuponDefault(img)">
-                <img [src]="img.url" [alt]="img.nombre" />
-              </button>
-            </div>
-          </div>
+          <!-- Elegir imagen del sistema (abre modal con todas las opciones) -->
+          <button type="button" class="of-form__sysbtn" (click)="abrirPickerImagen('cupon')">
+            <ion-icon name="images-outline"></ion-icon> Elegir imagen del sistema
+          </button>
           <!-- Boton quitar imagen -->
           <button type="button" class="of-form__clear-btn" *ngIf="cuponImagenPreview" (click)="quitarImagenCupon()">
             <ion-icon name="close-circle-outline"></ion-icon> Quitar imagen
@@ -385,6 +369,36 @@
           {{ guardandoCupon ? 'Guardando...' : (editandoCupon ? 'Guardar cambios' : 'Crear cupon') }}
         </button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: elegir imagen del sistema (compartido oferta/cupon) -->
+<div class="order-modal" *ngIf="modalImagenOpen">
+  <div class="order-modal__backdrop" (click)="cerrarPickerImagen()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Elegir imagen del sistema</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarPickerImagen()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="sysimg-group" *ngFor="let g of imagenesSistema">
+        <span class="sysimg-group__title">{{ g.titulo }}</span>
+        <div class="sysimg-grid">
+          <button type="button" class="sysimg-tile" *ngFor="let img of g.items"
+            [class.sysimg-tile--active]="imagenSistemaActivaUrl === img.url"
+            (click)="seleccionarImagenSistema(img)" [title]="img.nombre">
+            <img [src]="img.url" [alt]="img.nombre" />
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -131,6 +131,10 @@
 
 /* ── Modal (responsive) ────────────────────────────────────────────── */
 .order-modal {
+  /* Ionic pone contain:size en .ion-page (el host) → ESE es el containing block
+     de este position:fixed, no el viewport. Por eso inset:0 llena exacto el area
+     visible de la pagina (bajo el header) y el panel se acota a 100% de ese host:
+     nada de 100vh/100dvh (el host ya mide el alto visible real, tambien en iOS). */
   position: fixed;
   inset: 0;
   z-index: 300;
@@ -138,6 +142,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
+  box-sizing: border-box;
   font-family: var(--rooster-font-sans, sans-serif);
 }
 .order-modal__backdrop { position: absolute; inset: 0; background: rgba(30, 30, 30, 0.55); }
@@ -145,7 +150,7 @@
   position: relative;
   width: 100%;
   max-width: 480px;
-  max-height: calc(100vh - 32px);
+  max-height: 100%;            /* 100% del host (containing block); nunca desborda arriba ni abajo */
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -402,6 +407,72 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
 
   &:hover {
     background: rgba(220, 38, 38, 0.15);
+  }
+}
+
+/* Boton "Elegir imagen del sistema" (abre modal selector) */
+.of-form__sysbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--admin-neutral1, #f3f4f6);
+  color: var(--admin-text, #1e1e1e);
+  border: 1px solid var(--admin-border, #e5e7eb);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  width: fit-content;
+  transition: border-color 0.15s, background 0.15s;
+
+  ion-icon { font-size: 15px; color: var(--rooster-red, #e13642); }
+  &:hover { border-color: var(--rooster-red, #e13642); }
+}
+
+/* Modal selector de imagen del sistema: grilla de tiles agrupada por icono */
+.sysimg-group { margin-bottom: 16px; }
+.sysimg-group:last-child { margin-bottom: 0; }
+.sysimg-group__title {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted, #6b7280);
+  margin-bottom: 8px;
+}
+/* Una sola fila por icono, con scroll horizontal (todos los colores en linea). */
+.sysimg-grid {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;               /* Firefox */
+  &::-webkit-scrollbar { display: none; } /* WebKit */
+}
+.sysimg-tile {
+  flex: 0 0 auto;
+  width: 64px;                         /* ancho fijo: no encogen, la fila scrollea */
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--admin-neutral1, #f3f4f6);
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  transition: border-color 0.15s, transform 0.1s;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  &:hover { transform: scale(1.04); }
+  &--active {
+    border-color: var(--rooster-red, #e13642);
+    box-shadow: 0 0 0 3px rgba(225, 54, 66, 0.15);
   }
 }
 

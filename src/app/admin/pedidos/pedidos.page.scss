@@ -337,13 +337,13 @@
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 
-  /* Buscador + boton "ver todos" SIEMPRE juntos en la misma fila (nowrap interno). */
+  /* Buscador + boton "ver todos" SIEMPRE juntos en la misma fila (nowrap interno).
+     Ahora vive en el cuerpo de la card (debajo del titulo/chips), no en el header. */
   &__searchrow {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex: 1 1 200px;
-    min-width: 140px;
+    margin-bottom: 16px;
   }
 
   &__search { display: block; flex: 1 1 auto; min-width: 0; }
@@ -352,22 +352,42 @@
 /* En móvil: dos filas para que TODO sea visible sin scroll horizontal.
    Fila 1 = chips de fecha; fila 2 = buscador + botón pantalla completa. */
 @media (max-width: 767px) {
-  .ped-toolbar {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  .ped-toolbar .ped-datefilter {
-    flex: 1 1 100%;
-    flex-wrap: nowrap;
+  /* Los chips de fecha van inline junto al titulo "Pedidos" (card-action inline).
+     Se compactan para que Todos/Hoy/Semana + calendario entren en la misma fila. */
+  .ped-datefilter {
+    min-width: 0;
+    gap: 4px;
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .ped-toolbar .ped-datefilter::-webkit-scrollbar { display: none; }
-  .ped-toolbar .ped-datechip--date input[type="date"] { width: 96px; }
-  .ped-toolbar__searchrow {
-    flex: 1 1 100%;
-    min-width: 0;
+  .ped-datefilter::-webkit-scrollbar { display: none; }
+  /* Nota: estas reglas se anidan bajo .ped-datefilter a proposito, para ganarle en
+     especificidad a las reglas base .ped-datechip (que en el archivo van despues). */
+  .ped-datefilter .ped-datechip {
+    padding: 6px 9px;
+    font-size: 11px;
   }
+
+  /* En movil no hay espacio para "dd/mm/aaaa": el chip de fecha queda como boton
+     cuadrado con SOLO el icono de calendario. El input se superpone transparente
+     para capturar el tap y abrir el date picker nativo. */
+  .ped-datefilter .ped-datechip--date {
+    width: 34px;
+    padding: 6px 0;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ped-datefilter .ped-datechip--date ion-icon { font-size: 15px; }
+  .ped-datefilter .ped-datechip--date input[type="date"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .ped-toolbar__searchrow { width: 100%; }
 }
 
 /* Filtro por fecha (Todos / Hoy / Semana / una fecha puntual). Nunca se parte a

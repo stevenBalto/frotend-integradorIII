@@ -6,7 +6,7 @@ import { Component, Input } from '@angular/core';
   standalone: false,
   template: `
     <div class="section-card" [class.section-card--fill]="fill">
-      <div class="section-card__head" *ngIf="title || hasAction">
+      <div class="section-card__head" *ngIf="title || hasAction" [class.section-card__head--inline]="actionInline">
         <span class="section-card__title" *ngIf="title" [class.section-card__title--has-short]="titleShort">
           <span class="section-card__title--full">{{ title }}</span>
           <span class="section-card__title--short" *ngIf="titleShort">{{ titleShort }}</span>
@@ -51,6 +51,9 @@ import { Component, Input } from '@angular/core';
       .section-card__action { width: 100%; }
       .section-card__title--has-short .section-card__title--full { display: none; }
       .section-card__title--has-short .section-card__title--short { display: inline; }
+      /* Variante inline: la accion se queda junto al titulo (no baja a fila completa). */
+      .section-card__head--inline { flex-wrap: nowrap; gap: 8px; }
+      .section-card__head--inline .section-card__action { width: auto; min-width: 0; flex: 1 1 auto; }
     }
   `],
 })
@@ -60,6 +63,8 @@ export class AdminSectionCardComponent {
   @Input() titleShort?: string;
   /** Forzar el header aunque no haya title (cuando solo se proyecta action). */
   @Input() hasAction = false;
+  /** En movil, mantiene la accion en la misma fila que el titulo (no baja a fila completa). */
+  @Input() actionInline = false;
   /** Estira la tarjeta al alto de su contenedor (simetría en grids). */
   @Input() fill = false;
 }

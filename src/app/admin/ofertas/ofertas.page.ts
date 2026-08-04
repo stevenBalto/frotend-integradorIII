@@ -22,6 +22,12 @@ interface ImagenPorDefecto {
   nombre: string;
 }
 
+/** Grupo de imagenes del sistema: un icono en sus variantes de color. */
+interface GrupoImagenes {
+  titulo: string;
+  items: ImagenPorDefecto[];
+}
+
 /**
  * Ofertas (combos) y cupones (codigos) del panel admin, conectado a la API.
  * Reconstruido para acompañar el HTML conectado (el .ts original no se subió).
@@ -88,11 +94,60 @@ export class AdminOfertasPage implements OnInit {
   canjeCupon: Cupon | null = null;
   canjeOferta: Oferta | null = null;
 
-  // Imagenes por defecto disponibles (descubiertas en assets)
-  readonly imagenesPorDefecto: ImagenPorDefecto[] = [
-    { url: 'assets/logo/rooster-logo.png', nombre: 'Logo Rooster' },
-    { url: 'assets/icon/favicon.png', nombre: 'Favicon' },
+  // Imagenes del sistema para ofertas/cupones: logo Rooster + iconos (cubiertos,
+  // pizza, grill, bebidas, pastas, etiqueta) en la misma secuencia de colores que
+  // la vista cliente. Se eligen desde un modal; se guardan como imagen_url (ruta corta).
+  private static readonly COLORES_SIS: ReadonlyArray<{ key: string; label: string }> = [
+    { key: 'rojo', label: 'rojo' },
+    { key: 'naranja', label: 'naranja' },
+    { key: 'cafe', label: 'café' },
+    { key: 'ambar', label: 'ámbar' },
+    { key: 'verde', label: 'verde' },
+    { key: 'teal', label: 'teal' },
+    { key: 'azul', label: 'azul' },
+    { key: 'morado', label: 'morado' },
+    { key: 'terracota', label: 'terracota' },
   ];
+  private static grupoIcono(key: string, titulo: string): GrupoImagenes {
+    return {
+      titulo,
+      items: AdminOfertasPage.COLORES_SIS.map((c) => ({
+        url: `assets/sistema/${key}-${c.key}.svg`,
+        nombre: `${titulo} ${c.label}`,
+      })),
+    };
+  }
+  private static readonly ROOSTER: GrupoImagenes = {
+    titulo: 'Rooster',
+    items: [{ url: 'assets/logo/rooster-logo.png', nombre: 'Logo Rooster' }],
+  };
+  // Ofertas: iconos de comida.
+  readonly imagenesOferta: GrupoImagenes[] = [
+    AdminOfertasPage.ROOSTER,
+    AdminOfertasPage.grupoIcono('cubiertos', 'Cubiertos'),
+    AdminOfertasPage.grupoIcono('pizza', 'Pizza'),
+    AdminOfertasPage.grupoIcono('grill', 'Grill'),
+    AdminOfertasPage.grupoIcono('bebidas', 'Bebidas'),
+    AdminOfertasPage.grupoIcono('pastas', 'Pastas'),
+    AdminOfertasPage.grupoIcono('etiqueta', 'Etiqueta'),
+  ];
+  // Cupones: iconos de cupon / descuento.
+  readonly imagenesCupon: GrupoImagenes[] = [
+    AdminOfertasPage.ROOSTER,
+    AdminOfertasPage.grupoIcono('etiqueta', 'Etiqueta'),
+    AdminOfertasPage.grupoIcono('tarjeta', 'Tarjeta'),
+    AdminOfertasPage.grupoIcono('regalo', 'Regalo'),
+    AdminOfertasPage.grupoIcono('ticket', 'Ticket'),
+  ];
+
+  // Modal selector de imagen del sistema (contextual segun oferta/cupon)
+  modalImagenOpen = false;
+  private imagenTarget: 'oferta' | 'cupon' = 'oferta';
+
+  /** Grupos a mostrar en el modal segun desde donde se abrio (oferta/cupon). */
+  get imagenesSistema(): GrupoImagenes[] {
+    return this.imagenTarget === 'oferta' ? this.imagenesOferta : this.imagenesCupon;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -299,6 +354,30 @@ export class AdminOfertasPage implements OnInit {
     this.cuponImagenUrlDefault = null;
   }
 
+  // ── Modal selector de imagen del sistema (compartido) ─────────────
+  abrirPickerImagen(target: 'oferta' | 'cupon'): void {
+    this.imagenTarget = target;
+    this.modalImagenOpen = true;
+  }
+
+  cerrarPickerImagen(): void {
+    this.modalImagenOpen = false;
+  }
+
+  /** URL de la imagen del sistema activa segun el formulario en curso (para resaltar el tile). */
+  get imagenSistemaActivaUrl(): string | null {
+    return this.imagenTarget === 'oferta' ? this.ofertaImagenUrlDefault : this.cuponImagenUrlDefault;
+  }
+
+  seleccionarImagenSistema(img: ImagenPorDefecto): void {
+    if (this.imagenTarget === 'oferta') {
+      this.seleccionarImagenOfertaDefault(img);
+    } else {
+      this.seleccionarImagenCuponDefault(img);
+    }
+    this.modalImagenOpen = false;
+  }
+
   // ── Modal oferta ──────────────────────────────────────────────────
   abrirNuevaOferta(): void {
     this.editandoOferta = false;
@@ -335,6 +414,7 @@ export class AdminOfertasPage implements OnInit {
 
   cerrarModalOferta(): void {
     this.modalOfertaOpen = false;
+    this.modalImagenOpen = false;
     this.limpiarImagenOferta();
   }
 
@@ -435,6 +515,7 @@ export class AdminOfertasPage implements OnInit {
 
   cerrarModalCupon(): void {
     this.modalCuponOpen = false;
+    this.modalImagenOpen = false;
     this.limpiarImagenCupon();
   }
 

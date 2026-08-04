@@ -90,6 +90,9 @@
 
 /* -- Modal crear/editar usuario -- */
 .usr-modal {
+  /* .ion-page (host) tiene contain:size => es el containing block de este
+     position:fixed. inset:0 llena exacto el area visible de la pagina y el panel
+     se acota a 100% de ese host (no a 100vh, que en iOS desborda por la barra URL). */
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -97,13 +100,14 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
+  box-sizing: border-box;
 }
 .usr-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
 .usr-modal__panel {
   position: relative;
   width: 100%;
   max-width: 384px;
-  max-height: calc(100vh - 32px);
+  max-height: 100%;            /* 100% del host (containing block); nunca desborda arriba ni abajo */
   display: flex;
   flex-direction: column;
   border-radius: 16px;

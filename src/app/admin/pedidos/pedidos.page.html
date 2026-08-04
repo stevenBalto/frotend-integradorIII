@@ -27,29 +27,30 @@
     </div>
 
     <!-- Tabla -->
-    <admin-section-card title="Pedidos recientes" titleShort="Pedidos">
-      <div card-action class="ped-toolbar">
-        <div class="ped-datefilter">
-          <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'todos'"
-            (click)="setFiltroFecha('todos')">Todos</button>
-          <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'hoy'"
-            (click)="setFiltroFecha('hoy')">Hoy</button>
-          <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'semana'"
-            (click)="setFiltroFecha('semana')">Semana</button>
-          <label class="ped-datechip ped-datechip--date" [class.ped-datechip--active]="filtroFecha === 'fecha'"
-            title="Filtrar por una fecha">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
-          </label>
-        </div>
-        <div class="ped-toolbar__searchrow">
-          <admin-search-input class="ped-toolbar__search" placeholder="Buscar pedido o cliente..."
-            [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
-          <button type="button" class="ped-expand-btn" (click)="abrirPantallaCompleta()"
-            aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
-            <ion-icon name="scan-outline"></ion-icon>
-          </button>
-        </div>
+    <admin-section-card title="Pedidos recientes" titleShort="Pedidos" [actionInline]="true">
+      <!-- Chips de fecha: en la misma fila que el titulo "Pedidos" (card-action inline). -->
+      <div card-action class="ped-datefilter">
+        <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'todos'"
+          (click)="setFiltroFecha('todos')">Todos</button>
+        <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'hoy'"
+          (click)="setFiltroFecha('hoy')">Hoy</button>
+        <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'semana'"
+          (click)="setFiltroFecha('semana')">Semana</button>
+        <label class="ped-datechip ped-datechip--date" [class.ped-datechip--active]="filtroFecha === 'fecha'"
+          title="Filtrar por una fecha">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+        </label>
+      </div>
+
+      <!-- Buscador + boton pantalla completa: fila propia debajo del titulo/chips. -->
+      <div class="ped-toolbar__searchrow">
+        <admin-search-input class="ped-toolbar__search" placeholder="Buscar pedido o cliente..."
+          [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
+        <button type="button" class="ped-expand-btn" (click)="abrirPantallaCompleta()"
+          aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
+          <ion-icon name="scan-outline"></ion-icon>
+        </button>
       </div>
 
       <p *ngIf="error" class="ped-error">{{ error }}</p>
