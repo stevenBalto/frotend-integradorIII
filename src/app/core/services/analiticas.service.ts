@@ -11,6 +11,10 @@ export interface AnaliticasParams {
   mes?: string;
   /** YYYY-MM-DD, fecha ancla cuando granularidad='semana' o 'dia'. */
   fecha?: string;
+  /** YYYY-MM-DD, inicio del rango cuando granularidad='rango'. */
+  desde?: string;
+  /** YYYY-MM-DD, fin del rango cuando granularidad='rango'. */
+  hasta?: string;
   sucursalId?: number;
 }
 
@@ -44,6 +48,12 @@ export class AnaliticasService {
     }
     if (params.fecha) {
       query.set('fecha', params.fecha);
+    }
+    if (params.desde) {
+      query.set('desde', params.desde);
+    }
+    if (params.hasta) {
+      query.set('hasta', params.hasta);
     }
     if (params.sucursalId) {
       query.set('sucursal_id', String(params.sucursalId));

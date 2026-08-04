@@ -41,8 +41,9 @@
           <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
           <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
           <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'rango'" (click)="cambiarGranularidad('rango')">Rango</button>
         </div>
-        <div class="an-filtro__nav">
+        <div class="an-filtro__nav" *ngIf="granularidad !== 'rango'">
           <button type="button" class="an-filtro__nav-btn" (click)="periodoAnterior()" aria-label="Periodo anterior">
             <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
@@ -50,6 +51,17 @@
           <button type="button" class="an-filtro__nav-btn" (click)="periodoSiguiente()" aria-label="Periodo siguiente">
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
+        </div>
+        <!-- Item 24: rango de fechas específico -->
+        <div class="an-filtro__rango" *ngIf="granularidad === 'rango'">
+          <label class="an-filtro__rango-field">
+            <span>Desde</span>
+            <input type="date" [(ngModel)]="rangoDesde" [max]="rangoHasta || null" (ngModelChange)="aplicarRango()" />
+          </label>
+          <label class="an-filtro__rango-field">
+            <span>Hasta</span>
+            <input type="date" [(ngModel)]="rangoHasta" [min]="rangoDesde || null" (ngModelChange)="aplicarRango()" />
+          </label>
         </div>
       </div>
 

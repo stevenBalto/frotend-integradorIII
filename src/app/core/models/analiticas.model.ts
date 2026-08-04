@@ -1,5 +1,5 @@
 /** Granularidad del filtro de analíticas. */
-export type Granularidad = 'mes' | 'semana' | 'dia';
+export type Granularidad = 'mes' | 'semana' | 'dia' | 'rango';
 
 /** Respuesta del endpoint GET /admin/analiticas?granularidad=mes|semana|dia&mes=YYYY-MM&fecha=YYYY-MM-DD */
 export interface AnaliticasResponse {

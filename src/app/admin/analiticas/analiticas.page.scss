@@ -181,6 +181,37 @@
 }
 .an-filtro__label:hover { background: var(--admin-panel); }
 
+/* Item 24: rango de fechas específico (desde / hasta). */
+.an-filtro__rango {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.an-filtro__rango-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--admin-text-soft);
+  span { padding-left: 2px; }
+  input[type="date"] {
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--admin-text);
+    font-family: var(--rooster-font-sans);
+    outline: none;
+    &:focus { border-color: var(--rooster-red); }
+  }
+}
+
 .an-modal__panel--picker {
   max-width: 320px;
   width: calc(100% - 32px);
