@@ -66,3 +66,64 @@
 .order-modal__close { background: none; border: none; display: flex; cursor: pointer; }
 .order-modal__close ion-icon { font-size: 18px; color: #fff; }
 .order-modal__body { padding: 20px; overflow-y: auto; max-height: 70vh; }
+
+/* ── Item 14: filtro por fecha de última compra (chips + fecha puntual) ──────── */
+.cli-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.cli-toolbar__search { flex: 1 1 200px; min-width: 0; }
+.cli-datefilter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cli-datefilter__caption {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--admin-text-soft);
+  margin-right: 2px;
+}
+.cli-datechip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-panel);
+  color: var(--admin-text-muted);
+  font-family: var(--rooster-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  ion-icon { font-size: 14px; }
+  &--active {
+    background: var(--rooster-red);
+    color: #fff;
+    border-color: var(--rooster-red);
+  }
+  &--date {
+    padding-right: 10px;
+    input[type="date"] {
+      border: none;
+      background: transparent;
+      font-family: var(--rooster-font-sans);
+      font-size: 12px;
+      font-weight: 700;
+      color: inherit;
+      cursor: pointer;
+      width: 120px;
+      outline: none;
+    }
+    &.cli-datechip--active input[type="date"] { color: #fff; }
+    &.cli-datechip--active input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+  }
+}

@@ -23,7 +23,28 @@
     </admin-section-card>
 
     <admin-section-card title="Clientes">
-      <admin-search-input card-action placeholder="Buscar por nombre o correo..." [(value)]="busqueda"></admin-search-input>
+      <div card-action class="cli-toolbar">
+        <div class="cli-datefilter">
+          <span class="cli-datefilter__caption">Última compra</span>
+          <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'todos'"
+            (click)="setFiltroFecha('todos')">Todos</button>
+          <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'hoy'"
+            (click)="setFiltroFecha('hoy')">Hoy</button>
+          <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'semana'"
+            (click)="setFiltroFecha('semana')">Semana</button>
+          <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'mes'"
+            (click)="setFiltroFecha('mes')">Mes</button>
+          <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'anio'"
+            (click)="setFiltroFecha('anio')">Año</button>
+          <label class="cli-datechip cli-datechip--date" [class.cli-datechip--active]="filtroFecha === 'fecha'"
+            title="Filtrar por una fecha puntual">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+          </label>
+        </div>
+        <admin-search-input class="cli-toolbar__search" placeholder="Buscar por nombre o correo..."
+          [(value)]="busqueda"></admin-search-input>
+      </div>
 
       <p *ngIf="error" class="cli-error">{{ error }}</p>
       <p *ngIf="cargando" class="cli-loading">Cargando clientes...</p>
