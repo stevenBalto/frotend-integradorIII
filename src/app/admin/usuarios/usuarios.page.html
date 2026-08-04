@@ -12,7 +12,6 @@
     <admin-section-card id="usr-tabla">
       <div class="usr-toolbar-compact">
         <admin-search-input placeholder="Buscar usuario..." (searchChange)="onBuscar($event)"></admin-search-input>
-        <span class="usr-total">{{ totalUsuarios }} usuarios</span>
       </div>
 
       <div class="admin-table-wrap">
@@ -66,6 +65,10 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      <!-- Item 18: total de usuarios debajo de la tabla, a la derecha. -->
+      <div class="usr-total-below">
+        <span class="usr-total">{{ totalUsuarios }} usuarios</span>
       </div>
     </admin-section-card>
 

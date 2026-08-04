@@ -51,6 +51,9 @@
   color: var(--admin-text);
   font-family: var(--rooster-font-sans);
 }
+// EXTRA: los dos KPIs de reseñas siempre en la misma fila (incluido móvil).
+.res-kpis { grid-template-columns: 1fr 1fr; }
+
 // ── Picker visual de producto (item 26): despliega productos con imagen ──
 .res-prodpicker { position: relative; min-width: 200px; }
 .res-prodpicker__btn {

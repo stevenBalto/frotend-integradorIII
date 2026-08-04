@@ -358,8 +358,12 @@
   }
   .ped-toolbar .ped-datefilter {
     flex: 1 1 100%;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .ped-toolbar .ped-datefilter::-webkit-scrollbar { display: none; }
+  .ped-toolbar .ped-datechip--date input[type="date"] { width: 96px; }
   .ped-toolbar__searchrow {
     flex: 1 1 100%;
     min-width: 0;

@@ -2,7 +2,7 @@
   <div class="admin-page">
 
     <!-- KPIs -->
-    <div class="admin-grid-2">
+    <div class="admin-grid-2 res-kpis">
       <admin-kpi-card label="Calificación promedio" [value]="promedioGeneral + ' ★'"
         icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
       <admin-kpi-card label="Total reseñas" [value]="total"
@@ -45,7 +45,7 @@
           <span class="res-filtros__caption">Tipo</span>
           <div class="res-filtros__tabs">
             <filter-tab label="Todas" [active]="filtroTipo === 'todas'" (select)="filtroTipo = 'todas'"></filter-tab>
-            <filter-tab label="Pedido" [active]="filtroTipo === 'general'" (select)="filtroTipo = 'general'"></filter-tab>
+            <filter-tab label="Varios" [active]="filtroTipo === 'general'" (select)="filtroTipo = 'general'"></filter-tab>
             <filter-tab label="Producto" [active]="filtroTipo === 'producto'" (select)="filtroTipo = 'producto'"></filter-tab>
           </div>
         </div>

@@ -173,7 +173,7 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     // #2 En móvil, arrastrar horizontalmente abre/cierra el sidebar: deslizar de
-    // derecha a izquierda (deltaX < 0) lo abre; de izquierda a derecha (deltaX > 0)
+    // izquierda a derecha (deltaX > 0) lo abre; de derecha a izquierda (deltaX < 0)
     // lo cierra. En escritorio el sidebar es fijo, así que la gesture no aplica.
     this.sidebarGesture = this.gestureCtrl.create({
       el: this.host.nativeElement,
@@ -182,9 +182,9 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
       threshold: 20,
       onEnd: (ev) => {
         if (window.innerWidth >= 768) return;
-        if (!this.sidebarOpen && ev.deltaX < -60) {
+        if (!this.sidebarOpen && ev.deltaX > 60) {
           this.zone.run(() => (this.sidebarOpen = true));
-        } else if (this.sidebarOpen && ev.deltaX > 60) {
+        } else if (this.sidebarOpen && ev.deltaX < -60) {
           this.zone.run(() => (this.sidebarOpen = false));
         }
       },

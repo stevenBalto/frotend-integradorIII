@@ -14,6 +14,13 @@
   white-space: nowrap;
 }
 
+/* Item 18: total de usuarios debajo de la tabla, alineado a la derecha. */
+.usr-total-below {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
 @media (max-width: 560px) {
   .usr-toolbar-compact {
     flex-direction: column;
@@ -166,6 +173,7 @@
 .usr-expiracion {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 .usr-exp-opt {
   flex: 1;
@@ -308,7 +316,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .usr-modulo-item {
     flex-direction: column;
     align-items: flex-start;
