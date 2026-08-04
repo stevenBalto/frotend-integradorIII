@@ -480,7 +480,10 @@
       <p *ngIf="asignarError" class="menu-error">{{ asignarError }}</p>
 
       <div class="picker-list">
-        <div class="picker-card" *ngFor="let e of extrasParaProducto"
+        <ng-container *ngFor="let e of extrasParaProducto">
+        <!-- Item 7: se ocultan los extras heredados por categoría (candado "Categoría");
+             se mantienen los "General" y los asignables puntualmente. -->
+        <div class="picker-card" *ngIf="!(extraInherente(e) && !e.es_general)"
           [class.picker-card--done]="!extraInherente(e) && extraYaEnProducto(e.id)">
           <div class="picker-card__icon">
             <ion-icon name="pricetag-outline"></ion-icon>
@@ -509,6 +512,7 @@
             <ion-icon name="add-outline"></ion-icon> {{ asignando ? '...' : 'Asignar' }}
           </button>
         </div>
+        </ng-container>
         <p class="picker-empty" *ngIf="extrasParaProducto.length === 0">
           <ion-icon name="pricetags-outline"></ion-icon>
           No hay extras disponibles. Creá una desde "Crear nueva extra".
