@@ -4,6 +4,8 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'admin-section-card',
   standalone: false,
+  // Evita que el @Input title se refleje como atributo HTML nativo (dispara tooltip del navegador).
+  host: { '[attr.title]': 'null' },
   template: `
     <div class="section-card" [class.section-card--fill]="fill">
       <div class="section-card__head" *ngIf="title || hasAction">

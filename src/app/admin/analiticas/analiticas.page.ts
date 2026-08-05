@@ -3,15 +3,12 @@ import { Observable } from 'rxjs';
 import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { AnaliticasParams, AnaliticasService } from '../../core/services/analiticas.service';
 import { AnaliticasResponse, ComparacionMesAnterior, Granularidad, ModalidadApi, TopProductoApi, VentaCategoria } from '../../core/models/analiticas.model';
-import { SalesBarDatum } from '../shared/sales-bar-chart.component';
-import { ModalityDatum } from '../shared/modality-donut-chart.component';
+import { PeakHourDatum } from './peak-hours-chart.component';
+import { ModalityItem } from './modality-compact.component';
+import { RankingItem } from './ranking-list.component';
+import { TopProductItem } from './top-products-table.component';
 
-interface TopProduct { name: string; units: number; color: string; }
-interface Legend { label: string; pct: string; value: string; c: string; bg: string; }
-interface ComparacionTexto { texto: string; color: string; }
-
-/** Paleta de colores para el ranking de productos (rojo solo para el #1). */
-const RANKING_COLORS = ['#E13642', '#374151', '#6B7280', '#9CA3AF', '#D1D5DB'];
+interface ComparacionTexto { texto: string; color: string; pct: number | null; }
 
 /** Reportes y analiticas: KPIs, barras por dia / horas pico, top productos, modalidad. */
 @Component({
@@ -47,30 +44,34 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   ticketPromedio = 0;
 
   // Charts
-  dailySales: SalesBarDatum[] = [];
-  peakHours: SalesBarDatum[] = [];
-  modalityData: ModalityDatum[] = [];
+  peakHours: PeakHourDatum[] = [];
 
-  // Ranking productos
-  topProducts: TopProduct[] = [];
-  maxUnits = 0;
+  // Tendencia de ventas (area-chart)
+  trendValues: number[] = [];
+  trendLabels: string[] = [];
+  /** El area-chart avisa cuándo no caben los puntos y hay scroll horizontal. */
+  trendScrollable = false;
 
-  // Leyenda modalidad
-  legend: Legend[] = [];
-  modalidadTotalPedidos = 0;
-  modalidadInsight = '';
+  // Productos más vendidos (tabla) y ranking de categorías (lista HTML/CSS)
+  /** Filas visibles en la tabla; el backend manda 10. Ver procesarRespuesta(). */
+  private readonly TOP_PRODUCTOS_VISIBLES = 6;
+  topProductos: TopProductItem[] = [];
+  categoriesChart: RankingItem[] = [];
+
+  // Modalidad de pedido (versión compacta)
+  modalityDataNormalized: ModalityItem[] = [];
 
   // Comparacion mensual
-  compVentas: ComparacionTexto = { texto: '', color: '' };
-  compPedidos: ComparacionTexto = { texto: '', color: '' };
+  compVentas: ComparacionTexto = { texto: '', color: '', pct: null };
+  compPedidos: ComparacionTexto = { texto: '', color: '', pct: null };
 
   // Ventas por categoria
   ventasPorCategoria: VentaCategoria[] = [];
   maxCategoriaTotal = 0;
 
   // Comparativos mes actual vs anterior (charts de barras)
-  comparativoVentas: SalesBarDatum[] = [];
-  comparativoPedidos: SalesBarDatum[] = [];
+  comparativoVentas: PeakHourDatum[] = [];
+  comparativoPedidos: PeakHourDatum[] = [];
 
   constructor(private analiticasService: AnaliticasService) {}
 
@@ -356,6 +357,39 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     return `${year}-${month}-${day}`;
   }
 
+  /**
+   * Filtra ventas_por_dia para quedarse solo con los 7 dias de la semana que
+   * contiene a fechaAncla (lunes a domingo). Fix defensivo: el backend deberia
+   * devolver exactamente estos 7 dias cuando granularidad=semana, pero si
+   * devuelve el mes completo, este filtro evita que el grafico active scroll.
+   */
+  private filtrarSemana(ventas: { fecha: string; total: number }[]): { fecha: string; total: number }[] {
+    const lunes = this.inicioSemana(this.fechaAncla);
+    const domingo = new Date(lunes);
+    domingo.setDate(domingo.getDate() + 6);
+
+    // Normalizar a YYYY-MM-DD para comparar strings
+    const desde = this.formatFecha(lunes);
+    const hasta = this.formatFecha(domingo);
+
+    // Filtrar y ordenar por fecha
+    const filtrados = ventas
+      .filter((v) => v.fecha >= desde && v.fecha <= hasta)
+      .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+    // Si el backend no devolvio datos para algunos dias de la semana, rellenar con 0
+    const resultado: { fecha: string; total: number }[] = [];
+    const cursor = new Date(lunes);
+    for (let i = 0; i < 7; i++) {
+      const fechaStr = this.formatFecha(cursor);
+      const existente = filtrados.find((v) => v.fecha === fechaStr);
+      resultado.push({ fecha: fechaStr, total: existente?.total ?? 0 });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return resultado;
+  }
+
   private procesarRespuesta(res: AnaliticasResponse): void {
     // Contador de caché
     this.ttlMinutos = res.ttl_minutos ?? 30;
@@ -368,11 +402,14 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     this.pedidosMes = res.pedidos_mes;
     this.ticketPromedio = res.ticket_promedio;
 
-    // Ventas por dia
-    this.dailySales = res.ventas_por_dia.map((v) => ({
-      label: this.formatFechaDia(v.fecha),
-      value: v.total,
-    }));
+    // Tendencia de ventas (area-chart): valores y etiquetas separados.
+    // En modo semana, filtrar solo los 7 dias de la semana seleccionada (fix defensivo
+    // mientras el backend corrige el filtro de granularidad=semana).
+    const ventasFiltradas = this.granularidad === 'semana'
+      ? this.filtrarSemana(res.ventas_por_dia)
+      : res.ventas_por_dia;
+    this.trendValues = ventasFiltradas.map((v) => v.total);
+    this.trendLabels = ventasFiltradas.map((v) => this.formatFechaDia(v.fecha));
 
     // Horas pico
     this.peakHours = res.horas_pico.map((h) => ({
@@ -380,41 +417,19 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
       value: h.cantidad,
     }));
 
-    // Top productos
-    this.topProducts = res.top_productos.map((p: TopProductoApi, i: number) => ({
-      name: p.nombre,
-      units: p.unidades,
-      color: RANKING_COLORS[i] ?? RANKING_COLORS[RANKING_COLORS.length - 1],
-    }));
-    this.maxUnits = Math.max(...this.topProducts.map((p) => p.units), 0);
-
-    // Modalidad (el backend manda el codigo crudo: para_llevar, comer_aqui)
-    this.modalityData = res.modalidad.map((m: ModalidadApi) => ({
-      modalidad: this.nombreModalidad(m.modalidad),
-      cantidad: m.cantidad,
-      pct: m.pct,
+    // Top productos (tabla Producto / Cantidad / Ingresos).
+    // Se recorta a TOP_PRODUCTOS_VISIBLES para que la card iguale el alto de la
+    // columna izquierda (categorías + modalidad) y no quede un hueco blanco.
+    // Las exportaciones a Excel/PDF siguen incluyendo el top completo del backend.
+    this.topProductos = res.top_productos.slice(0, this.TOP_PRODUCTOS_VISIBLES).map((p: TopProductoApi) => ({
+      nombre: p.nombre,
+      unidades: p.unidades,
+      ingresos: p.ingresos ?? null,
+      imagenUrl: p.imagen_url ?? null,
     }));
 
-    // Leyenda modalidad
-    this.legend = res.modalidad.map((m: ModalidadApi, i: number) => {
-      const esPico = m.pct === Math.max(...res.modalidad.map((x) => x.pct));
-      return {
-        label: this.nombreModalidad(m.modalidad),
-        pct: `${Math.round(m.pct)}%`,
-        value: String(m.cantidad),
-        c: esPico ? '#E13642' : '#374151',
-        bg: esPico ? 'rgba(225,54,66,0.05)' : '#E5E7EB',
-      };
-    });
-
-    // Resumen de modalidad (llena el espacio vacío bajo la dona con un dato accionable)
-    this.modalidadTotalPedidos = res.modalidad.reduce((sum, m) => sum + m.cantidad, 0);
-    const lider = res.modalidad.length > 0
-      ? res.modalidad.reduce((a, b) => (b.pct > a.pct ? b : a), res.modalidad[0])
-      : null;
-    this.modalidadInsight = lider
-      ? `${this.nombreModalidad(lider.modalidad)} lidera con ${Math.round(lider.pct)}% de los ${this.modalidadTotalPedidos} pedidos ${this.etiquetaKpi()}.`
-      : '';
+    // Modalidad de pedido — normalizar para garantizar que ambas modalidades existan
+    this.modalityDataNormalized = this.normalizarModalidades(res.modalidad);
 
     // Comparacion vs periodo anterior
     this.compVentas = this.formatComparacion(res.comparacion_periodo_anterior?.ventas_pct);
@@ -423,6 +438,10 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     // Ventas por categoria
     this.ventasPorCategoria = res.ventas_por_categoria ?? [];
     this.maxCategoriaTotal = Math.max(...this.ventasPorCategoria.map((c) => c.total), 0);
+    this.categoriesChart = this.ventasPorCategoria.map((c) => ({
+      label: c.categoria,
+      value: c.total,
+    }));
 
     // Comparativos periodo actual vs anterior
     const comp = res.comparacion_periodo_anterior;
@@ -439,15 +458,15 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   /** Formatea un porcentaje de comparacion con flecha y color. */
   private formatComparacion(pct: number | null | undefined): ComparacionTexto {
     if (pct === null || pct === undefined) {
-      return { texto: 'Sin datos previos', color: '#6B7280' };
+      return { texto: 'Sin datos previos', color: '#6B7280', pct: null };
     }
     if (pct > 0) {
-      return { texto: `↑ ${Math.abs(pct).toFixed(1)}% vs anterior`, color: '#16A34A' };
+      return { texto: `↑ ${Math.abs(pct).toFixed(1)}% vs anterior`, color: '#16A34A', pct };
     }
     if (pct < 0) {
-      return { texto: `↓ ${Math.abs(pct).toFixed(1)}% vs anterior`, color: '#DC2626' };
+      return { texto: `↓ ${Math.abs(pct).toFixed(1)}% vs anterior`, color: '#DC2626', pct };
     }
-    return { texto: '0% vs anterior', color: '#6B7280' };
+    return { texto: '0% vs anterior', color: '#6B7280', pct: 0 };
   }
 
   /** Convierte "2026-07-25" a "25" o dia de semana corto segun preferencia. */
@@ -460,5 +479,30 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   // ---- Formato ----
   formatMonto(valor: number): string {
     return `₡${new Intl.NumberFormat('es-CR').format(valor)}`;
+  }
+
+  /**
+   * Normaliza las modalidades para garantizar que ambas ("Comer aquí", "Para llevar")
+   * siempre estén presentes, rellenando con 0 la que falte.
+   */
+  private normalizarModalidades(modalidades: ModalidadApi[]): ModalityItem[] {
+    const MODALIDADES_FIJAS = ['Comer aquí', 'Para llevar'];
+    const result: ModalityItem[] = [];
+
+    for (const nombre of MODALIDADES_FIJAS) {
+      // Buscar en el backend por código crudo o nombre ya transformado
+      const existing = modalidades.find((m) => this.nombreModalidad(m.modalidad) === nombre);
+      if (existing) {
+        result.push({
+          modalidad: nombre,
+          cantidad: existing.cantidad,
+          pct: existing.pct,
+        });
+      } else {
+        result.push({ modalidad: nombre, cantidad: 0, pct: 0 });
+      }
+    }
+
+    return result;
   }
 }

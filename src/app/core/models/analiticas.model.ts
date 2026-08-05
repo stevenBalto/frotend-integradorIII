@@ -44,6 +44,16 @@ export interface HoraPico {
 export interface TopProductoApi {
   nombre: string;
   unidades: number;
+  /**
+   * Ingresos del producto en el periodo. PENDIENTE en el backend: mientras no lo
+   * envíe, la columna "Ingresos" de la tabla muestra "—".
+   */
+  ingresos?: number | null;
+  /**
+   * Foto del producto (productos.imagen_url). PENDIENTE en el backend: mientras
+   * no la envíe, la tabla muestra un icono según el tipo de producto.
+   */
+  imagen_url?: string | null;
 }
 
 export interface ModalidadApi {

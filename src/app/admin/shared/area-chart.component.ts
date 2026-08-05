@@ -1,13 +1,29 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  Output,
+} from '@angular/core';
 
 interface Guide { pos: number; label: string; }
 interface Pt { i: number; cx: number; cy: number; }
 
 /**
- * Gráfico de área (ventas de la semana) — SVG con paths calculados como el prototipo.
+ * Gráfico de área (tendencia de ventas) — SVG con paths calculados.
  * Eje Y en COLONES: recibe los montos crudos (`values`), calcula un tope redondo
- * (ej. ₡19k → ₡20k) y rotula las guías en ₡. Con >7 días el SVG toma un ancho fijo
- * en px (spacing constante) y el contenedor hace scroll horizontal; el alto queda fijo.
+ * (ej. ₡19k → ₡20k) y rotula las guías en ₡.
+ *
+ * El SVG SIEMPRE mide exactamente el ancho del contenedor (1 unidad = 1 px, sin
+ * distorsión), sin importar cuántos puntos haya: así el gráfico se ve idéntico en
+ * mes, semana y día. Solo cuando los puntos no caben con la separación mínima
+ * (`minGap`) el SVG crece más allá del contenedor y este hace scroll horizontal;
+ * en ese caso emite `scrollableChange` para que el padre muestre el hint.
  * Cada punto es tocable/hovereable y muestra el dinero de ESE día en un tooltip.
  */
 @Component({
@@ -15,9 +31,8 @@ interface Pt { i: number; cx: number; cy: number; }
   standalone: false,
   template: `
     <svg [attr.viewBox]="'0 0 ' + vbW + ' ' + H" class="area"
-         [style.width]="scroll ? vbW + 'px' : '100%'"
-         [style.height]="scroll ? H + 'px' : null"
-         [attr.preserveAspectRatio]="scroll ? 'xMinYMid meet' : 'none'">
+         [style.width.px]="vbW" [style.height.px]="H"
+         preserveAspectRatio="xMinYMid meet">
       <defs>
         <linearGradient [attr.id]="gradId" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#E13642" stop-opacity="0.32" />
@@ -50,32 +65,35 @@ interface Pt { i: number; cx: number; cy: number; }
       <!-- Tooltip del punto activo (monto del día). -->
       <g *ngIf="active" style="pointer-events: none">
         <path [attr.d]="arrowPath" fill="#1E1E1E" />
-        <rect [attr.x]="active.cx - tipHalf" [attr.y]="tipY" [attr.width]="tipW" height="26" rx="6" fill="#1E1E1E" />
-        <text [attr.x]="active.cx" [attr.y]="tipTextY" text-anchor="middle"
+        <rect [attr.x]="tipX" [attr.y]="tipY" [attr.width]="tipW" height="26" rx="6" fill="#1E1E1E" />
+        <text [attr.x]="tipX + tipW / 2" [attr.y]="tipTextY" text-anchor="middle"
               font-size="11.5" font-weight="700" fill="#fff" font-family="Nunito, system-ui">{{ activeLabel }}</text>
       </g>
     </svg>
   `,
   styles: [`
-    .area { width: 100%; height: auto; display: block; overflow: visible; }
+    :host { display: block; }
+    .area { display: block; overflow: visible; }
   `],
 })
-export class AreaChartComponent implements OnChanges {
+export class AreaChartComponent implements OnChanges, AfterViewInit, OnDestroy {
   /** Montos crudos por día (colones). Fuente principal del gráfico. */
   @Input() values: number[] = [];
   /** Etiquetas del eje X (un label por punto). */
   @Input() xLabels: string[] = [];
+  /** true cuando los puntos no caben y el contenedor debe hacer scroll horizontal. */
+  @Output() scrollableChange = new EventEmitter<boolean>();
 
   readonly H = 260;
   readonly padL = 56;
   readonly padR = 24;
   readonly padT = 44;
   readonly padB = 42;
-  readonly baseW = 640;
-  readonly gap = 44; // px por punto en modo scroll (>7 días)
+  /** Separación mínima entre puntos; por debajo de esto el gráfico hace scroll. */
+  readonly minGap = 44;
 
   vbW = 640;
-  scroll = false;
+  scrollable = false;
   yMax = 1000; // tope redondo del eje Y (colones)
   gradId = 'areaGrad-' + Math.round(Math.random() * 1e6);
   yGuides: Guide[] = [];
@@ -88,11 +106,48 @@ export class AreaChartComponent implements OnChanges {
   activeIdx = 0;
   active?: Pt;
   activeLabel = '';
+  tipX = 0;
   tipY = 0;
   tipTextY = 0;
   tipW = 68;
-  tipHalf = 34;
   arrowPath = '';
+
+  /** Ancho disponible del contenedor (px). Se mide con ResizeObserver. */
+  private contW = 640;
+  private ro?: ResizeObserver;
+
+  constructor(
+    private host: ElementRef<HTMLElement>,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngAfterViewInit(): void {
+    if (typeof ResizeObserver === 'undefined') { return; }
+    // Fuera de Angular: el observer dispara seguido y no queremos un CD por frame.
+    this.zone.runOutsideAngular(() => {
+      this.ro = new ResizeObserver((entries) => {
+        const ancho = Math.round(entries[0]?.contentRect.width ?? 0);
+        // Umbral de 1px: evita un bucle cuando aparece/desaparece la barra de scroll.
+        if (ancho <= 0 || Math.abs(ancho - this.contW) <= 1) { return; }
+        this.contW = ancho;
+        this.zone.run(() => {
+          this.recalcular();
+          this.cdr.markForCheck();
+        });
+      });
+      this.ro.observe(this.host.nativeElement);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.ro?.disconnect();
+  }
+
+  ngOnChanges(): void {
+    // Datos nuevos: el tooltip vuelve al día pico.
+    this.recalcular(true);
+  }
 
   private xAt(i: number): number {
     const innerW = this.vbW - this.padL - this.padR;
@@ -106,11 +161,20 @@ export class AreaChartComponent implements OnChanges {
     return this.padT + innerH * (1 - v / this.yMax);
   }
 
-  ngOnChanges(): void {
+  /** @param resetActivo true al llegar datos nuevos; false en un simple resize. */
+  private recalcular(resetActivo = false): void {
     if (!this.values.length) { return; }
     const n = this.values.length;
-    this.scroll = n > 7;
-    this.vbW = this.scroll ? Math.max(this.baseW, this.padL + this.padR + (n - 1) * this.gap) : this.baseW;
+
+    // El SVG mide el contenedor salvo que los puntos necesiten más espacio.
+    const necesario = this.padL + this.padR + Math.max(0, n - 1) * this.minGap;
+    const anterior = this.scrollable;
+    this.scrollable = necesario > this.contW;
+    this.vbW = this.scrollable ? necesario : this.contW;
+    if (this.scrollable !== anterior) {
+      this.scrollableChange.emit(this.scrollable);
+    }
+
     this.yMax = this.topeRedondo(Math.max(...this.values, 0));
 
     const last = n - 1;
@@ -127,8 +191,9 @@ export class AreaChartComponent implements OnChanges {
     this.xGuides = this.xLabels.map((l, i) => ({ pos: this.xAt(i), label: l }));
     this.puntos = this.values.map((_, i) => ({ i, cx: this.xAt(i), cy: this.yAt(this.values[i]) }));
 
-    // Al recargar datos, el tooltip vuelve al día de mayor venta.
-    this.activeIdx = this.indicePico();
+    // Con datos nuevos el tooltip vuelve al día de mayor venta; en un resize se
+    // conserva el punto que el usuario tenía seleccionado.
+    if (resetActivo || this.activeIdx >= n) { this.activeIdx = this.indicePico(); }
     this.recalcActivo();
   }
 
@@ -155,18 +220,26 @@ export class AreaChartComponent implements OnChanges {
     this.active = this.puntos[i];
     this.activeLabel = this.formatMonto(this.values[i]);
     this.tipW = Math.max(56, this.activeLabel.length * 8 + 20);
-    this.tipHalf = this.tipW / 2;
+
+    // La caja se mantiene dentro del SVG: en el primer/último punto se desplaza
+    // en vez de salirse y quedar recortada (la flecha sigue apuntando al punto).
+    const margen = 4;
+    this.tipX = Math.min(
+      Math.max(this.active.cx - this.tipW / 2, margen),
+      Math.max(margen, this.vbW - this.tipW - margen),
+    );
+    const flechaX = Math.min(Math.max(this.active.cx, this.tipX + 10), this.tipX + this.tipW - 10);
 
     // Cerca del borde superior el tooltip va abajo (no se corta con el scroll).
     const arriba = this.active.cy > 70;
     if (arriba) {
       this.tipY = this.active.cy - 40;
       this.tipTextY = this.active.cy - 22.5;
-      this.arrowPath = `M ${this.active.cx - 5} ${this.active.cy - 14} L ${this.active.cx} ${this.active.cy - 8} L ${this.active.cx + 5} ${this.active.cy - 14} Z`;
+      this.arrowPath = `M ${flechaX - 5} ${this.active.cy - 14} L ${flechaX} ${this.active.cy - 8} L ${flechaX + 5} ${this.active.cy - 14} Z`;
     } else {
       this.tipY = this.active.cy + 14;
       this.tipTextY = this.active.cy + 31.5;
-      this.arrowPath = `M ${this.active.cx - 5} ${this.active.cy + 14} L ${this.active.cx} ${this.active.cy + 8} L ${this.active.cx + 5} ${this.active.cy + 14} Z`;
+      this.arrowPath = `M ${flechaX - 5} ${this.active.cy + 14} L ${flechaX} ${this.active.cy + 8} L ${flechaX + 5} ${this.active.cy + 14} Z`;
     }
   }
 

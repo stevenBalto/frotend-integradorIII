@@ -1,183 +1,204 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- Botones del header global (junto a la campana): exportar y caché. -->
+    <!-- Botones del header global (junto a la campana): exportar y cache. -->
     <ng-template adminHeaderActions>
       <div class="an-header-actions">
-        <button type="button" class="an-cache-btn" [disabled]="exportando === 'excel'" (click)="exportarExcel()" title="Exportar a Excel">
+        <button type="button" class="an-export-btn" [disabled]="exportando === 'excel'" (click)="exportarExcel()" title="Exportar a Excel">
           <ion-spinner *ngIf="exportando === 'excel'" name="crescent"></ion-spinner>
           <ion-icon *ngIf="exportando !== 'excel'" name="document-text-outline"></ion-icon>
           <span class="hide-on-mobile">Excel</span>
         </button>
-        <button type="button" class="an-cache-btn" [disabled]="exportando === 'pdf'" (click)="exportarPdf()" title="Exportar a PDF">
+        <button type="button" class="an-export-btn" [disabled]="exportando === 'pdf'" (click)="exportarPdf()" title="Exportar a PDF">
           <ion-spinner *ngIf="exportando === 'pdf'" name="crescent"></ion-spinner>
           <ion-icon *ngIf="exportando !== 'pdf'" name="document-outline"></ion-icon>
           <span class="hide-on-mobile">PDF</span>
         </button>
         <button type="button" class="an-cache-btn" (click)="cacheModalOpen = true" title="Actualización de datos">
-          <ion-icon name="time-outline"></ion-icon>
+          <ion-icon name="sync-outline"></ion-icon>
           <span class="an-cache-btn__time hide-on-mobile">{{ restanteTexto }}</span>
         </button>
       </div>
     </ng-template>
 
     <!-- Error -->
-    <div class="an-error" *ngIf="error">
+    <div class="an-feedback an-feedback--error" *ngIf="error">
+      <ion-icon name="alert-circle-outline"></ion-icon>
       <p>{{ error }}</p>
       <admin-btn (click)="cargarAnaliticas()">Reintentar</admin-btn>
     </div>
 
     <!-- Loading -->
-    <div class="an-loading" *ngIf="cargando">
+    <div class="an-feedback an-feedback--loading" *ngIf="cargando">
       <ion-spinner name="crescent"></ion-spinner>
       <p>Cargando analíticas...</p>
     </div>
 
     <!-- Contenido principal -->
     <ng-container *ngIf="!cargando && !error">
-      <!-- Filtro de periodo -->
-      <div class="an-filtro">
-        <div class="an-filtro__tabs">
-          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
-          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
-          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+
+      <!-- Barra de filtros -->
+      <header class="an-toolbar">
+        <div class="an-toolbar__tabs">
+          <button type="button" class="an-tab" [class.an-tab--active]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
+          <button type="button" class="an-tab" [class.an-tab--active]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
+          <button type="button" class="an-tab" [class.an-tab--active]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
         </div>
-        <div class="an-filtro__nav">
-          <button type="button" class="an-filtro__nav-btn" (click)="periodoAnterior()" aria-label="Periodo anterior">
+        <div class="an-toolbar__nav">
+          <button type="button" class="an-nav-btn" (click)="periodoAnterior()" aria-label="Período anterior">
             <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
-          <button type="button" class="an-filtro__label" (click)="abrirPicker()" title="Elegir fecha">{{ etiquetaPeriodo() }}</button>
-          <button type="button" class="an-filtro__nav-btn" (click)="periodoSiguiente()" aria-label="Periodo siguiente">
+          <button type="button" class="an-period-label" (click)="abrirPicker()" title="Elegir fecha">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ etiquetaPeriodo() }}</span>
+          </button>
+          <button type="button" class="an-nav-btn" (click)="periodoSiguiente()" aria-label="Período siguiente">
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
         </div>
-      </div>
+      </header>
 
-      <!-- KPIs -->
-      <div class="admin-grid-4">
-        <admin-kpi-card [label]="'Ventas ' + etiquetaKpi()" [value]="formatMonto(ventasMes)" [sub]="compVentas.texto" [subColor]="compVentas.color" [accent]="true"></admin-kpi-card>
-        <admin-kpi-card [label]="'Pedidos ' + etiquetaKpi()" [value]="pedidosMes" [sub]="compPedidos.texto" [subColor]="compPedidos.color"></admin-kpi-card>
-        <admin-kpi-card label="Ticket promedio" [value]="formatMonto(ticketPromedio)" [sub]="'vs ' + etiquetaAnteriorCorta()"></admin-kpi-card>
-        <admin-kpi-card label="Calificación promedio" value="4.6" sub="312 reseñas" subColor="#6B7280"></admin-kpi-card>
-      </div>
+      <!-- KPIs principales -->
+      <section class="an-kpis">
+        <admin-kpi-card
+          icon="cash-outline"
+          [iconBg]="'rgba(225,54,66,0.08)'"
+          [iconColor]="'#E13642'"
+          [label]="'Ventas ' + etiquetaKpi()"
+          [value]="formatMonto(ventasMes)"
+          [sub]="compVentas.texto"
+          [subColor]="compVentas.color"
+          [accent]="true">
+        </admin-kpi-card>
+        <admin-kpi-card
+          icon="receipt-outline"
+          [iconBg]="'rgba(55,65,81,0.08)'"
+          [iconColor]="'#374151'"
+          [label]="'Pedidos ' + etiquetaKpi()"
+          [value]="pedidosMes"
+          [sub]="compPedidos.texto"
+          [subColor]="compPedidos.color">
+        </admin-kpi-card>
+        <admin-kpi-card
+          icon="pricetag-outline"
+          [iconBg]="'rgba(55,65,81,0.08)'"
+          [iconColor]="'#374151'"
+          label="Ticket promedio"
+          [value]="formatMonto(ticketPromedio)"
+          [sub]="'vs ' + etiquetaAnteriorCorta()">
+        </admin-kpi-card>
+        <admin-kpi-card
+          icon="star-outline"
+          [iconBg]="'rgba(245,158,11,0.08)'"
+          [iconColor]="'#F59E0B'"
+          label="Calificación promedio"
+          value="4.6"
+          sub="312 reseñas"
+          subColor="#6B7280">
+        </admin-kpi-card>
+      </section>
 
-      <!-- Barras -->
-      <div class="an-charts-5">
-        <div class="an-charts-5__main">
-          <admin-section-card title="Ventas por día">
-            <sales-bar-chart [data]="dailySales" [height]="150" prefix="₡"></sales-bar-chart>
-          </admin-section-card>
-        </div>
-        <div class="an-charts-5__side">
-          <admin-section-card title="Horas pico">
-            <sales-bar-chart [data]="peakHours" [height]="150" suffix=" pedidos"></sales-bar-chart>
-            <p *ngIf="peakHours.length === 0" class="an-empty">Sin datos de horas pico.</p>
-          </admin-section-card>
-        </div>
-      </div>
-
-      <!-- Ventas por categoria -->
-      <admin-section-card title="Ventas por categoría">
-        <div class="an-categoria">
-          <div class="an-categoria__item" *ngFor="let cat of ventasPorCategoria">
-            <div class="an-categoria__head">
-              <span class="an-categoria__name">{{ cat.categoria }}</span>
-              <span class="an-categoria__monto">{{ formatMonto(cat.total) }}</span>
-            </div>
-            <progress-bar [value]="cat.total" [max]="maxCategoriaTotal" color="#374151"></progress-bar>
+      <!-- Grafico principal: Tendencia de ventas (area-chart) + Horas pico -->
+      <section class="an-main-charts">
+        <admin-section-card title="Tendencia de ventas" class="an-main-charts__trend" [fill]="true">
+          <div class="an-chart-scroll">
+            <area-chart [values]="trendValues" [xLabels]="trendLabels"
+                        (scrollableChange)="trendScrollable = $event"></area-chart>
           </div>
-          <p *ngIf="ventasPorCategoria.length === 0" class="an-empty">Sin datos de categorías.</p>
-        </div>
-      </admin-section-card>
+          <p class="an-chart-hint" *ngIf="trendScrollable">Desliza horizontalmente para ver todos los días</p>
+        </admin-section-card>
 
-      <!-- Top productos + modalidad -->
-      <div class="an-charts-2">
+        <!-- Horas pico: grafico de barras verticales Chart.js -->
+        <admin-section-card title="Horas pico" class="an-main-charts__peak" [fill]="true">
+          <peak-hours-chart [data]="peakHours"></peak-hours-chart>
+          <p *ngIf="peakHours.length === 0" class="an-empty">Sin datos de horas pico.</p>
+        </admin-section-card>
+      </section>
+
+      <!-- Categorías + Modalidad (columna izquierda) | Productos más vendidos (derecha) -->
+      <section class="an-dual-charts">
+        <!-- Columna izquierda: dos cards compactas que juntas igualan el alto de la tabla -->
+        <div class="an-dual-charts__side">
+          <!-- Ventas por categoría -->
+          <admin-section-card title="Ventas por categoría">
+            <ranking-list
+              [items]="categoriesChart"
+              [isCurrency]="true"
+              [asPercent]="true">
+            </ranking-list>
+          </admin-section-card>
+
+          <!-- Modalidad de pedido (versión compacta) -->
+          <admin-section-card title="Modalidad de pedido" [fill]="true">
+            <modality-compact [data]="modalityDataNormalized"></modality-compact>
+          </admin-section-card>
+        </div>
+
+        <!-- Productos más vendidos -->
         <admin-section-card title="Productos más vendidos" [fill]="true">
-          <div class="an-top">
-            <div class="an-top__item" *ngFor="let p of topProducts; let i = index">
-              <div class="an-top__head">
-                <div class="an-top__name-wrap">
-                  <span class="an-top__rank" [style.background]="p.color">{{ i + 1 }}</span>
-                  <span class="an-top__name">{{ p.name }}</span>
-                </div>
-                <span class="an-top__units" [style.color]="p.color">{{ p.units }} uds</span>
-              </div>
-              <progress-bar [value]="p.units" [max]="maxUnits" [color]="p.color"></progress-bar>
-            </div>
-            <p *ngIf="topProducts.length === 0" class="an-empty">Sin datos de productos.</p>
-          </div>
+          <top-products-table [items]="topProductos"></top-products-table>
         </admin-section-card>
+      </section>
 
-        <admin-section-card title="Modalidad de pedido" [fill]="true">
-          <div class="an-modality">
-            <div class="an-modality__chart">
-              <modality-donut-chart [data]="modalityData" [size]="176"></modality-donut-chart>
-            </div>
+      <!-- Comparativos período actual vs anterior (HTML/CSS) -->
+      <section class="an-comparatives">
+        <!-- Comparativo de ventas -->
+        <comparison-card
+          label="Comparativo de ventas"
+          [currentValue]="ventasMes"
+          [previousValue]="comparativoVentas.length > 0 ? comparativoVentas[0].value : 0"
+          [changePercent]="compVentas.pct"
+          [isCurrency]="true"
+          [prevLabel]="etiquetaAnteriorCorta() | titlecase">
+        </comparison-card>
 
-            <div class="an-modality__grid">
-              <div class="an-modality__card" *ngFor="let l of legend">
-                <span class="an-modality__card-icon" [style.background]="l.c">
-                  <ion-icon [name]="iconoModalidad(l.label)"></ion-icon>
-                </span>
-                <span class="an-modality__card-label">{{ l.label }}</span>
-                <span class="an-modality__card-val" [style.color]="l.c">{{ l.pct }}</span>
-                <span class="an-modality__card-sub">{{ l.value }} pedidos</span>
-              </div>
-              <p *ngIf="legend.length === 0" class="an-empty">Sin datos de modalidad.</p>
-            </div>
+        <!-- Comparativo de pedidos (dos barras apiladas) -->
+        <comparison-card
+          label="Comparativo de pedidos"
+          variant="bars"
+          [currentValue]="pedidosMes"
+          [previousValue]="comparativoPedidos.length > 0 ? comparativoPedidos[0].value : 0"
+          [changePercent]="compPedidos.pct"
+          [prevLabel]="etiquetaAnteriorCorta() | titlecase">
+        </comparison-card>
+      </section>
 
-            <div class="an-modality__callout" *ngIf="modalidadInsight">
-              <ion-icon name="bulb-outline"></ion-icon>
-              <p>{{ modalidadInsight }}</p>
-            </div>
-          </div>
-        </admin-section-card>
-      </div>
-
-      <!-- Comparativo mes actual vs anterior -->
-      <div class="an-charts-2">
-        <admin-section-card title="Comparativo de ventas">
-          <sales-bar-chart [data]="comparativoVentas" [height]="150" prefix="₡"></sales-bar-chart>
-        </admin-section-card>
-        <admin-section-card title="Comparativo de pedidos">
-          <sales-bar-chart [data]="comparativoPedidos" [height]="150" suffix=" pedidos"></sales-bar-chart>
-        </admin-section-card>
-      </div>
     </ng-container>
-
   </div>
 
-  <!-- Modal: info de caché + contador de próxima actualización -->
+  <!-- Modal: info de cache + contador de proxima actualizacion -->
   <div class="an-modal" *ngIf="cacheModalOpen">
     <div class="an-modal__backdrop" (click)="cacheModalOpen = false"></div>
     <div class="an-modal__panel">
       <button type="button" class="an-modal__close" (click)="cacheModalOpen = false">
         <ion-icon name="close-outline"></ion-icon>
       </button>
-      <div class="an-modal__icon"><ion-icon name="time-outline"></ion-icon></div>
-      <p class="an-modal__title">Los datos se actualizan cada {{ ttlMinutos }} minutos</p>
+      <div class="an-modal__icon">
+        <ion-icon name="sync-outline"></ion-icon>
+      </div>
+      <h3 class="an-modal__title">Actualización de datos</h3>
       <p class="an-modal__text">
-        Las analíticas se calculan y se guardan en caché para cargar rápido. Los números que ves
-        pueden tener hasta {{ ttlMinutos }} minutos de antigüedad.
+        Las analíticas se calculan y guardan en caché cada <strong>{{ ttlMinutos }} minutos</strong> para una carga rápida.
+        Los números que ves pueden tener hasta {{ ttlMinutos }} minutos de antigüedad.
       </p>
-      <div class="an-modal__count">
-        <span class="an-modal__count-label">Próxima actualización en</span>
-        <span class="an-modal__count-val">{{ restanteTexto }}</span>
+      <div class="an-modal__countdown">
+        <span class="an-modal__countdown-label">Próxima actualización en</span>
+        <span class="an-modal__countdown-value">{{ restanteTexto }}</span>
       </div>
       <button type="button" class="an-modal__cta" (click)="cacheModalOpen = false">Entendido</button>
     </div>
   </div>
 
-  <!-- Modal: selector de calendario para saltar directo a un mes/semana/dia -->
+  <!-- Modal: selector de calendario -->
   <div class="an-modal" *ngIf="pickerOpen">
     <div class="an-modal__backdrop" (click)="cerrarPicker()"></div>
     <div class="an-modal__panel an-modal__panel--picker">
       <button type="button" class="an-modal__close" (click)="cerrarPicker()">
         <ion-icon name="close-outline"></ion-icon>
       </button>
-      <p class="an-modal__title">{{ granularidad === 'mes' ? 'Elegir mes' : 'Elegir fecha' }}</p>
+      <h3 class="an-modal__title">{{ granularidad === 'mes' ? 'Elegir mes' : 'Elegir fecha' }}</h3>
       <ion-datetime
-        class="an-picker__datetime"
+        class="an-datetime"
         size="cover"
         [presentation]="pickerPresentation()"
         [value]="pickerValue"
@@ -186,7 +207,7 @@
         locale="es-CR"
         (ionChange)="onFechaPicker($event)">
       </ion-datetime>
-      <div class="an-picker__actions">
+      <div class="an-picker-actions">
         <admin-btn [outline]="true" (clicked)="cerrarPicker()">Cancelar</admin-btn>
         <admin-btn (clicked)="confirmarPicker()">Aplicar</admin-btn>
       </div>

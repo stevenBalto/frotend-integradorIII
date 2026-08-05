@@ -6,8 +6,12 @@ import { RouterModule } from '@angular/router';
 
 import { AdminSharedModule } from '../shared/admin-shared.module';
 import { AdminAnaliticasPage } from './analiticas.page';
-import { SalesBarChartComponent } from '../shared/sales-bar-chart.component';
-import { ModalityDonutChartComponent } from '../shared/modality-donut-chart.component';
+import { RankingListComponent } from './ranking-list.component';
+import { ComparisonCardComponent } from './comparison-card.component';
+import { ModalityCompactComponent } from './modality-compact.component';
+import { PeakHoursChartComponent } from './peak-hours-chart.component';
+import { TopProductsTableComponent } from './top-products-table.component';
+import { PluralizePipe } from './pluralize.pipe';
 
 @NgModule({
   imports: [
@@ -15,8 +19,12 @@ import { ModalityDonutChartComponent } from '../shared/modality-donut-chart.comp
     FormsModule,
     IonicModule,
     AdminSharedModule,
-    SalesBarChartComponent,
-    ModalityDonutChartComponent,
+    RankingListComponent,
+    ComparisonCardComponent,
+    ModalityCompactComponent,
+    PeakHoursChartComponent,
+    TopProductsTableComponent,
+    PluralizePipe,
     RouterModule.forChild([{ path: '', component: AdminAnaliticasPage }]),
   ],
   declarations: [AdminAnaliticasPage],

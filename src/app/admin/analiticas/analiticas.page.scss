@@ -1,31 +1,316 @@
-/* Botones del header global: exportar (Excel/PDF) + caché. */
-.an-header-actions { display: flex; align-items: center; gap: 8px; }
+/* =============================================================================
+   ANALÍTICAS — Panel Admin Rooster Pizza & Grill
+   Paleta: 70-20-10 neutral + acento rojo (#E11D2E) solo en picos y CTAs.
+   ============================================================================= */
 
-/* Botón de caché (junto a la campana): reloj + contador. Abre el modal. */
+/* -- Global: tabular-nums para todos los números --------------------------- */
+.an-kpis,
+.an-main-charts,
+.an-dual-charts,
+.an-comparatives {
+  font-variant-numeric: tabular-nums;
+}
+
+/* -- Header Actions --------------------------------------------------------- */
+.an-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.an-export-btn,
 .an-cache-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 8px 14px;
   border: 1px solid var(--admin-border);
-  border-radius: 999px;
-  background: var(--admin-panel);
+  border-radius: 8px;
+  background: var(--admin-card);
   color: var(--admin-text-muted);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--rooster-font-sans);
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.1s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 
-  ion-icon { font-size: 15px; color: var(--rooster-red); }
-  ion-spinner { width: 15px; height: 15px; color: var(--rooster-red); }
+  ion-icon { font-size: 15px; }
+  ion-spinner { width: 15px; height: 15px; }
 }
-.an-cache-btn:hover { border-color: rgba(225, 54, 66, 0.4); }
-.an-cache-btn:active { transform: scale(0.96); }
-.an-cache-btn:disabled { opacity: 0.6; cursor: default; }
-.an-cache-btn__time { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* Modal de caché + contador de próxima actualización */
+.an-export-btn:hover,
+.an-cache-btn:hover {
+  border-color: var(--admin-neutral3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.an-export-btn:disabled,
+.an-cache-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.an-cache-btn {
+  ion-icon { color: var(--admin-accent); }
+}
+
+.an-cache-btn__time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* -- Feedback States (Error / Loading) -------------------------------------- */
+.an-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+
+  ion-icon { font-size: 40px; }
+  ion-spinner { width: 32px; height: 32px; color: var(--admin-accent); }
+  p { margin: 0; font-size: 14px; color: var(--admin-text-muted); }
+}
+
+.an-feedback--error ion-icon { color: var(--admin-red-alt); }
+.an-feedback--loading p { color: var(--admin-text); }
+
+/* -- Toolbar (Filtros de periodo) ------------------------------------------- */
+.an-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+}
+
+@media (min-width: 640px) {
+  .an-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+  }
+}
+
+.an-toolbar__tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+}
+
+.an-tab {
+  border: none;
+  background: transparent;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.an-tab:hover { background: var(--admin-card); }
+
+.an-tab--active {
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.an-toolbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.an-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  ion-icon { font-size: 18px; }
+}
+
+.an-nav-btn:hover {
+  border-color: var(--admin-neutral3);
+  background: var(--admin-panel);
+}
+
+.an-period-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  ion-icon { font-size: 16px; color: var(--admin-text-muted); }
+}
+
+.an-period-label:hover {
+  border-color: var(--admin-neutral3);
+  background: var(--admin-panel);
+}
+
+/* -- KPIs Grid -------------------------------------------------------------- */
+.an-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .an-kpis { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+}
+
+/* -- Main Charts (Trend + Peak Hours) --------------------------------------- */
+.an-main-charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .an-main-charts {
+    /* Tendencia de ventas toma el espacio restante, Horas pico compacto */
+    grid-template-columns: 1fr 320px;
+    align-items: stretch;
+  }
+}
+
+.an-main-charts__trend {
+  min-width: 0;
+}
+
+.an-main-charts__peak {
+  min-width: 0;
+
+  /* [fill]=true en admin-section-card ya iguala la altura con Tendencia de ventas */
+  ::ng-deep .section-card--fill {
+    justify-content: center;
+  }
+}
+
+.an-chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 0;
+
+  /* Altura fija = H interno del componente (260px). El area-chart se dibuja
+     siempre a 1 unidad = 1 px (ancho medido del contenedor), asi que la escala
+     visual es identica en mes, semana y dia; este alto solo reserva el espacio
+     y evita saltos de layout mientras se mide el ancho. */
+  height: 260px;
+}
+
+.an-chart-scroll > area-chart {
+  display: block;
+  width: 100%;
+}
+
+.an-chart-hint {
+  margin: 12px 0 0;
+  font-size: 11px;
+  color: var(--admin-text-soft);
+  text-align: center;
+}
+
+/* -- Categorías + Modalidad | Productos ------------------------------------
+   Dos columnas en desktop: a la izquierda las dos cards compactas apiladas
+   ("Ventas por categoría" y "Modalidad de pedido"), que juntas se acercan al
+   alto de la tabla "Productos más vendidos" de la derecha y evitan el hueco
+   que quedaba con una sola card corta. Todo apilado en móvil.
+   -------------------------------------------------------------------------- */
+.an-dual-charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  /* stretch (no start): ambas columnas terminan al mismo nivel abajo. La más
+     corta se estira hasta el alto de la fila en vez de dejar un escalón. */
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .an-dual-charts { grid-template-columns: 1fr 1.2fr; }
+}
+
+.an-dual-charts > admin-section-card,
+.an-dual-charts__side > admin-section-card {
+  display: block;
+  min-width: 0;
+}
+
+/* La tabla ocupa todo el alto de la fila (necesita [fill]=true en la card). */
+.an-dual-charts > admin-section-card { height: 100%; }
+
+.an-dual-charts__side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  height: 100%;
+}
+
+/* La última card de la columna absorbe el sobrante para cerrar al mismo nivel. */
+.an-dual-charts__side > admin-section-card:last-child { flex: 1; }
+
+/* -- Comparatives ----------------------------------------------------------- */
+.an-comparatives {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .an-comparatives { grid-template-columns: repeat(2, 1fr); }
+}
+
+.an-comparative {
+  min-height: 160px;
+}
+
+/* -- Empty State ------------------------------------------------------------ */
+.an-empty {
+  text-align: center;
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  padding: 24px 16px;
+  margin: 0;
+}
+
+.an-empty--full {
+  grid-column: 1 / -1;
+}
+
+/* -- Modal ------------------------------------------------------------------ */
 .an-modal {
   position: fixed;
   inset: 0;
@@ -35,289 +320,141 @@
   justify-content: center;
   padding: 16px;
 }
-.an-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); }
+
+.an-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
 .an-modal__panel {
   position: relative;
   width: 100%;
-  max-width: 360px;
-  background: var(--admin-card, #fff);
+  max-width: 380px;
+  background: var(--admin-card);
   border-radius: 16px;
-  padding: 28px 24px 22px;
+  padding: 28px 24px 24px;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
 }
+
 .an-modal__close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   border: none;
+  background: var(--admin-panel);
   display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: background 0.15s;
 
   ion-icon { font-size: 18px; color: var(--admin-text-muted); }
 }
+
+.an-modal__close:hover { background: var(--admin-border); }
+
 .an-modal__icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  margin: 0 auto 12px;
-  background: rgba(225, 54, 66, 0.1);
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  margin: 0 auto 16px;
+  background: rgba(225, 54, 66, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
 
-  ion-icon { font-size: 26px; color: var(--rooster-red); }
+  ion-icon { font-size: 28px; color: var(--admin-accent); }
 }
-.an-modal__title { font-size: 15px; font-weight: 700; color: var(--admin-text); margin: 0 0 8px; }
-.an-modal__text { font-size: 12px; color: var(--admin-text-muted); line-height: 1.5; margin: 0 0 16px; }
-.an-modal__count {
+
+.an-modal__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin: 0 0 10px;
+}
+
+.an-modal__text {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  line-height: 1.55;
+  margin: 0 0 20px;
+
+  strong { color: var(--admin-text); }
+}
+
+.an-modal__countdown {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 12px;
-  border-radius: 12px;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 10px;
   background: var(--admin-panel);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
-.an-modal__count-label {
-  font-size: 10px;
+
+.an-modal__countdown-label {
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--admin-text-muted);
-  font-weight: 700;
+  font-weight: 600;
 }
-.an-modal__count-val {
-  font-size: 24px;
+
+.an-modal__countdown-value {
+  font-size: 28px;
   font-weight: 800;
-  color: var(--rooster-red);
+  color: var(--admin-accent);
   font-variant-numeric: tabular-nums;
 }
+
 .an-modal__cta {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 12px;
-  background: var(--rooster-red);
+  border-radius: 10px;
+  background: var(--admin-accent);
   color: #fff;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   font-family: var(--rooster-font-sans);
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s, box-shadow 0.15s;
 }
-.an-modal__cta:active { transform: scale(0.97); }
 
-/* ── Filtro de periodo (Mes/Semana/Día + navegación) ─────────────────────────── */
-.an-filtro {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+.an-modal__cta:hover {
+  box-shadow: 0 4px 16px rgba(225, 54, 66, 0.25);
 }
-@media (min-width: 640px) {
-  .an-filtro { flex-direction: row; align-items: center; justify-content: space-between; }
-}
-.an-filtro__tabs {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  background: var(--admin-panel);
-  border: 1px solid var(--admin-border);
-  width: fit-content;
-}
-.an-filtro__tab {
-  border: none;
-  background: transparent;
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: var(--rooster-font-sans);
-  color: var(--admin-text-muted);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.an-filtro__tab.is-active {
-  background: var(--rooster-red);
-  color: #fff;
-}
-.an-filtro__nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.an-filtro__nav-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid var(--admin-border);
-  background: var(--admin-card, #fff);
-  color: var(--admin-text);
-  cursor: pointer;
-  transition: border-color 0.15s, transform 0.1s;
 
-  ion-icon { font-size: 16px; }
-}
-.an-filtro__nav-btn:hover { border-color: rgba(225, 54, 66, 0.4); }
-.an-filtro__nav-btn:active { transform: scale(0.94); }
-.an-filtro__label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--admin-text);
-  min-width: 160px;
-  text-align: center;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
-  padding: 4px 6px;
-  font-family: var(--rooster-font-sans);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.an-filtro__label:hover { background: var(--admin-panel); }
+.an-modal__cta:active { transform: scale(0.98); }
 
+/* -- Picker Modal ----------------------------------------------------------- */
 .an-modal__panel--picker {
-  max-width: 320px;
-  width: calc(100% - 32px);
-  padding: 40px 16px 20px;
+  max-width: 340px;
+  padding: 44px 20px 24px;
 }
-.an-picker__datetime {
+
+.an-datetime {
   display: block;
   width: auto;
-  margin: 0 -16px;
-  --background: var(--admin-card, #fff);
+  margin: 16px -20px;
+  --background: var(--admin-card);
   --border-radius: 0;
   border: none;
   box-shadow: none;
 }
-.an-picker__actions {
+
+.an-picker-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 8px;
 
   admin-btn { flex: 1; display: flex; }
   ::ng-deep admin-btn .admin-btn { width: 100%; justify-content: center; }
 }
-
-
-.an-charts-5 {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 768px) {
-  .an-charts-5 { grid-template-columns: repeat(5, 1fr); }
-  .an-charts-5__main { grid-column: span 3; }
-  .an-charts-5__side { grid-column: span 2; }
-}
-
-.an-charts-2 {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  align-items: stretch;
-}
-@media (min-width: 768px) {
-  .an-charts-2 { grid-template-columns: repeat(2, 1fr); }
-}
-/* #18 Las dos cards (Productos más vendidos / Modalidad) igualan alto en PC. */
-.an-charts-2 > admin-section-card { display: block; height: 100%; }
-
-.an-note { font-size: 10px; font-weight: 700; color: var(--admin-text-muted); }
-.an-note--green { color: var(--admin-green); }
-
-/* ── Productos más vendidos ────────────────────────────────────────────────── */
-.an-top { display: flex; flex-direction: column; gap: 16px; }
-.an-top__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-.an-top__name-wrap { display: flex; align-items: center; gap: 8px; }
-.an-top__rank {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  color: #fff;
-  font-weight: 700;
-  font-size: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.an-top__name { font-size: 11px; color: #1e1e1e; font-weight: 600; }
-.an-top__units { font-size: 11px; font-weight: 700; }
-
-/* ── Modalidad ─────────────────────────────────────────────────────────────── */
-.an-modality {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 20px;
-}
-.an-modality__chart {
-  display: flex;
-  justify-content: center;
-  padding-top: 4px;
-}
-.an-modality__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  flex: 1;
-  align-content: center;
-}
-.an-modality__card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 4px;
-  padding: 16px 10px;
-  border-radius: 12px;
-  background: var(--admin-panel);
-  border: 1px solid var(--admin-border);
-}
-.an-modality__card-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-
-  ion-icon { font-size: 16px; color: #fff; }
-}
-.an-modality__card-label { font-size: 11px; font-weight: 700; color: var(--admin-text); }
-.an-modality__card-val { font-size: 22px; font-weight: 800; }
-.an-modality__card-sub { font-size: 10px; color: var(--admin-text-muted); }
-.an-modality__callout {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(225, 54, 66, 0.06);
-
-  ion-icon { font-size: 18px; color: var(--rooster-red); flex-shrink: 0; margin-top: 1px; }
-  p { margin: 0; font-size: 11px; color: var(--admin-text); line-height: 1.5; }
-}
-
-/* -- Ventas por categoria -------------------------------------------------- */
-.an-categoria { display: flex; flex-direction: column; gap: 14px; }
-.an-categoria__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-.an-categoria__name { font-size: 12px; color: #1e1e1e; font-weight: 600; }
-.an-categoria__monto { font-size: 12px; font-weight: 700; color: #374151; }
