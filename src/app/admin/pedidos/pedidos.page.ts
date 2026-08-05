@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Gesture, GestureController } from '@ionic/angular';
 import { Subject, interval } from 'rxjs';
 import { takeUntil, switchMap, filter } from 'rxjs/operators';
 import { PedidoService } from '../../core/services/pedido.service';
@@ -46,6 +47,9 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // (util cuando entran muchos pendientes y hay que verlos de un vistazo).
   pantallaCompletaOpen = false;
 
+  // Gesto de cierre de la pantalla completa (deslizar de izquierda a derecha).
+  private gestoCierre?: Gesture;
+
   // Modal de ayuda: explica los colores de cliente registrado vs invitado (item 29).
   ayudaColoresOpen = false;
 
@@ -59,6 +63,9 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   constructor(
     private pedidoService: PedidoService,
     private route: ActivatedRoute,
+    private host: ElementRef<HTMLElement>,
+    private zone: NgZone,
+    private gestureCtrl: GestureController,
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +81,21 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    // Limpieza defensiva del modo inmersivo (EF-13: IonicRouteStrategy cachea la
+    // pagina; no dejamos clase, listener ni gesto colgando).
+    document.body.classList.remove('admin-inmersivo');
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.gestoCierre?.destroy();
+    this.gestoCierre = undefined;
+  }
+
+  /**
+   * Al salir de la pagina cerramos el modo inmersivo aunque Ionic cachee la pagina
+   * (ngOnDestroy no siempre corre — EF-13). Asi el sidebar-hide (body.admin-inmersivo)
+   * nunca se filtra a otra seccion del panel si se navega con la vista abierta.
+   */
+  ionViewWillLeave(): void {
+    this.cerrarPantallaCompleta();
   }
 
   // ── KPIs ──
@@ -108,13 +130,85 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   }
 
   // ── Pantalla completa (todos los pedidos del filtro) ──
+  // Modo inmersivo: oculta el sidebar del admin (clase en body -> regla global) y
+  // entra en fullscreen del navegador. Se cierra con Esc, deslizando de izquierda a
+  // derecha, o si el usuario sale del fullscreen del navegador.
 
   abrirPantallaCompleta(): void {
+    if (this.pantallaCompletaOpen) {
+      return;
+    }
     this.pantallaCompletaOpen = true;
+    // Oculta el sidebar del shell admin (solo PC; en movil ya es off-canvas).
+    document.body.classList.add('admin-inmersivo');
+    // Sincroniza el estado si el usuario sale del fullscreen del navegador (Esc/F11).
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    // Fullscreen del navegador (best-effort: el gesto del click lo permite; si el
+    // navegador lo bloquea, no rompe nada).
+    try {
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen && !document.fullscreenElement) {
+        void docEl.requestFullscreen().catch(() => { /* bloqueado: seguimos igual */ });
+      }
+    } catch { /* noop */ }
+    // El overlay .ped-fs se renderiza en el proximo ciclo: montamos el gesto luego.
+    setTimeout(() => this.setupSwipeCierre(), 0);
   }
 
   cerrarPantallaCompleta(): void {
+    if (!this.pantallaCompletaOpen) {
+      return;
+    }
     this.pantallaCompletaOpen = false;
+    document.body.classList.remove('admin-inmersivo');
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    this.gestoCierre?.destroy();
+    this.gestoCierre = undefined;
+    // Salir del fullscreen del navegador si seguimos dentro.
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => { /* noop */ });
+    }
+  }
+
+  /** Esc cierra la pantalla completa (PC/tablet). */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.pantallaCompletaOpen) {
+      this.cerrarPantallaCompleta();
+    }
+  }
+
+  /**
+   * Si el usuario sale del fullscreen del navegador (Esc/F11) con el modo aun
+   * abierto, cerramos tambien la expansion para no quedar desincronizados.
+   * Arrow-property: referencia estable para add/removeEventListener.
+   */
+  private onFullscreenChange = (): void => {
+    if (!document.fullscreenElement && this.pantallaCompletaOpen) {
+      this.zone.run(() => this.cerrarPantallaCompleta());
+    }
+  };
+
+  /** Monta el gesto "deslizar de izquierda a derecha" sobre el overlay para cerrarlo. */
+  private setupSwipeCierre(): void {
+    const el = this.host.nativeElement.querySelector('.ped-fs') as HTMLElement | null;
+    if (!el) {
+      return;
+    }
+    this.gestoCierre?.destroy();
+    this.gestoCierre = this.gestureCtrl.create({
+      el,
+      gestureName: 'ped-fs-swipe-close',
+      direction: 'x',
+      threshold: 15,
+      onEnd: (ev) => {
+        // Deslizar hacia la derecha (deltaX positivo) supera el umbral -> cerrar.
+        if (ev.deltaX > 80 && Math.abs(ev.deltaY) < 60) {
+          this.zone.run(() => this.cerrarPantallaCompleta());
+        }
+      },
+    });
+    this.gestoCierre.enable(true);
   }
 
   abrirAyudaColores(): void {

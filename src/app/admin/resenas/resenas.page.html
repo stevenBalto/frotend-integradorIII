@@ -22,7 +22,10 @@
 
     <!-- Filtros -->
     <admin-section-card title="Filtrar">
-      <div class="res-filtros">
+      <!-- Buscador (lupa) en la fila del titulo "Filtrar", a la derecha; al abrir se ocultan los filtros. -->
+      <admin-search-input card-action placeholder="Buscar por cliente…"
+        [value]="busqueda" (valueChange)="busqueda = $event" (openChange)="filtrosOcultos = $event"></admin-search-input>
+      <div class="res-filtros" [class.res-filtros--oculto]="filtrosOcultos">
         <div class="res-filtros__group">
           <span class="res-filtros__caption">Estrellas</span>
           <div class="res-filtros__tabs">
@@ -82,11 +85,6 @@
           <label class="res-field">
             <span>Hasta</span>
             <input type="date" [(ngModel)]="hasta" />
-          </label>
-          <label class="res-field res-field--grow">
-            <span>Cliente</span>
-            <admin-search-input placeholder="Buscar por cliente…"
-              [value]="busqueda" (valueChange)="busqueda = $event"></admin-search-input>
           </label>
           <button *ngIf="hayFiltros()" type="button" class="res-clear" (click)="limpiarFiltros()">
             <ion-icon name="close-circle-outline"></ion-icon> Limpiar

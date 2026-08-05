@@ -11,6 +11,8 @@
 
 // ── Filtros ──
 .res-filtros { display: flex; flex-direction: column; gap: 14px; }
+// Al abrir el buscador (lupa del header), se ocultan los filtros de esta card.
+.res-filtros--oculto { display: none; }
 .res-filtros__group { display: flex; flex-direction: column; gap: 6px; }
 .res-filtros__caption {
   font-size: 10px;
@@ -52,7 +54,13 @@
   font-family: var(--rooster-font-sans);
 }
 // EXTRA: los dos KPIs de reseñas siempre en la misma fila (incluido móvil).
-.res-kpis { grid-template-columns: 1fr 1fr; }
+// .admin-grid-2 NO existe en global.scss (solo grid-3/grid-4) -> faltaba display:grid y
+// las cards se apilaban. Forzamos grid de 2 columnas en todos los breakpoints.
+.res-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
 
 // ── Picker visual de producto (item 26): despliega productos con imagen ──
 .res-prodpicker { position: relative; min-width: 200px; }

@@ -19,7 +19,7 @@ export class AdminClientesPage implements OnInit {
   cargando = false;
   error: string | null = null;
 
-  // Busqueda + filtro por KPI
+  // Busqueda + filtro por KPI (el buscador colapsable es el componente compartido admin-search-input)
   busqueda = '';
   filtro: FiltroCliente = 'todos';
 

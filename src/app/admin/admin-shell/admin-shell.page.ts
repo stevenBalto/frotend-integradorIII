@@ -78,6 +78,9 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   /** Acciones que la página activa publica para el header (junto a la campana). */
   readonly headerActions$: Observable<TemplateRef<unknown> | null>;
 
+  /** Slot izquierdo/central: contenido (KPIs) que la página proyecta al header. */
+  readonly headerLead$: Observable<TemplateRef<unknown> | null>;
+
   readonly saludo = this.calcularSaludo();
   readonly fechaTexto = this.calcularFecha();
 
@@ -109,6 +112,7 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this.usuario$ = this.auth.usuarioActual$;
     this.headerActions$ = this.adminHeader.actions$;
+    this.headerLead$ = this.adminHeader.lead$;
 
     this.avatarInicial$ = this.usuario$.pipe(
       map((u) => (u?.nombre?.trim()?.charAt(0) ?? 'A').toUpperCase()),
@@ -128,7 +132,10 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
         filter((e): e is NavigationStart => e instanceof NavigationStart),
         takeUntil(this.destroy$),
       )
-      .subscribe(() => this.adminHeader.setActions(null));
+      .subscribe(() => {
+        this.adminHeader.setActions(null);
+        this.adminHeader.setLead(null);
+      });
 
     // Header contextual: al navegar entre secciones, actualiza el titulo/subtitulo
     // (o marca Dashboard para mostrar el saludo).

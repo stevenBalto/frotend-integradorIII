@@ -98,6 +98,17 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   .admin-grid-3 { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* Buscador colapsable (admin-search-input): al abrirse marca su contenedor-fila con
+   .admin-search-open; ocultamos los demas controles/filtros de esa fila (conservan su
+   espacio, sin reflow; el input del buscador queda por encima). Global = cruza el
+   encapsulamiento de componentes. El buscador debe ser hijo directo de la fila. */
+.admin-search-open > :not(admin-search-input) {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
 /* ── Panel admin: tablas reutilizables ─────────────────────────────────────── */
 /* Alto fijo con scroll interno: la tabla no crece infinito al agregar filas,
    se mantiene el orden y la simetría en móvil y PC. El thead queda fijo (sticky)
@@ -614,3 +625,12 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
    esta en carrito/checkout/confirmacion para ocultar el tab bar. La quita al volver
    al menu o al salir de la pestana. */
 body.tabbar-oculto ion-tab-bar { display: none; }
+
+/* Modo inmersivo del panel admin: la pagina Pedidos agrega esta clase al body al
+   abrir la vista "expandir todos" para ocultar el sidebar y dar todo el ancho a los
+   pedidos, dejando visible solo el header superior. Reversible (se quita al cerrar).
+   Solo aplica en PC (>=1024px), donde el sidebar es persistente; en movil/tablet el
+   sidebar ya es off-canvas (hamburguesa), asi que no hace falta tocarlo. */
+@media (min-width: 1024px) {
+  body.admin-inmersivo .admin-sidebar { display: none; }
+}

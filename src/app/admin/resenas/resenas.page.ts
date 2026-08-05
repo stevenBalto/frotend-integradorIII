@@ -30,6 +30,7 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   filtroTipo: FiltroTipo = 'todas';
   filtroProductoId: number | 'todas' = 'todas';
   busqueda = '';
+  filtrosOcultos = false; // el buscador (lupa) abierto oculta el cuerpo de filtros
   desde = '';
   hasta = '';
   // Caching helpers to avoid returning new arrays on every CD cycle

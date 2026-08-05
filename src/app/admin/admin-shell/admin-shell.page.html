@@ -36,12 +36,12 @@
   <!-- Main -->
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header__left">
+      <div class="admin-header__left" [class.admin-header__left--haslead]="(headerLead$ | async)">
         <button type="button" class="admin-header__burger" (click)="sidebarOpen = true">
           <ion-icon name="menu-outline"></ion-icon>
         </button>
         <!-- Dashboard: saludo. Resto de secciones: titulo/subtitulo contextual. -->
-        <div *ngIf="esDashboard; else seccionTpl">
+        <div class="admin-header__titlewrap" *ngIf="esDashboard; else seccionTpl">
           <div class="admin-greeting" adminMarquee>
             <p class="admin-header__greeting">{{ saludo }}<ng-container *ngIf="(usuario$ | async) as u">, {{ u.nombre.split(' ')[0] }}</ng-container></p>
           </div>
@@ -50,11 +50,18 @@
           </div>
         </div>
         <ng-template #seccionTpl>
-          <div>
+          <div class="admin-header__titlewrap">
             <p class="admin-header__title">{{ seccionTitulo }}</p>
             <p class="admin-header__meta admin-header__meta--plain" *ngIf="seccionSubtitulo">{{ seccionSubtitulo }}</p>
           </div>
         </ng-template>
+
+        <!-- Slot izquierdo/central: contenido que proyecta la página activa (p. ej.
+             los KPIs de Pedidos). Solo se muestra en tablet+ (CSS); en móvil queda
+             oculto y la página los renderiza en su cuerpo. -->
+        <div class="admin-header__lead" *ngIf="(headerLead$ | async) as leadTpl">
+          <ng-container [ngTemplateOutlet]="leadTpl"></ng-container>
+        </div>
       </div>
 
       <div class="admin-header__right">

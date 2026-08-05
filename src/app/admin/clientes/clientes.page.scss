@@ -67,29 +67,51 @@
 .order-modal__close ion-icon { font-size: 18px; color: #fff; }
 .order-modal__body { padding: 20px; overflow-y: auto; max-height: 70vh; }
 
-/* ── Item 14: filtro por fecha de última compra (chips + fecha puntual) ──────── */
+/* ── Item 14: filtro por fecha + busqueda (toolbar de la card "Clientes") ─────────
+   Desktop (>=768px): TODO va inline en la fila del titulo -> chips rapidos + Mes/Ano/
+   calendario + buscador. El calendario NO se estira (ancho natural) y el buscador es
+   ancho para mostrar el placeholder completo.
+   Movil (<768px): en la fila del titulo quedan solo los chips rapidos + la lupa; el
+   rango baja a una fila propia full-width (copia .cli-range--mobile) y el buscador se
+   despliega en overlay al tocar la lupa. */
 .cli-toolbar {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
-  width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  /* offset parent del overlay del buscador en movil (position:absolute, NO fixed: evita EF-16/EF-18). */
+  position: relative;
 }
-.cli-toolbar__search { flex: 1 1 200px; min-width: 0; }
 .cli-datefilter {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
 }
-.cli-datefilter__caption {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 700;
-  color: var(--admin-text-soft);
-  margin-right: 2px;
+.cli-toolbar__quick,
+.cli-toolbar__range { flex-wrap: nowrap; }
+.cli-toolbar__range .cli-datechip { flex-shrink: 0; }
+
+/* Copia del rango que solo se usa en movil (full-width, fila propia). Oculta en desktop.
+   Especificidad (0,2,0) para ganarle a `.cli-datefilter { display:flex }` sin depender del orden (EF-19). */
+.cli-datefilter.cli-range--mobile { display: none; }
+
+/* Fila Mes/Ano/calendario a full-width con calendario flex-grow (solo la usa la copia movil). */
+.cli-datefilter--range {
+  width: 100%;
+  flex-wrap: nowrap;
+  margin-bottom: 12px;
 }
+.cli-datefilter--range .cli-datechip { flex-shrink: 0; }
+.cli-datefilter--range .cli-datechip--date {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-start;
+}
+.cli-datefilter--range .cli-datechip--date input[type="date"] { width: 100%; }
+
+/* El buscador es el componente compartido admin-search-input (colapsable/animado, self-contained).
+   Va al final de la fila; su overlay tapa los chips contiguos al abrirse. */
 .cli-datechip {
   display: inline-flex;
   align-items: center;
@@ -126,4 +148,15 @@
     &.cli-datechip--active input[type="date"] { color: #fff; }
     &.cli-datechip--active input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
   }
+}
+
+/* ── Movil (<768px): en la fila del titulo quedan solo los chips rapidos + la lupa;
+   el rango Mes/Ano/calendario baja a su fila propia full-width (copia .cli-range--mobile).
+   El buscador ya es colapsable/animado en la base (mismo comportamiento que en PC), asi
+   que aca solo hay que hacer el swap del rango. Bloque @media DESPUES de las reglas base
+   para que los overrides apliquen (EF-19). */
+@media (max-width: 767px) {
+  .cli-toolbar { gap: 6px; }
+  .cli-toolbar__range.cli-range--desktop { display: none; }
+  .cli-datefilter.cli-range--mobile { display: flex; }
 }

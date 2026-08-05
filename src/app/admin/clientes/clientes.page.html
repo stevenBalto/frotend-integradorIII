@@ -22,16 +22,22 @@
       <clientes-top-chart [data]="topCincoParaChart" [alturaPx]="220"></clientes-top-chart>
     </admin-section-card>
 
-    <admin-section-card title="Clientes">
+    <admin-section-card title="Clientes" [actionInline]="true">
+      <!-- Toolbar en la fila del titulo. Desktop: TODO inline (chips + Mes/Ano/calendario + buscador).
+           Movil: solo chips rapidos + lupa (el rango baja a la copia .cli-range--mobile del body). -->
       <div card-action class="cli-toolbar">
-        <div class="cli-datefilter">
-          <span class="cli-datefilter__caption">Última compra</span>
+        <!-- Chips rapidos: siempre en la fila del titulo -->
+        <div class="cli-toolbar__quick cli-datefilter">
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'todos'"
             (click)="setFiltroFecha('todos')">Todos</button>
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'hoy'"
             (click)="setFiltroFecha('hoy')">Hoy</button>
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'semana'"
             (click)="setFiltroFecha('semana')">Semana</button>
+        </div>
+
+        <!-- Rango Mes/Ano/calendario: SOLO desktop (en movil se usa la copia full-width del body) -->
+        <div class="cli-toolbar__range cli-datefilter cli-range--desktop">
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'mes'"
             (click)="setFiltroFecha('mes')">Mes</button>
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'anio'"
@@ -42,8 +48,23 @@
             <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
           </label>
         </div>
-        <admin-search-input class="cli-toolbar__search" placeholder="Buscar por nombre o correo..."
+
+        <!-- Buscador colapsable compartido (misma logica en todo el sistema). -->
+        <admin-search-input placeholder="Buscar por nombre o correo..."
           [(value)]="busqueda"></admin-search-input>
+      </div>
+
+      <!-- Copia del rango SOLO para movil: fila propia full-width bajo el head (como estaba). -->
+      <div class="cli-datefilter cli-datefilter--range cli-range--mobile">
+        <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'mes'"
+          (click)="setFiltroFecha('mes')">Mes</button>
+        <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'anio'"
+          (click)="setFiltroFecha('anio')">Año</button>
+        <label class="cli-datechip cli-datechip--date" [class.cli-datechip--active]="filtroFecha === 'fecha'"
+          title="Filtrar por una fecha puntual">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+        </label>
       </div>
 
       <p *ngIf="error" class="cli-error">{{ error }}</p>
