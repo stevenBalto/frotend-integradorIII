@@ -17,6 +17,7 @@ import { MiniBarComponent } from './mini-bar.component';
 import { BarChartComponent } from './bar-chart.component';
 import { AreaChartComponent } from './area-chart.component';
 import { AdminHeaderActionsDirective } from './admin-header-actions.directive';
+import { AdminHeaderLeadDirective } from './admin-header-lead.directive';
 import { MarqueeOverflowDirective } from './marquee-overflow.directive';
 
 const COMPONENTS = [
@@ -35,6 +36,7 @@ const COMPONENTS = [
   BarChartComponent,
   AreaChartComponent,
   AdminHeaderActionsDirective,
+  AdminHeaderLeadDirective,
   MarqueeOverflowDirective,
 ];
 

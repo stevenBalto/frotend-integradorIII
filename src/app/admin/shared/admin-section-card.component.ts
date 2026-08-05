@@ -8,8 +8,11 @@ import { Component, Input } from '@angular/core';
   host: { '[attr.title]': 'null' },
   template: `
     <div class="section-card" [class.section-card--fill]="fill">
-      <div class="section-card__head" *ngIf="title || hasAction">
-        <span class="section-card__title" *ngIf="title">{{ title }}</span>
+      <div class="section-card__head" *ngIf="title || hasAction" [class.section-card__head--inline]="actionInline">
+        <span class="section-card__title" *ngIf="title" [class.section-card__title--has-short]="titleShort">
+          <span class="section-card__title--full">{{ title }}</span>
+          <span class="section-card__title--short" *ngIf="titleShort">{{ titleShort }}</span>
+        </span>
         <div class="section-card__action">
           <ng-content select="[card-action]"></ng-content>
         </div>
@@ -42,12 +45,28 @@ import { Component, Input } from '@angular/core';
       display: flex;
       flex-direction: column;
     }
+    /* Título corto (solo móvil, cuando se define titleShort). */
+    .section-card__title--short { display: none; }
+    /* En móvil el header envuelve: el área de acciones baja a fila completa. */
+    @media (max-width: 767px) {
+      .section-card__head { flex-wrap: wrap; gap: 12px; }
+      .section-card__action { width: 100%; }
+      .section-card__title--has-short .section-card__title--full { display: none; }
+      .section-card__title--has-short .section-card__title--short { display: inline; }
+      /* Variante inline: la accion se queda junto al titulo (no baja a fila completa). */
+      .section-card__head--inline { flex-wrap: nowrap; gap: 8px; }
+      .section-card__head--inline .section-card__action { width: auto; min-width: 0; flex: 1 1 auto; }
+    }
   `],
 })
 export class AdminSectionCardComponent {
   @Input() title?: string;
+  /** Título corto alternativo mostrado en móvil (si se define). */
+  @Input() titleShort?: string;
   /** Forzar el header aunque no haya title (cuando solo se proyecta action). */
   @Input() hasAction = false;
+  /** En movil, mantiene la accion en la misma fila que el titulo (no baja a fila completa). */
+  @Input() actionInline = false;
   /** Estira la tarjeta al alto de su contenedor (simetría en grids). */
   @Input() fill = false;
 }

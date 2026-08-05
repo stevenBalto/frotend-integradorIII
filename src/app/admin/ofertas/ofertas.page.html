@@ -1,15 +1,15 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- Acción en el header global (junto a la campana) -->
+    <!-- Accion en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
       <admin-btn [outline]="true" (clicked)="abrirCanjear()">
         <ion-icon name="qr-code-outline"></ion-icon>
-        <span class="hide-on-mobile">Canjear código</span>
+        <span class="hide-on-mobile">Canjear codigo</span>
       </admin-btn>
       <admin-btn (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
         <ion-icon name="add-outline"></ion-icon>
-        <span class="hide-on-mobile">{{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupón' }}</span>
+        <span class="hide-on-mobile">{{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupon' }}</span>
       </admin-btn>
     </ng-template>
 
@@ -44,15 +44,15 @@
         [clickable]="true" [active]="filtroCupon === 'agotados'" (cardClick)="setFiltroCupon('agotados')"></admin-kpi-card>
     </div>
 
-    <!-- Tabla única con tabs internos (estilo Menú) -->
+    <!-- Tabla unica con tabs internos (estilo Menu) -->
     <admin-section-card>
       <div class="of-toolbar">
         <div class="of-toolbar__tabs">
           <filter-tab label="Ofertas (combos)" [active]="tab === 'ofertas'" (select)="tab = 'ofertas'"></filter-tab>
-          <filter-tab label="Cupones (códigos)" [active]="tab === 'cupones'" (select)="tab = 'cupones'"></filter-tab>
+          <filter-tab label="Cupones (codigos)" [active]="tab === 'cupones'" (select)="tab = 'cupones'"></filter-tab>
         </div>
         <admin-search-input *ngIf="tab === 'ofertas'" placeholder="Buscar oferta..." [(value)]="busquedaOferta"></admin-search-input>
-        <admin-search-input *ngIf="tab === 'cupones'" placeholder="Buscar código..." [(value)]="busquedaCupon"></admin-search-input>
+        <admin-search-input *ngIf="tab === 'cupones'" placeholder="Buscar codigo..." [(value)]="busquedaCupon"></admin-search-input>
       </div>
 
       <ng-container *ngIf="tab === 'ofertas'">
@@ -71,7 +71,8 @@
             <tr *ngFor="let o of ofertasFiltradas" [class.of-row--off]="!o.activa">
               <td>
                 <div class="of-combo-icon" [style.background]="o.activa ? '#E13642' : '#1E1E1E'">
-                  <ion-icon name="restaurant-outline"></ion-icon>
+                  <img *ngIf="o.imagen_url" [src]="o.imagen_url" [alt]="o.nombre" class="of-combo-icon__img" />
+                  <ion-icon *ngIf="!o.imagen_url" name="restaurant-outline"></ion-icon>
                 </div>
               </td>
               <td>
@@ -95,7 +96,7 @@
             </tr>
             <tr *ngIf="ofertasFiltradas.length === 0 && !cargandoOfertas">
               <td colspan="7" class="of-empty">
-                {{ ofertas.length === 0 ? 'No hay ofertas registradas.' : 'Ninguna oferta coincide con la búsqueda/filtro.' }}
+                {{ ofertas.length === 0 ? 'No hay ofertas registradas.' : 'Ninguna oferta coincide con la busqueda/filtro.' }}
               </td>
             </tr>
           </tbody>
@@ -111,12 +112,18 @@
         <table class="of-table">
           <thead>
             <tr>
-              <th>Código</th><th>Tipo</th><th>Valor</th><th>Mín. compra</th>
+              <th></th><th>Codigo</th><th>Tipo</th><th>Valor</th><th>Min. compra</th>
               <th>Vigencia</th><th>Usos</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let c of cuponesFiltrados" [class.of-row--off]="!c.activo">
+              <td>
+                <div class="of-combo-icon" [style.background]="c.activo ? '#F58220' : '#1E1E1E'">
+                  <img *ngIf="c.imagen_url" [src]="c.imagen_url" [alt]="c.codigo" class="of-combo-icon__img" />
+                  <ion-icon *ngIf="!c.imagen_url" name="pricetag-outline"></ion-icon>
+                </div>
+              </td>
               <td class="of-code">{{ c.codigo }}</td>
               <td class="of-muted">{{ formatTipoCupon(c.tipo) }}</td>
               <td class="of-value">{{ formatValorCupon(c) }}</td>
@@ -142,8 +149,8 @@
               </td>
             </tr>
             <tr *ngIf="cuponesFiltrados.length === 0 && !cargandoCupones">
-              <td colspan="8" class="of-empty">
-                {{ cupones.length === 0 ? 'No hay cupones registrados.' : 'Ningún cupón coincide con la búsqueda/filtro.' }}
+              <td colspan="9" class="of-empty">
+                {{ cupones.length === 0 ? 'No hay cupones registrados.' : 'Ningun cupon coincide con la busqueda/filtro.' }}
               </td>
             </tr>
           </tbody>
@@ -172,13 +179,43 @@
 
     <div class="order-modal__body">
       <form [formGroup]="formOferta" (ngSubmit)="guardarOferta()" class="of-form">
+
+        <!-- Selector de imagen (opcional) -->
+        <div class="of-form__label">
+          Imagen (opcional)
+          <span class="of-form__hint">Podes subir una imagen o elegir una por defecto.</span>
+          <div class="of-form__photo">
+            <div class="of-form__photo-preview">
+              <img *ngIf="ofertaImagenPreview" [src]="ofertaImagenPreview" alt="Preview" />
+              <ion-icon *ngIf="!ofertaImagenPreview" name="image-outline"></ion-icon>
+            </div>
+            <div class="of-form__file-wrap">
+              <label class="of-form__file-btn">
+                <ion-icon name="cloud-upload-outline"></ion-icon> Subir imagen
+                <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagenOferta($event)" />
+              </label>
+              <span class="of-form__file-name" adminMarquee>
+                <span>{{ ofertaImagenNombre || 'Sin archivo' }}</span>
+              </span>
+            </div>
+          </div>
+          <!-- Elegir imagen del sistema (abre modal con todas las opciones) -->
+          <button type="button" class="of-form__sysbtn" (click)="abrirPickerImagen('oferta')">
+            <ion-icon name="images-outline"></ion-icon> Elegir imagen del sistema
+          </button>
+          <!-- Boton quitar imagen -->
+          <button type="button" class="of-form__clear-btn" *ngIf="ofertaImagenPreview" (click)="quitarImagenOferta()">
+            <ion-icon name="close-circle-outline"></ion-icon> Quitar imagen
+          </button>
+        </div>
+
         <label class="of-form__label">
           Nombre
           <input type="text" formControlName="nombre" class="of-form__input" placeholder="Ej. Combo Pizza + Bebida" />
         </label>
 
         <label class="of-form__label">
-          Descripción
+          Descripcion
           <textarea formControlName="descripcion" class="of-form__input" rows="2" placeholder="Opcional"></textarea>
         </label>
 
@@ -240,7 +277,7 @@
   <div class="order-modal__panel">
     <div class="order-modal__head">
       <div>
-        <p class="order-modal__title">{{ editandoCupon ? 'Editar cupón' : 'Nuevo cupón' }}</p>
+        <p class="order-modal__title">{{ editandoCupon ? 'Editar cupon' : 'Nuevo cupon' }}</p>
       </div>
       <div class="order-modal__head-right">
         <button type="button" class="order-modal__close" (click)="cerrarModalCupon()">
@@ -251,10 +288,40 @@
 
     <div class="order-modal__body">
       <form [formGroup]="formCupon" (ngSubmit)="guardarCupon()" class="of-form">
+
+        <!-- Selector de imagen (opcional) -->
+        <div class="of-form__label">
+          Imagen (opcional)
+          <span class="of-form__hint">Podes subir una imagen o elegir una por defecto.</span>
+          <div class="of-form__photo">
+            <div class="of-form__photo-preview">
+              <img *ngIf="cuponImagenPreview" [src]="cuponImagenPreview" alt="Preview" />
+              <ion-icon *ngIf="!cuponImagenPreview" name="image-outline"></ion-icon>
+            </div>
+            <div class="of-form__file-wrap">
+              <label class="of-form__file-btn">
+                <ion-icon name="cloud-upload-outline"></ion-icon> Subir imagen
+                <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagenCupon($event)" />
+              </label>
+              <span class="of-form__file-name" adminMarquee>
+                <span>{{ cuponImagenNombre || 'Sin archivo' }}</span>
+              </span>
+            </div>
+          </div>
+          <!-- Elegir imagen del sistema (abre modal con todas las opciones) -->
+          <button type="button" class="of-form__sysbtn" (click)="abrirPickerImagen('cupon')">
+            <ion-icon name="images-outline"></ion-icon> Elegir imagen del sistema
+          </button>
+          <!-- Boton quitar imagen -->
+          <button type="button" class="of-form__clear-btn" *ngIf="cuponImagenPreview" (click)="quitarImagenCupon()">
+            <ion-icon name="close-circle-outline"></ion-icon> Quitar imagen
+          </button>
+        </div>
+
         <label class="of-form__label">
-          Código
+          Codigo
           <input type="text" formControlName="codigo" class="of-form__input" placeholder="Ej. ROOSTER20" maxlength="20" />
-          <span class="of-form__note">Solo letras y números, sin espacios (es lo que el cliente muestra en el QR).</span>
+          <span class="of-form__note">Solo letras y numeros, sin espacios (es lo que el cliente muestra en el QR).</span>
         </label>
 
         <div class="of-form__row">
@@ -272,7 +339,7 @@
         </div>
 
         <label class="of-form__label">
-          Monto mínimo de compra
+          Monto minimo de compra
           <input type="number" min="0" step="1" formControlName="monto_minimo" class="of-form__input" placeholder="Dejar vacio para sin minimo" />
         </label>
 
@@ -288,7 +355,7 @@
         </div>
 
         <label class="of-form__label">
-          Usos máximos
+          Usos maximos
           <input type="number" min="0" step="1" formControlName="usos_max" class="of-form__input" placeholder="Dejar vacio para ilimitados" />
         </label>
 
@@ -299,20 +366,50 @@
         <p *ngIf="formCuponError" class="of-error">{{ formCuponError }}</p>
 
         <button type="submit" class="order-modal__cta" [disabled]="guardandoCupon">
-          {{ guardandoCupon ? 'Guardando...' : (editandoCupon ? 'Guardar cambios' : 'Crear cupón') }}
+          {{ guardandoCupon ? 'Guardando...' : (editandoCupon ? 'Guardar cambios' : 'Crear cupon') }}
         </button>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Modal: canjear código (QR) -->
+<!-- Modal: elegir imagen del sistema (compartido oferta/cupon) -->
+<div class="order-modal" *ngIf="modalImagenOpen">
+  <div class="order-modal__backdrop" (click)="cerrarPickerImagen()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Elegir imagen del sistema</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarPickerImagen()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="sysimg-group" *ngFor="let g of imagenesSistema">
+        <span class="sysimg-group__title">{{ g.titulo }}</span>
+        <div class="sysimg-grid">
+          <button type="button" class="sysimg-tile" *ngFor="let img of g.items"
+            [class.sysimg-tile--active]="imagenSistemaActivaUrl === img.url"
+            (click)="seleccionarImagenSistema(img)" [title]="img.nombre">
+            <img [src]="img.url" [alt]="img.nombre" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: canjear codigo (QR) -->
 <div class="order-modal" *ngIf="canjearOpen">
   <div class="order-modal__backdrop" (click)="cerrarCanjear()"></div>
   <div class="order-modal__panel">
     <div class="order-modal__head">
       <div>
-        <p class="order-modal__title">Canjear código</p>
+        <p class="order-modal__title">Canjear codigo</p>
       </div>
       <div class="order-modal__head-right">
         <button type="button" class="order-modal__close" (click)="cerrarCanjear()">
@@ -328,10 +425,10 @@
       <p class="canje-error" *ngIf="canjeError">{{ canjeError }}</p>
 
       <div class="canje-resultado" *ngIf="canjeCupon">
-        <p class="canje-resultado__titulo">Cupón {{ canjeCupon.codigo }}</p>
+        <p class="canje-resultado__titulo">Cupon {{ canjeCupon.codigo }}</p>
         <p class="canje-resultado__detalle">
-          {{ canjeCupon.tipo === 'porcentaje' ? canjeCupon.valor + '% de descuento' : ('₡' + canjeCupon.valor + ' de descuento') }}
-          <span *ngIf="canjeCupon.monto_minimo"> · mín. ₡{{ canjeCupon.monto_minimo }}</span>
+          {{ canjeCupon.tipo === 'porcentaje' ? canjeCupon.valor + '% de descuento' : (canjeCupon.valor + ' de descuento') }}
+          <span *ngIf="canjeCupon.monto_minimo"> - min. {{ canjeCupon.monto_minimo }}</span>
         </p>
         <button type="button" class="order-modal__cta" (click)="irAPedidoDeMostrador()">Armar pedido de mostrador</button>
       </div>
@@ -339,9 +436,9 @@
       <div class="canje-resultado" *ngIf="canjeOferta">
         <p class="canje-resultado__titulo">Oferta: {{ canjeOferta.nombre }}</p>
         <p class="canje-resultado__detalle">
-          {{ canjeOferta.tipo_descuento === 'porcentaje' ? canjeOferta.valor + '% de descuento' : ('₡' + canjeOferta.valor + ' de descuento') }}
+          {{ canjeOferta.tipo_descuento === 'porcentaje' ? canjeOferta.valor + '% de descuento' : (canjeOferta.valor + ' de descuento') }}
         </p>
-        <p class="canje-hint">Válida solo para: {{ canjeOfertaProductosTexto }}</p>
+        <p class="canje-hint">Valida solo para: {{ canjeOfertaProductosTexto }}</p>
         <button type="button" class="order-modal__cta" (click)="irAPedidoDeMostradorOferta()">Armar pedido de mostrador</button>
       </div>
     </div>

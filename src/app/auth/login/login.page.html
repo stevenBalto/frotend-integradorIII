@@ -7,7 +7,7 @@
 
     <form [formGroup]="form" (ngSubmit)="login()" class="auth-form">
       <div class="field">
-        <label class="field__label">Correo electrónico</label>
+        <label class="field__label">Correo electronico</label>
         <div class="input">
           <ion-icon name="mail-outline"></ion-icon>
           <input type="email" formControlName="email" placeholder="ejemplo@correo.com" autocomplete="email" />
@@ -16,15 +16,15 @@
 
       <div class="field">
         <div class="field__row">
-          <label class="field__label">Contraseña</label>
-          <button type="button" class="link" (click)="irRecuperar()">¿Olvidaste tu contraseña?</button>
+          <label class="field__label">Contrasena</label>
+          <button type="button" class="link" (click)="irRecuperar()">Olvidaste tu contrasena?</button>
         </div>
         <div class="input">
           <ion-icon name="lock-closed-outline"></ion-icon>
           <input
             [type]="showPassword ? 'text' : 'password'"
             formControlName="password"
-            placeholder="••••••••"
+            placeholder="--------"
             autocomplete="current-password"
           />
           <button type="button" class="eye" (click)="showPassword = !showPassword">
@@ -35,14 +35,14 @@
 
       <button type="submit" class="btn btn--primary" [disabled]="cargando">
         <ng-container *ngIf="!cargando">
-          Iniciar Sesión <ion-icon name="arrow-forward-outline"></ion-icon>
+          Iniciar Sesion <ion-icon name="arrow-forward-outline"></ion-icon>
         </ng-container>
         <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
       </button>
     </form>
 
     <div class="switch">
-      <span>¿No tienes cuenta?</span>
+      <span>No tienes cuenta?</span>
       <a class="link link--bold" (click)="irRegistro()">Crear cuenta</a>
     </div>
 
@@ -52,3 +52,61 @@
   </div>
   </div>
 </ion-content>
+
+<!-- Item 19: Modal de cambio de contrasena expirada -->
+<div class="pwd-modal" *ngIf="showPasswordModal">
+  <div class="pwd-modal__backdrop" (click)="cerrarModalPassword()"></div>
+  <div class="pwd-modal__panel">
+    <div class="pwd-modal__head">
+      <span class="pwd-modal__title">Actualiza tu contrasena</span>
+      <button type="button" class="pwd-modal__close" (click)="cerrarModalPassword()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <form class="pwd-modal__body" [formGroup]="passwordModalForm" (ngSubmit)="cambiarPassword()">
+      <div class="pwd-modal__msg">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <p>{{ mensajeExpiracion }}</p>
+      </div>
+
+      <div class="pwd-field">
+        <label class="pwd-field__label">Contrasena actual</label>
+        <div class="pwd-input-wrap">
+          <input class="pwd-input" [type]="showPasswordActual ? 'text' : 'password'"
+            formControlName="password_actual" placeholder="Tu contrasena actual" />
+          <button type="button" class="pwd-eye" (click)="showPasswordActual = !showPasswordActual">
+            <ion-icon [name]="showPasswordActual ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="pwd-field">
+        <label class="pwd-field__label">Nueva contrasena</label>
+        <div class="pwd-input-wrap">
+          <input class="pwd-input" [type]="showPasswordNueva ? 'text' : 'password'"
+            formControlName="password_nueva" placeholder="Minimo 8 caracteres" />
+          <button type="button" class="pwd-eye" (click)="showPasswordNueva = !showPasswordNueva">
+            <ion-icon [name]="showPasswordNueva ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="pwd-field">
+        <label class="pwd-field__label">Confirmar nueva contrasena</label>
+        <div class="pwd-input-wrap">
+          <input class="pwd-input" [type]="showPasswordConfirm ? 'text' : 'password'"
+            formControlName="password_nueva_confirmation" placeholder="Repite la nueva contrasena" />
+          <button type="button" class="pwd-eye" (click)="showPasswordConfirm = !showPasswordConfirm">
+            <ion-icon [name]="showPasswordConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="pwd-modal__cta" [disabled]="passwordModalCargando">
+        <ng-container *ngIf="!passwordModalCargando">Actualizar y continuar</ng-container>
+        <ion-spinner *ngIf="passwordModalCargando" name="crescent"></ion-spinner>
+      </button>
+    </form>
+  </div>
+</div>

@@ -26,6 +26,10 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   granularidad: Granularidad = 'mes';
   private fechaAncla: Date = new Date();
 
+  // Rango de fechas personalizado (granularidad='rango') — item 24.
+  rangoDesde = '';
+  rangoHasta = '';
+
   // Selector de calendario
   pickerOpen = false;
   pickerValue = '';
@@ -131,6 +135,10 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   }
 
   cargarAnaliticas(): void {
+    // En modo rango, no consultamos hasta tener desde y hasta válidos.
+    if (this.granularidad === 'rango' && (!this.rangoDesde || !this.rangoHasta || this.rangoDesde > this.rangoHasta)) {
+      return;
+    }
     this.cargando = true;
     this.error = null;
     this.analiticasService.obtenerAnaliticas(this.paramsActuales()).subscribe({
@@ -147,9 +155,13 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
 
   /** Params del periodo actualmente filtrado, compartidos entre la carga y las exportaciones. */
   private paramsActuales(): AnaliticasParams {
-    return this.granularidad === 'mes'
-      ? { granularidad: this.granularidad, mes: this.formatMes(this.fechaAncla) }
-      : { granularidad: this.granularidad, fecha: this.formatFecha(this.fechaAncla) };
+    if (this.granularidad === 'mes') {
+      return { granularidad: 'mes', mes: this.formatMes(this.fechaAncla) };
+    }
+    if (this.granularidad === 'rango') {
+      return { granularidad: 'rango', desde: this.rangoDesde, hasta: this.rangoHasta };
+    }
+    return { granularidad: this.granularidad, fecha: this.formatFecha(this.fechaAncla) };
   }
 
   /** Descarga el resumen del periodo filtrado como Excel (.xlsx). */
@@ -191,7 +203,24 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     }
     this.granularidad = g;
     this.fechaAncla = new Date();
+    if (g === 'rango') {
+      // Defaults útiles: del primer día del mes actual a hoy.
+      const hoy = new Date();
+      if (!this.rangoDesde) {
+        this.rangoDesde = this.formatFecha(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+      }
+      if (!this.rangoHasta) {
+        this.rangoHasta = this.formatFecha(hoy);
+      }
+    }
     this.cargarAnaliticas();
+  }
+
+  /** Aplica el rango de fechas elegido (si es válido) y recarga. */
+  aplicarRango(): void {
+    if (this.rangoDesde && this.rangoHasta && this.rangoDesde <= this.rangoHasta) {
+      this.cargarAnaliticas();
+    }
   }
 
   /** Retrocede un periodo (mes/semana/dia segun granularidad actual) y recarga. */
@@ -220,6 +249,12 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
 
   /** Texto legible del periodo actualmente seleccionado. */
   etiquetaPeriodo(): string {
+    if (this.granularidad === 'rango') {
+      if (!this.rangoDesde || !this.rangoHasta) {
+        return 'Elegí un rango';
+      }
+      return `Del ${this.formatFechaCorta(this.rangoDesde)} al ${this.formatFechaCorta(this.rangoHasta)}`;
+    }
     if (this.granularidad === 'mes') {
       const texto = this.fechaAncla.toLocaleDateString('es-CR', { month: 'long', year: 'numeric' });
       return texto.charAt(0).toUpperCase() + texto.slice(1);
@@ -245,6 +280,9 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     if (this.granularidad === 'dia') {
       return 'del día';
     }
+    if (this.granularidad === 'rango') {
+      return 'del período';
+    }
     return 'del mes';
   }
 
@@ -255,6 +293,9 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     }
     if (this.granularidad === 'dia') {
       return 'día anterior';
+    }
+    if (this.granularidad === 'rango') {
+      return 'período anterior';
     }
     return 'mes anterior';
   }
@@ -388,6 +429,12 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
     }
 
     return resultado;
+  }
+
+  /** "2026-07-25" → "25 jul" (para la etiqueta del rango). */
+  private formatFechaCorta(iso: string): string {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es-CR', { day: '2-digit', month: 'short' });
   }
 
   private procesarRespuesta(res: AnaliticasResponse): void {

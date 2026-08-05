@@ -16,6 +16,7 @@ export interface Oferta {
   activa: boolean;
   productos: OfertaProducto[];
   productos_count: number;
+  imagen_url: string | null;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -30,4 +31,14 @@ export interface OfertaPayload {
   fecha_fin?: string | null;
   activa?: boolean;
   producto_ids: number[];
+  /** URL de imagen por defecto (del sistema). */
+  imagen_url?: string | null;
+}
+
+/** Opciones de imagen para crear/actualizar oferta. */
+export interface OfertaImagenOpts {
+  /** Archivo subido por el usuario. */
+  imagen?: File | null;
+  /** URL de imagen por defecto (si no se sube archivo). */
+  imagen_url?: string | null;
 }

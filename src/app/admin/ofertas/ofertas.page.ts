@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import { OfertaService } from '../../core/services/oferta.service';
 import { CuponService } from '../../core/services/cupon.service';
 import { ProductoService } from '../../core/services/producto.service';
-import { Oferta, OfertaPayload } from '../../core/models/oferta.model';
-import { Cupon, CuponPayload } from '../../core/models/cupon.model';
+import { Oferta, OfertaPayload, OfertaImagenOpts } from '../../core/models/oferta.model';
+import { Cupon, CuponPayload, CuponImagenOpts } from '../../core/models/cupon.model';
 
 interface ProductoOpt {
   id: number;
@@ -15,6 +15,18 @@ interface ProductoOpt {
 
 type FiltroOferta = 'todos' | 'activas' | 'por_vencer' | 'vencidas';
 type FiltroCupon = 'todos' | 'activos' | 'agotados';
+
+/** Imagen por defecto disponible en el sistema. */
+interface ImagenPorDefecto {
+  url: string;
+  nombre: string;
+}
+
+/** Grupo de imagenes del sistema: un icono en sus variantes de color. */
+interface GrupoImagenes {
+  titulo: string;
+  items: ImagenPorDefecto[];
+}
 
 /**
  * Ofertas (combos) y cupones (codigos) del panel admin, conectado a la API.
@@ -55,6 +67,12 @@ export class AdminOfertasPage implements OnInit {
   private ofertaEditId: number | null = null;
   private productosSel = new Set<number>();
 
+  // Imagen oferta
+  ofertaImagenArchivo: File | null = null;
+  ofertaImagenPreview: string | null = null;
+  ofertaImagenNombre: string | null = null;
+  ofertaImagenUrlDefault: string | null = null;
+
   // Modal cupon
   modalCuponOpen = false;
   editandoCupon = false;
@@ -63,12 +81,73 @@ export class AdminOfertasPage implements OnInit {
   readonly formCupon: FormGroup;
   private cuponEditId: number | null = null;
 
+  // Imagen cupon
+  cuponImagenArchivo: File | null = null;
+  cuponImagenPreview: string | null = null;
+  cuponImagenNombre: string | null = null;
+  cuponImagenUrlDefault: string | null = null;
+
   // Canje por QR (scanner)
   canjearOpen = false;
   canjeCargando = false;
   canjeError: string | null = null;
   canjeCupon: Cupon | null = null;
   canjeOferta: Oferta | null = null;
+
+  // Imagenes del sistema para ofertas/cupones: logo Rooster + iconos (cubiertos,
+  // pizza, grill, bebidas, pastas, etiqueta) en la misma secuencia de colores que
+  // la vista cliente. Se eligen desde un modal; se guardan como imagen_url (ruta corta).
+  private static readonly COLORES_SIS: ReadonlyArray<{ key: string; label: string }> = [
+    { key: 'rojo', label: 'rojo' },
+    { key: 'naranja', label: 'naranja' },
+    { key: 'cafe', label: 'café' },
+    { key: 'ambar', label: 'ámbar' },
+    { key: 'verde', label: 'verde' },
+    { key: 'teal', label: 'teal' },
+    { key: 'azul', label: 'azul' },
+    { key: 'morado', label: 'morado' },
+    { key: 'terracota', label: 'terracota' },
+  ];
+  private static grupoIcono(key: string, titulo: string): GrupoImagenes {
+    return {
+      titulo,
+      items: AdminOfertasPage.COLORES_SIS.map((c) => ({
+        url: `assets/sistema/${key}-${c.key}.svg`,
+        nombre: `${titulo} ${c.label}`,
+      })),
+    };
+  }
+  private static readonly ROOSTER: GrupoImagenes = {
+    titulo: 'Rooster',
+    items: [{ url: 'assets/logo/rooster-logo.png', nombre: 'Logo Rooster' }],
+  };
+  // Ofertas: iconos de comida.
+  readonly imagenesOferta: GrupoImagenes[] = [
+    AdminOfertasPage.ROOSTER,
+    AdminOfertasPage.grupoIcono('cubiertos', 'Cubiertos'),
+    AdminOfertasPage.grupoIcono('pizza', 'Pizza'),
+    AdminOfertasPage.grupoIcono('grill', 'Grill'),
+    AdminOfertasPage.grupoIcono('bebidas', 'Bebidas'),
+    AdminOfertasPage.grupoIcono('pastas', 'Pastas'),
+    AdminOfertasPage.grupoIcono('etiqueta', 'Etiqueta'),
+  ];
+  // Cupones: iconos de cupon / descuento.
+  readonly imagenesCupon: GrupoImagenes[] = [
+    AdminOfertasPage.ROOSTER,
+    AdminOfertasPage.grupoIcono('etiqueta', 'Etiqueta'),
+    AdminOfertasPage.grupoIcono('tarjeta', 'Tarjeta'),
+    AdminOfertasPage.grupoIcono('regalo', 'Regalo'),
+    AdminOfertasPage.grupoIcono('ticket', 'Ticket'),
+  ];
+
+  // Modal selector de imagen del sistema (contextual segun oferta/cupon)
+  modalImagenOpen = false;
+  private imagenTarget: 'oferta' | 'cupon' = 'oferta';
+
+  /** Grupos a mostrar en el modal segun desde donde se abrio (oferta/cupon). */
+  get imagenesSistema(): GrupoImagenes[] {
+    return this.imagenTarget === 'oferta' ? this.imagenesOferta : this.imagenesCupon;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -205,12 +284,107 @@ export class AdminOfertasPage implements OnInit {
     });
   }
 
+  // ── Imagen oferta ─────────────────────────────────────────────────
+  seleccionarImagenOferta(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0] ?? null;
+    if (!archivo) return;
+    this.ofertaImagenArchivo = archivo;
+    this.ofertaImagenNombre = archivo.name;
+    this.ofertaImagenUrlDefault = null;
+    if (this.ofertaImagenPreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.ofertaImagenPreview);
+    }
+    this.ofertaImagenPreview = URL.createObjectURL(archivo);
+  }
+
+  seleccionarImagenOfertaDefault(img: ImagenPorDefecto): void {
+    this.limpiarImagenOferta();
+    this.ofertaImagenUrlDefault = img.url;
+    this.ofertaImagenPreview = img.url;
+    this.ofertaImagenNombre = img.nombre;
+  }
+
+  quitarImagenOferta(): void {
+    this.limpiarImagenOferta();
+  }
+
+  private limpiarImagenOferta(): void {
+    if (this.ofertaImagenPreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.ofertaImagenPreview);
+    }
+    this.ofertaImagenArchivo = null;
+    this.ofertaImagenPreview = null;
+    this.ofertaImagenNombre = null;
+    this.ofertaImagenUrlDefault = null;
+  }
+
+  // ── Imagen cupon ──────────────────────────────────────────────────
+  seleccionarImagenCupon(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0] ?? null;
+    if (!archivo) return;
+    this.cuponImagenArchivo = archivo;
+    this.cuponImagenNombre = archivo.name;
+    this.cuponImagenUrlDefault = null;
+    if (this.cuponImagenPreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.cuponImagenPreview);
+    }
+    this.cuponImagenPreview = URL.createObjectURL(archivo);
+  }
+
+  seleccionarImagenCuponDefault(img: ImagenPorDefecto): void {
+    this.limpiarImagenCupon();
+    this.cuponImagenUrlDefault = img.url;
+    this.cuponImagenPreview = img.url;
+    this.cuponImagenNombre = img.nombre;
+  }
+
+  quitarImagenCupon(): void {
+    this.limpiarImagenCupon();
+  }
+
+  private limpiarImagenCupon(): void {
+    if (this.cuponImagenPreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.cuponImagenPreview);
+    }
+    this.cuponImagenArchivo = null;
+    this.cuponImagenPreview = null;
+    this.cuponImagenNombre = null;
+    this.cuponImagenUrlDefault = null;
+  }
+
+  // ── Modal selector de imagen del sistema (compartido) ─────────────
+  abrirPickerImagen(target: 'oferta' | 'cupon'): void {
+    this.imagenTarget = target;
+    this.modalImagenOpen = true;
+  }
+
+  cerrarPickerImagen(): void {
+    this.modalImagenOpen = false;
+  }
+
+  /** URL de la imagen del sistema activa segun el formulario en curso (para resaltar el tile). */
+  get imagenSistemaActivaUrl(): string | null {
+    return this.imagenTarget === 'oferta' ? this.ofertaImagenUrlDefault : this.cuponImagenUrlDefault;
+  }
+
+  seleccionarImagenSistema(img: ImagenPorDefecto): void {
+    if (this.imagenTarget === 'oferta') {
+      this.seleccionarImagenOfertaDefault(img);
+    } else {
+      this.seleccionarImagenCuponDefault(img);
+    }
+    this.modalImagenOpen = false;
+  }
+
   // ── Modal oferta ──────────────────────────────────────────────────
   abrirNuevaOferta(): void {
     this.editandoOferta = false;
     this.ofertaEditId = null;
     this.formOfertaError = null;
     this.productosSel.clear();
+    this.limpiarImagenOferta();
     this.formOferta.reset({ tipo_descuento: 'porcentaje', activa: true });
     this.modalOfertaOpen = true;
   }
@@ -220,6 +394,12 @@ export class AdminOfertasPage implements OnInit {
     this.ofertaEditId = o.id;
     this.formOfertaError = null;
     this.productosSel = new Set((o.productos ?? []).map((p) => p.id));
+    this.limpiarImagenOferta();
+    // Precargar imagen existente
+    if (o.imagen_url) {
+      this.ofertaImagenPreview = o.imagen_url;
+      // No es archivo ni default nuevo, solo preview
+    }
     this.formOferta.reset({
       nombre: o.nombre,
       descripcion: o.descripcion ?? '',
@@ -234,6 +414,8 @@ export class AdminOfertasPage implements OnInit {
 
   cerrarModalOferta(): void {
     this.modalOfertaOpen = false;
+    this.modalImagenOpen = false;
+    this.limpiarImagenOferta();
   }
 
   isProductoSelected(id: number): boolean {
@@ -251,7 +433,7 @@ export class AdminOfertasPage implements OnInit {
   guardarOferta(): void {
     if (this.formOferta.invalid) {
       this.formOferta.markAllAsTouched();
-      this.formOfertaError = 'Revisá los campos obligatorios.';
+      this.formOfertaError = 'Revisa los campos obligatorios.';
       return;
     }
     const v = this.formOferta.getRawValue();
@@ -266,17 +448,23 @@ export class AdminOfertasPage implements OnInit {
       producto_ids: Array.from(this.productosSel),
     };
 
+    const imagenOpts: OfertaImagenOpts = {
+      imagen: this.ofertaImagenArchivo,
+      imagen_url: this.ofertaImagenUrlDefault,
+    };
+
     this.guardandoOferta = true;
     this.formOfertaError = null;
     const req =
       this.editandoOferta && this.ofertaEditId !== null
-        ? this.ofertaService.actualizar(this.ofertaEditId, payload)
-        : this.ofertaService.crear(payload);
+        ? this.ofertaService.actualizar(this.ofertaEditId, payload, imagenOpts)
+        : this.ofertaService.crear(payload, imagenOpts);
 
     req.subscribe({
       next: () => {
         this.guardandoOferta = false;
         this.modalOfertaOpen = false;
+        this.limpiarImagenOferta();
         this.cargarOfertas();
       },
       error: (err: HttpErrorResponse) => {
@@ -298,6 +486,7 @@ export class AdminOfertasPage implements OnInit {
     this.editandoCupon = false;
     this.cuponEditId = null;
     this.formCuponError = null;
+    this.limpiarImagenCupon();
     this.formCupon.reset({ tipo: 'porcentaje', activo: true });
     this.modalCuponOpen = true;
   }
@@ -306,6 +495,11 @@ export class AdminOfertasPage implements OnInit {
     this.editandoCupon = true;
     this.cuponEditId = c.id;
     this.formCuponError = null;
+    this.limpiarImagenCupon();
+    // Precargar imagen existente
+    if (c.imagen_url) {
+      this.cuponImagenPreview = c.imagen_url;
+    }
     this.formCupon.reset({
       codigo: c.codigo,
       tipo: c.tipo,
@@ -321,12 +515,14 @@ export class AdminOfertasPage implements OnInit {
 
   cerrarModalCupon(): void {
     this.modalCuponOpen = false;
+    this.modalImagenOpen = false;
+    this.limpiarImagenCupon();
   }
 
   guardarCupon(): void {
     if (this.formCupon.invalid) {
       this.formCupon.markAllAsTouched();
-      this.formCuponError = 'Revisá los campos obligatorios.';
+      this.formCuponError = 'Revisa los campos obligatorios.';
       return;
     }
     const v = this.formCupon.getRawValue();
@@ -341,17 +537,23 @@ export class AdminOfertasPage implements OnInit {
       activo: !!v.activo,
     };
 
+    const imagenOpts: CuponImagenOpts = {
+      imagen: this.cuponImagenArchivo,
+      imagen_url: this.cuponImagenUrlDefault,
+    };
+
     this.guardandoCupon = true;
     this.formCuponError = null;
     const req =
       this.editandoCupon && this.cuponEditId !== null
-        ? this.cuponService.actualizar(this.cuponEditId, payload)
-        : this.cuponService.crear(payload);
+        ? this.cuponService.actualizar(this.cuponEditId, payload, imagenOpts)
+        : this.cuponService.crear(payload, imagenOpts);
 
     req.subscribe({
       next: () => {
         this.guardandoCupon = false;
         this.modalCuponOpen = false;
+        this.limpiarImagenCupon();
         this.cargarCupones();
       },
       error: (err: HttpErrorResponse) => {
@@ -362,7 +564,7 @@ export class AdminOfertasPage implements OnInit {
   }
 
   eliminarCupon(c: Cupon): void {
-    if (!confirm(`¿Eliminar el cupón "${c.codigo}"?`)) {
+    if (!confirm(`¿Eliminar el cupon "${c.codigo}"?`)) {
       return;
     }
     this.cuponService.eliminar(c.id).subscribe({ next: () => this.cargarCupones() });
@@ -380,7 +582,7 @@ export class AdminOfertasPage implements OnInit {
     this.canjearOpen = false;
   }
 
-  /** Se dispara al decodificar el QR (o al tipear el código manualmente en el scanner). */
+  /** Se dispara al decodificar el QR (o al tipear el codigo manualmente en el scanner). */
   onCodigoDecodificado(valor: string): void {
     this.canjeError = null;
     this.canjeCupon = null;
@@ -396,21 +598,21 @@ export class AdminOfertasPage implements OnInit {
       return;
     }
 
-    // Código corto de oferta mostrado al cliente (ej. "OF-0003").
+    // Codigo corto de oferta mostrado al cliente (ej. "OF-0003").
     const matchOferta = valor.trim().match(/^OF-0*(\d+)$/i);
     if (matchOferta) {
       this.validarOfertaEscaneada(Number(matchOferta[1]));
       return;
     }
 
-    // Código corto de cupón mostrado al cliente (ej. "CU-0005") — ya no se muestra/codifica el nombre del cupón.
+    // Codigo corto de cupon mostrado al cliente (ej. "CU-0005") — ya no se muestra/codifica el nombre del cupon.
     const matchCupon = valor.trim().match(/^CU-0*(\d+)$/i);
     if (matchCupon) {
       this.validarCuponEscaneadoPorId(Number(matchCupon[1]));
       return;
     }
 
-    // Fallback: si escanean/tipean el código "pelado" (sin prefijo), asumimos que es el código real del cupón.
+    // Fallback: si escanean/tipean el codigo "pelado" (sin prefijo), asumimos que es el codigo real del cupon.
     this.validarCuponEscaneado(valor.trim());
   }
 
@@ -428,11 +630,11 @@ export class AdminOfertasPage implements OnInit {
     });
   }
 
-  /** El código corto ("CU-0005") solo identifica el cupón por id — se resuelve a su código real y se valida igual. */
+  /** El codigo corto ("CU-0005") solo identifica el cupon por id — se resuelve a su codigo real y se valida igual. */
   private validarCuponEscaneadoPorId(id: number): void {
     const cupon = this.cupones.find((c) => c.id === id) ?? null;
     if (!cupon) {
-      this.canjeError = 'Este cupón no existe.';
+      this.canjeError = 'Este cupon no existe.';
       return;
     }
     this.validarCuponEscaneado(cupon.codigo);
@@ -459,7 +661,7 @@ export class AdminOfertasPage implements OnInit {
     return nombres.length > 0 ? nombres.join(', ') : 'todos los productos';
   }
 
-  /** Arma el pedido de mostrador con el cupón ya validado. */
+  /** Arma el pedido de mostrador con el cupon ya validado. */
   irAPedidoDeMostrador(): void {
     if (!this.canjeCupon) {
       return;
@@ -477,7 +679,7 @@ export class AdminOfertasPage implements OnInit {
 
   // ── Formateo / helpers de vista ───────────────────────────────────
   formatValorOferta(o: Oferta): string {
-    return o.tipo_descuento === 'porcentaje' ? `${o.valor}% de descuento` : `₡${this.num(o.valor)} precio fijo`;
+    return o.tipo_descuento === 'porcentaje' ? `${o.valor}% de descuento` : `${this.num(o.valor)} precio fijo`;
   }
   formatTipoDescuento(tipo: string): string {
     return tipo === 'porcentaje' ? '% descuento' : 'Precio fijo';
@@ -486,13 +688,13 @@ export class AdminOfertasPage implements OnInit {
     return tipo === 'porcentaje' ? 'Porcentaje' : 'Monto fijo';
   }
   formatValorCupon(c: Cupon): string {
-    return c.tipo === 'porcentaje' ? `${c.valor}%` : `₡${this.num(c.valor)}`;
+    return c.tipo === 'porcentaje' ? `${c.valor}%` : `${this.num(c.valor)}`;
   }
   formatMontoMinimo(monto: number | null): string {
-    return monto === null ? 'Sin mínimo' : `₡${this.num(monto)}`;
+    return monto === null ? 'Sin minimo' : `${this.num(monto)}`;
   }
   formatUsosLabel(c: Cupon): string {
-    return c.usos_max === null ? `${c.usos_actuales} / ∞` : `${c.usos_actuales} / ${c.usos_max}`;
+    return c.usos_max === null ? `${c.usos_actuales} / infinito` : `${c.usos_actuales} / ${c.usos_max}`;
   }
   formatVigencia(fecha: string | null): string {
     const d = this.diasHastaFin(fecha);
@@ -541,6 +743,6 @@ export class AdminOfertasPage implements OnInit {
       const primero = Object.values(errores)[0];
       if (Array.isArray(primero)) return primero[0] as string;
     }
-    return err.error?.message ?? 'Ocurrió un error.';
+    return err.error?.message ?? 'Ocurrio un error.';
   }
 }

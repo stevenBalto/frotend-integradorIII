@@ -2,7 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, finalize, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginResultado, Usuario } from '../models/usuario.model';
+import {
+  AuthResponse,
+  CambiarPasswordExpiradaBody,
+  LoginResultado,
+  PasswordExpiradaResponse,
+  Usuario,
+} from '../models/usuario.model';
 import { TokenStorageService } from './token-storage.service';
 
 export interface RegistroBody {
@@ -66,11 +72,19 @@ export class AuthService {
   }
 
   /**
-   * Login UNIFICADO: NO persiste todavía (el caller decide dónde guardar la
-   * sesión según `tipo`, porque un superadmin va a su propio storage aislado).
+   * Login UNIFICADO: NO persiste todavia (el caller decide donde guardar la
+   * sesion segun `tipo`, porque un superadmin va a su propio storage aislado).
+   * Puede devolver LoginResultado (con token) o PasswordExpiradaResponse (sin token).
    */
-  loginUnificado(body: LoginBody): Observable<LoginResultado> {
-    return this.http.post<LoginResultado>(`${this.base}/login`, body);
+  loginUnificado(body: LoginBody): Observable<LoginResultado | PasswordExpiradaResponse> {
+    return this.http.post<LoginResultado | PasswordExpiradaResponse>(`${this.base}/login`, body);
+  }
+
+  /**
+   * Cambia la contrasena expirada. Si es exitoso, devuelve AuthResponse con token.
+   */
+  cambiarPasswordExpirada(body: CambiarPasswordExpiradaBody): Observable<LoginResultado> {
+    return this.http.post<LoginResultado>(`${this.base}/auth/password-expirada`, body);
   }
 
   /** Adopta una sesión de usuario normal ya obtenida (la persiste en memoria + storage). */

@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { SuperAdminAuthService } from '../../core/services/superadmin-auth.service';
+import { LoginResultado, PasswordExpiradaResponse } from '../../core/models/usuario.model';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,16 @@ export class LoginPage {
   showPassword = false;
   cargando = false;
 
+  // Item 19: Modal de cambio de contrasena expirada
+  showPasswordModal = false;
+  passwordModalForm: FormGroup;
+  passwordModalCargando = false;
+  showPasswordActual = false;
+  showPasswordNueva = false;
+  showPasswordConfirm = false;
+  private loginPendiente: string = '';
+  private motivoExpiracion: string = '';
+
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
@@ -28,37 +39,138 @@ export class LoginPage {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
+
+    this.passwordModalForm = this.fb.group({
+      password_actual: ['', [Validators.required]],
+      password_nueva: ['', [Validators.required, Validators.minLength(8)]],
+      password_nueva_confirmation: ['', [Validators.required]],
+    });
+  }
+
+  /** Type guard para identificar respuesta de password expirada. */
+  private esPasswordExpirada(res: LoginResultado | PasswordExpiradaResponse): res is PasswordExpiradaResponse {
+    return 'debe_cambiar_password' in res && res.debe_cambiar_password === true;
   }
 
   login(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      void this.notificar('Completá correo y contraseña.');
+      void this.notificar('Completa correo y contrasena.');
       return;
     }
     this.cargando = true;
-    this.auth.loginUnificado(this.form.getRawValue()).subscribe({
+    const credenciales = this.form.getRawValue();
+
+    this.auth.loginUnificado(credenciales).subscribe({
       next: (res) => {
         this.cargando = false;
-        if (res.tipo === 'superadmin') {
-          // Superadmin: sesión aislada + panel de superadmin.
-          this.superAuth.adoptarSesion({ data: res.data, token: res.token });
+
+        // Item 19: Verificar si la contrasena esta expirada
+        if (this.esPasswordExpirada(res)) {
+          this.loginPendiente = credenciales.email;
+          this.motivoExpiracion = res.motivo;
+          this.abrirModalPassword();
+          return;
+        }
+
+        // Login exitoso normal
+        const loginRes = res as LoginResultado;
+
+        if (loginRes.tipo === 'superadmin') {
+          // Superadmin: sesion aislada + panel de superadmin.
+          this.superAuth.adoptarSesion({ data: loginRes.data, token: loginRes.token });
           void this.router.navigateByUrl('/superadmin/panel');
           return;
         }
-        // Usuario normal: sesión normal + panel según rol.
-        this.auth.adoptarSesion({ data: res.data, token: res.token });
-        // Contraseña temporal / cambio obligatorio → primero cambiarla.
-        if (res.data.must_change_password) {
+
+        // Usuario normal: sesion normal + panel segun rol.
+        this.auth.adoptarSesion({ data: loginRes.data, token: loginRes.token });
+
+        // Contraseña temporal / cambio obligatorio -> primero cambiarla.
+        if (loginRes.data.must_change_password) {
           void this.router.navigateByUrl('/cambiar-password');
           return;
         }
-        const esAdmin = res.data.rol === 'super_admin' || res.data.rol === 'admin_sede';
+
+        const esAdmin = loginRes.data.rol === 'super_admin' || loginRes.data.rol === 'admin_sede';
         void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;
-        void this.notificar(err.error?.message ?? 'No se pudo iniciar sesión. Intentá de nuevo.');
+        void this.notificar(err.error?.message ?? 'No se pudo iniciar sesion. Intenta de nuevo.');
+      },
+    });
+  }
+
+  // -- Modal de cambio de contrasena expirada --
+  private abrirModalPassword(): void {
+    this.passwordModalForm.reset();
+    this.showPasswordActual = false;
+    this.showPasswordNueva = false;
+    this.showPasswordConfirm = false;
+    this.showPasswordModal = true;
+  }
+
+  cerrarModalPassword(): void {
+    this.showPasswordModal = false;
+    this.loginPendiente = '';
+  }
+
+  get mensajeExpiracion(): string {
+    switch (this.motivoExpiracion) {
+      case 'expirada':
+        return 'Tu contrasena ha expirado. Por seguridad, debes crear una nueva para continuar.';
+      case 'temporal':
+        return 'Esta es una contrasena temporal. Por seguridad, debes crear una nueva para continuar.';
+      case 'obligatorio':
+        return 'Se requiere que cambies tu contrasena. Por seguridad, debes crear una nueva para continuar.';
+      default:
+        return 'Por seguridad, debes actualizar tu contrasena para continuar.';
+    }
+  }
+
+  cambiarPassword(): void {
+    if (this.passwordModalForm.invalid) {
+      this.passwordModalForm.markAllAsTouched();
+      void this.notificar('Completa todos los campos.');
+      return;
+    }
+
+    const v = this.passwordModalForm.getRawValue();
+
+    if (v.password_nueva !== v.password_nueva_confirmation) {
+      void this.notificar('Las contrasenas nuevas no coinciden.');
+      return;
+    }
+
+    this.passwordModalCargando = true;
+
+    this.auth.cambiarPasswordExpirada({
+      login: this.loginPendiente,
+      password_actual: v.password_actual,
+      password_nueva: v.password_nueva,
+      password_nueva_confirmation: v.password_nueva_confirmation,
+    }).subscribe({
+      next: (res) => {
+        this.passwordModalCargando = false;
+        this.showPasswordModal = false;
+
+        // Continuar con el login normal usando el token recibido
+        if (res.tipo === 'superadmin') {
+          this.superAuth.adoptarSesion({ data: res.data, token: res.token });
+          void this.router.navigateByUrl('/superadmin/panel');
+          return;
+        }
+
+        this.auth.adoptarSesion({ data: res.data, token: res.token });
+        const esAdmin = res.data.rol === 'super_admin' || res.data.rol === 'admin_sede';
+        void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
+        void this.notificarExito('Contrasena actualizada. Bienvenido.');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.passwordModalCargando = false;
+        const mensaje = err.error?.message ?? 'No se pudo cambiar la contrasena.';
+        void this.notificar(mensaje);
       },
     });
   }
@@ -77,6 +189,11 @@ export class LoginPage {
 
   private async notificar(mensaje: string): Promise<void> {
     const t = await this.toast.create({ message: mensaje, duration: 2500, position: 'top', color: 'danger' });
+    await t.present();
+  }
+
+  private async notificarExito(mensaje: string): Promise<void> {
+    const t = await this.toast.create({ message: mensaje, duration: 2500, position: 'top', color: 'success' });
     await t.present();
   }
 }

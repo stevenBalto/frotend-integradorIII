@@ -14,6 +14,15 @@ export class AdminHeaderService {
   private readonly actionsSubject = new BehaviorSubject<TemplateRef<unknown> | null>(null);
   readonly actions$ = this.actionsSubject.asObservable();
 
+  /**
+   * Segundo portal: contenido para la zona izquierda/central del header (donde
+   * vive el título). Lo usa Pedidos para proyectar sus KPIs al header en tablet+.
+   * Mismo mecanismo que las acciones (publicar en ionViewWillEnter, limpiar en
+   * NavigationStart) para no dejar el template "pegado" al cambiar de página.
+   */
+  private readonly leadSubject = new BehaviorSubject<TemplateRef<unknown> | null>(null);
+  readonly lead$ = this.leadSubject.asObservable();
+
   /** Publica el template de acciones de la página activa. */
   setActions(tpl: TemplateRef<unknown> | null): void {
     this.actionsSubject.next(tpl);
@@ -26,6 +35,18 @@ export class AdminHeaderService {
   clearActions(tpl: TemplateRef<unknown>): void {
     if (this.actionsSubject.value === tpl) {
       this.actionsSubject.next(null);
+    }
+  }
+
+  /** Publica el template del slot izquierdo (KPIs) de la página activa. */
+  setLead(tpl: TemplateRef<unknown> | null): void {
+    this.leadSubject.next(tpl);
+  }
+
+  /** Limpia el lead SOLO si el actual es el mismo (mismo contrato que clearActions). */
+  clearLead(tpl: TemplateRef<unknown>): void {
+    if (this.leadSubject.value === tpl) {
+      this.leadSubject.next(null);
     }
   }
 }

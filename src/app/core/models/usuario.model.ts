@@ -1,11 +1,17 @@
 export interface Usuario {
   id: number;
   nombre: string;
+  /** Nombre de usuario (login) del staff; puede faltar en clientes. */
+  usuario?: string | null;
   email: string;
   telefono: string | null;
+  activo?: boolean;
   puntos_balance: number;
   sucursal_id: number | null;
   rol: string;
+  /** Módulos del panel con su nivel de acceso (solo lo trae GET /me para staff). */
+  modulos?: { id: number; clave: string; nombre: string; permiso: 'lectura' | 'editor' }[];
+  must_change_password?: boolean;
 }
 
 export interface AuthResponse {
@@ -14,11 +20,30 @@ export interface AuthResponse {
 }
 
 /**
- * Respuesta del login UNIFICADO. `tipo` indica a qué panel enrutar.
- * `data` es un Usuario o un SuperAdmin según el tipo (ver superadmin.model.ts).
+ * Respuesta del login UNIFICADO. `tipo` indica a que panel enrutar.
+ * `data` es un Usuario o un SuperAdmin segun el tipo (ver superadmin.model.ts).
  */
 export interface LoginResultado {
   data: any;
   token: string;
   tipo: 'superadmin' | 'usuario';
+}
+
+/**
+ * Respuesta cuando la contrasena esta expirada y se requiere cambiarla.
+ * No incluye token porque el login no se completa.
+ */
+export interface PasswordExpiradaResponse {
+  debe_cambiar_password: true;
+  motivo: 'expirada' | 'obligatorio' | 'temporal';
+  usuario: string;
+  email: string;
+}
+
+/** Body para cambiar contrasena expirada. */
+export interface CambiarPasswordExpiradaBody {
+  login: string;
+  password_actual: string;
+  password_nueva: string;
+  password_nueva_confirmation: string;
 }

@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit, TemplateRef } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { Gesture, GestureController, ToastController } from '@ionic/angular';
 import { Observable, map, Subject, takeUntil, filter, startWith } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { SucursalService } from '../../core/services/sucursal.service';
@@ -34,8 +34,9 @@ interface NavItem {
   styleUrls: ['./admin-shell.page.scss'],
   standalone: false,
 })
-export class AdminShellPage implements OnInit, OnDestroy {
+export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private sidebarGesture?: Gesture;
 
   sidebarOpen = false;
   sucursalNombre: string | null = null;
@@ -65,6 +66,8 @@ export class AdminShellPage implements OnInit, OnDestroy {
 
   // Campana del header (panel desplegable con las últimas notificaciones).
   bellOpen = false;
+  // Modal de perfil del usuario admin (datos + accesos por módulo) — item 30.
+  perfilOpen = false;
   noLeidasCount = 0;
   notifsRecientes: Notificacion[] = [];
 
@@ -74,6 +77,9 @@ export class AdminShellPage implements OnInit, OnDestroy {
 
   /** Acciones que la página activa publica para el header (junto a la campana). */
   readonly headerActions$: Observable<TemplateRef<unknown> | null>;
+
+  /** Slot izquierdo/central: contenido (KPIs) que la página proyecta al header. */
+  readonly headerLead$: Observable<TemplateRef<unknown> | null>;
 
   readonly saludo = this.calcularSaludo();
   readonly fechaTexto = this.calcularFecha();
@@ -100,9 +106,13 @@ export class AdminShellPage implements OnInit, OnDestroy {
     private notificaciones: NotificacionService,
     private toastCtrl: ToastController,
     private adminHeader: AdminHeaderService,
+    private host: ElementRef<HTMLElement>,
+    private zone: NgZone,
+    private gestureCtrl: GestureController,
   ) {
     this.usuario$ = this.auth.usuarioActual$;
     this.headerActions$ = this.adminHeader.actions$;
+    this.headerLead$ = this.adminHeader.lead$;
 
     this.avatarInicial$ = this.usuario$.pipe(
       map((u) => (u?.nombre?.trim()?.charAt(0) ?? 'A').toUpperCase()),
@@ -114,6 +124,19 @@ export class AdminShellPage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // #23 Limpiar las acciones del header al INICIAR la navegación (no al
+    // terminarla): así la página entrante las re-publica DESPUÉS del clear y el
+    // botón del header no queda "pegado" en null por una condición de carrera.
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationStart => e instanceof NavigationStart),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.adminHeader.setActions(null);
+        this.adminHeader.setLead(null);
+      });
+
     // Header contextual: al navegar entre secciones, actualiza el titulo/subtitulo
     // (o marca Dashboard para mostrar el saludo).
     this.router.events
@@ -155,8 +178,30 @@ export class AdminShellPage implements OnInit, OnDestroy {
     this.notificaciones.iniciarPolling();
   }
 
+  ngAfterViewInit(): void {
+    // #2 En móvil, arrastrar horizontalmente abre/cierra el sidebar: deslizar de
+    // izquierda a derecha (deltaX > 0) lo abre; de derecha a izquierda (deltaX < 0)
+    // lo cierra. En escritorio el sidebar es fijo, así que la gesture no aplica.
+    this.sidebarGesture = this.gestureCtrl.create({
+      el: this.host.nativeElement,
+      gestureName: 'admin-sidebar-swipe',
+      direction: 'x',
+      threshold: 20,
+      onEnd: (ev) => {
+        if (window.innerWidth >= 768) return;
+        if (!this.sidebarOpen && ev.deltaX > 60) {
+          this.zone.run(() => (this.sidebarOpen = true));
+        } else if (this.sidebarOpen && ev.deltaX < -60) {
+          this.zone.run(() => (this.sidebarOpen = false));
+        }
+      },
+    });
+    this.sidebarGesture.enable(true);
+  }
+
   ngOnDestroy(): void {
     this.notificaciones.detenerPolling();
+    this.sidebarGesture?.destroy();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -170,10 +215,8 @@ export class AdminShellPage implements OnInit, OnDestroy {
     const sec = this.secciones[id];
     this.seccionTitulo = sec?.titulo ?? '';
     this.seccionSubtitulo = sec?.subtitulo ?? '';
-    // Red de seguridad: al cambiar de sección, limpia las acciones del header.
-    // La página entrante (si tiene) re-publica las suyas en un microtask posterior,
-    // así ningún botón/aviso de la sección anterior queda "pegado".
-    this.adminHeader.setActions(null);
+    // (La limpieza de acciones del header se hace en NavigationStart —ver ngOnInit—
+    // para garantizar el orden clear→publish y evitar el botón "pegado".)
   }
 
   private setBadge(cantidad: number): void {
@@ -207,6 +250,16 @@ export class AdminShellPage implements OnInit, OnDestroy {
 
   cerrarBell(): void {
     this.bellOpen = false;
+  }
+
+  /** Abre el modal de perfil y refresca /me para traer los módulos/permisos del usuario. */
+  abrirPerfil(): void {
+    this.perfilOpen = true;
+    this.auth.refrescarPerfil().subscribe({ error: () => { /* usa lo que ya haya en sesión */ } });
+  }
+
+  cerrarPerfil(): void {
+    this.perfilOpen = false;
   }
 
   iconoNotif(n: Notificacion): string {

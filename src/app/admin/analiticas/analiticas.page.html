@@ -36,27 +36,35 @@
 
     <!-- Contenido principal -->
     <ng-container *ngIf="!cargando && !error">
-
-      <!-- Barra de filtros -->
-      <header class="an-toolbar">
-        <div class="an-toolbar__tabs">
-          <button type="button" class="an-tab" [class.an-tab--active]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
-          <button type="button" class="an-tab" [class.an-tab--active]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
-          <button type="button" class="an-tab" [class.an-tab--active]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+      <!-- Filtro de periodo -->
+      <div class="an-filtro">
+        <div class="an-filtro__tabs">
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+          <button type="button" class="an-filtro__tab" [class.is-active]="granularidad === 'rango'" (click)="cambiarGranularidad('rango')">Rango</button>
         </div>
-        <div class="an-toolbar__nav">
-          <button type="button" class="an-nav-btn" (click)="periodoAnterior()" aria-label="Período anterior">
+        <div class="an-filtro__nav" *ngIf="granularidad !== 'rango'">
+          <button type="button" class="an-filtro__nav-btn" (click)="periodoAnterior()" aria-label="Periodo anterior">
             <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
-          <button type="button" class="an-period-label" (click)="abrirPicker()" title="Elegir fecha">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <span>{{ etiquetaPeriodo() }}</span>
-          </button>
-          <button type="button" class="an-nav-btn" (click)="periodoSiguiente()" aria-label="Período siguiente">
+          <button type="button" class="an-filtro__label" (click)="abrirPicker()" title="Elegir fecha">{{ etiquetaPeriodo() }}</button>
+          <button type="button" class="an-filtro__nav-btn" (click)="periodoSiguiente()" aria-label="Periodo siguiente">
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
         </div>
-      </header>
+        <!-- Item 24: rango de fechas específico -->
+        <div class="an-filtro__rango" *ngIf="granularidad === 'rango'">
+          <label class="an-filtro__rango-field">
+            <span>Desde</span>
+            <input type="date" [(ngModel)]="rangoDesde" [max]="rangoHasta || null" (ngModelChange)="aplicarRango()" />
+          </label>
+          <label class="an-filtro__rango-field">
+            <span>Hasta</span>
+            <input type="date" [(ngModel)]="rangoHasta" [min]="rangoDesde || null" (ngModelChange)="aplicarRango()" />
+          </label>
+        </div>
+      </div>
 
       <!-- KPIs principales -->
       <section class="an-kpis">

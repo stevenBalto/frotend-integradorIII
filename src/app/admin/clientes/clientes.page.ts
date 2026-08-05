@@ -19,9 +19,13 @@ export class AdminClientesPage implements OnInit {
   cargando = false;
   error: string | null = null;
 
-  // Busqueda + filtro por KPI
+  // Busqueda + filtro por KPI (el buscador colapsable es el componente compartido admin-search-input)
   busqueda = '';
   filtro: FiltroCliente = 'todos';
+
+  // Filtro por fecha de última compra (item 14): todos / hoy / semana / mes / año / fecha puntual.
+  filtroFecha: 'todos' | 'hoy' | 'semana' | 'mes' | 'anio' | 'fecha' = 'todos';
+  fechaEspecifica = '';
 
   // Modal Historial de pedidos
   historialOpen = false;
@@ -78,6 +82,59 @@ export class AdminClientesPage implements OnInit {
     this.filtro = this.filtro === filtro ? 'todos' : filtro;
   }
 
+  // ---- Filtro por fecha de última compra (item 14) ----
+  setFiltroFecha(f: 'todos' | 'hoy' | 'semana' | 'mes' | 'anio' | 'fecha'): void {
+    this.filtroFecha = f;
+    if (f !== 'fecha') {
+      this.fechaEspecifica = '';
+    }
+  }
+
+  onFechaEspecifica(): void {
+    if (this.fechaEspecifica) {
+      this.filtroFecha = 'fecha';
+    }
+  }
+
+  /** ¿La última compra del cliente cae dentro del período de fecha elegido? */
+  enFiltroFecha(c: Cliente): boolean {
+    if (this.filtroFecha === 'todos') {
+      return true;
+    }
+    if (!c.ultimo_pedido_en) {
+      return false;
+    }
+    const f = new Date(c.ultimo_pedido_en);
+    if (isNaN(f.getTime())) {
+      return false;
+    }
+    const hoy = new Date();
+    switch (this.filtroFecha) {
+      case 'hoy':
+        return this.mismaFecha(f, hoy);
+      case 'semana': {
+        const hace7 = new Date(hoy);
+        hace7.setDate(hoy.getDate() - 7);
+        return f >= hace7;
+      }
+      case 'mes':
+        return f.getFullYear() === hoy.getFullYear() && f.getMonth() === hoy.getMonth();
+      case 'anio':
+        return f.getFullYear() === hoy.getFullYear();
+      case 'fecha':
+        if (!this.fechaEspecifica) {
+          return true;
+        }
+        return this.mismaFecha(f, new Date(this.fechaEspecifica + 'T00:00:00'));
+      default:
+        return true;
+    }
+  }
+
+  private mismaFecha(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
   /** Lista visible: aplica busqueda por nombre/email + filtro de KPI seleccionado. */
   get clientesFiltrados(): Cliente[] {
     const texto = this.busqueda.trim().toLowerCase();
@@ -90,7 +147,7 @@ export class AdminClientesPage implements OnInit {
         (this.filtro === 'recientes' && dias !== null && dias <= DIAS_RECIENTE) ||
         (this.filtro === 'sin_compras' && c.cantidad_pedidos === 0) ||
         (this.filtro === 'top_comprador' && this.topComprador !== null && c.id === this.topComprador.id);
-      return coincideTexto && coincideFiltro;
+      return coincideTexto && coincideFiltro && this.enFiltroFecha(c);
     });
   }
 

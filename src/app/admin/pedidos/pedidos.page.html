@@ -1,8 +1,55 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- KPIs / Filtros -->
-    <div class="admin-grid-4">
+    <!-- Acciones del header (a la par de la campana). -->
+    <ng-template adminHeaderActions>
+      <!-- Solo móvil (<640px): el botón "ver todos en pantalla completa" vive en el
+           header, junto al "?". En tablet/PC se muestra en el cuerpo (fila del buscador). -->
+      <button type="button" class="ped-expand-btn--header" (click)="abrirPantallaCompleta()"
+        aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
+        <ion-icon name="scan-outline"></ion-icon>
+      </button>
+      <!-- Botón de ayuda (solo ícono, siempre): explica los colores de la tabla. -->
+      <button type="button" class="ped-help-btn" (click)="abrirAyudaColores()"
+        title="¿Qué significan los colores de la tabla?" aria-label="Colores de la tabla">
+        <ion-icon name="help-circle-outline"></ion-icon>
+      </button>
+    </ng-template>
+
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título quitado).
+         En móvil este slot queda oculto y se muestran los KPIs del cuerpo (abajo). -->
+    <ng-template adminHeaderLead>
+      <div class="ped-hkpis">
+        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'todos'"
+          (click)="setFiltroEstado('todos')">
+          <span class="ped-hkpi__label">Totales</span>
+          <span class="ped-hkpi__value">{{ totalPedidos }}</span>
+        </button>
+        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'pendiente'"
+          (click)="setFiltroEstado('pendiente')">
+          <span class="ped-hkpi__label">Pendientes</span>
+          <span class="ped-hkpi__value">{{ totalPendientes }}</span>
+        </button>
+        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'en_proceso'"
+          (click)="setFiltroEstado('en_proceso')">
+          <span class="ped-hkpi__label">En preparación</span>
+          <span class="ped-hkpi__value">{{ totalEnProceso }}</span>
+        </button>
+        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'listo'"
+          (click)="setFiltroEstado('listo')">
+          <span class="ped-hkpi__label">Listos</span>
+          <span class="ped-hkpi__value">{{ totalListos }}</span>
+        </button>
+        <button type="button" class="ped-hkpi ped-hkpi--entregados" [class.ped-hkpi--active]="filtroEstado === 'entregado'"
+          (click)="setFiltroEstado('entregado')">
+          <span class="ped-hkpi__label">Entregados</span>
+          <span class="ped-hkpi__value">{{ totalEntregados }}</span>
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- KPIs / Filtros (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 ped-kpis-body">
       <admin-kpi-card label="Pedidos totales" [value]="totalPedidos"
         icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroEstado === 'todos'" (cardClick)="setFiltroEstado('todos')"></admin-kpi-card>
@@ -15,11 +62,17 @@
       <admin-kpi-card label="Listos" [value]="totalListos"
         icon="checkmark-done-outline" iconBg="#3B82F61a" iconColor="#3B82F6"
         [clickable]="true" [active]="filtroEstado === 'listo'" (cardClick)="setFiltroEstado('listo')"></admin-kpi-card>
+      <admin-kpi-card label="Entregados" [value]="totalEntregados"
+        icon="checkmark-circle-outline" iconBg="#16A34A1a" iconColor="#16A34A"
+        [clickable]="true" [active]="filtroEstado === 'entregado'" (cardClick)="setFiltroEstado('entregado')"></admin-kpi-card>
     </div>
 
     <!-- Tabla -->
-    <admin-section-card title="Pedidos recientes">
-      <div card-action class="ped-toolbar">
+    <admin-section-card title="Pedidos recientes" titleShort="Pedidos" [actionInline]="true">
+      <!-- Primera fila (junto al titulo "Pedidos"): chips de fecha + boton pantalla completa +
+           buscador (lupa pegada a la derecha del todo). Al abrir el buscador, .ped-headrow recibe
+           .admin-search-open y se ocultan los chips y el boton (regla global). -->
+      <div card-action class="ped-headrow">
         <div class="ped-datefilter">
           <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'todos'"
             (click)="setFiltroFecha('todos')">Todos</button>
@@ -33,14 +86,12 @@
             <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
           </label>
         </div>
-        <div class="ped-toolbar__searchrow">
-          <admin-search-input class="ped-toolbar__search" placeholder="Buscar pedido o cliente..."
-            [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
-          <button type="button" class="ped-expand-btn" (click)="abrirPantallaCompleta()"
-            aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
-            <ion-icon name="scan-outline"></ion-icon>
-          </button>
-        </div>
+        <button type="button" class="ped-expand-btn" (click)="abrirPantallaCompleta()"
+          aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
+          <ion-icon name="scan-outline"></ion-icon>
+        </button>
+        <admin-search-input class="ped-toolbar__search" placeholder="Buscar pedido o cliente..."
+          [(value)]="busqueda" (valueChange)="cargarPedidos()"></admin-search-input>
       </div>
 
       <p *ngIf="error" class="ped-error">{{ error }}</p>
@@ -62,7 +113,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of pedidosFiltrados" class="ped-row" (click)="abrirDetalle(p)">
+            <tr *ngFor="let p of pedidosFiltrados" class="ped-row"
+              [class.ped-row--invitado]="p.es_invitado" [class.ped-row--registrado]="!p.es_invitado"
+              (click)="abrirDetalle(p)">
               <td class="admin-table__strong">{{ p.codigo }}</td>
               <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>
               <td class="admin-table__semi">{{ p.nombre_cliente || p.cliente.nombre }}</td>
@@ -228,35 +281,15 @@
   </div>
 </div>
 
-<!-- ── Pantalla completa: todos los pedidos del filtro actual ──────────────── -->
+<!-- ── Pantalla completa: todos los pedidos del filtro actual ──────────────────
+     Cierra con tecla Esc o deslizando de izquierda a derecha (ver pedidos.page.ts).
+     Sin cabecera ni chips: el filtrado se hace desde los KPIs del header. -->
 <div class="ped-fs" *ngIf="pantallaCompletaOpen">
-  <div class="ped-fs__head">
-    <div class="ped-fs__head-left">
-      <h2 class="ped-fs__title">{{ filtroEstadoLabel }}</h2>
-      <span class="ped-fs__count">{{ pedidosFiltrados.length }} pedido{{ pedidosFiltrados.length === 1 ? '' : 's' }}</span>
-    </div>
-    <button type="button" class="ped-fs__close" (click)="cerrarPantallaCompleta()" aria-label="Cerrar">
-      <ion-icon name="close-outline"></ion-icon>
-    </button>
-  </div>
-
-  <!-- Chips de filtro por estado (mismos que los KPIs) -->
-  <div class="ped-fs__filters">
-    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'todos'"
-      (click)="setFiltroEstado('todos')">Todos <span>{{ totalPedidos }}</span></button>
-    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'pendiente'"
-      (click)="setFiltroEstado('pendiente')">Pendientes <span>{{ totalPendientes }}</span></button>
-    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'en_proceso'"
-      (click)="setFiltroEstado('en_proceso')">En preparación <span>{{ totalEnProceso }}</span></button>
-    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'listo'"
-      (click)="setFiltroEstado('listo')">Listos <span>{{ totalListos }}</span></button>
-    <button type="button" class="ped-fs__chip" [class.ped-fs__chip--active]="filtroEstado === 'entregado'"
-      (click)="setFiltroEstado('entregado')">Entregados <span>{{ totalEntregados }}</span></button>
-  </div>
-
   <div class="ped-fs__body">
     <div class="ped-fs__grid">
-      <button type="button" class="ped-fs-card" *ngFor="let p of pedidosFiltrados" (click)="abrirDetalle(p)">
+      <button type="button" class="ped-fs-card"
+        [class.ped-fs-card--invitado]="p.es_invitado" [class.ped-fs-card--registrado]="!p.es_invitado"
+        *ngFor="let p of pedidosFiltrados" (click)="abrirDetalle(p)">
         <div class="ped-fs-card__top">
           <span class="ped-fs-card__codigo">{{ p.codigo }}</span>
           <status-badge [type]="estadoToStatusType(p.estado)"></status-badge>
@@ -293,5 +326,34 @@
     <p *ngIf="pedidosFiltrados.length === 0" class="ped-fs__empty">
       No hay pedidos que coincidan con este filtro.
     </p>
+  </div>
+</div>
+
+<!-- Modal de ayuda: qué significan los colores de la tabla (item 29). -->
+<div class="ped-help-modal" *ngIf="ayudaColoresOpen">
+  <div class="ped-help-modal__backdrop" (click)="cerrarAyudaColores()"></div>
+  <div class="ped-help-modal__panel">
+    <div class="ped-help-modal__head">
+      <p class="ped-help-modal__title">Colores de la tabla</p>
+      <button type="button" class="ped-help-modal__close" (click)="cerrarAyudaColores()" aria-label="Cerrar">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="ped-help-modal__body">
+      <div class="ped-help-row">
+        <span class="ped-help-swatch ped-help-swatch--reg"></span>
+        <div class="ped-help-row__txt">
+          <strong>Cliente registrado</strong>
+          <p>Pidió con su cuenta: acumula Roosters y queda en su historial.</p>
+        </div>
+      </div>
+      <div class="ped-help-row">
+        <span class="ped-help-swatch ped-help-swatch--inv"></span>
+        <div class="ped-help-row__txt">
+          <strong>Cliente no registrado</strong>
+          <p>Pidió como invitado; se identifica por su código y el nombre que dejó.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

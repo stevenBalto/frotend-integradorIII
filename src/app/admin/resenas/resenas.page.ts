@@ -30,6 +30,7 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   filtroTipo: FiltroTipo = 'todas';
   filtroProductoId: number | 'todas' = 'todas';
   busqueda = '';
+  filtrosOcultos = false; // el buscador (lupa) abierto oculta el cuerpo de filtros
   desde = '';
   hasta = '';
   // Caching helpers to avoid returning new arrays on every CD cycle
@@ -39,7 +40,7 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   private _baseResenasKey = '';
   private _publicadasCache: ResenaAdmin[] = [];
   private _distribucionCache: { estrella: number; cantidad: number }[] = [];
-  private _productosCache: { id: number; nombre: string }[] = [];
+  private _productosCache: { id: number; nombre: string; imagen_url?: string | null }[] = [];
   private _promedioCache: number | null = null;
 
   constructor(
@@ -127,15 +128,37 @@ export class AdminResenasPage implements OnInit, OnDestroy {
     return Math.max(1, ...this.distribucion.map((d) => d.cantidad));
   }
 
-  /** Productos presentes en las reseñas (para el filtro por producto). */
-  get productos(): { id: number; nombre: string }[] {
+  /** Productos presentes en las reseñas (para el filtro por producto, con imagen). */
+  get productos(): { id: number; nombre: string; imagen_url?: string | null }[] {
     if (this._productosCache.length > 0) return this._productosCache;
-    const map = new Map<number, string>();
+    const map = new Map<number, { nombre: string; imagen_url?: string | null }>();
     this.resenas.forEach((r) => {
-      if (r.producto) map.set(r.producto.id, r.producto.nombre);
+      if (r.producto) map.set(r.producto.id, { nombre: r.producto.nombre, imagen_url: r.producto.imagen_url });
     });
-    this._productosCache = [...map.entries()].map(([id, nombre]) => ({ id, nombre }));
+    this._productosCache = [...map.entries()].map(([id, v]) => ({ id, nombre: v.nombre, imagen_url: v.imagen_url }));
     return this._productosCache;
+  }
+
+  // ── Picker visual de producto (item 26): despliega productos con su imagen ──
+  mostrarPickerProducto = false;
+
+  get productoSeleccionadoNombre(): string {
+    if (this.filtroProductoId === 'todas') return 'Todos los productos';
+    return this.productos.find((p) => p.id === this.filtroProductoId)?.nombre ?? 'Producto';
+  }
+
+  get productoSeleccionadoImg(): string | null {
+    if (this.filtroProductoId === 'todas') return null;
+    return this.productos.find((p) => p.id === this.filtroProductoId)?.imagen_url ?? null;
+  }
+
+  togglePickerProducto(): void {
+    this.mostrarPickerProducto = !this.mostrarPickerProducto;
+  }
+
+  seleccionarProducto(id: number | 'todas'): void {
+    this.filtroProductoId = id;
+    this.mostrarPickerProducto = false;
   }
 
   // ── Filtrado (en memoria) ──

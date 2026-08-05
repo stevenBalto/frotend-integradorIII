@@ -7,12 +7,14 @@ export type ResenaEstado = 'publicada' | 'oculta';
 export interface ResenaAdmin {
   id: number;
   tipo: ResenaTipo;
+  /** Etiqueta humana del tipo ('Pedido' | 'Producto'); la resuelve el backend. */
+  tipo_label?: string;
   calificacion: number;
   comentario: string | null;
   estado: ResenaEstado;
   oculta: boolean;
   pedido_id: number;
-  producto: { id: number; nombre: string } | null;
+  producto: { id: number; nombre: string; imagen_url?: string | null } | null;
   cliente: { nombre: string; email: string } | null;
   respuesta_admin: string | null;
   created_at: string | null;

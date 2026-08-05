@@ -1,26 +1,39 @@
-/* #12 KPIs compactos (2: Usuarios totales + Administradores). */
-.usr-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.usr-toolbar {
+/* Item 18: Toolbar compacto - buscador y total en la misma fila */
+.usr-toolbar-compact {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;  /* buscador (lupa) pegado a la derecha */
+  gap: 16px;
   margin-bottom: 16px;
 }
-.usr-toolbar__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
 
-/* #14 Móvil: tabs con scroll horizontal y buscador a lo ancho (no desperdicia espacio). */
-@media (max-width: 767px) {
-  .usr-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
-  .usr-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; }
-  .usr-toolbar__tabs > * { flex-shrink: 0; }
-  .usr-toolbar > admin-search-input { display: block; width: 100%; }
+.usr-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-neutral4);
+  white-space: nowrap;
+}
+
+/* Item 18: total de usuarios debajo de la tabla, alineado a la derecha. */
+.usr-total-below {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
+@media (max-width: 560px) {
+  .usr-toolbar-compact {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .usr-toolbar-compact > admin-search-input {
+    display: block;
+    width: 100%;
+  }
+  .usr-total {
+    text-align: right;
+  }
 }
 
 .usr-row--off { opacity: 0.6; }
@@ -70,11 +83,16 @@
 .usr-action ion-icon { font-size: 13px; color: var(--admin-neutral4); }
 .usr-action--danger { background: rgba(220, 38, 38, 0.08); }
 .usr-action--danger ion-icon { color: var(--admin-red-alt); }
-.usr-action--locked { background: transparent; cursor: not-allowed; }
-.usr-action--locked ion-icon { color: #ddd; }
+.usr-action--disable { background: rgba(245, 158, 11, 0.08); }
+.usr-action--disable ion-icon { color: #D97706; }
+.usr-action--enable { background: rgba(16, 185, 129, 0.08); }
+.usr-action--enable ion-icon { color: #059669; }
 
-/* ── Modal crear usuario ───────────────────────────────────────────────────── */
+/* -- Modal crear/editar usuario -- */
 .usr-modal {
+  /* .ion-page (host) tiene contain:size => es el containing block de este
+     position:fixed. inset:0 llena exacto el area visible de la pagina y el panel
+     se acota a 100% de ese host (no a 100vh, que en iOS desborda por la barra URL). */
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -82,13 +100,14 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
+  box-sizing: border-box;
 }
 .usr-modal__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
 .usr-modal__panel {
   position: relative;
   width: 100%;
   max-width: 384px;
-  max-height: calc(100vh - 32px);
+  max-height: 100%;            /* 100% del host (containing block); nunca desborda arriba ni abajo */
   display: flex;
   flex-direction: column;
   border-radius: 16px;
@@ -96,12 +115,16 @@
   background: var(--rooster-bg);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
+.usr-modal__panel--wide {
+  max-width: 520px;
+}
 .usr-modal__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
   background: #1e1e1e;
+  flex-shrink: 0;
 }
 .usr-modal__title { font-size: 15px; font-weight: 700; color: #fff; }
 .usr-modal__close { background: none; border: none; display: flex; cursor: pointer; }
@@ -115,7 +138,6 @@
   flex: 1;
   min-height: 0;
 }
-.usr-modal__head { flex-shrink: 0; }
 
 .usr-field__label { font-size: 10px; color: var(--rooster-brown); margin: 0 0 4px; }
 .usr-input {
@@ -141,41 +163,174 @@
   background: #fff;
   border: 0.5px solid rgba(168, 137, 94, 0.25);
 }
-.usr-pass__dots { font-size: 11px; color: #6b6b6b; }
+.usr-pass__input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
 .usr-pass__refresh { background: none; border: none; display: flex; cursor: pointer; }
 .usr-pass__refresh ion-icon { font-size: 13px; color: var(--rooster-red); }
 
-.usr-roles { display: flex; gap: 12px; }
-.usr-role-opt {
-  flex: 1;
+/* Item 19: Selector de expiracion */
+.usr-expiracion {
   display: flex;
-  flex-direction: column;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.usr-exp-opt {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(168, 137, 94, 0.25);
+  font-size: 11px;
+  color: #1e1e1e;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.usr-exp-opt--active {
+  border: 2px solid var(--rooster-red);
+  color: var(--rooster-red);
+  font-weight: 700;
+  background: rgba(225, 54, 66, 0.05);
+}
+
+/* Item 16: Boton para abrir modal de modulos */
+.usr-modulos-btn {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 12px;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
   border-radius: 12px;
   background: #fff;
   border: 1px solid rgba(168, 137, 94, 0.25);
+  font-size: 12px;
+  color: #1e1e1e;
   cursor: pointer;
+  text-align: left;
   transition: all 0.2s;
-}
-.usr-role-opt ion-icon { font-size: 18px; color: var(--rooster-brown); }
-.usr-role-opt span { font-size: 10px; color: #1e1e1e; }
-.usr-role-opt--active { border: 2px solid var(--rooster-red); }
-.usr-role-opt--active ion-icon { color: var(--rooster-red); }
-.usr-role-opt--active span { color: var(--rooster-red); font-weight: 700; }
 
-.usr-select {
+  ion-icon {
+    font-size: 16px;
+    color: var(--rooster-brown);
+  }
+
+  span {
+    flex: 1;
+  }
+
+  &:hover {
+    border-color: var(--rooster-red);
+  }
+}
+.usr-modulos-btn__arrow {
+  color: #9a9a9a !important;
+}
+
+/* Modal de modulos y permisos */
+.usr-modulos-intro {
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0 0 16px;
+}
+
+.usr-modulos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.usr-modulo-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 12px;
+  gap: 12px;
   padding: 10px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
   background: #fff;
-  border: 0.5px solid rgba(168, 137, 94, 0.25);
 }
-.usr-select span { font-size: 11px; color: #1e1e1e; }
-.usr-select ion-icon { font-size: 13px; color: var(--rooster-brown); }
+
+.usr-modulo-item__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.usr-modulo-check {
+  background: none;
+  border: none;
+  display: flex;
+  cursor: pointer;
+  padding: 0;
+
+  ion-icon {
+    font-size: 20px;
+    color: #9CA3AF;
+  }
+
+  &--on ion-icon {
+    color: var(--rooster-red);
+  }
+}
+
+.usr-modulo-item__nombre {
+  font-size: 13px;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usr-modulo-item__permiso {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.usr-perm-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  font-size: 10px;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  ion-icon {
+    font-size: 12px;
+  }
+
+  &--active {
+    background: rgba(225, 54, 66, 0.08);
+    border-color: var(--rooster-red);
+    color: var(--rooster-red);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 600px) {
+  .usr-modulo-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .usr-modulo-item__permiso {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
 
 .usr-modal__cta {
   width: 100%;
@@ -193,50 +348,6 @@
   transition: transform 0.1s;
 }
 .usr-modal__cta:active { transform: scale(0.95); }
-
-/* ── F3: checklist de módulos + estados ─────────────────────────────── */
-.usr-pass__input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-family: monospace;
-  letter-spacing: 1px;
-}
-
-.usr-modulos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-@media (max-width: 560px) {
-  .usr-modulos { grid-template-columns: 1fr; }
-}
-
-.usr-modulo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 12px;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  background: #fff;
-  font-size: 13px;
-  color: #374151;
-  cursor: pointer;
-  text-align: left;
-
-  ion-icon { font-size: 18px; color: #9CA3AF; flex-shrink: 0; }
-
-  &--on {
-    border-color: #E13642;
-    background: #E136420d;
-    color: #111827;
-    font-weight: 600;
-
-    ion-icon { color: #E13642; }
-  }
-}
 
 .usr-empty {
   text-align: center;

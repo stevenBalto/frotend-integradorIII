@@ -25,7 +25,7 @@
     </div>
 
     <admin-section-card title="Insumos e ingredientes">
-      <admin-search-input card-action placeholder="Buscar insumo por nombre..." [(value)]="busqueda"></admin-search-input>
+      <admin-search-input card-action placeholder="Buscar por insumo" [(value)]="busqueda"></admin-search-input>
 
       <p *ngIf="error" class="inv-error">{{ error }}</p>
       <p *ngIf="cargando" class="inv-loading">Cargando inventario...</p>
