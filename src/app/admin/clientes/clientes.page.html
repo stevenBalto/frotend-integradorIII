@@ -1,8 +1,33 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- KPIs al header (tablet+); en móvil se ven en el cuerpo. -->
+    <ng-template adminHeaderLead>
+      <div class="admin-hkpis">
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'todos'" (click)="setFiltro('todos')">
+          <span class="admin-hkpi__label">Clientes</span>
+          <span class="admin-hkpi__value">{{ totalClientes }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'recientes'" (click)="setFiltro('recientes')">
+          <span class="admin-hkpi__label">Compraron</span>
+          <span class="admin-hkpi__value">{{ clientesRecientes }}</span>
+          <span class="admin-hkpi__delta" style="color:#6B7280">30 días</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'sin_compras'" (click)="setFiltro('sin_compras')">
+          <span class="admin-hkpi__label">Sin compras</span>
+          <span class="admin-hkpi__value">{{ clientesSinCompras }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'top_comprador'"
+          (click)="topComprador && setFiltro('top_comprador')">
+          <span class="admin-hkpi__label">Top compra</span>
+          <span class="admin-hkpi__value">{{ topComprador ? montoCorto(topComprador.total_gastado) : '—' }}</span>
+          <span class="admin-hkpi__delta" style="color:#6B7280" *ngIf="topComprador">{{ topComprador.nombre }}</span>
+        </button>
+      </div>
+    </ng-template>
+
     <!-- Stats / filtros -->
-    <div class="admin-grid-4">
+    <div class="admin-grid-4 admin-kpis-body">
       <admin-kpi-card label="Clientes totales" [value]="totalClientes"
         icon="people-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>

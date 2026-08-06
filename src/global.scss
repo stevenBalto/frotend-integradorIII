@@ -151,13 +151,18 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   background: var(--admin-panel);
   border-bottom: 1px solid var(--admin-border);
 }
-/* Encabezados fijos al hacer scroll vertical dentro de la tabla. */
+/* Encabezados fijos al hacer scroll vertical dentro de la tabla.
+   `will-change: transform` promueve el thead a su propia capa GPU: sin eso, los
+   ion-toggle de las filas (que se animan con transform y viven en capa propia) se
+   pintaban ENCIMA del header sticky al hacer scroll, ignorando el z-index. Con la
+   capa forzada + z-index alto el header vuelve a tapar el contenido que sube. */
 .admin-table thead th,
 .of-table thead th {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 5;
   background: var(--admin-panel);
+  will-change: transform;
 }
 .admin-table th {
   text-align: left;
@@ -633,4 +638,81 @@ body.tabbar-oculto ion-tab-bar { display: none; }
    sidebar ya es off-canvas (hamburguesa), asi que no hace falta tocarlo. */
 @media (min-width: 1024px) {
   body.admin-inmersivo .admin-sidebar { display: none; }
+}
+
+/* ── KPIs en el header (lead slot) — estándar unificado de todas las secciones ──
+   Misma dinámica de Pedidos, generalizada: en tablet+ (>=640px) los KPIs viven en
+   el header (fila de pastillas uniformes) y el cuerpo se oculta; en móvil el header
+   los oculta (.admin-header__lead) y el cuerpo los muestra. Pastilla fija 116x50 para
+   que TODAS queden iguales (label + valor + variación opcional). */
+.admin-hkpis {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+.admin-hkpi {
+  flex: 0 0 116px;
+  width: 116px;
+  height: 50px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  cursor: pointer;
+  font-family: var(--rooster-font-sans);
+  transition: border-color 0.15s, background 0.15s;
+}
+.admin-hkpi__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.admin-hkpi__value {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--admin-text);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.admin-hkpi__delta {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.admin-hkpi:hover { border-color: rgba(225, 54, 66, 0.4); }
+.admin-hkpi--active {
+  border-color: var(--admin-accent);
+  background: rgba(225, 54, 66, 0.06);
+  box-shadow: 0 0 0 1px var(--admin-accent);
+}
+.admin-hkpi--active .admin-hkpi__value { color: var(--admin-accent); }
+/* Chip no interactivo (métricas puras, p. ej. Reseñas): sin hover ni cursor. */
+.admin-hkpi--static { cursor: default; }
+.admin-hkpi--static:hover { border-color: var(--admin-border); }
+
+@media (min-width: 640px) {
+  /* Tablet/PC: los KPIs del cuerpo se ocultan porque viven en el header. */
+  .admin-kpis-body { display: none; }
 }

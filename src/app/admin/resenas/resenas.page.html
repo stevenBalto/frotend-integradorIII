@@ -1,8 +1,22 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- KPIs al header (tablet+); en móvil se ven en el cuerpo. Son métricas (no filtros). -->
+    <ng-template adminHeaderLead>
+      <div class="admin-hkpis">
+        <div class="admin-hkpi admin-hkpi--static">
+          <span class="admin-hkpi__label">Calif. prom.</span>
+          <span class="admin-hkpi__value">{{ promedioGeneral }} ★</span>
+        </div>
+        <div class="admin-hkpi admin-hkpi--static">
+          <span class="admin-hkpi__label">Total reseñas</span>
+          <span class="admin-hkpi__value">{{ total }}</span>
+        </div>
+      </div>
+    </ng-template>
+
     <!-- KPIs -->
-    <div class="admin-grid-2 res-kpis">
+    <div class="admin-grid-2 res-kpis admin-kpis-body">
       <admin-kpi-card label="Calificación promedio" [value]="promedioGeneral + ' ★'"
         icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
       <admin-kpi-card label="Total reseñas" [value]="total"

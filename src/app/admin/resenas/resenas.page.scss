@@ -61,6 +61,11 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+// Los KPIs viven en el header desde tablet+ (>=640px); el grid del cuerpo se
+// oculta ahí (va después del base para ganar por orden a igual especificidad).
+@media (min-width: 640px) {
+  .res-kpis.admin-kpis-body { display: none; }
+}
 
 // ── Picker visual de producto (item 26): despliega productos con imagen ──
 .res-prodpicker { position: relative; min-width: 200px; }

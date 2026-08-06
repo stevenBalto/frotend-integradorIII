@@ -18,25 +18,29 @@
   gap: 8px;
 }
 
+/* Botones del header solo-icono, cuadrados 32x32 (estandar del header). */
 .an-export-btn,
 .an-cache-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 1px solid var(--admin-border);
   border-radius: 8px;
   background: var(--admin-card);
   color: var(--admin-text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--rooster-font-sans);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s, background 0.15s;
 
-  ion-icon { font-size: 15px; }
-  ion-spinner { width: 15px; height: 15px; }
+  ion-icon { font-size: 16px; }
+  ion-spinner { width: 16px; height: 16px; }
+  svg { width: 20px; height: 20px; display: block; }
 }
+
+.an-export-btn:active,
+.an-cache-btn:active { transform: scale(0.94); }
 
 .an-export-btn:hover,
 .an-cache-btn:hover {
@@ -54,10 +58,10 @@
   ion-icon { color: var(--admin-accent); }
 }
 
-.an-cache-btn__time {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+/* La referencia a Excel/PDF la da el color del icono (verde/rojo), no un fondo.
+   El glifo SVG usa stroke=currentColor, asi que el color va en el boton. */
+.an-export-btn--excel { color: #1E7145; }
+.an-export-btn--pdf { color: #D32F2F; }
 
 /* -- Feedback States (Error / Loading) -------------------------------------- */
 .an-feedback {
@@ -162,6 +166,13 @@
 
 @media (min-width: 768px) {
   .an-kpis { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+}
+
+/* Los KPIs viven en el header desde tablet+ (>=640px); el grid del cuerpo se
+   oculta ahí y solo se muestra en móvil. Va DESPUÉS del base (misma especificidad
+   del componente) para ganar por orden. */
+@media (min-width: 640px) {
+  .an-kpis.admin-kpis-body { display: none; }
 }
 
 /* -- Main Charts (Trend + Peak Hours) --------------------------------------- */

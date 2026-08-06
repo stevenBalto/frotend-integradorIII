@@ -36,11 +36,16 @@
   <!-- Main -->
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header__left" [class.admin-header__left--haslead]="(headerLead$ | async)">
+      <div class="admin-header__left"
+        [class.admin-header__left--haslead]="(headerLead$ | async)"
+        [class.admin-header__left--kpimode]="ocultarHeaderTexto">
         <button type="button" class="admin-header__burger" (click)="sidebarOpen = true">
           <ion-icon name="menu-outline"></ion-icon>
         </button>
-        <!-- Dashboard: saludo. Resto de secciones: titulo/subtitulo contextual. -->
+        <!-- Dashboard: saludo. Resto de secciones: título/subtítulo contextual.
+             En secciones "kpimode" (las que llevan sus KPIs al header) el subtítulo
+             se oculta siempre y el título SOLO se muestra en móvil; en tablet+ su
+             lugar lo ocupan los KPIs (o queda limpio). Ver CSS --kpimode. -->
         <div class="admin-header__titlewrap" *ngIf="esDashboard; else seccionTpl">
           <div class="admin-greeting" adminMarquee>
             <p class="admin-header__greeting">{{ saludo }}<ng-container *ngIf="(usuario$ | async) as u">, {{ u.nombre.split(' ')[0] }}</ng-container></p>

@@ -3,13 +3,35 @@
 
     <!-- Acción en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
-      <admin-btn (clicked)="abrirNuevo()">
-        <ion-icon name="add-outline"></ion-icon> <span class="hide-on-mobile">Nuevo insumo</span>
+      <admin-btn [iconOnly]="true" ariaLabel="Nuevo insumo" (clicked)="abrirNuevo()">
+        <ion-icon name="add-outline"></ion-icon>
       </admin-btn>
     </ng-template>
 
+    <!-- KPIs al header (tablet+); en móvil se ven en el cuerpo. -->
+    <ng-template adminHeaderLead>
+      <div class="admin-hkpis">
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'todos'" (click)="setFiltro('todos')">
+          <span class="admin-hkpi__label">Insumos</span>
+          <span class="admin-hkpi__value">{{ totalInsumos }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'bajo_stock'" (click)="setFiltro('bajo_stock')">
+          <span class="admin-hkpi__label">Bajo stock</span>
+          <span class="admin-hkpi__value">{{ totalBajoStock }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'normal'" (click)="setFiltro('normal')">
+          <span class="admin-hkpi__label">Stock normal</span>
+          <span class="admin-hkpi__value">{{ totalNormal }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'sin_minimo'" (click)="setFiltro('sin_minimo')">
+          <span class="admin-hkpi__label">Sin mínimo</span>
+          <span class="admin-hkpi__value">{{ totalSinMinimo }}</span>
+        </button>
+      </div>
+    </ng-template>
+
     <!-- Stats / filtros -->
-    <div class="admin-grid-4">
+    <div class="admin-grid-4 admin-kpis-body">
       <admin-kpi-card label="Insumos totales" [value]="totalInsumos"
         icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>

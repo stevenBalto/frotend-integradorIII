@@ -5,6 +5,7 @@ import { DashboardResumen } from '../../core/models/dashboard.model';
 import { estadoToStatusType } from '../shared/status-badge.component';
 import { PedidoEstado } from '../../shared/constants/pedido-estado';
 import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
+import { montoCorto } from '../../shared/utils/monto';
 
 /** Dashboard admin: KPIs + gráfico de área + pedidos nuevos + últimos pedidos. */
 @Component({
@@ -16,6 +17,9 @@ import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
 export class AdminDashboardPage implements OnInit {
   cargando = true;
   resumen: DashboardResumen | null = null;
+
+  /** Monto compacto para las pastillas KPI del header. */
+  readonly montoCorto = montoCorto;
 
   valores: number[] = [];
   xLabels: string[] = [];

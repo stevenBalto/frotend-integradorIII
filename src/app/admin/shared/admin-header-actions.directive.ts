@@ -1,4 +1,6 @@
-import { Directive, ElementRef, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { ApplicationRef, Directive, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { AdminHeaderService } from './admin-header.service';
 
 /**
@@ -9,38 +11,53 @@ import { AdminHeaderService } from './admin-header.service';
  *     <admin-btn (clicked)="crear()">Nuevo</admin-btn>
  *   </ng-template>
  *
- * El template NO se renderiza en la página (ng-template): el shell lo pinta
- * junto a la campana de notificaciones. La publicación se difiere un microtask
- * para no chocar con el ciclo de detección de cambios ya corrido del shell.
+ * El template NO se renderiza en la página (ng-template): el shell lo pinta junto a
+ * la campana de notificaciones. Publicación diferida un microtask para no chocar con
+ * el ciclo de detección de cambios ya corrido del shell.
+ *
+ * Re-publicación al volver: Ionic cachea las páginas (ngOnInit no re-corre al
+ * regresar), así que el botón desaparecía hasta refrescar. Se re-publica en cada
+ * NavigationEnd cuya ruta coincida con la de ESTA página (capturada en ngOnInit) —
+ * robusto y sin depender de eventos de ciclo de vida Ionic ni del DOM en transición.
  */
 @Directive({
   selector: '[adminHeaderActions]',
   standalone: false,
 })
 export class AdminHeaderActionsDirective implements OnInit, OnDestroy {
-  private hostPage: Element | null = null;
-  private readonly onViewWillEnter = (): void => this.header.setActions(this.tpl);
+  private destroyed = false;
+  private sub?: Subscription;
+  private myPath = '';
 
   constructor(
     private readonly tpl: TemplateRef<unknown>,
-    private readonly elRef: ElementRef<Comment>,
     private readonly header: AdminHeaderService,
+    private readonly router: Router,
+    private readonly appRef: ApplicationRef,
   ) {}
 
   ngOnInit(): void {
+    this.myPath = this.pathOf(this.router.url);
     Promise.resolve().then(() => this.header.setActions(this.tpl));
 
-    // Ionic (IonicRouteStrategy) cachea las páginas: al volver de otra pantalla
-    // el componente no se recrea (ngOnInit no vuelve a correr), solo se emite
-    // este evento DOM sobre el <ion-page> — lo escuchamos para re-publicar las
-    // acciones, si no quedan "pegadas" en null (bug: botón del header desaparece
-    // al volver de una pantalla y hace falta refrescar).
-    this.hostPage = this.elRef.nativeElement.parentElement?.closest('.ion-page') ?? null;
-    this.hostPage?.addEventListener('ionViewWillEnter', this.onViewWillEnter);
+    this.sub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e) => {
+        if (this.destroyed) return;
+        if (this.pathOf(e.urlAfterRedirects) === this.myPath) {
+          this.header.setActions(this.tpl);
+          this.appRef.tick();
+        }
+      });
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
+    this.sub?.unsubscribe();
     this.header.clearActions(this.tpl);
-    this.hostPage?.removeEventListener('ionViewWillEnter', this.onViewWillEnter);
+  }
+
+  private pathOf(url: string): string {
+    return url.split('?')[0].split('#')[0];
   }
 }

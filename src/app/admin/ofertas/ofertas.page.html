@@ -3,18 +3,56 @@
 
     <!-- Accion en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
-      <admin-btn [outline]="true" (clicked)="abrirCanjear()">
+      <admin-btn [outline]="true" [iconOnly]="true" ariaLabel="Canjear código" (clicked)="abrirCanjear()">
         <ion-icon name="qr-code-outline"></ion-icon>
-        <span class="hide-on-mobile">Canjear codigo</span>
       </admin-btn>
-      <admin-btn (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
+      <admin-btn [iconOnly]="true" [ariaLabel]="tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupón'" (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
         <ion-icon name="add-outline"></ion-icon>
-        <span class="hide-on-mobile">{{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupon' }}</span>
       </admin-btn>
     </ng-template>
 
+    <!-- KPIs al header (tablet+), según el tab activo; en móvil van al cuerpo. -->
+    <ng-template adminHeaderLead>
+      <div class="admin-hkpis" *ngIf="tab === 'ofertas'">
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'todos'" (click)="setFiltroOferta('todos')">
+          <span class="admin-hkpi__label">Ofertas</span>
+          <span class="admin-hkpi__value">{{ totalOfertas }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'activas'" (click)="setFiltroOferta('activas')">
+          <span class="admin-hkpi__label">Activas</span>
+          <span class="admin-hkpi__value">{{ ofertasActivas }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'por_vencer'" (click)="setFiltroOferta('por_vencer')">
+          <span class="admin-hkpi__label">Por vencer</span>
+          <span class="admin-hkpi__value">{{ ofertasPorVencer }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'vencidas'" (click)="setFiltroOferta('vencidas')">
+          <span class="admin-hkpi__label">Vencidas</span>
+          <span class="admin-hkpi__value">{{ ofertasVencidas }}</span>
+        </button>
+      </div>
+      <div class="admin-hkpis" *ngIf="tab === 'cupones'">
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroCupon === 'todos'" (click)="setFiltroCupon('todos')">
+          <span class="admin-hkpi__label">Cupones</span>
+          <span class="admin-hkpi__value">{{ totalCupones }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroCupon === 'activos'" (click)="setFiltroCupon('activos')">
+          <span class="admin-hkpi__label">Activos</span>
+          <span class="admin-hkpi__value">{{ cuponesActivos }}</span>
+        </button>
+        <div class="admin-hkpi admin-hkpi--static">
+          <span class="admin-hkpi__label">Usos</span>
+          <span class="admin-hkpi__value">{{ usosTotales }}</span>
+        </div>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroCupon === 'agotados'" (click)="setFiltroCupon('agotados')">
+          <span class="admin-hkpi__label">Agotados</span>
+          <span class="admin-hkpi__value">{{ cuponesAgotados }}</span>
+        </button>
+      </div>
+    </ng-template>
+
     <!-- Stats Ofertas -->
-    <div class="admin-grid-4" *ngIf="tab === 'ofertas'">
+    <div class="admin-grid-4 admin-kpis-body" *ngIf="tab === 'ofertas'">
       <admin-kpi-card label="Ofertas totales" [value]="totalOfertas"
         icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroOferta === 'todos'" (cardClick)="setFiltroOferta('todos')"></admin-kpi-card>
@@ -30,7 +68,7 @@
     </div>
 
     <!-- Stats Cupones -->
-    <div class="admin-grid-4" *ngIf="tab === 'cupones'">
+    <div class="admin-grid-4 admin-kpis-body" *ngIf="tab === 'cupones'">
       <admin-kpi-card label="Cupones totales" [value]="totalCupones"
         icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroCupon === 'todos'" (cardClick)="setFiltroCupon('todos')"></admin-kpi-card>

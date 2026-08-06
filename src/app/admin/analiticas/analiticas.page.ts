@@ -7,6 +7,7 @@ import { PeakHourDatum } from './peak-hours-chart.component';
 import { ModalityItem } from './modality-compact.component';
 import { RankingItem } from './ranking-list.component';
 import { TopProductItem } from './top-products-table.component';
+import { montoCorto } from '../../shared/utils/monto';
 
 interface ComparacionTexto { texto: string; color: string; pct: number | null; }
 
@@ -21,6 +22,9 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   cargando = false;
   error: string | null = null;
   exportando: 'excel' | 'pdf' | null = null;
+
+  /** Monto compacto para las pastillas KPI del header. */
+  readonly montoCorto = montoCorto;
 
   // Filtro de periodo
   granularidad: Granularidad = 'mes';

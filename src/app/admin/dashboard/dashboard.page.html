@@ -1,10 +1,35 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- KPIs al header (tablet+); en móvil se ven en el cuerpo (abajo). -->
+    <ng-template adminHeaderLead>
+      <div class="admin-hkpis" *ngIf="resumen as r">
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'pedidos_hoy'" (click)="seleccionarKpi('pedidos_hoy', 'hoy')">
+          <span class="admin-hkpi__label">Pedidos hoy</span>
+          <span class="admin-hkpi__value">{{ r.pedidos_hoy }}</span>
+          <span class="admin-hkpi__delta" [style.color]="variacionColor(r.pedidos_hoy_variacion)">{{ variacionTexto(r.pedidos_hoy_variacion) }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'ventas_hoy'" (click)="seleccionarKpi('ventas_hoy', 'entregado')">
+          <span class="admin-hkpi__label">Ventas hoy</span>
+          <span class="admin-hkpi__value">{{ montoCorto(r.ventas_hoy) }}</span>
+          <span class="admin-hkpi__delta" [style.color]="variacionColor(r.ventas_hoy_variacion)">{{ variacionTexto(r.ventas_hoy_variacion) }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'ticket'" (click)="seleccionarKpi('ticket', 'todos')">
+          <span class="admin-hkpi__label">Ticket prom.</span>
+          <span class="admin-hkpi__value">{{ montoCorto(r.ticket_promedio) }}</span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'activos'" (click)="seleccionarKpi('activos', 'activos')">
+          <span class="admin-hkpi__label">Activos</span>
+          <span class="admin-hkpi__value">{{ r.pedidos_activos }}</span>
+          <span class="admin-hkpi__delta" style="color:#6B7280">en prep.</span>
+        </button>
+      </div>
+    </ng-template>
+
     <p *ngIf="cargando" class="dash-loading">Cargando dashboard...</p>
 
     <!-- KPIs -->
-    <div class="admin-grid-4" *ngIf="resumen as r">
+    <div class="admin-grid-4 admin-kpis-body" *ngIf="resumen as r">
       <admin-kpi-card label="Pedidos hoy" [value]="r.pedidos_hoy" [sub]="variacionTexto(r.pedidos_hoy_variacion)" [subColor]="variacionColor(r.pedidos_hoy_variacion)"
         icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="kpiSel === 'pedidos_hoy'" (cardClick)="seleccionarKpi('pedidos_hoy', 'hoy')"></admin-kpi-card>
