@@ -30,10 +30,16 @@
       </div>
     </nav>
 
-    <button type="button" class="admin-sidebar__logout" (click)="salirAlApp()">
-      <ion-icon name="log-out-outline"></ion-icon>
-      <span>Salir al app</span>
-    </button>
+    <div class="admin-sidebar__footer">
+      <button type="button" class="admin-sidebar__help" (click)="abrirAyuda()" aria-label="Ayuda">
+        <ion-icon name="help-circle-outline"></ion-icon>
+        <span>Ayuda</span>
+      </button>
+      <button type="button" class="admin-sidebar__logout" (click)="salirAlApp()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Salir al app</span>
+      </button>
+    </div>
   </aside>
 
   <!-- Main -->
@@ -164,6 +170,36 @@
             <p class="admin-perfil__empty">Acceso total al panel (administrador).</p>
           </ng-template>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de ayuda: descarga del manual de usuario. -->
+  <div class="admin-ayuda" *ngIf="ayudaOpen">
+    <div class="admin-ayuda__backdrop" (click)="cerrarAyuda()"></div>
+    <div class="admin-ayuda__panel">
+      <div class="admin-ayuda__head">
+        <ion-icon name="help-circle-outline"></ion-icon>
+        <p class="admin-ayuda__title">Ayuda</p>
+        <button type="button" class="admin-ayuda__close" (click)="cerrarAyuda()" aria-label="Cerrar">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="admin-ayuda__body">
+        <p class="admin-ayuda__text">
+          Consultá el manual de usuario para conocer cómo funciona el sistema:
+          vista de cliente, panel de administración y panel de super administrador.
+        </p>
+        <a
+          class="admin-ayuda__download"
+          [href]="manualUsuarioUrl"
+          download="Manual_Usuario_Rooster_Pizza_Grill.pdf"
+          target="_blank"
+          rel="noopener"
+        >
+          <ion-icon name="download-outline"></ion-icon>
+          <span>Descargar manual de usuario</span>
+        </a>
       </div>
     </div>
   </div>

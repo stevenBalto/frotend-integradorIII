@@ -131,6 +131,10 @@
 .admin-nav-item--active ion-icon { color: #fff; }
 .admin-nav-item--active .admin-nav-item__label { color: #fff; font-weight: 700; }
 
+.admin-sidebar__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-sidebar__help,
 .admin-sidebar__logout {
   display: flex;
   align-items: center;
@@ -138,13 +142,15 @@
   padding: 16px;
   width: 100%;
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: transparent;
   cursor: pointer;
   transition: background 0.2s;
 }
+.admin-sidebar__help:hover,
 .admin-sidebar__logout:hover { background: rgba(255, 255, 255, 0.05); }
+.admin-sidebar__help ion-icon,
 .admin-sidebar__logout ion-icon { font-size: 15px; color: #666; }
+.admin-sidebar__help span,
 .admin-sidebar__logout span { font-size: 12px; color: #888; }
 
 /* ── Main ──────────────────────────────────────────────────────────────────── */
@@ -493,3 +499,55 @@
   &--editor { background: rgba(22, 163, 74, 0.16); color: #16A34A; }
 }
 .admin-perfil__empty { font-size: 13px; color: var(--admin-text-muted, #6b7280); margin: 0; }
+
+/* ── Modal de ayuda (manual de usuario) ──────────────────────────────────── */
+.admin-ayuda {
+  position: fixed;
+  inset: 0;
+  z-index: 340;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-family: var(--rooster-font-sans);
+}
+.admin-ayuda__backdrop { position: absolute; inset: 0; background: rgba(20, 20, 20, 0.55); }
+.admin-ayuda__panel {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  background: var(--admin-card, #fff);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+.admin-ayuda__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--admin-sidebar, #1e1e1e);
+  color: #fff;
+}
+.admin-ayuda__head ion-icon { font-size: 20px; }
+.admin-ayuda__title { flex: 1; font-weight: 700; font-size: 15px; margin: 0; }
+.admin-ayuda__close { background: none; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; font-size: 20px; }
+.admin-ayuda__body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.admin-ayuda__text { font-size: 13px; line-height: 1.5; color: var(--admin-text-muted, #6b7280); margin: 0; }
+.admin-ayuda__download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--admin-accent, #e13642);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+}
+.admin-ayuda__download:hover { filter: brightness(0.95); }
+.admin-ayuda__download ion-icon { font-size: 16px; }

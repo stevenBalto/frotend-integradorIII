@@ -90,6 +90,9 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   bellOpen = false;
   // Modal de perfil del usuario admin (datos + accesos por módulo) — item 30.
   perfilOpen = false;
+  // Modal de ayuda: descarga del manual de usuario.
+  ayudaOpen = false;
+  readonly manualUsuarioUrl = 'assets/docs/Manual_Usuario_Rooster_Pizza_Grill.pdf';
   noLeidasCount = 0;
   notifsRecientes: Notificacion[] = [];
 
@@ -301,6 +304,14 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   cerrarPerfil(): void {
     this.perfilOpen = false;
+  }
+
+  abrirAyuda(): void {
+    this.ayudaOpen = true;
+  }
+
+  cerrarAyuda(): void {
+    this.ayudaOpen = false;
   }
 
   iconoNotif(n: Notificacion): string {
