@@ -12,6 +12,7 @@ import {
   iconoDeNotificacion,
 } from '../../core/models/notificacion.model';
 import { AdminHeaderLead, AdminHeaderService } from '../shared/admin-header.service';
+import { InactivityService } from '../../core/services/inactivity.service';
 
 interface NavItem {
   id: string;
@@ -40,6 +41,7 @@ interface NavGroup {
   templateUrl: './admin-shell.page.html',
   styleUrls: ['./admin-shell.page.scss'],
   standalone: false,
+  providers: [InactivityService],
 })
 export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -352,6 +354,19 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   /** Temporal: vuelve a la app cliente (sin invalidar token, es otro contexto). */
   salirAlApp(): void {
+    void this.router.navigateByUrl('/login', { replaceUrl: true });
+  }
+
+  /** Sesion cerrada por inactividad o por tope absoluto de horas (idle-session-modal). */
+  async onSesionExpirada(): Promise<void> {
+    this.auth.logout().subscribe({ complete: () => undefined, error: () => undefined });
+    const toast = await this.toastCtrl.create({
+      message: 'Tu sesión se cerró por inactividad.',
+      duration: 4000,
+      position: 'top',
+      color: 'medium',
+    });
+    await toast.present();
     void this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 

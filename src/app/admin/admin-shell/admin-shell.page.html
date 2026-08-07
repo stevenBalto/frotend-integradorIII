@@ -174,6 +174,15 @@
     </div>
   </div>
 
+  <!-- Aviso de sesion por inactividad (avisa a los 15 min, cierra 60s despues si no hay respuesta;
+       tope absoluto de 10h de sesion aunque el admin este activo todo el tiempo). -->
+  <idle-session-modal
+    [avisoMinutos]="15"
+    [cuentaRegresivaSegundos]="60"
+    [maxSesionHoras]="10"
+    (expirar)="onSesionExpirada()"
+  ></idle-session-modal>
+
   <!-- Modal de ayuda: descarga del manual de usuario. -->
   <div class="admin-ayuda" *ngIf="ayudaOpen">
     <div class="admin-ayuda__backdrop" (click)="cerrarAyuda()"></div>

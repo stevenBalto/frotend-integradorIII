@@ -6,12 +6,14 @@ import { AlertController, ToastController } from '@ionic/angular';
 import { InstanciaService } from '../../core/services/instancia.service';
 import { SuperAdminAuthService } from '../../core/services/superadmin-auth.service';
 import { CredencialesTemporales, Instancia } from '../../core/models/instancia.model';
+import { InactivityService } from '../../core/services/inactivity.service';
 
 @Component({
   selector: 'app-superadmin-instancias',
   templateUrl: './superadmin-instancias.page.html',
   styleUrls: ['./superadmin-instancias.page.scss'],
   standalone: false,
+  providers: [InactivityService],
 })
 export class SuperadminInstanciasPage implements OnInit {
   instancias: Instancia[] = [];
@@ -173,6 +175,19 @@ export class SuperadminInstanciasPage implements OnInit {
       next: () => void this.router.navigateByUrl('/login'),
       error: () => void this.router.navigateByUrl('/login'),
     });
+  }
+
+  /** Sesion cerrada por inactividad o por tope absoluto de horas (idle-session-modal). */
+  async onSesionExpirada(): Promise<void> {
+    this.superAuth.logout().subscribe({ complete: () => undefined, error: () => undefined });
+    const toast = await this.toast.create({
+      message: 'Tu sesión se cerró por inactividad.',
+      duration: 4000,
+      position: 'top',
+      color: 'medium',
+    });
+    await toast.present();
+    void this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
   private errorGuardar(err: HttpErrorResponse): void {

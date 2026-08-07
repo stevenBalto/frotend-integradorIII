@@ -138,3 +138,10 @@
     </div>
   </div>
 </div>
+
+<idle-session-modal
+  [avisoMinutos]="15"
+  [cuentaRegresivaSegundos]="60"
+  [maxSesionHoras]="10"
+  (expirar)="onSesionExpirada()"
+></idle-session-modal>

@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { AdminShellPage } from './admin-shell.page';
 import { AdminShellPageRoutingModule } from './admin-shell-routing.module';
 import { AdminSharedModule } from '../shared/admin-shared.module';
+import { IdleSessionModalComponent } from '../../shared/components/idle-session-modal.component';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { AdminSharedModule } from '../shared/admin-shared.module';
     IonicModule,
     AdminSharedModule,
     AdminShellPageRoutingModule,
+    IdleSessionModalComponent,
   ],
   declarations: [AdminShellPage],
 })
