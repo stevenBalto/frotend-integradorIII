@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AdminKpiCardComponent } from './admin-kpi-card.component';
 import { AdminHkpiStripComponent } from './admin-hkpi-strip.component';
+import { AdminOptionComponent, AdminSelectComponent } from './admin-select.component';
 import { AdminSectionCardComponent } from './admin-section-card.component';
 import { AdminPageHeaderComponent } from './admin-page-header.component';
 import { AdminBtnComponent } from './admin-btn.component';
@@ -24,6 +25,8 @@ import { MarqueeOverflowDirective } from './marquee-overflow.directive';
 const COMPONENTS = [
   AdminKpiCardComponent,
   AdminHkpiStripComponent,
+  AdminSelectComponent,
+  AdminOptionComponent,
   AdminSectionCardComponent,
   AdminPageHeaderComponent,
   AdminBtnComponent,

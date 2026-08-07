@@ -312,10 +312,10 @@
         <div class="of-form__row">
           <label class="of-form__label of-form__label--half">
             Tipo de descuento
-            <select formControlName="tipo_descuento" class="of-form__input">
-              <option value="porcentaje">Porcentaje (%)</option>
-              <option value="precio_fijo">Precio fijo</option>
-            </select>
+            <admin-select formControlName="tipo_descuento" class="of-form__select">
+              <admin-option value="porcentaje">Porcentaje (%)</admin-option>
+              <admin-option value="precio_fijo">Precio fijo</admin-option>
+            </admin-select>
           </label>
           <label class="of-form__label of-form__label--half">
             Valor
@@ -417,10 +417,10 @@
         <div class="of-form__row">
           <label class="of-form__label of-form__label--half">
             Tipo
-            <select formControlName="tipo" class="of-form__input">
-              <option value="porcentaje">Porcentaje (%)</option>
-              <option value="monto_fijo">Monto fijo</option>
-            </select>
+            <admin-select formControlName="tipo" class="of-form__select">
+              <admin-option value="porcentaje">Porcentaje (%)</admin-option>
+              <admin-option value="monto_fijo">Monto fijo</admin-option>
+            </admin-select>
           </label>
           <label class="of-form__label of-form__label--half">
             Valor

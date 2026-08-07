@@ -494,3 +494,15 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
 select.of-form__input {
   border-radius: 12px;
 }
+
+/* <admin-select> dentro de los formularios: iguala el alto/tipografia de
+   .of-form__input sin repetir su borde (lo dibuja el propio componente). */
+.of-form__select {
+  display: block;
+  width: 100%;
+  --admin-select-height: 44px;
+  --admin-select-font-size: 14px;
+  --admin-select-font-weight: 500;
+  --admin-select-bg: #fdfcfb;
+  --admin-select-padding: 0 12px;
+}

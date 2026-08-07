@@ -249,10 +249,10 @@
 
         <label class="menu-form__label">
           Categoría
-          <select formControlName="categoria_id" class="menu-form__input">
-            <option [ngValue]="null" disabled>Seleccioná una categoría</option>
-            <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
-          </select>
+          <admin-select formControlName="categoria_id" class="menu-form__select"
+            placeholder="Seleccioná una categoría">
+            <admin-option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</admin-option>
+          </admin-select>
         </label>
 
         <label class="menu-form__label">
@@ -443,10 +443,10 @@
 
           <label class="menu-form__label" *ngIf="!extraNuevaForm.get('es_general')?.value">
             Categoría
-            <select formControlName="categoria_id" class="menu-form__input">
-              <option [ngValue]="null" disabled>Seleccioná una categoría</option>
-              <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
-            </select>
+            <admin-select formControlName="categoria_id" class="menu-form__select"
+              placeholder="Seleccioná una categoría">
+              <admin-option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</admin-option>
+            </admin-select>
           </label>
 
           <p *ngIf="extraNuevaError" class="menu-error">{{ extraNuevaError }}</p>

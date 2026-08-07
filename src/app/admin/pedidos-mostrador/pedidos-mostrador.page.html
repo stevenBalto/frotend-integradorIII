@@ -51,10 +51,10 @@
               </div>
 
               <ng-container *ngIf="p.tamanos.length > 0; else sinTamano">
-                <select #tamanoSel class="mostrador-producto__tamano">
-                  <option [value]="''" disabled selected>Tamaño</option>
-                  <option *ngFor="let t of p.tamanos" [value]="t.id">{{ t.nombre }} · {{ t.precio | crcCurrency }}</option>
-                </select>
+                <admin-select #tamanoSel="adminSelect" class="mostrador-producto__select"
+                  placeholder="Tamaño" ariaLabel="Tamaño del producto">
+                  <admin-option *ngFor="let t of p.tamanos" [value]="t.id">{{ t.nombre }} · {{ t.precio | crcCurrency }}</admin-option>
+                </admin-select>
                 <button type="button" class="mostrador-producto__add" (click)="agregarProducto(p, tamanoSel.value)">
                   <ion-icon name="add-outline"></ion-icon>
                 </button>
@@ -105,10 +105,10 @@
 
             <label class="of-form__label">
               Sucursal
-              <select class="of-form__input" [(ngModel)]="sucursalId">
-                <option [ngValue]="null" disabled>Elegí una sucursal</option>
-                <option *ngFor="let s of sucursales" [ngValue]="s.id">{{ s.nombre }}</option>
-              </select>
+              <admin-select class="of-form__select" [(ngModel)]="sucursalId"
+                placeholder="Elegí una sucursal">
+                <admin-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</admin-option>
+              </admin-select>
             </label>
 
             <label class="of-form__label">

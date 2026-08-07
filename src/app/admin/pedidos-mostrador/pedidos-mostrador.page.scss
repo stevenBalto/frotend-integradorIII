@@ -201,3 +201,20 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
 select.of-form__input {
   border-radius: 12px;
 }
+
+/* <admin-select> del tamaño (fila del producto) y de la sucursal. */
+.mostrador-producto__select {
+  --admin-select-font-size: 12px;
+  --admin-select-font-weight: 500;
+  --admin-select-bg: #fdfcfb;
+  --admin-select-padding: 6px 10px;
+}
+.of-form__select {
+  display: block;
+  width: 100%;
+  --admin-select-height: 44px;
+  --admin-select-font-size: 14px;
+  --admin-select-font-weight: 500;
+  --admin-select-bg: #fdfcfb;
+  --admin-select-padding: 0 12px;
+}

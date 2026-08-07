@@ -84,10 +84,10 @@
     <div class="dash-charts" *ngIf="resumen as r">
       <div class="dash-charts__main">
         <admin-section-card title="Ventas de la semana" [fill]="true">
-          <select card-action class="dash-select" [ngModel]="rangoDias"
-            (ngModelChange)="cambiarRango(+$event)">
-            <option *ngFor="let op of rangos" [ngValue]="op.v">{{ op.l }}</option>
-          </select>
+          <admin-select card-action [ngModel]="rangoDias"
+            (ngModelChange)="cambiarRango(+$event)" ariaLabel="Rango de ventas">
+            <admin-option *ngFor="let op of rangos" [value]="op.v">{{ op.l }}</admin-option>
+          </admin-select>
           <div class="dash-chart-scroll">
             <area-chart [values]="valores" [xLabels]="xLabels"></area-chart>
           </div>
@@ -152,9 +152,10 @@
           <span class="dash-daterange__sep">–</span>
           <input type="date" class="dash-date" [(ngModel)]="ultimosHasta" (ngModelChange)="cambiarRangoUltimos()" aria-label="Hasta" />
         </div>
-        <select class="dash-select" [(ngModel)]="filtroUltimos" (ngModelChange)="kpiSel = null">
-          <option *ngFor="let f of filtrosUltimos" [ngValue]="f.v">{{ f.l }}</option>
-        </select>
+        <admin-select [(ngModel)]="filtroUltimos"
+          (ngModelChange)="kpiSel = null" ariaLabel="Filtrar últimos pedidos">
+          <admin-option *ngFor="let f of filtrosUltimos" [value]="f.v">{{ f.l }}</admin-option>
+        </admin-select>
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
