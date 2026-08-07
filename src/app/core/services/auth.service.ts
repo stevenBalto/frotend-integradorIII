@@ -71,6 +71,55 @@ export class AuthService {
       .pipe(tap((res) => this.persistir(res)));
   }
 
+  // ── Inicio de sesion con Google ─────────────────────────────────────────────
+  /**
+   * Manda el navegador a Google. NO es una peticion XHR: es una navegacion real,
+   * porque Google bloquea su pantalla de login dentro de iframes y WebViews.
+   *
+   * Se sale de Angular a proposito (location.href): el usuario vuelve despues al
+   * front por el callback del backend, con un codigo en el fragmento (#).
+   *
+   * @param destino Ruta del front a la que volver ya con la sesion iniciada.
+   */
+  irAGoogle(destino: string): void {
+    const url = `${this.base}/auth/google/redirect?destino=${encodeURIComponent(destino)}`;
+    window.location.href = url;
+  }
+
+  /**
+   * Canjea el codigo de un solo uso (el que llega en el fragmento al volver de
+   * Google) por la sesion. Devuelve lo mismo que un login normal y la persiste.
+   */
+  canjearCodigoGoogle(codigo: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.base}/auth/google/exchange`, { codigo })
+      .pipe(tap((res) => this.persistir(res)));
+  }
+
+  /**
+   * Lee el resultado que el backend dejo en el fragmento de la URL y lo limpia,
+   * para que no quede en el historial ni se vuelva a procesar al recargar.
+   * Devuelve null si no venimos de Google.
+   */
+  leerRespuestaDeGoogle(): { codigo?: string; error?: string } | null {
+    const fragmento = window.location.hash.replace(/^#/, '');
+    if (!fragmento) {
+      return null;
+    }
+
+    const params = new URLSearchParams(fragmento);
+    const codigo = params.get('google_codigo');
+    const error = params.get('google_error');
+    if (!codigo && !error) {
+      return null;
+    }
+
+    // Saca el fragmento sin recargar ni ensuciar el historial.
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+
+    return { codigo: codigo ?? undefined, error: error ?? undefined };
+  }
+
   /**
    * Login UNIFICADO: NO persiste todavia (el caller decide donde guardar la
    * sesion segun `tipo`, porque un superadmin va a su propio storage aislado).

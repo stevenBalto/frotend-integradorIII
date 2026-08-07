@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -13,7 +13,7 @@ import { LoginResultado, PasswordExpiradaResponse } from '../../core/models/usua
   styleUrls: ['./login.page.scss'],
   standalone: false,
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   readonly form: FormGroup;
   showPassword = false;
   cargando = false;
@@ -44,6 +44,51 @@ export class LoginPage {
       password_actual: ['', [Validators.required]],
       password_nueva: ['', [Validators.required, Validators.minLength(8)]],
       password_nueva_confirmation: ['', [Validators.required]],
+    });
+  }
+
+  /**
+   * Al entrar a la pantalla se revisa si venimos de Google: el backend deja el
+   * resultado en el fragmento (#) de la URL. Vale tanto para el navegador de
+   * escritorio como para el del telefono.
+   */
+  ngOnInit(): void {
+    const respuesta = this.auth.leerRespuestaDeGoogle();
+    if (!respuesta) {
+      return;
+    }
+
+    if (respuesta.error) {
+      void this.notificar(respuesta.error);
+      return;
+    }
+
+    if (respuesta.codigo) {
+      this.canjearGoogle(respuesta.codigo);
+    }
+  }
+
+  /** Manda al usuario a elegir su cuenta de Google. Sale de la app y vuelve aca. */
+  entrarConGoogle(): void {
+    this.cargando = true;
+    this.auth.irAGoogle('/login');
+  }
+
+  /** Cambia el codigo de un solo uso por la sesion y entra. */
+  private canjearGoogle(codigo: string): void {
+    this.cargando = true;
+    this.auth.canjearCodigoGoogle(codigo).subscribe({
+      next: (res) => {
+        this.cargando = false;
+        // Google es puerta de CLIENTES (el backend rechaza cuentas admin), asi
+        // que el destino es siempre la app del cliente.
+        void this.router.navigateByUrl('/tabs/home');
+        void this.notificar(`Hola, ${res.data.nombre.split(' ')[0]}.`);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.cargando = false;
+        void this.notificar(err.error?.message ?? 'No se pudo iniciar sesion con Google.');
+      },
     });
   }
 
