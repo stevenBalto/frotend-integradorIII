@@ -7,7 +7,7 @@ import { MODALIDAD_LABEL } from '../../shared/constants/modalidad';
   standalone: false,
   template: `
     <span class="pill" [style.color]="color">
-      <span class="pill__dot" [style.background]="color"></span>
+      <ion-icon class="pill__icon" [name]="icon"></ion-icon>
       {{ label }}
     </span>
   `,
@@ -24,7 +24,7 @@ import { MODALIDAD_LABEL } from '../../shared/constants/modalidad';
       font-family: var(--rooster-font-sans);
       white-space: nowrap;
     }
-    .pill__dot { width: 6px; height: 6px; border-radius: 50%; }
+    .pill__icon { font-size: 11px; }
   `],
 })
 export class ModalityPillComponent {
@@ -33,6 +33,8 @@ export class ModalityPillComponent {
   get label(): string {
     return this.isHere ? MODALIDAD_LABEL['comer_aqui'] : MODALIDAD_LABEL['para_llevar'];
   }
+  /** Mismo ícono que la perspectiva del cliente: restaurante para "aquí", bolsa para "llevar". */
+  get icon(): string { return this.isHere ? 'restaurant-outline' : 'bag-handle-outline'; }
   /** neutral4 para "aquí", neutral3 para "llevar". */
   get color(): string { return this.isHere ? '#374151' : '#6B7280'; }
 }

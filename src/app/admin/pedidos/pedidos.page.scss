@@ -38,6 +38,21 @@
   }
 }
 
+/* Badge de pago de la TABLA: idéntico al del Dashboard (ícono + Pagado/No pagado). */
+.pago-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  ion-icon { font-size: 12px; }
+}
+.pago-badge--si { background: rgba(22, 163, 74, 0.12); color: #15803D; }
+.pago-badge--no { background: rgba(245, 158, 11, 0.16); color: #B45309; }
+
 /* ── Modal detalle de pedido ───────────────────────────────────────────────── */
 .order-modal {
   position: fixed;
@@ -591,6 +606,9 @@
 
 .ped-fs-card--registrado { border-left: 4px solid #16A34A; }
 .ped-fs-card--invitado   { border-left: 4px solid #F59E0B; }
+
+/* En la vista expandida (pantalla completa): cantidad + nombre del producto en MAYÚSCULA. */
+.ped-fs-card__prod-name { text-transform: uppercase; }
 
 /* Botón de ayuda en el header (texto en PC, solo ícono en móvil vía .hide-on-mobile).
    Alto igualado al de la campana de notificaciones (.admin-header__bell = 32px) para

@@ -67,6 +67,9 @@ export class AdminDashboardPage implements ViewWillEnter, ViewWillLeave, OnDestr
     { v: 'cancelado', l: 'Cancelados' },
   ];
 
+  /** Búsqueda por texto (código o cliente) sobre la lista ya cargada de últimos pedidos. */
+  busquedaUltimos = '';
+
   constructor(
     private router: Router,
     private dashboardService: DashboardService,
@@ -161,12 +164,19 @@ export class AdminDashboardPage implements ViewWillEnter, ViewWillLeave, OnDestr
   /** #2 Pedidos de la tabla "Últimos pedidos" según el filtro de estado activo.
    *  El rango de fechas lo resuelve el backend (no se filtra por fecha en cliente). */
   get ultimosPedidosFiltrados() {
-    const lista = this.resumen?.ultimos_pedidos ?? [];
-    if (this.filtroUltimos === 'todos') return lista;
+    let lista = this.resumen?.ultimos_pedidos ?? [];
     if (this.filtroUltimos === 'activos') {
-      return lista.filter((o) => o.estado === 'pendiente' || o.estado === 'en_proceso' || o.estado === 'listo');
+      lista = lista.filter((o) => o.estado === 'pendiente' || o.estado === 'en_proceso' || o.estado === 'listo');
+    } else if (this.filtroUltimos !== 'todos') {
+      lista = lista.filter((o) => o.estado === this.filtroUltimos);
     }
-    return lista.filter((o) => o.estado === this.filtroUltimos);
+    const q = this.busquedaUltimos.trim().toLowerCase();
+    if (q) {
+      lista = lista.filter(
+        (o) => o.codigo.toLowerCase().includes(q) || (o.cliente ?? '').toLowerCase().includes(q),
+      );
+    }
+    return lista;
   }
 
   // #6 KPI resaltado como filtro activo (se trackea aparte del valor del filtro

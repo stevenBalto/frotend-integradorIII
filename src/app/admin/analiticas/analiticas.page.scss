@@ -89,9 +89,18 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
+  /* Sin margin-bottom: el espaciado entre divs lo da el gap:20px de .admin-page
+     (si no, se duplicaba y quedaba demasiado espacio antes de "Tendencia de ventas"). */
+  /* Los filtros (Mes/Semana/Día + navegador de fecha) van dentro de una card blanca,
+     igual que las secciones del panel. Apilado (≤765) → centrado horizontalmente. */
+  align-items: center;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 14px 16px;
 }
-@media (min-width: 640px) {
+/* ≥766: en una sola fila (tabs a la izquierda, navegador a la derecha). */
+@media (min-width: 766px) {
   .an-filtro { flex-direction: row; align-items: center; justify-content: space-between; }
 }
 .an-filtro__tabs {

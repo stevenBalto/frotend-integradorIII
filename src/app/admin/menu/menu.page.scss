@@ -20,15 +20,35 @@
   border-right: 1px solid var(--admin-border);
 }
 
-/* Móvil: apilar toolbar. Modos arriba, categorías en fila con scroll horizontal
-   (sin barra visible) y buscador a lo ancho. Evita el amontonamiento. */
+/* ≤767: TODO en una sola fila hasta donde se pueda. Modos (Productos/Extras) + categorías
+   (que scrollean en horizontal si no caben, sin bajar a otra fila) y el buscador pegado a
+   la DERECHA. Reemplaza el apilado en columnas que dejaba 3 filas. */
 @media (max-width: 767px) {
-  .menu-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
-  .menu-toolbar__left { flex-direction: column; align-items: stretch; gap: 10px; }
-  .menu-toolbar__modes { padding-right: 0; border-right: none; }
-  .menu-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .menu-toolbar { flex-wrap: nowrap; align-items: center; gap: 10px; }
+  .menu-toolbar__left { flex-wrap: nowrap; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }
+  .menu-toolbar__modes { padding-right: 0; border-right: none; flex-shrink: 0; }
+  .menu-toolbar__tabs { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
   .menu-toolbar__tabs > * { flex-shrink: 0; }
-  .menu-toolbar > admin-search-input { display: block; width: 100%; }
+  .menu-toolbar > admin-search-input { flex-shrink: 0; margin-left: auto; }
+}
+
+/* Encabezados fijos (sticky) también en móvil, igual que en Inicio (ver EF-27).
+   El hack global (≤767) vuelve la tabla display:block con overflow propio → rompe el
+   sticky del thead. Se revierte a un patrón estándar: UN contenedor de scroll 2D (el wrap)
+   + tabla normal (display:table) que desborda para el scroll horizontal. Aplica a las dos
+   tablas de Menú (productos y extras). */
+@media (max-width: 767px) {
+  .admin-table-wrap {
+    max-height: 60vh;
+    overflow: auto;
+  }
+  .admin-table {
+    display: table;
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    overflow: visible;
+  }
 }
 
 /* #6 Lista de productos del modal selector (asignar extra a producto). */

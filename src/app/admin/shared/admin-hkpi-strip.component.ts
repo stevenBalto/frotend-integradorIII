@@ -32,7 +32,7 @@ import {
     <div class="hkpi-strip">
       <button
         type="button"
-        class="hkpi-strip__nav"
+        class="hkpi-strip__nav hkpi-strip__nav--left"
         *ngIf="puedeIzquierda"
         (click)="desplazar(-1)"
         aria-label="Ver KPIs anteriores"
@@ -46,7 +46,7 @@ import {
 
       <button
         type="button"
-        class="hkpi-strip__nav"
+        class="hkpi-strip__nav hkpi-strip__nav--right"
         *ngIf="puedeDerecha"
         (click)="desplazar(1)"
         aria-label="Ver más KPIs"
@@ -66,16 +66,22 @@ import {
         min-width: 0;
         width: 100%;
       }
+      /* position:relative → las flechas se posicionan encima (overlay), NO en el flujo:
+         así el viewport mantiene su ancho constante aparezcan o no las flechas, y el
+         scrollTo(scrollWidth) aterriza EXACTO en el final (el último KPI queda completo).
+         Antes las flechas eran items flex y al aparecer robaban ancho, dejando un pedazo
+         cortado y obligando a un segundo click. */
       .hkpi-strip {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 6px;
         min-width: 0;
       }
       /* El viewport hereda .admin-hkpis (global.scss): fila flex con los chips. */
       .hkpi-strip__viewport {
         flex: 1 1 auto;
         min-width: 0;
+        overflow-x: auto;
         scroll-behavior: smooth;
         /* Con flechas no hace falta la barra de scroll nativa. */
         scrollbar-width: none;
@@ -84,9 +90,11 @@ import {
         display: none;
       }
       .hkpi-strip__nav {
-        flex: 0 0 auto;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        z-index: 3;
         width: 26px;
-        height: 48px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -94,9 +102,12 @@ import {
         border-radius: 8px;
         border: 1px solid var(--admin-border);
         background: var(--admin-card);
+        box-shadow: 0 0 8px 4px var(--admin-card);
         cursor: pointer;
         transition: border-color 0.15s, background 0.15s;
       }
+      .hkpi-strip__nav--left { left: 0; }
+      .hkpi-strip__nav--right { right: 0; }
       .hkpi-strip__nav ion-icon {
         font-size: 15px;
         color: var(--admin-text);
@@ -155,10 +166,11 @@ export class AdminHkpiStripComponent implements AfterViewInit, OnDestroy {
     this.mutaciones?.disconnect();
   }
 
-  /** Corre el carril un "paso" (~80% del ancho visible) en la dirección dada. */
+  /** Corre el carril COMPLETAMENTE hasta el extremo (derecha o izquierda), así el KPI
+   *  del borde queda totalmente visible de un solo click (no a medias). */
   desplazar(direccion: 1 | -1): void {
     const el = this.viewport.nativeElement;
-    el.scrollBy({ left: direccion * Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
+    el.scrollTo({ left: direccion === 1 ? el.scrollWidth : 0, behavior: 'smooth' });
   }
 
   private recalcular(): void {

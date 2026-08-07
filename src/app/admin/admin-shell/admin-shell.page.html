@@ -14,17 +14,20 @@
     </div>
 
     <nav class="admin-sidebar__nav">
-      <a
-        *ngFor="let item of navItems"
-        class="admin-nav-item"
-        [routerLink]="['/admin', item.id]"
-        routerLinkActive="admin-nav-item--active"
-        (click)="closeSidebar()"
-      >
-        <ion-icon [name]="item.icon"></ion-icon>
-        <span class="admin-nav-item__label">{{ item.label }}</span>
-        <span class="admin-nav-item__badge" *ngIf="item.badge">{{ item.badge }}</span>
-      </a>
+      <div class="admin-sidebar__group" *ngFor="let grupo of navGroups">
+        <p class="admin-sidebar__group-title">{{ grupo.titulo }}</p>
+        <a
+          *ngFor="let item of grupo.items"
+          class="admin-nav-item"
+          [routerLink]="['/admin', item.id]"
+          routerLinkActive="admin-nav-item--active"
+          (click)="closeSidebar()"
+        >
+          <ion-icon [name]="item.iconSrc ? null : item.icon" [src]="item.iconSrc || null"></ion-icon>
+          <span class="admin-nav-item__label">{{ item.label }}</span>
+          <span class="admin-nav-item__badge" *ngIf="item.badge">{{ item.badge }}</span>
+        </a>
+      </div>
     </nav>
 
     <button type="button" class="admin-sidebar__logout" (click)="salirAlApp()">

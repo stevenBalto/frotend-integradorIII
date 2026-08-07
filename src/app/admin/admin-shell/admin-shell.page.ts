@@ -17,7 +17,14 @@ interface NavItem {
   id: string;
   label: string;
   icon: string;
+  /** SVG propio (assets) cuando ningún ionicon calza. Si está, se usa en vez de `icon`. */
+  iconSrc?: string;
   badge?: string;
+}
+
+interface NavGroup {
+  titulo: string;
+  items: NavItem[];
 }
 
 /**
@@ -100,18 +107,29 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   readonly fechaTexto = this.calcularFecha();
 
   readonly navItems: NavItem[] = [
-    { id: 'dashboard',      label: 'Dashboard',         icon: 'grid-outline' },
+    { id: 'dashboard',      label: 'Dashboard',         icon: 'apps-outline', iconSrc: 'assets/icon/dashboard-grid.svg' },
     { id: 'inicio',         label: 'Inicio (Home)',     icon: 'home-outline' },
-    { id: 'pedidos',        label: 'Pedidos',           icon: 'clipboard-outline' },
+    { id: 'pedidos',        label: 'Pedidos',           icon: 'clipboard-outline', iconSrc: 'assets/icon/pedidos-clipboard.svg' },
     { id: 'menu',           label: 'Menú',              icon: 'restaurant-outline' },
     { id: 'inventario',     label: 'Inventario',        icon: 'cube-outline' },
-    { id: 'ofertas',        label: 'Ofertas y cupones', icon: 'pricetag-outline' },
+    { id: 'ofertas',        label: 'Ofertas y cupones', icon: 'pricetags-outline' },
     { id: 'clientes',       label: 'Clientes',          icon: 'people-outline' },
     { id: 'usuarios',       label: 'Usuarios y roles',  icon: 'shield-checkmark-outline' },
     { id: 'analiticas',     label: 'Analíticas',        icon: 'bar-chart-outline' },
     { id: 'notificaciones', label: 'Notificaciones',    icon: 'notifications-outline' },
     { id: 'resenas',        label: 'Reseñas',           icon: 'star-outline' },
     { id: 'configuracion',  label: 'Configuración',     icon: 'settings-outline' },
+  ];
+
+  /** Sidebar agrupado por secciones (encabezados). Los grupos referencian los MISMOS
+   *  objetos de navItems, así el badge de notificaciones (que muta el item) se refleja. */
+  readonly navGroups: NavGroup[] = [
+    { titulo: 'Análisis',        items: this.itemsPorId('dashboard', 'analiticas') },
+    { titulo: 'Operación',       items: this.itemsPorId('pedidos', 'inventario') },
+    { titulo: 'Catálogo',        items: this.itemsPorId('menu', 'ofertas') },
+    { titulo: 'Clientes',        items: this.itemsPorId('clientes', 'resenas') },
+    { titulo: 'App del cliente', items: this.itemsPorId('inicio', 'notificaciones') },
+    { titulo: 'Administración',  items: this.itemsPorId('usuarios', 'configuracion') },
   ];
 
   constructor(
@@ -136,6 +154,13 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
     this.rolLabel$ = this.usuario$.pipe(
       map((u) => (u?.rol === 'super_admin' || u?.rol === 'admin_sede' ? 'Administrador' : (u?.rol ?? ''))),
     );
+  }
+
+  /** NavItems (por id, en orden) para armar un grupo del sidebar (mismas referencias). */
+  private itemsPorId(...ids: string[]): NavItem[] {
+    return ids
+      .map((id) => this.navItems.find((i) => i.id === id))
+      .filter((i): i is NavItem => !!i);
   }
 
   ngOnInit(): void {

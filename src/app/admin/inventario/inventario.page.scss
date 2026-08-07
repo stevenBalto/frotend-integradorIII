@@ -1,4 +1,14 @@
 /* ── Tabla ──────────────────────────────────────────────────────────────── */
+/* Registros de la tabla en MAYÚSCULA (solicitado). Solo el cuerpo. */
+.admin-table tbody td { text-transform: uppercase; }
+
+/* Buscador (card-action): con actionInline se queda en la fila del título también en móvil
+   (antes bajaba a una 2ª fila a la izquierda). El head base es space-between, así que basta
+   con que la acción NO crezca (flex:0 0 auto) para que la lupa quede pegada a la derecha. */
+@media (max-width: 767px) {
+  #inv-insumos ::ng-deep .section-card__head--inline .section-card__action { flex: 0 0 auto; }
+}
+
 .inv-row--low { background: rgba(220, 38, 38, 0.04); }
 .inv-muted { font-size: 11px; color: var(--admin-text-muted); }
 

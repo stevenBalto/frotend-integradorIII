@@ -73,7 +73,7 @@
         [clickable]="true" [active]="filtro === 'sin_minimo'" (cardClick)="setFiltro('sin_minimo')"></admin-kpi-card>
     </div>
 
-    <admin-section-card title="Insumos e ingredientes">
+    <admin-section-card id="inv-insumos" title="Insumos e ingredientes" [actionInline]="true">
       <admin-search-input card-action placeholder="Buscar por insumo" [(value)]="busqueda"></admin-search-input>
 
       <p *ngIf="error" class="inv-error">{{ error }}</p>

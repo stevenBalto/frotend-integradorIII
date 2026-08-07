@@ -32,3 +32,26 @@
   background: linear-gradient(135deg, var(--rooster-red), #b8232f);
   white-space: nowrap;
 }
+
+/* Registros de las tablas de Inicio en MAYÚSCULA (solicitado). Solo el cuerpo. */
+.admin-table tbody td { text-transform: uppercase; }
+
+/* Encabezados fijos (sticky) también en móvil, SOLO en Inicio.
+   El hack global (≤767) vuelve la tabla `display:block` con su propio overflow → rompe el
+   `position:sticky` del thead (el modelo de tabla se desarma y el scroll vertical vive en el
+   wrap, no en la tabla). Se revierte a un patrón estándar: UN solo contenedor de scroll 2D
+   (el wrap) + tabla normal (`display:table`) que desborda para el scroll horizontal. Así el
+   thead sticky se ancla al wrap y queda fijo, y la tabla ancha scrollea en horizontal. */
+@media (max-width: 767px) {
+  .admin-table-wrap {
+    max-height: 60vh;
+    overflow: auto;
+  }
+  .admin-table {
+    display: table;
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    overflow: visible;
+  }
+}
