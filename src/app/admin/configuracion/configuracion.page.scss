@@ -290,3 +290,23 @@
   color: var(--admin-text);
 }
 .menu-error { color: var(--admin-red-alt); font-size: 12px; margin: 4px 0 0; }
+
+/* ── Chip de estado en el header (tablet+) ─────────────────────────────────────
+   Misma identidad que el banner del cuerpo (mismo verde/rojo, mismo punto), pero
+   compacto para convivir con el título "Configuración general". En móvil manda la
+   versión del cuerpo, que tiene el ancho completo. */
+.cfg-estado--header {
+  margin-bottom: 0;
+  padding: 6px 14px;
+  height: 48px;
+  border-radius: 12px;
+  white-space: nowrap;
+  gap: 10px;
+}
+.cfg-estado--header .cfg-estado__texto strong { font-size: 12px; line-height: 1.2; }
+.cfg-estado--header .cfg-estado__texto span { font-size: 10px; line-height: 1.2; }
+
+@media (min-width: 640px) {
+  /* En tablet/PC el estado vive en el header: se oculta el banner del cuerpo. */
+  .cfg-estado--body { display: none; }
+}

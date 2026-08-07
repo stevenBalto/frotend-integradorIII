@@ -87,7 +87,7 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
   &__tamano {
     font-size: 12px;
     border: 1px solid var(--admin-border);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 6px 8px;
     background: #fdfcfb;
     color: var(--admin-text);
@@ -195,4 +195,9 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
   &__codigo { font-size: 26px; font-weight: 900; letter-spacing: 1px; color: var(--rooster-red, #e13642); margin: 0 0 6px; }
   &__total { font-size: 14px; color: var(--admin-text-muted); margin: 0 0 16px; }
   &__actions { display: flex; gap: 10px; justify-content: center; }
+}
+
+/* Los <select> del panel van mas redondeados que los inputs de texto (12px). */
+select.of-form__input {
+  border-radius: 12px;
 }

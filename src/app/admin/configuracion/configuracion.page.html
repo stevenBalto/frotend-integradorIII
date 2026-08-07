@@ -1,9 +1,23 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- Estado del negocio en el header, a la par del título (conservaTitulo: acá el
+         lead NO reemplaza al título como en las páginas que suben sus KPIs).
+         Solo tablet+; en móvil se muestra la versión del cuerpo. -->
+    <ng-template adminHeaderLead [conservaTitulo]="true">
+      <div class="cfg-estado cfg-estado--header" [class.cfg-estado--cerrado]="!estadoNegocio.abierto">
+        <span class="cfg-estado__dot"></span>
+        <div class="cfg-estado__texto">
+          <strong>{{ estadoNegocio.abierto ? 'Abierto' : 'Cerrado' }}</strong>
+          <span>{{ estadoNegocio.texto }}</span>
+        </div>
+      </div>
+    </ng-template>
+
     <!-- Estado actual del negocio: refleja lo que el backend valida al recibir
-         un pedido, para que el admin vea el efecto real de sus ajustes. -->
-    <div class="cfg-estado" [class.cfg-estado--cerrado]="!estadoNegocio.abierto">
+         un pedido, para que el admin vea el efecto real de sus ajustes.
+         En tablet+ se oculta porque va al header. -->
+    <div class="cfg-estado cfg-estado--body" [class.cfg-estado--cerrado]="!estadoNegocio.abierto">
       <span class="cfg-estado__dot"></span>
       <div class="cfg-estado__texto">
         <strong>{{ estadoNegocio.abierto ? 'Abierto' : 'Cerrado' }}</strong>
