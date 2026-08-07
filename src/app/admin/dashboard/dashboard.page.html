@@ -83,7 +83,7 @@
     <!-- Gráfico + pedidos nuevos -->
     <div class="dash-charts" *ngIf="resumen as r">
       <div class="dash-charts__main">
-        <admin-section-card title="Ventas de la semana" [fill]="true">
+        <admin-section-card id="dash-ventas" title="Ventas de la semana" [actionInline]="true" [fill]="true">
           <admin-select card-action [ngModel]="rangoDias"
             (ngModelChange)="cambiarRango(+$event)" ariaLabel="Rango de ventas">
             <admin-option *ngFor="let op of rangos" [value]="op.v">{{ op.l }}</admin-option>
@@ -134,7 +134,7 @@
     </div>
 
     <!-- Últimos pedidos -->
-    <admin-section-card id="dash-ultimos" title="Últimos pedidos" *ngIf="resumen as r">
+    <admin-section-card id="dash-ultimos" title="Últimos pedidos" [actionInline]="true" *ngIf="resumen as r">
       <!-- Rango de fechas (independiente del gráfico de ventas) + filtro por estado.
            Sin tocar el rango, por defecto son los pedidos de HOY. -->
       <div card-action class="dash-ultimos-controls">
@@ -156,6 +156,10 @@
           (ngModelChange)="kpiSel = null" ariaLabel="Filtrar últimos pedidos">
           <admin-option *ngFor="let f of filtrosUltimos" [value]="f.v">{{ f.l }}</admin-option>
         </admin-select>
+        <!-- Mismo buscador colapsable de Pedidos. Hijo directo de .dash-ultimos-controls →
+             al abrirse marca .admin-search-open y global.scss oculta los demás filtros. -->
+        <admin-search-input class="dash-ultimos__search" placeholder="Buscar código o cliente..."
+          [(value)]="busquedaUltimos"></admin-search-input>
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
