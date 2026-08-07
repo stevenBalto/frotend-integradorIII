@@ -12,9 +12,15 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  /** GET /admin/dashboard?dias=7|14|30 (dias controla la ventana del gráfico). */
-  resumen(dias = 7): Observable<DashboardResumen> {
-    const params = new HttpParams().set('dias', String(dias));
+  /**
+   * GET /admin/dashboard?dias=7|14|30&desde&hasta
+   * `dias` controla SOLO la ventana del gráfico. `desde`/`hasta` (YYYY-MM-DD) controlan
+   * SOLO el rango de "Últimos pedidos"; sin ellos el backend usa hoy.
+   */
+  resumen(dias = 7, desde?: string, hasta?: string): Observable<DashboardResumen> {
+    let params = new HttpParams().set('dias', String(dias));
+    if (desde) params = params.set('desde', desde);
+    if (hasta) params = params.set('hasta', hasta);
     return this.http
       .get<ApiResource<DashboardResumen>>(`${this.base}/admin/dashboard`, { params })
       .pipe(map((res) => res.data));

@@ -74,7 +74,7 @@
     </ng-template>
 
     <!-- KPIs / Filtros (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 ped-kpis-body">
+    <div class="admin-grid-4 admin-kpis-body">
       <admin-kpi-card label="Pedidos totales" [value]="totalPedidos"
         icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroEstado === 'todos'" (cardClick)="setFiltroEstado('todos')"></admin-kpi-card>
@@ -139,7 +139,9 @@
           </thead>
           <tbody>
             <tr *ngFor="let p of pedidosFiltrados" class="ped-row"
+              [id]="'ped-' + p.codigo"
               [class.ped-row--invitado]="p.es_invitado" [class.ped-row--registrado]="!p.es_invitado"
+              [class.ped-row--destacado]="destacadoCodigo === p.codigo"
               (click)="abrirDetalle(p)">
               <td class="admin-table__strong">{{ p.codigo }}</td>
               <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>

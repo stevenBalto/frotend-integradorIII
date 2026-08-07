@@ -60,6 +60,11 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // Estado que se esta revirtiendo ahora mismo (micro-feedback no bloqueante).
   revirtiendoEstado: PedidoEstado | null = null;
 
+  // Resaltado de un pedido puntual (al venir desde Dashboard "pedidos nuevos" o una
+  // notificación con ?codigo=). La fila anima con .ped-row--destacado unos segundos.
+  destacadoCodigo: string | null = null;
+  private destacarTimer?: ReturnType<typeof setTimeout>;
+
   constructor(
     private pedidoService: PedidoService,
     private route: ActivatedRoute,
@@ -69,16 +74,44 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Si venimos desde una notificación ("abrir pedido"), pre-filtra por código.
-    const codigo = this.route.snapshot.queryParamMap.get('codigo');
-    if (codigo) {
-      this.busqueda = codigo;
-    }
+    // Si venimos con ?codigo= (Dashboard "pedidos nuevos" o una notificación),
+    // resaltamos ESE pedido (scroll + animación). Suscripción (no snapshot) para que
+    // también funcione con la página cacheada por IonicRouteStrategy (EF-13).
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((pm) => {
+      const codigo = pm.get('codigo');
+      if (codigo) {
+        this.destacarPedido(codigo);
+      }
+    });
     this.cargarPedidos();
     this.iniciarPolling();
   }
 
+  /**
+   * Resalta y hace scroll al pedido `codigo`. La fila anima con `.ped-row--destacado`
+   * y se limpia sola a los ~3s. Reintenta el scroll hasta que la fila exista (la lista
+   * puede estar cargando todavía).
+   */
+  private destacarPedido(codigo: string): void {
+    this.destacadoCodigo = codigo;
+    this.scrollADestacado(codigo, 24);
+    clearTimeout(this.destacarTimer);
+    this.destacarTimer = setTimeout(() => (this.destacadoCodigo = null), 3000);
+  }
+
+  private scrollADestacado(codigo: string, intentos: number): void {
+    const el = document.getElementById('ped-' + codigo);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (intentos > 0) {
+      setTimeout(() => this.scrollADestacado(codigo, intentos - 1), 150);
+    }
+  }
+
   ngOnDestroy(): void {
+    clearTimeout(this.destacarTimer);
     this.destroy$.next();
     this.destroy$.complete();
     // Limpieza defensiva del modo inmersivo (EF-13: IonicRouteStrategy cachea la

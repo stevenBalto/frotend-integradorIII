@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Cliente, PedidoResumen } from '../../core/models/cliente.model';
 import { ClienteService } from '../../core/services/cliente.service';
 import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
+import { montoCorto } from '../../shared/utils/monto';
 
 type FiltroCliente = 'todos' | 'recientes' | 'sin_compras' | 'top_comprador';
 
@@ -18,6 +19,9 @@ export class AdminClientesPage implements OnInit {
   clientes: Cliente[] = [];
   cargando = false;
   error: string | null = null;
+
+  /** Monto compacto para la pastilla KPI del header (Top comprador). */
+  readonly montoCorto = montoCorto;
 
   // Busqueda + filtro por KPI (el buscador colapsable es el componente compartido admin-search-input)
   busqueda = '';

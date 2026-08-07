@@ -266,13 +266,18 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   background: var(--admin-panel);
   border-bottom: 1px solid var(--admin-border);
 }
-/* Encabezados fijos al hacer scroll vertical dentro de la tabla. */
+/* Encabezados fijos al hacer scroll vertical dentro de la tabla.
+   `will-change: transform` promueve el thead a su propia capa GPU: sin eso, los
+   ion-toggle de las filas (que se animan con transform y viven en capa propia) se
+   pintaban ENCIMA del header sticky al hacer scroll, ignorando el z-index. Con la
+   capa forzada + z-index alto el header vuelve a tapar el contenido que sube. */
 .admin-table thead th,
 .of-table thead th {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 5;
   background: var(--admin-panel);
+  will-change: transform;
 }
 .admin-table th {
   text-align: left;
@@ -748,4 +753,13 @@ body.tabbar-oculto ion-tab-bar { display: none; }
    sidebar ya es off-canvas (hamburguesa), asi que no hace falta tocarlo. */
 @media (min-width: 1024px) {
   body.admin-inmersivo .admin-sidebar { display: none; }
+}
+
+/* ── Copia de los KPIs en el cuerpo de la pagina ───────────────────────────────
+   En movil los KPIs se muestran como tarjetas <admin-kpi-card> dentro de la
+   pagina; en tablet+ se ocultan porque viven en el header (ver .admin-hkpi mas
+   arriba y el carril <admin-hkpi-strip>). Clase unica para las 9 secciones. */
+@media (min-width: 640px) {
+  /* Tablet/PC: los KPIs del cuerpo se ocultan porque viven en el header. */
+  .admin-kpis-body { display: none; }
 }

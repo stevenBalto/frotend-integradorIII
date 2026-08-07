@@ -3,8 +3,8 @@
 
     <!-- Accion en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
-      <admin-btn (clicked)="abrirCrear()">
-        <ion-icon name="person-add-outline"></ion-icon> <span class="hide-on-mobile">Crear usuario</span>
+      <admin-btn [iconOnly]="true" ariaLabel="Crear usuario" (clicked)="abrirCrear()">
+        <ion-icon name="person-add-outline"></ion-icon>
       </admin-btn>
     </ng-template>
 

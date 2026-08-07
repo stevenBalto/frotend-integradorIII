@@ -1,7 +1,7 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <p *ngIf="error" class="inicio-error">{{ error }}</p>
+<p *ngIf="error" class="inicio-error">{{ error }}</p>
 
     <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título).
          En móvil este slot queda oculto y se muestran los KPIs del cuerpo (abajo).
@@ -51,7 +51,7 @@
     </ng-template>
 
     <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 inicio-kpis-body">
+    <div class="admin-grid-4 admin-kpis-body">
       <admin-kpi-card label="Destacados" [value]="destacados.length"
         icon="star-outline" iconBg="#F2B1341a" iconColor="#B8860B"
         [clickable]="true" [active]="filtroInicio === 'destacado'" (cardClick)="filtrarInicio('destacado')"></admin-kpi-card>

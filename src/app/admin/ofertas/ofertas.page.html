@@ -3,13 +3,11 @@
 
     <!-- Accion en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
-      <admin-btn [outline]="true" (clicked)="abrirCanjear()">
+      <admin-btn [outline]="true" [iconOnly]="true" ariaLabel="Canjear código" (clicked)="abrirCanjear()">
         <ion-icon name="qr-code-outline"></ion-icon>
-        <span class="hide-on-mobile">Canjear codigo</span>
       </admin-btn>
-      <admin-btn (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
+      <admin-btn [iconOnly]="true" [ariaLabel]="tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupón'" (clicked)="tab === 'ofertas' ? abrirNuevaOferta() : abrirNuevoCupon()">
         <ion-icon name="add-outline"></ion-icon>
-        <span class="hide-on-mobile">{{ tab === 'ofertas' ? 'Nueva oferta' : 'Nuevo cupon' }}</span>
       </admin-btn>
     </ng-template>
 
@@ -106,7 +104,7 @@
     </ng-template>
 
     <!-- Stats Ofertas (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 of-kpis-body" *ngIf="tab === 'ofertas'">
+    <div class="admin-grid-4 admin-kpis-body" *ngIf="tab === 'ofertas'">
       <admin-kpi-card label="Ofertas totales" [value]="totalOfertas"
         icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroOferta === 'todos'" (cardClick)="setFiltroOferta('todos')"></admin-kpi-card>
@@ -122,7 +120,7 @@
     </div>
 
     <!-- Stats Cupones (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 of-kpis-body" *ngIf="tab === 'cupones'">
+    <div class="admin-grid-4 admin-kpis-body" *ngIf="tab === 'cupones'">
       <admin-kpi-card label="Cupones totales" [value]="totalCupones"
         icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroCupon === 'todos'" (cardClick)="setFiltroCupon('todos')"></admin-kpi-card>

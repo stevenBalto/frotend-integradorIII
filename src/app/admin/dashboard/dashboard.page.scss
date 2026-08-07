@@ -1,11 +1,20 @@
 .dash-loading { font-size: 12px; color: var(--admin-text-muted); margin: 0 0 16px; }
 
-/* Select reutilizable de las cards del dashboard (rango de ventas, filtro pedidos). */
+/* Select reutilizable de las cards del dashboard (rango de ventas, filtro pedidos).
+   La flecha nativa se dibuja pegada al borde; se reemplaza por una SVG propia con
+   offset (background-position: right 12px) para que respire. */
 .dash-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   /* Mas redondeado que un input: los <select> del panel usan 12px. */
   border-radius: 12px;
-  padding: 6px 12px;
-  background: var(--admin-card);
+  padding: 6px 34px 6px 12px;
+  background-color: var(--admin-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
   border: 1px solid var(--admin-border);
   color: var(--admin-text);
   font-size: 11px;
@@ -14,6 +23,103 @@
   cursor: pointer;
 }
 .dash-empty { text-align: center; color: var(--admin-text-muted); font-size: 11px; padding: 16px 0; }
+
+/* Registros de "Últimos pedidos" en MAYÚSCULA (solicitado). Solo el cuerpo de la tabla. */
+.admin-table tbody td { text-transform: uppercase; }
+
+/* Controles de "Últimos pedidos": rango de fechas + filtro por estado, en una fila. */
+.dash-ultimos-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+/* En tablet+ hay espacio de sobra → todos los filtros en una sola fila (sin wrap). */
+@media (min-width: 768px) {
+  .dash-ultimos-controls { flex-wrap: nowrap; }
+}
+/* Indicador "HOY": marca que la tabla muestra los pedidos del día (rango sin tocar). */
+.dash-hoy-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: rgba(225, 54, 66, 0.1);
+  color: var(--admin-accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-family: var(--rooster-font-sans);
+}
+.dash-daterange {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dash-daterange__sep { color: var(--admin-text-muted); font-size: 12px; }
+/* Botón "Fechas" que muestra/oculta los calendarios de rango. Pill con ícono+texto
+   en PC/tablet; en móvil colapsa a solo el ícono (cuadrado 32x32). */
+.dash-cal-toggle {
+  height: 32px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  color: var(--admin-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  ion-icon { font-size: 16px; }
+}
+.dash-cal-toggle:hover { border-color: var(--admin-neutral3); }
+.dash-cal-toggle--active {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  background: rgba(225, 54, 66, 0.06);
+}
+@media (max-width: 767px) {
+  .dash-cal-toggle { width: 32px; padding: 0; justify-content: center; }
+}
+.dash-date {
+  border-radius: 8px;
+  padding: 5px 8px;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--rooster-font-sans);
+  cursor: pointer;
+}
+@media (max-width: 767px) {
+  .dash-ultimos-controls { justify-content: flex-start; }
+  .dash-daterange { flex: 1 1 auto; }
+  .dash-date { flex: 1 1 0; min-width: 0; }
+}
+
+/* Badge de pago en la tabla de últimos pedidos. */
+.pago-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  ion-icon { font-size: 12px; }
+}
+.pago-badge--si { background: rgba(22, 163, 74, 0.12); color: #15803D; }
+.pago-badge--no { background: rgba(107, 114, 128, 0.14); color: #6B7280; }
 
 /* ── Grid gráfico + card de pedidos nuevos ─────────────────────────────────── */
 .dash-charts {
@@ -67,24 +173,28 @@
   flex-shrink: 0;
 }
 .new-orders__bell ion-icon { font-size: 16px; color: var(--admin-accent); }
-.new-orders__ping {
+/* Badge con el número de pedidos nuevos (en la esquina de la campanita), estilo
+   notificación — mismo lenguaje que el contador de la campana del header. */
+.new-orders__badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 9999px;
   background: var(--admin-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;      /* centrado real via flex, sin depender del line-height */
+  border: 2px solid var(--admin-card);
 }
 .new-orders__title { font-size: 13px; font-weight: 700; color: var(--admin-text); }
-.new-orders__count {
-  border-radius: 9999px;
-  padding: 2px 8px;
-  background: rgba(225, 54, 66, 0.08);
-  color: var(--admin-accent);
-  font-size: 10px;
-  font-weight: 700;
-}
 .new-orders__list {
   flex: 1;
   display: flex;
@@ -131,30 +241,38 @@
 .new-order__chevron { font-size: 14px; color: var(--admin-text-soft); flex-shrink: 0; }
 .new-order-empty { font-size: 11px; color: var(--admin-text-muted); text-align: center; padding: 12px 0; margin: 0; }
 
-.new-orders__cta {
-  width: 100%;
-  display: flex;
+/* Botón-ícono arriba-derecha de la card de pedidos nuevos → va a Pedidos.
+   Animación sencilla y liviana (solo transform, GPU): la flecha hace un "bob"
+   suave y en hover se desliza. Respeta prefers-reduced-motion. */
+.new-orders__go {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   border-radius: 8px;
-  padding: 10px;
-  border: none;
-  background: var(--admin-accent);
-  color: #fff;
-  font-family: var(--rooster-font-sans);
-  font-size: 12px;
-  font-weight: 700;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  color: var(--admin-accent);
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
-.new-orders__cta:active { transform: scale(0.98); }
-.new-orders__cta ion-icon { font-size: 14px; }
-
-/* ── Reparto móvil (<640px) ↔ tablet+ (>=640px) de los KPIs ─────────────────────
-   Mismo criterio que Pedidos: en tablet/PC los KPIs viven en el header (portal
-   [adminHeaderLead], estilos .admin-hkpi en global.scss) y en móvil se muestran
-   como tarjetas en el cuerpo, donde el saludo del header sigue visible. */
-@media (min-width: 640px) {
-  .dash-kpis-body { display: none; }
+.new-orders__go ion-icon {
+  font-size: 16px;
+  animation: new-orders-go-bob 1.8s ease-in-out infinite;
+  will-change: transform;
+}
+.new-orders__go:hover {
+  background: rgba(225, 54, 66, 0.08);
+  border-color: rgba(225, 54, 66, 0.4);
+}
+.new-orders__go:hover ion-icon { animation: none; transform: translateX(2px); }
+.new-orders__go:active { transform: scale(0.94); }
+@keyframes new-orders-go-bob {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .new-orders__go ion-icon { animation: none; }
 }

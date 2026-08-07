@@ -64,6 +64,11 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+// Los KPIs viven en el header desde tablet+ (>=640px); el grid del cuerpo se
+// oculta ahí (va después del base para ganar por orden a igual especificidad).
+@media (min-width: 640px) {
+  .res-kpis.admin-kpis-body { display: none; }
+}
 
 // ── Picker visual de producto (item 26): despliega productos con imagen ──
 .res-prodpicker { position: relative; min-width: 200px; }
@@ -239,11 +244,3 @@
 .res-empty ion-icon { font-size: 40px; opacity: 0.5; }
 .res-empty p { font-size: 13px; margin: 0; }
 .res-empty--error ion-icon { color: #dc2626; opacity: 0.8; }
-
-/* ── Reparto móvil (<640px) ↔ tablet+ (>=640px) de los KPIs ─────────────────────
-   Igual que el resto del panel: en tablet/PC los KPIs viven en el header (portal
-   [adminHeaderLead], carril <admin-hkpi-strip> con flechas) y en móvil se muestran
-   como tarjetas en el cuerpo. */
-@media (min-width: 640px) {
-  .res-kpis-body { display: none; }
-}

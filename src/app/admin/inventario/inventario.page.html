@@ -3,12 +3,12 @@
 
     <!-- Acción en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
-      <admin-btn (clicked)="abrirNuevo()">
-        <ion-icon name="add-outline"></ion-icon> <span class="hide-on-mobile">Nuevo insumo</span>
+      <admin-btn [iconOnly]="true" ariaLabel="Nuevo insumo" (clicked)="abrirNuevo()">
+        <ion-icon name="add-outline"></ion-icon>
       </admin-btn>
     </ng-template>
 
-    <!-- Stats / filtros -->
+<!-- Stats / filtros -->
     <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título; el botón
          "Nuevo insumo" sigue en el grupo derecho). En móvil este slot queda oculto y
          se muestran los KPIs del cuerpo. Estilos .admin-hkpi en global.scss. -->
@@ -58,7 +58,7 @@
     </ng-template>
 
     <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 inv-kpis-body">
+    <div class="admin-grid-4 admin-kpis-body">
       <admin-kpi-card label="Insumos totales" [value]="totalInsumos"
         icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>

@@ -213,7 +213,17 @@
   }
   /* En páginas con lead (Pedidos), el título/breadcrumb cede su espacio a los KPIs. */
   .admin-header__left--haslead .admin-header__titlewrap { display: none; }
+  /* Secciones "kpimode": en tablet+ el título se oculta (los KPIs del lead ocupan
+     su lugar, o queda limpio en las que no tienen KPIs). */
+  .admin-header__left--kpimode .admin-header__title,
+  .admin-header__left--kpimode .admin-header__greeting { display: none; }
 }
+
+/* Secciones "kpimode": el subtítulo/breadcrumb (y la submeta del saludo) NO se
+   muestran nunca — en móvil se ve SOLO el título. En tablet+ el título también se
+   oculta (regla de arriba dentro del @media). */
+.admin-header__left--kpimode .admin-header__meta,
+.admin-header__left--kpimode .admin-header__submeta { display: none; }
 .admin-header__meta {
   display: flex;
   align-items: center;

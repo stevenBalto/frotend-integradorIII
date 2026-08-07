@@ -3,18 +3,18 @@
 
     <!-- Acciones en el header global (junto a la campana) -->
     <ng-template adminHeaderActions>
-      <admin-btn [outline]="true" (clicked)="abrirNuevaCategoria()">
-        <ion-icon name="albums-outline"></ion-icon> <span class="hide-on-mobile">Categoría</span>
+      <admin-btn [outline]="true" [iconOnly]="true" ariaLabel="Nueva categoría" (clicked)="abrirNuevaCategoria()">
+        <ion-icon name="albums-outline"></ion-icon>
       </admin-btn>
-      <admin-btn [outline]="true" (clicked)="abrirExtrasMgr()">
-        <ion-icon name="pricetags-outline"></ion-icon> <span class="hide-on-mobile">Extras</span>
+      <admin-btn [outline]="true" [iconOnly]="true" ariaLabel="Extras" (clicked)="abrirExtrasMgr()">
+        <ion-icon name="pricetags-outline"></ion-icon>
       </admin-btn>
-      <admin-btn (clicked)="abrirNuevo()">
-        <ion-icon name="add-outline"></ion-icon> <span class="hide-on-mobile">Nuevo producto</span>
+      <admin-btn [iconOnly]="true" ariaLabel="Nuevo producto" (clicked)="abrirNuevo()">
+        <ion-icon name="add-outline"></ion-icon>
       </admin-btn>
     </ng-template>
 
-    <!-- Stats (clic = filtro con focus) -->
+<!-- Stats (clic = filtro con focus) -->
     <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título). Como
          Menú tiene varios botones a la derecha, el carril los corre con flechas
          cuando no caben. En móvil el slot queda oculto y van al cuerpo. -->
@@ -64,7 +64,7 @@
     </ng-template>
 
     <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 menu-kpis-body">
+    <div class="admin-grid-4 admin-kpis-body">
       <admin-kpi-card label="Productos totales" [value]="productos.length"
         icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroEstadoMenu === 'todos'" (cardClick)="filtrarMenu('todos')"></admin-kpi-card>

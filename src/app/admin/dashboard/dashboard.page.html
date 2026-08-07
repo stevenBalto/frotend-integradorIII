@@ -1,7 +1,7 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <p *ngIf="cargando" class="dash-loading">Cargando dashboard...</p>
+<p *ngIf="cargando" class="dash-loading">Cargando dashboard...</p>
 
     <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del saludo, que el
          shell oculta cuando la página publica un lead). En móvil este slot queda
@@ -9,7 +9,7 @@
     <ng-template adminHeaderLead>
       <admin-hkpi-strip *ngIf="resumen as r">
         <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'pedidos_hoy'"
-          (click)="seleccionarKpi('pedidos_hoy', 'hoy')">
+          (click)="seleccionarKpi('pedidos_hoy', 'todos')">
           <span class="admin-hkpi__icon" style="background: #6B728014">
             <ion-icon name="clipboard-outline" style="color: #374151"></ion-icon>
           </span>
@@ -65,10 +65,10 @@
     </ng-template>
 
     <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
-    <div class="admin-grid-4 dash-kpis-body" *ngIf="resumen as r">
+    <div class="admin-grid-4 admin-kpis-body" *ngIf="resumen as r">
       <admin-kpi-card label="Pedidos hoy" [value]="r.pedidos_hoy" [sub]="variacionTexto(r.pedidos_hoy_variacion)" [subColor]="variacionColor(r.pedidos_hoy_variacion)"
         icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
-        [clickable]="true" [active]="kpiSel === 'pedidos_hoy'" (cardClick)="seleccionarKpi('pedidos_hoy', 'hoy')"></admin-kpi-card>
+        [clickable]="true" [active]="kpiSel === 'pedidos_hoy'" (cardClick)="seleccionarKpi('pedidos_hoy', 'todos')"></admin-kpi-card>
       <admin-kpi-card label="Ventas hoy" [value]="(r.ventas_hoy | crcCurrency)" [sub]="variacionTexto(r.ventas_hoy_variacion)" [subColor]="variacionColor(r.ventas_hoy_variacion)"
         icon="trending-up-outline" iconBg="#16A34A1a" iconColor="#16A34A"
         [clickable]="true" [active]="kpiSel === 'ventas_hoy'" (cardClick)="seleccionarKpi('ventas_hoy', 'entregado')"></admin-kpi-card>
@@ -101,15 +101,17 @@
           <div class="new-orders__title-wrap">
             <div class="new-orders__bell">
               <ion-icon name="notifications-outline"></ion-icon>
-              <span class="new-orders__ping" *ngIf="r.pedidos_nuevos.length"></span>
+              <span class="new-orders__badge" *ngIf="r.pedidos_nuevos.length">{{ r.pedidos_nuevos.length > 99 ? '99+' : r.pedidos_nuevos.length }}</span>
             </div>
             <span class="new-orders__title">Pedidos nuevos</span>
           </div>
-          <span class="new-orders__count">{{ r.pedidos_nuevos.length }} nuevos</span>
+          <button type="button" class="new-orders__go" (click)="irAPedidos()" aria-label="Ver todos los pedidos" title="Ver todos los pedidos">
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
         </div>
 
         <div class="new-orders__list">
-          <button type="button" class="new-order" *ngFor="let o of r.pedidos_nuevos" (click)="irAPedidos()">
+          <button type="button" class="new-order" *ngFor="let o of r.pedidos_nuevos" (click)="irAPedido(o)">
             <div class="new-order__left">
               <div class="new-order__icon">
                 <ion-icon name="clipboard-outline"></ion-icon>
@@ -128,25 +130,38 @@
 
           <p class="new-order-empty" *ngIf="!r.pedidos_nuevos.length">No hay pedidos pendientes por ahora.</p>
         </div>
-
-        <button type="button" class="new-orders__cta" (click)="irAPedidos()">
-          Ver todos los pedidos
-          <ion-icon name="arrow-forward-outline"></ion-icon>
-        </button>
       </div>
     </div>
 
     <!-- Últimos pedidos -->
     <admin-section-card id="dash-ultimos" title="Últimos pedidos" *ngIf="resumen as r">
-      <select card-action class="dash-select" [(ngModel)]="filtroUltimos" (ngModelChange)="kpiSel = null">
-        <option *ngFor="let f of filtrosUltimos" [ngValue]="f.v">{{ f.l }}</option>
-      </select>
+      <!-- Rango de fechas (independiente del gráfico de ventas) + filtro por estado.
+           Sin tocar el rango, por defecto son los pedidos de HOY. -->
+      <div card-action class="dash-ultimos-controls">
+        <!-- Indicador "HOY": los últimos pedidos son los del día. Desaparece al filtrar por rango. -->
+        <span class="dash-hoy-pill" *ngIf="rangoEsHoy">HOY</span>
+        <!-- Por defecto = hoy. El calendario (rango) aparece solo si se toca "Fechas".
+             En móvil el botón es solo el ícono del calendario. -->
+        <button type="button" class="dash-cal-toggle" [class.dash-cal-toggle--active]="rangoAbierto"
+          (click)="toggleRango()" aria-label="Filtrar por rango de fechas" title="Filtrar por rango de fechas">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span class="hide-on-mobile">Fechas</span>
+        </button>
+        <div class="dash-daterange" *ngIf="rangoAbierto">
+          <input type="date" class="dash-date" [(ngModel)]="ultimosDesde" (ngModelChange)="cambiarRangoUltimos()" aria-label="Desde" />
+          <span class="dash-daterange__sep">–</span>
+          <input type="date" class="dash-date" [(ngModel)]="ultimosHasta" (ngModelChange)="cambiarRangoUltimos()" aria-label="Hasta" />
+        </div>
+        <select class="dash-select" [(ngModel)]="filtroUltimos" (ngModelChange)="kpiSel = null">
+          <option *ngFor="let f of filtrosUltimos" [ngValue]="f.v">{{ f.l }}</option>
+        </select>
+      </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
             <tr>
               <th>ID Pedido</th><th>Fecha</th><th>Cliente</th>
-              <th>Modalidad</th><th>Total</th><th>Estado</th>
+              <th>Modalidad</th><th>Total</th><th>Estado</th><th>Pago</th>
             </tr>
           </thead>
           <tbody>
@@ -157,9 +172,15 @@
               <td><modality-pill [mode]="modoModalidad(o.modalidad)"></modality-pill></td>
               <td class="admin-table__strong">{{ o.total | crcCurrency }}</td>
               <td><status-badge [type]="estadoToStatusType(o.estado)"></status-badge></td>
+              <td>
+                <span class="pago-badge" [class.pago-badge--si]="o.pagado" [class.pago-badge--no]="!o.pagado">
+                  <ion-icon [name]="o.pagado ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  {{ o.pagado ? 'Pagado' : 'No pagado' }}
+                </span>
+              </td>
             </tr>
             <tr *ngIf="ultimosPedidosFiltrados.length === 0">
-              <td colspan="6" class="dash-empty">Ningún pedido con este filtro.</td>
+              <td colspan="7" class="dash-empty">Ningún pedido con este filtro.</td>
             </tr>
           </tbody>
         </table>

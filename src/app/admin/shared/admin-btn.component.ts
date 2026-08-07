@@ -10,6 +10,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       class="admin-btn"
       [class.admin-btn--outline]="outline"
       [class.admin-btn--small]="small"
+      [class.admin-btn--icon]="iconOnly"
+      [attr.aria-label]="ariaLabel || null"
+      [attr.title]="ariaLabel || null"
       (click)="clicked.emit()"
     >
       <ng-content></ng-content>
@@ -40,10 +43,24 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     }
     .admin-btn--small { padding: 6px 14px; font-size: 11px; }
     .admin-btn--small ion-icon { font-size: 13px; }
+    /* Icon-only: cuadrado estandar del header (32x32, icono 16). El texto ya no
+       se proyecta; el tooltip/aria-label da el significado. */
+    .admin-btn--icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      gap: 0;
+      justify-content: center;
+    }
+    .admin-btn--icon ion-icon { font-size: 16px; }
   `],
 })
 export class AdminBtnComponent {
   @Input() outline = false;
   @Input() small = false;
+  /** Botón cuadrado 32x32 solo-ícono (estándar del header). */
+  @Input() iconOnly = false;
+  /** Etiqueta accesible + tooltip cuando el botón va sin texto. */
+  @Input() ariaLabel = '';
   @Output() clicked = new EventEmitter<void>();
 }
