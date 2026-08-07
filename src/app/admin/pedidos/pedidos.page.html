@@ -114,7 +114,9 @@
           </thead>
           <tbody>
             <tr *ngFor="let p of pedidosFiltrados" class="ped-row"
+              [id]="'ped-' + p.codigo"
               [class.ped-row--invitado]="p.es_invitado" [class.ped-row--registrado]="!p.es_invitado"
+              [class.ped-row--destacado]="destacadoCodigo === p.codigo"
               (click)="abrirDetalle(p)">
               <td class="admin-table__strong">{{ p.codigo }}</td>
               <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>

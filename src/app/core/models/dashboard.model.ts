@@ -24,6 +24,7 @@ export interface UltimoPedido {
   cantidad: number;
   total: number;
   estado: PedidoEstado;
+  pagado: boolean;
   created_at: string;
 }
 
