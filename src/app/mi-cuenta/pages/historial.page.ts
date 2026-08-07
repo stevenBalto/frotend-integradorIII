@@ -13,20 +13,20 @@ import { MODALIDAD_LABEL } from '../../shared/constants/modalidad';
     .hist-card { }
     .hist-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
     .hist-codigo-row { display: flex; align-items: center; gap: 6px; }
-    .hist-codigo { font-family: var(--rooster-font-sans); font-size: 15px; font-weight: 800; color: var(--rooster-dark); }
+    .hist-codigo { font-family: var(--client-font-body); font-size: 15px; font-weight: 800; color: var(--client-text); }
     .hist-copy {
       width: 24px; height: 24px; border: none; border-radius: 7px; background: #fff1f2;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
-      ion-icon { font-size: 13px; color: var(--rooster-red); }
+      ion-icon { font-size: 13px; color: var(--client-red); }
       &:active { transform: scale(0.9); }
     }
-    .hist-badge { font-family: var(--rooster-font-sans); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; background: #DCFCE7; color: #15803D; flex-shrink: 0; }
-    .hist-fecha { font-family: var(--rooster-font-sans); font-size: 11px; color: var(--rooster-brown); margin: 0 0 10px; }
-    .hist-item { display: flex; justify-content: space-between; gap: 8px; font-family: var(--rooster-font-sans); font-size: 12px; color: var(--rooster-dark); margin-bottom: 4px; }
+    .hist-badge { font-family: var(--client-font-body); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; background: #DCFCE7; color: #15803D; flex-shrink: 0; }
+    .hist-fecha { font-family: var(--client-font-body); font-size: 11px; color: var(--client-text-muted); margin: 0 0 10px; }
+    .hist-item { display: flex; justify-content: space-between; gap: 8px; font-family: var(--client-font-body); font-size: 12px; color: var(--client-text); margin-bottom: 4px; }
     .hist-item__name { font-weight: 600; }
     .hist-foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.06); margin-top: 8px; padding-top: 10px; }
-    .hist-suc { font-family: var(--rooster-font-sans); font-size: 12px; color: var(--rooster-brown); display: flex; align-items: center; gap: 4px; ion-icon { font-size: 14px; } }
-    .hist-total { font-family: var(--rooster-font-sans); font-size: 15px; font-weight: 800; color: var(--rooster-red); }
+    .hist-suc { font-family: var(--client-font-body); font-size: 12px; color: var(--client-text-muted); display: flex; align-items: center; gap: 4px; ion-icon { font-size: 14px; } }
+    .hist-total { font-family: var(--client-font-body); font-size: 15px; font-weight: 800; color: var(--client-red); }
   `],
   template: `
     <ion-content [fullscreen]="true" class="sub-content">

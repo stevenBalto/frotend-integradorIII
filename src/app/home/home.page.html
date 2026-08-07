@@ -1,14 +1,28 @@
 <ion-content [fullscreen]="true" class="home-content">
 
-  <!-- Encabezado (igual que en Carrito: titulo + boton de buscar codigo + logo) -->
+  <!-- Encabezado: negro solido, isotipo real de marca, sin degradados ni emojis -->
   <div class="home-header">
-    <div class="home-header__titles">
-      <h2 class="home-header__title">Que vas a pedir hoy?</h2>
-    </div>
     <button type="button" class="home-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
       <ion-icon name="receipt-outline"></ion-icon>
     </button>
-    <img src="assets/logo/rooster-logo.png" alt="Rooster" class="home-header__logo" />
+    <div class="home-header__hero">
+      <div class="home-header__copy">
+        <h1 class="home-header__title">¿Qué vas a pedir hoy?</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rail de categorias de marca -->
+  <div class="home-section home-section--tight">
+    <div class="home-section__row">
+      <span class="home-section__label">Categorías</span>
+    </div>
+    <div class="cat-rail">
+      <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas" routerLink="/tabs/pedir">
+        <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
+        <span class="cat-rail__label">{{ c.label }}</span>
+      </a>
+    </div>
   </div>
 
   <p *ngIf="error" class="home-section__error" style="padding: 0 20px;">{{ error }}</p>
@@ -20,13 +34,11 @@
     </div>
     <div class="promo-scroll">
       <div class="promo-card promo-card--oferta" *ngFor="let o of ofertas; let i = index" (click)="verQrOferta(o)">
-        <div class="promo-card__icon-wrap">
-          <div class="promo-card__icon-circle" [style.background]="colorFor(i)">
-            <ion-icon [name]="iconOferta(o)"></ion-icon>
-          </div>
+        <span class="promo-card__ribbon">{{ descuentoOferta(o) }}</span>
+        <div class="promo-card__icon-circle">
+          <ion-icon [name]="iconOferta(o)"></ion-icon>
         </div>
         <div class="promo-card__body">
-          <span class="promo-card__badge" [style.background]="colorFor(i)">{{ descuentoOferta(o) }}</span>
           <span class="promo-card__title">{{ o.nombre }}</span>
           <span class="promo-card__desc" *ngIf="o.descripcion">{{ o.descripcion }}</span>
         </div>
@@ -41,14 +53,13 @@
     </div>
     <div class="promo-scroll">
       <div class="promo-card promo-card--cupon" *ngFor="let c of cupones; let i = index" (click)="verQrCupon(c)">
-        <div class="promo-card__icon-wrap">
-          <div class="promo-card__icon-circle" [style.background]="colorFor(i)">
-            <ion-icon [name]="iconCupon(c)"></ion-icon>
-          </div>
+        <span class="promo-card__ribbon promo-card__ribbon--cupon">CUPÓN</span>
+        <div class="promo-card__icon-circle">
+          <ion-icon [name]="iconCupon(c)"></ion-icon>
         </div>
         <div class="promo-card__perforation"></div>
         <div class="promo-card__body">
-          <span class="promo-card__code" [style.color]="colorFor(i)">{{ c.codigo }}</span>
+          <span class="promo-card__code">{{ c.codigo }}</span>
           <span class="promo-card__desc">
             {{ descuentoCupon(c) }}<ng-container *ngIf="c.monto_minimo"> · mín. {{ c.monto_minimo | crcCurrency }}</ng-container>
           </span>
@@ -57,7 +68,13 @@
     </div>
   </div>
 
-  <p *ngIf="cargando" class="home-section__loading" style="padding: 0 20px;">Cargando menú...</p>
+  <div class="home-skeleton-row" *ngIf="cargando">
+    <div class="home-skeleton-card" *ngFor="let s of [1,2,3]">
+      <div class="home-skeleton-card__img rooster-skeleton"></div>
+      <div class="home-skeleton-card__line rooster-skeleton"></div>
+      <div class="home-skeleton-card__line home-skeleton-card__line--sm rooster-skeleton"></div>
+    </div>
+  </div>
 
   <!-- Destacados -->
   <div class="home-section" *ngIf="!cargando && destacados.length > 0">
@@ -92,21 +109,24 @@
 
 <ng-template #dishGrid let-lista="lista">
   <div class="dish-grid">
-    <div class="dish-card" *ngFor="let p of lista" (click)="abrirDetalle(p)">
-      <div class="dish-card__img dish-card__img--placeholder" *ngIf="!p.imagen_url">
-        <ion-icon name="restaurant-outline"></ion-icon>
+    <article class="dish-card" *ngFor="let p of lista" (click)="abrirDetalle(p)">
+      <div class="dish-card__media">
+        <img [src]="p.imagen_url || demoImagen(p.id)" [alt]="p.nombre" class="dish-card__img" loading="lazy" />
+        <span class="dish-card__price">{{ p.precio_base | crcCurrency }}</span>
+        <button type="button" class="dish-card__add" (click)="abrirDetalle(p); $event.stopPropagation()" aria-label="Agregar">
+          <ion-icon name="add"></ion-icon>
+        </button>
       </div>
-      <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="dish-card__img" loading="lazy" />
       <div class="dish-card__body">
+        <span class="dish-card__cat" *ngIf="p.categoria">{{ p.categoria }}</span>
         <span class="dish-card__name">{{ p.nombre }}</span>
+        <span class="dish-card__desc">{{ p.descripcion }}</span>
         <span class="dish-card__rating" *ngIf="p.resenas_count > 0">
           <ion-icon name="star"></ion-icon>{{ p.calificacion_promedio }}
-          <span class="dish-card__rating-count">· {{ p.resenas_count }}</span>
+          <span class="dish-card__rating-count">({{ p.resenas_count }})</span>
         </span>
-        <span class="dish-card__desc">{{ p.descripcion }}</span>
-        <span class="dish-card__price">{{ p.precio_base | crcCurrency }}</span>
       </div>
-    </div>
+    </article>
   </div>
 </ng-template>
 
@@ -119,8 +139,7 @@
     </button>
 
     <div class="dish-modal__img">
-    <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" loading="lazy" />
-      <ion-icon *ngIf="!productoDetalle.imagen_url" name="restaurant-outline"></ion-icon>
+      <img [src]="productoDetalle.imagen_url || demoImagen(productoDetalle.id)" [alt]="productoDetalle.nombre" loading="lazy" />
     </div>
 
     <div class="dish-modal__body">

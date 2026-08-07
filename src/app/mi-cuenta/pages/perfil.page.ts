@@ -13,27 +13,27 @@ import { Usuario } from '../../core/models/usuario.model';
     .perfil-avatar {
       width: 82px; height: 82px; border-radius: 26px; background: #fff1f2;
       display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
-      ion-icon { font-size: 44px; color: var(--rooster-red); }
+      ion-icon { font-size: 44px; color: var(--client-red); }
     }
-    .perfil-nombre { font-family: var(--rooster-font-serif); font-size: 21px; font-weight: 700; color: var(--rooster-dark); margin: 0; }
-    .perfil-rol { font-family: var(--rooster-font-sans); font-size: 12px; color: var(--rooster-brown); margin: 4px 0 0; text-transform: capitalize; }
+    .perfil-nombre { font-family: var(--client-font-display); font-size: 21px; font-weight: 700; color: var(--client-text); margin: 0; }
+    .perfil-rol { font-family: var(--client-font-body); font-size: 12px; color: var(--client-text-muted); margin: 4px 0 0; text-transform: capitalize; }
     .dato {
       display: flex; align-items: center; gap: 12px; padding: 14px 4px;
       border-bottom: 1px solid rgba(0,0,0,0.06);
       &:last-child { border-bottom: none; }
     }
-    .dato__icon { width: 36px; height: 36px; border-radius: 11px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; ion-icon { font-size: 17px; color: var(--rooster-brown); } }
-    .dato__label { font-family: var(--rooster-font-sans); font-size: 11px; color: var(--rooster-brown); margin: 0; }
-    .dato__value { font-family: var(--rooster-font-sans); font-size: 14px; font-weight: 600; color: var(--rooster-dark); margin: 1px 0 0; }
+    .dato__icon { width: 36px; height: 36px; border-radius: 11px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; ion-icon { font-size: 17px; color: var(--client-text-muted); } }
+    .dato__label { font-family: var(--client-font-body); font-size: 11px; color: var(--client-text-muted); margin: 0; }
+    .dato__value { font-family: var(--client-font-body); font-size: 14px; font-weight: 600; color: var(--client-text); margin: 1px 0 0; }
     .perfil-action {
       display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px;
       background: #fff; border: none; border-radius: 14px; margin-top: 14px; cursor: pointer;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      ion-icon:first-child { font-size: 18px; color: var(--rooster-red); }
+      ion-icon:first-child { font-size: 18px; color: var(--client-red); }
       &:active { transform: scale(0.99); }
     }
-    .perfil-action__label { flex: 1; text-align: left; font-family: var(--rooster-font-sans); font-size: 14px; font-weight: 600; color: var(--rooster-dark); }
-    .perfil-action__arrow { font-size: 16px; color: var(--rooster-gold, #a8895e); }
+    .perfil-action__label { flex: 1; text-align: left; font-family: var(--client-font-body); font-size: 14px; font-weight: 600; color: var(--client-text); }
+    .perfil-action__arrow { font-size: 16px; color: var(--client-text-muted); }
   `],
   template: `
     <ion-content [fullscreen]="true" class="sub-content">

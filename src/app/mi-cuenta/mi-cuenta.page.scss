@@ -1,5 +1,5 @@
 .cuenta-content {
-  --background: var(--rooster-bg);
+  --background: var(--client-bg);
 }
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
@@ -7,23 +7,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 20px 24px;
+  padding: 24px 20px 24px;
 
   @media (min-width: 768px) {
-    padding: 32px 32px 32px;
+    padding: 40px 32px 32px;
     max-width: 768px;
     margin: 0 auto;
   }
 
   &__title {
-    font-family: var(--rooster-font-serif);
-    font-size: 21px;
+    font-family: var(--client-font-display);
+    font-size: 24px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-ink);
     margin: 0;
+    letter-spacing: -0.01em;
 
     @media (min-width: 768px) {
-      font-size: 30px;
+      font-size: 32px;
     }
   }
 
@@ -44,22 +45,23 @@
   align-items: center;
   gap: 16px;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: var(--rooster-radius-md);
   padding: 16px;
-  margin: 0 20px 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin: 0 20px 16px;
+  box-shadow: var(--rooster-shadow-sm);
+  border: 1px solid rgba(20, 17, 15, 0.05);
+  animation: rooster-rise var(--rooster-ease-med) both;
 
   @media (min-width: 768px) {
     max-width: 728px;
-    margin: 0 auto 24px;
+    margin: 0 auto 20px;
   }
 
   &__avatar {
     width: 56px;
     height: 56px;
-    border-radius: 16px;
-    background: #fff1f2;
+    border-radius: var(--rooster-radius-sm);
+    background: linear-gradient(135deg, #fff1f2, #ffe4e6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,7 +69,7 @@
 
     ion-icon {
       font-size: 28px;
-      color: var(--rooster-red);
+      color: var(--client-red);
     }
   }
 
@@ -77,10 +79,10 @@
   }
 
   &__name {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 16px;
-    font-weight: 700;
-    color: var(--rooster-dark);
+    font-weight: 800;
+    color: var(--client-ink);
     margin: 0 0 3px;
     white-space: nowrap;
     overflow: hidden;
@@ -88,9 +90,9 @@
   }
 
   &__email {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -100,16 +102,17 @@
   &__edit {
     flex-shrink: 0;
     background: #fff1f2;
-    border: 1px solid rgba(225, 54, 66, 0.15);
-    border-radius: 12px;
-    padding: 8px 12px;
-    font-family: var(--rooster-font-sans);
+    border: 1px solid rgba(var(--client-red-rgb), 0.15);
+    border-radius: var(--rooster-radius-sm);
+    padding: 8px 14px;
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 700;
-    color: var(--rooster-red);
+    color: var(--client-red);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform var(--rooster-ease-fast), background var(--rooster-ease-fast);
 
+    &:hover { background: #ffe4e6; }
     &:active {
       transform: scale(0.95);
     }
@@ -127,22 +130,22 @@
   }
 
   &__title {
-    font-family: var(--rooster-font-sans);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--rooster-brown);
+    font-family: var(--client-font-body);
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--client-text-muted);
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin: 0 0 8px 4px;
+    letter-spacing: 0.12em;
+    margin: 0 0 10px 4px;
   }
 }
 
 .cuenta-group {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: var(--rooster-radius-md);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--rooster-shadow-sm);
+  border: 1px solid rgba(20, 17, 15, 0.05);
 }
 
 /* ── Fila de cuenta ─────────────────────────────────────────────────────────── */
@@ -151,85 +154,104 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 15px 16px;
   background: none;
   border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(20, 17, 15, 0.05);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--rooster-ease-fast);
 
-  &:active { background: #f9f9f9; }
+  &:hover { background: rgba(20, 17, 15, 0.02); }
+  &:active { background: #f3efe8; }
   &--last { border-bottom: none; }
 
   &__icon-wrap {
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-    background: #f5f5f5;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--rooster-radius-sm);
+    background: var(--client-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: transform var(--rooster-ease-fast);
 
     ion-icon {
-      font-size: 16px;
-      color: var(--rooster-brown);
+      font-size: 17px;
+      color: var(--client-text-muted);
     }
 
     &--danger {
       background: #fff1f2;
-      ion-icon { color: var(--rooster-red); }
+      ion-icon { color: var(--client-red); }
     }
   }
 
+  &:hover &__icon-wrap { transform: scale(1.06); }
+
   &__label {
     flex: 1;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 14px;
     font-weight: 600;
-    color: var(--rooster-dark);
+    color: var(--client-text);
     text-align: left;
 
-    &--danger { color: var(--rooster-red); }
+    &--danger { color: var(--client-red); }
   }
 
   &__arrow {
     flex-shrink: 0;
     font-size: 16px;
-    color: var(--rooster-gold, #a8895e);
+    color: var(--client-text-muted);
+    transition: transform var(--rooster-ease-fast);
   }
+
+  &:hover &__arrow { transform: translateX(2px); }
 }
 
 /* ── Roosters (tarjeta destacada) ───────────────────────────────────────────── */
 .rooster-card {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: calc(100% - 40px);
-  margin: 0 20px 20px;
-  padding: 16px;
+  margin: 0 20px 16px;
+  padding: 18px;
   border: none;
-  border-radius: 16px;
+  border-radius: var(--rooster-radius-md);
   cursor: pointer;
-  background: linear-gradient(135deg, #7a1f27 0%, var(--rooster-red, #e13642) 100%);
-  box-shadow: 0 8px 24px rgba(225, 54, 66, 0.28);
-  transition: transform 0.1s;
+  overflow: hidden;
+  background: var(--client-red);
+  box-shadow: var(--client-shadow-red), var(--rooster-shadow-md);
+  transition: transform var(--rooster-ease-fast);
+  animation: rooster-rise var(--rooster-ease-med) 0.05s both;
 
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 90% -10%, rgba(var(--client-amber-rgb), 0.16), transparent 55%);
+    pointer-events: none;
+  }
+
+  &:hover { transform: translateY(-2px); }
   &:active { transform: scale(0.98); }
 
   @media (min-width: 768px) {
     max-width: 728px;
-    margin: 0 auto 24px;
+    margin: 0 auto 20px;
     width: 100%;
   }
 
-  &__left { display: flex; align-items: center; gap: 14px; }
+  &__left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
 
   &__icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.18);
+    width: 46px;
+    height: 46px;
+    border-radius: var(--rooster-radius-sm);
+    background: rgba(255, 255, 255, 0.16);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,7 +261,7 @@
   }
 
   &__label {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.85);
@@ -247,14 +269,14 @@
   }
 
   &__balance {
-    font-family: var(--rooster-font-serif);
-    font-size: 22px;
+    font-family: var(--client-font-display);
+    font-size: 23px;
     font-weight: 800;
     color: #fff;
     margin: 0;
   }
 
-  &__arrow { font-size: 20px; color: rgba(255, 255, 255, 0.8); flex-shrink: 0; }
+  &__arrow { position: relative; z-index: 1; font-size: 20px; color: rgba(255, 255, 255, 0.8); flex-shrink: 0; }
 }
 
 /* ── Invitado (sin sesion) ──────────────────────────────────────────────────── */
@@ -263,63 +285,66 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 24px 28px 40px;
+  padding: 32px 28px 40px;
   max-width: 420px;
   margin: 0 auto;
+  animation: rooster-rise var(--rooster-ease-med) both;
 
   &__icon {
-    width: 88px;
-    height: 88px;
-    border-radius: 28px;
-    background: #fff1f2;
+    width: 92px;
+    height: 92px;
+    border-radius: var(--rooster-radius-xl);
+    background: linear-gradient(135deg, #fff1f2, #ffe4e6);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
+    box-shadow: var(--rooster-shadow-sm);
 
-    ion-icon { font-size: 48px; color: var(--rooster-red); }
+    ion-icon { font-size: 48px; color: var(--client-red); }
   }
 
   &__title {
-    font-family: var(--rooster-font-serif);
-    font-size: 22px;
+    font-family: var(--client-font-display);
+    font-size: 23px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-ink);
     margin: 0 0 10px;
   }
 
   &__text {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 14px;
-    line-height: 1.5;
-    color: var(--rooster-brown);
-    margin: 0 0 24px;
+    line-height: 1.55;
+    color: var(--client-text-muted);
+    margin: 0 0 26px;
   }
 
   &__btn {
     width: 100%;
-    padding: 15px;
-    border-radius: 16px;
-    font-family: var(--rooster-font-sans);
+    padding: 16px;
+    border-radius: var(--rooster-radius-md);
+    font-family: var(--client-font-body);
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
     margin-bottom: 12px;
-    transition: transform 0.1s;
+    transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
 
+    &:hover { filter: brightness(1.04); }
     &:active { transform: scale(0.97); }
 
     &--primary {
       border: none;
-      background: var(--rooster-red);
+      background: var(--client-red);
       color: #fff;
-      box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+      box-shadow: var(--client-shadow-red);
     }
 
     &--ghost {
       background: #fff;
-      color: var(--rooster-red);
-      border: 1.5px solid rgba(225, 54, 66, 0.3);
+      color: var(--client-red);
+      border: 1.5px solid rgba(var(--client-red-rgb), 0.3);
     }
   }
 }
@@ -328,7 +353,7 @@
 .pago-modal__icon {
   width: 64px;
   height: 64px;
-  border-radius: 20px;
+  border-radius: var(--rooster-radius-lg);
   background: #ecfdf3;
   display: flex;
   align-items: center;
@@ -339,34 +364,34 @@
 }
 
 .pago-modal__lead {
-  font-family: var(--rooster-font-serif);
-  font-size: 17px;
+  font-family: var(--client-font-display);
+  font-size: 18px;
   font-weight: 700;
-  color: var(--rooster-dark);
+  color: var(--client-ink);
   text-align: center;
   margin: 0 0 10px;
 }
 
 .pago-modal__text {
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 13px;
   line-height: 1.55;
-  color: var(--rooster-brown);
+  color: var(--client-text-muted);
   text-align: center;
   margin: 0 0 20px;
 }
 
 /* ── Version ─────────────────────────────────────────────────────────────────── */
 .cuenta-version {
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 12px;
-  color: var(--rooster-brown);
+  color: var(--client-text-muted);
   text-align: center;
   padding: 8px 0 32px;
   margin: 0;
 }
 
-/* ── Modal Buscar pedido ─────────────────────────────────────────────────────── */
+/* ── Modal Buscar pedido (mismo tratamiento premium que el global/pedir) ────── */
 .buscar-modal {
   position: fixed;
   inset: 0;
@@ -374,6 +399,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  animation: rooster-fade var(--rooster-ease-fast) both;
 
   @media (min-width: 768px) {
     align-items: center;
@@ -384,7 +410,8 @@
 .buscar-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(20, 17, 15, 0.6);
+  backdrop-filter: blur(2px);
 }
 
 .buscar-modal__panel {
@@ -393,13 +420,13 @@
   max-width: 400px;
   max-height: 88vh;
   overflow-y: auto;
-  border-radius: 20px 20px 0 0;
-  background: #fff;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+  border-radius: var(--rooster-radius-lg) var(--rooster-radius-lg) 0 0;
+  background: var(--client-white);
+  box-shadow: var(--rooster-shadow-xl);
+  animation: rooster-rise var(--rooster-ease-med) both;
 
   @media (min-width: 768px) {
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: var(--rooster-radius-lg);
   }
 }
 
@@ -407,15 +434,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--rooster-border);
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.07);
 }
 
 .buscar-modal__title {
-  font-family: var(--rooster-font-serif);
-  font-size: 18px;
+  font-family: var(--client-font-display);
+  font-size: 19px;
   font-weight: 700;
-  color: var(--rooster-dark);
+  color: var(--client-ink);
   margin: 0;
 }
 
@@ -424,15 +451,19 @@
   height: 32px;
   border-radius: 50%;
   border: none;
-  background: var(--rooster-bg);
+  background: var(--client-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: transform var(--rooster-ease-fast), background var(--rooster-ease-fast);
+
+  &:hover { background: #f0ebe2; }
+  &:active { transform: scale(0.9); }
 
   ion-icon {
     font-size: 18px;
-    color: var(--rooster-dark);
+    color: var(--client-text);
   }
 }
 
@@ -441,25 +472,26 @@
 }
 
 .buscar-modal__desc {
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 13px;
-  color: var(--rooster-brown);
+  color: var(--client-text-muted);
   margin: 0 0 16px;
 }
 
 .buscar-modal__input {
   width: 100%;
   padding: 14px 16px;
-  border-radius: 12px;
-  border: 1.5px solid var(--rooster-border);
+  border-radius: var(--rooster-radius-sm);
+  border: 1.5px solid var(--client-border);
   background: #fff;
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 16px;
-  color: var(--rooster-dark);
+  color: var(--client-text);
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 12px;
+  transition: border-color var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
 
   &::placeholder {
     text-transform: none;
@@ -469,13 +501,14 @@
 
   &:focus {
     outline: none;
-    border-color: var(--rooster-red);
+    border-color: var(--client-red);
+    box-shadow: 0 0 0 4px rgba(var(--client-red-rgb), 0.1);
   }
 }
 
 .buscar-modal__error {
-  color: var(--rooster-red);
-  font-family: var(--rooster-font-sans);
+  color: var(--client-red);
+  font-family: var(--client-font-body);
   font-size: 13px;
   margin: 0 0 12px;
   text-align: center;
@@ -485,30 +518,34 @@
   width: 100%;
   padding: 14px;
   border: none;
-  border-radius: 16px;
-  background: var(--rooster-red);
+  border-radius: var(--rooster-radius-md);
+  background: var(--client-red);
   color: #fff;
   font-weight: 700;
   font-size: 14px;
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
+  box-shadow: var(--client-shadow-red);
   margin-bottom: 16px;
+  transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
 
-  &:active {
+  &:not(:disabled):hover { filter: brightness(1.05); }
+  &:not(:disabled):active {
     transform: scale(0.97);
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: none;
   }
 }
 
 /* ── Resultado de busqueda (detallado) ── */
 .buscar-resultado {
-  background: var(--rooster-bg);
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(20, 17, 15, 0.06);
+  border-radius: var(--rooster-radius-md);
   padding: 16px;
 
   &__head {
@@ -520,18 +557,18 @@
   }
 
   &__codigo {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 16px;
     font-weight: 800;
-    color: var(--rooster-red);
+    color: var(--client-red);
     letter-spacing: 0.04em;
   }
 
   &__estado {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 9999px;
-    font-family: var(--rooster-font-sans);
+    border-radius: var(--rooster-radius-pill);
+    font-family: var(--client-font-body);
     font-size: 10px;
     font-weight: 700;
   }
@@ -547,11 +584,11 @@
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
-    color: var(--rooster-dark);
+    color: var(--client-text);
 
-    ion-icon { font-size: 15px; color: var(--rooster-brown); flex-shrink: 0; margin-top: 1px; }
+    ion-icon { font-size: 15px; color: var(--client-text-muted); flex-shrink: 0; margin-top: 1px; }
     span { line-height: 1.35; }
   }
 
@@ -571,24 +608,24 @@
   }
 
   &__item-name {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 600;
-    color: var(--rooster-dark);
+    color: var(--client-text);
   }
 
   &__item-price {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-text);
     flex-shrink: 0;
   }
 
   &__item-extras {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     margin-top: 2px;
   }
 
@@ -598,12 +635,12 @@
     align-items: center;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     padding-top: 10px;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 15px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-text);
 
-    span:last-child { color: var(--rooster-red); }
+    span:last-child { color: var(--client-red); }
   }
 }
 

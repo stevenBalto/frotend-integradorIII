@@ -1,200 +1,235 @@
 .home-content {
-  --background: var(--rooster-bg);
+  --background: var(--client-bg);
+}
+
+@keyframes home-rooster-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 256px 256px; }
 }
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
 .home-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px 12px;
+  position: relative;
+  background: var(--client-ink);
+  padding: 30px 20px;
+  overflow: hidden;
 
   @media (min-width: 768px) {
-    padding: 32px 32px 24px;
+    padding: 40px 32px;
   }
 
-  &__titles { flex: 1 1 auto; min-width: 0; }
+  &::before {
+    content: '';
+    /* Inset en px (no %): el header es angosto de alto, un inset en % relativo
+       a su propia caja no deja suficiente margen para que la rotación -18deg
+       siga cubriendo las esquinas en pantallas anchas. Con px fijos el mosaico
+       queda completo de punta a punta sin importar el ancho/alto del header. */
+    position: absolute;
+    top: -200px;
+    bottom: -200px;
+    left: -120px;
+    right: -120px;
+    background-image: url('/assets/logo/rooster-logo.png');
+    background-repeat: repeat;
+    background-size: 52px 52px;
+    opacity: 0.38;
+    filter: brightness(2);
+    transform: rotate(-18deg);
+    animation: home-rooster-drift 70s linear infinite;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before { animation: none; }
+  }
+
+  &__hero {
+    position: relative;
+    z-index: 1;
+  }
 
   &__icon-btn {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     border: none;
     background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: transform 0.1s;
-
-    &:active { transform: scale(0.94); }
-    ion-icon { font-size: 20px; color: var(--rooster-red); }
-  }
-
-  &__sub {
-    font-family: var(--rooster-font-sans);
-    font-size: 12px;
-    color: var(--rooster-brown);
-    margin: 0 0 2px;
+    transition: transform 0.15s;
+    z-index: 1;
 
     @media (min-width: 768px) {
-      font-size: 14px;
+      right: 32px;
+    }
+
+    &:hover { transform: translateY(-50%) scale(1.06); }
+    &:active { transform: translateY(-50%) scale(0.92); }
+    ion-icon { font-size: 16px; color: var(--client-ink); }
+  }
+
+  &__hero {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__copy {
+    min-width: 0;
+    padding-right: 44px;
+
+    @media (min-width: 640px) {
+      padding-right: 0;
     }
   }
 
+  &__eyebrow {
+    font-family: var(--client-font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--client-red);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 3px;
+  }
+
   &__title {
-    font-family: var(--rooster-font-serif);
-    font-size: 21px;
-    font-weight: 700;
-    color: var(--rooster-dark);
+    font-family: var(--client-font-display);
+    font-size: 20px;
+    line-height: 1.18;
+    font-weight: 800;
+    color: #fff;
     margin: 0;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
 
     @media (min-width: 768px) {
+      font-size: 27px;
+    }
+
+    @media (min-width: 1024px) {
       font-size: 30px;
     }
   }
 
-  &__logo {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    object-fit: contain;
+}
+
+/* ── Rail de categorias ────────────────────────────────────────────────────── */
+.cat-rail {
+  /* Grid de 4 columnas iguales (son siempre 4 categorias fijas): el ancho de
+     fila se reparte completo SIEMPRE, sin importar la resolucion del telefono
+     — nunca sobra espacio a la derecha ni se ven apretadas o desparejas entre
+     un modelo y otro, porque cada columna es 1/4 del ancho disponible. */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding-bottom: 4px;
+
+  @media (min-width: 768px) {
+    display: flex;
+    justify-content: flex-start;
+    gap: 32px;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    text-decoration: none;
+    transition: transform 0.15s;
+
+    &:active { transform: scale(0.94); }
+
+    @media (min-width: 768px) {
+      flex-shrink: 0;
+    }
+  }
+
+  &__badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    object-fit: cover;
+
+    @media (min-width: 768px) {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+    }
+  }
+
+  &__label {
+    font-family: var(--client-font-body);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--client-text);
   }
 }
 
 /* ── Seccion generica ────────────────────────────────────────────────────────── */
 .home-section {
-  padding: 0 20px 20px;
+  padding: 22px 20px 0;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: content-box;
+
+  &--tight { padding-top: 18px; }
 
   @media (min-width: 768px) {
-    padding: 0 32px 24px;
+    padding: 28px 32px 0;
+
+    &--tight { padding-top: 22px; }
   }
 
   &__row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   &__label {
-    font-family: var(--rooster-font-sans);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--rooster-dark);
+    font-family: var(--client-font-display);
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--client-text);
+    letter-spacing: -0.01em;
 
     @media (min-width: 768px) {
-      font-size: 16px;
+      font-size: 23px;
     }
   }
 
   &__link {
     background: none;
     border: none;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 700;
-    color: var(--rooster-red);
+    color: var(--client-red);
     cursor: pointer;
   }
 }
 
-/* ── Categorias ─────────────────────────────────────────────────────────────── */
-.categories-scroll {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
-
-  @media (min-width: 768px) {
-    gap: 24px;
-  }
-}
-
-.category-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  &__img-wrap {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2.5px solid transparent;
-    transition: all 0.2s;
-
-    @media (min-width: 768px) {
-      width: 96px;
-      height: 96px;
-    }
-
-    img { width: 100%; height: 100%; object-fit: cover; }
-
-    &--active {
-      border-color: var(--rooster-red);
-      box-shadow: 0 0 0 2px rgba(225, 54, 66, 0.15);
-    }
-  }
-
-  &__label {
-    font-family: var(--rooster-font-sans);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--rooster-dark);
-
-    @media (min-width: 768px) {
-      font-size: 14px;
-    }
-
-    &--active { font-weight: 700; color: var(--rooster-red); }
-  }
-}
-
-/* ── Filtrar ────────────────────────────────────────────────────────────────── */
-.filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #fff1f2;
-  border: 1px solid rgba(225, 54, 66, 0.15);
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-family: var(--rooster-font-sans);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--rooster-red);
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  ion-icon { font-size: 13px; }
-}
-
-/* ── Grid de platillos ──────────────────────────────────────────────────────── */
-/* ── Tarjetas de oferta/cupon (estilo "ticket") ────────────────────────────── */
+/* ── Tarjetas de oferta/cupon (ticket negro) ─────────────────────────────────── */
 .promo-scroll {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding: 2px 2px 12px;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
@@ -205,86 +240,96 @@
 }
 
 .promo-card {
+  position: relative;
   flex-shrink: 0;
-  width: 172px;
+  width: 176px;
   scroll-snap-align: start;
-  background: #ffffff;
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--client-border);
+  border-radius: var(--rooster-radius-md);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-  border: 1px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  padding: 16px 14px 16px;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover { box-shadow: var(--rooster-shadow-md); }
+  &:active { transform: scale(0.97); }
 
   @media (min-width: 768px) {
-    width: 204px;
+    width: 208px;
   }
 
   &--cupon {
-    border: 1.5px dashed rgba(225, 54, 66, 0.35);
+    border: 1.5px dashed rgba(var(--client-red-rgb), 0.3);
   }
 
-  &__icon-wrap {
-    display: flex;
-    justify-content: center;
-    padding: 16px 0 6px;
+  &__ribbon {
+    position: absolute;
+    top: 12px;
+    right: -28px;
+    width: 110px;
+    padding: 3px 0;
+    background: var(--client-red);
+    color: #fff;
+    font-family: var(--client-font-body);
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+    transform: rotate(38deg);
+
+    &--cupon {
+      background: var(--client-ink);
+      color: #fff;
+    }
   }
 
   &__icon-circle {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    background: rgba(var(--client-red-rgb), 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 10px;
 
-    ion-icon { font-size: 20px; color: #ffffff; }
+    ion-icon { font-size: 19px; color: var(--client-red); }
   }
 
   &__perforation {
     height: 0;
-    margin: 4px 16px 6px;
-    border-top: 1.5px dashed rgba(225, 54, 66, 0.3);
+    margin: 2px 0 10px;
+    border-top: 1.5px dashed var(--client-border);
   }
 
   &__body {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 0 14px 14px;
-  }
-
-  &__badge {
-    align-self: flex-start;
-    font-family: var(--rooster-font-sans);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-    color: #ffffff;
-    padding: 3px 9px;
-    border-radius: 999px;
   }
 
   &__code {
-    font-family: var(--rooster-font-sans);
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing: 1px;
+    font-family: var(--client-font-display);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--client-red);
   }
 
   &__title {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-text);
     line-height: 1.3;
   }
 
   &__desc {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -293,129 +338,200 @@
   }
 }
 
+/* ── Grid de platillos ──────────────────────────────────────────────────────── */
 .dish-grid {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding: 2px 2px 12px;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 
-  @media (min-width: 768px) {
-    gap: 16px;
+  @media (min-width: 1024px) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: visible;
+  }
+
+  @media (min-width: 1400px) {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
 .dish-card {
   display: flex;
   flex-direction: column;
-  gap: 0;
   flex-shrink: 0;
-  width: 152px;
+  width: 168px;
   scroll-snap-align: start;
-  background: #ffffff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border: 1px solid var(--client-border);
+  border-radius: var(--rooster-radius-md);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.15s, transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 
-  &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  &:hover { border-color: var(--client-ink); }
+  &:active { transform: scale(0.98); }
+
+  @media (min-width: 1024px) {
+    width: auto;
   }
 
-  &:active {
-    transform: scale(0.98);
-  }
-
-  @media (min-width: 768px) {
-    width: 200px;
+  &__media {
+    position: relative;
   }
 
   &__img {
-    /* Proporcion FIJA 4:3, la MISMA que la card del menu en Pedir
-       (.menu-card__img), para que una foto se vea identica en las dos
-       pantallas. Regla: subir fotos en 4:3 (ej. 1200x900). */
+    /* Radio en la imagen (no en la card ni en __media): asi el boton "+"
+       puede sobresalir del borde inferior de la foto sin que un
+       overflow:hidden del contenedor lo recorte. */
     width: 100%;
     aspect-ratio: 4 / 3;
     height: auto;
     object-fit: cover;
-    flex-shrink: 0;
-  }
-
-  &__body {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 12px 12px;
-    gap: 2px;
-
-    @media (min-width: 768px) {
-      padding: 14px;
-    }
-  }
-
-  &__name {
-    font-family: var(--rooster-font-sans);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--rooster-dark);
-    line-height: 1.3;
-
-    @media (min-width: 768px) {
-      font-size: 16px;
-    }
-  }
-
-  &__desc {
-    font-family: var(--rooster-font-sans);
-    font-size: 12px;
-    color: var(--rooster-brown);
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-
-    @media (min-width: 768px) {
-      font-size: 14px;
-    }
-  }
-
-  &__price {
-    font-family: var(--rooster-font-sans);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--rooster-red);
-    margin-top: 6px;
-
-    @media (min-width: 768px) {
-      font-size: 18px;
-    }
+    display: block;
+    border-radius: var(--rooster-radius-md) var(--rooster-radius-md) 0 0;
   }
 
   &__img--placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--rooster-bg);
+    background: var(--client-surface);
 
-    ion-icon {
-      font-size: 28px;
-      color: var(--rooster-brown);
+    ion-icon { font-size: 28px; color: var(--client-text-muted); }
+  }
+
+  &__price {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    background: #fff;
+    color: var(--client-ink);
+    font-family: var(--client-font-display);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: var(--rooster-radius-pill);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+
+    @media (min-width: 1024px) {
+      font-size: 13px;
     }
   }
+
+  &__add {
+    position: absolute;
+    right: 8px;
+    bottom: -14px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--client-red);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s;
+
+    &:hover { transform: scale(1.06); }
+    &:active { transform: scale(0.9); }
+    ion-icon { font-size: 18px; color: #fff; }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px 12px;
+    gap: 2px;
+
+    @media (min-width: 1024px) {
+      padding: 22px 14px 14px;
+    }
+  }
+
+  &__cat {
+    font-family: var(--client-font-body);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--client-red);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+
+  &__name {
+    font-family: var(--client-font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--client-text);
+    line-height: 1.3;
+
+    @media (min-width: 1024px) {
+      font-size: 15px;
+    }
+  }
+
+  &__desc {
+    font-family: var(--client-font-body);
+    font-size: 12px;
+    color: var(--client-text-muted);
+    line-height: 1.4;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--client-text);
+    margin-top: 6px;
+  }
+  &__rating ion-icon { font-size: 12px; color: var(--client-red); }
+  &__rating-count { color: var(--client-text-muted); font-weight: 500; }
 }
 
 .home-section__error,
 .home-section__loading {
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 13px;
-  color: var(--rooster-brown);
-  padding: 8px 0;
+  color: var(--client-text-muted);
+  padding: 8px 0 20px;
 }
+
+/* ── Skeletons de carga ───────────────────────────────────────────────────── */
+.home-skeleton-row {
+  display: flex;
+  gap: 14px;
+  padding: 22px 20px 12px;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    padding: 28px 32px 12px;
+  }
+}
+.home-skeleton-card {
+  flex-shrink: 0;
+  width: 168px;
+  border-radius: var(--rooster-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--client-border);
+
+  @media (min-width: 768px) { width: 216px; }
+}
+.home-skeleton-card__img { width: 100%; aspect-ratio: 4 / 3; }
+.home-skeleton-card__line { height: 12px; margin: 12px 12px 10px; border-radius: 6px; }
+.home-skeleton-card__line--sm { width: 60%; margin-top: 0; }
 
 /* ── Modal Detalle de platillo ──────────────────────────────────────────────── */
 .dish-modal {
@@ -434,7 +550,7 @@
 .dish-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(11, 11, 12, 0.6);
 }
 .dish-modal__panel {
   position: relative;
@@ -442,13 +558,11 @@
   max-width: 420px;
   max-height: 88vh;
   overflow-y: auto;
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--rooster-radius-lg) var(--rooster-radius-lg) 0 0;
   background: #fff;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
 
   @media (min-width: 768px) {
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: var(--rooster-radius-lg);
   }
 }
 .dish-modal__close {
@@ -460,7 +574,7 @@
   height: 32px;
   border-radius: 50%;
   border: none;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(11, 11, 12, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -474,136 +588,101 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--rooster-bg);
+  background: var(--client-surface);
 
   img { width: 100%; height: 100%; object-fit: cover; }
-  ion-icon { font-size: 48px; color: var(--rooster-brown); }
+  ion-icon { font-size: 48px; color: var(--client-text-muted); }
 }
 .dish-modal__body { padding: 20px; }
 .dish-modal__cat {
   display: inline-block;
-  border-radius: 9999px;
+  border-radius: var(--rooster-radius-pill);
   padding: 3px 10px;
   font-size: 10px;
-  font-weight: 700;
-  color: var(--rooster-brown);
-  background: var(--rooster-bg);
-  margin-bottom: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--client-red);
+  background: rgba(var(--client-red-rgb), 0.08);
+  margin-bottom: 10px;
 }
 .dish-modal__name {
-  font-family: var(--rooster-font-serif);
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--rooster-dark);
+  font-family: var(--client-font-display);
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--client-text);
   margin: 0 0 8px;
+  letter-spacing: -0.01em;
 }
 .dish-modal__desc {
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 13px;
-  color: var(--rooster-brown);
-  line-height: 1.5;
+  color: var(--client-text-muted);
+  line-height: 1.55;
   margin: 0 0 12px;
 }
 .dish-modal__price {
   display: block;
-  font-family: var(--rooster-font-sans);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--rooster-red);
+  font-family: var(--client-font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--client-red);
   margin-bottom: 18px;
 }
 /* ── Secciones del modal (tamanos, extras) ──────────────────────────────────── */
-.dish-modal__section {
-  margin-bottom: 16px;
-}
+.dish-modal__section { margin-bottom: 16px; }
 .dish-modal__section-title {
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 12px;
-  font-weight: 700;
-  color: var(--rooster-dark);
+  font-weight: 800;
+  color: var(--client-text);
   margin: 0 0 10px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
-.dish-modal__required {
-  color: var(--rooster-red);
-}
-.dish-modal__options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.dish-modal__required { color: var(--client-red); }
+.dish-modal__options { display: flex; flex-direction: column; gap: 8px; }
 .dish-modal__option {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: 12px;
-  border: 1.5px solid var(--rooster-border);
+  border-radius: var(--rooster-radius-sm);
+  border: 1.5px solid var(--client-border);
   background: #fff;
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--rooster-font-sans);
+  transition: border-color 0.15s;
+  font-family: var(--client-font-body);
 
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &--active {
-    border-color: var(--rooster-red);
-    background: rgba(225, 54, 66, 0.05);
-  }
+  &:active { transform: scale(0.98); }
+  &--active { border-color: var(--client-red); background: rgba(var(--client-red-rgb), 0.05); }
 }
 .dish-modal__option-check {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  ion-icon {
-    font-size: 20px;
-    color: var(--rooster-brown);
-  }
+  display: flex; align-items: center; justify-content: center;
+  ion-icon { font-size: 20px; color: var(--client-text-muted); }
 }
-.dish-modal__option--active .dish-modal__option-check ion-icon {
-  color: var(--rooster-red);
-}
-.dish-modal__option-name {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--rooster-dark);
-}
-.dish-modal__option-price {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--rooster-red);
-}
+.dish-modal__option--active .dish-modal__option-check ion-icon { color: var(--client-red); }
+.dish-modal__option-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--client-text); }
+.dish-modal__option-price { font-size: 13px; font-weight: 700; color: var(--client-red); }
 
 /* ── Extras como cards con foto (upsell) ────────────────────────────────────── */
-.dish-modal__extras {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
+.dish-modal__extras { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .extra-card {
   position: relative;
   display: flex;
   flex-direction: column;
   text-align: left;
   padding: 0;
-  border-radius: 14px;
-  border: 1.5px solid var(--rooster-border);
+  border-radius: var(--rooster-radius-md);
+  border: 1.5px solid var(--client-border);
   background: #fff;
   overflow: hidden;
   cursor: pointer;
-  font-family: var(--rooster-font-sans);
-  transition: all 0.2s;
+  font-family: var(--client-font-body);
+  transition: border-color 0.15s;
 
   &:active { transform: scale(0.98); }
-
-  &--active {
-    border-color: var(--rooster-red);
-    box-shadow: 0 0 0 2px rgba(225, 54, 66, 0.12);
-  }
+  &--active { border-color: var(--client-red); box-shadow: 0 0 0 2px rgba(var(--client-red-rgb), 0.15); }
 
   &__img {
     width: 100%;
@@ -611,31 +690,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--rooster-bg);
+    background: var(--client-surface);
 
     img { width: 100%; height: 100%; object-fit: cover; }
-    ion-icon { font-size: 30px; color: var(--rooster-brown); }
+    ion-icon { font-size: 30px; color: var(--client-text-muted); }
   }
 
-  &__info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 8px 10px 10px;
-  }
-
-  &__name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--rooster-dark);
-    line-height: 1.25;
-  }
-
-  &__price {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--rooster-red);
-  }
+  &__info { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 10px; }
+  &__name { font-size: 12px; font-weight: 700; color: var(--client-text); line-height: 1.25; }
+  &__price { font-size: 12px; font-weight: 700; color: var(--client-red); }
 
   &__check {
     position: absolute;
@@ -645,10 +708,9 @@
     background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
 
-    ion-icon { font-size: 22px; color: var(--rooster-brown); }
+    ion-icon { font-size: 22px; color: var(--client-text-muted); }
   }
-
-  &--active &__check ion-icon { color: var(--rooster-red); }
+  &--active &__check ion-icon { color: var(--client-red); }
 }
 
 .dish-modal__cta {
@@ -657,74 +719,39 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px;
+  padding: 15px;
   border: none;
-  border-radius: 16px;
-  background: var(--rooster-red);
+  border-radius: var(--rooster-radius-md);
+  background: var(--client-red);
   color: #fff;
-  font-weight: 700;
-  font-size: 14px;
-  font-family: var(--rooster-font-sans);
+  font-weight: 800;
+  font-size: 15px;
+  font-family: var(--client-font-body);
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(225, 54, 66, 0.28);
-  transition: transform 0.1s;
+  transition: background 0.15s, transform 0.1s;
 
   ion-icon { font-size: 18px; }
 
+  &:hover { background: var(--client-red-dark); }
   &:active { transform: scale(0.97); }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 }
 
-// ── Reseñas: rating en card + resumen y opiniones en el modal ──
-.dish-card__rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #b8860b;
-  margin: 2px 0;
-}
-.dish-card__rating ion-icon { font-size: 12px; color: #f59e0b; }
-.dish-card__rating-count { color: var(--rooster-brown, #8a6f52); font-weight: 500; }
-
-.dish-modal__rating {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0 4px;
-}
+/* ── Reseñas: rating en card + resumen y opiniones en el modal ──────────────── */
+.dish-modal__rating { display: flex; align-items: center; gap: 8px; margin: 6px 0 4px; }
 .dish-modal__stars { display: inline-flex; gap: 1px; }
-.dish-modal__stars ion-icon { font-size: 15px; color: #e2dbcf; }
-.dish-modal__stars ion-icon.dish-modal__star--on { color: #f59e0b; }
-.dish-modal__rating-num {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--rooster-brown, #8a6f52);
-}
+.dish-modal__stars ion-icon { font-size: 15px; color: var(--client-border); }
+.dish-modal__stars ion-icon.dish-modal__star--on { color: var(--client-red); }
+.dish-modal__rating-num { font-size: 12px; font-weight: 600; color: var(--client-text-muted); }
 
 .dish-reviews { margin-top: 8px; }
-.dish-review {
-  padding: 12px 0;
-  border-top: 1px solid rgba(168, 137, 94, 0.18);
-}
-.dish-review__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-.dish-review__author { font-size: 13px; font-weight: 700; color: #1e1e1e; }
+.dish-review { padding: 12px 0; border-top: 1px solid var(--client-border); }
+.dish-review__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.dish-review__author { font-size: 13px; font-weight: 700; color: var(--client-text); }
 .dish-review__stars { display: inline-flex; gap: 1px; flex-shrink: 0; }
-.dish-review__stars ion-icon { font-size: 12px; color: #e2dbcf; }
-.dish-review__stars ion-icon.dish-review__star--on { color: #f59e0b; }
-.dish-review__text { font-size: 13px; color: #4b4b4b; margin: 0; line-height: 1.5; }
+.dish-review__stars ion-icon { font-size: 12px; color: var(--client-border); }
+.dish-review__stars ion-icon.dish-review__star--on { color: var(--client-red); }
+.dish-review__text { font-size: 13px; color: var(--client-text-muted); margin: 0; line-height: 1.5; }
 
 /* ── Modal de código QR (oferta o cupón) ─────────────────────────────────────── */
 .qr-modal {
@@ -736,24 +763,19 @@
   justify-content: center;
   padding: 20px;
 
-  &__backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(30, 30, 30, 0.55);
-  }
+  &__backdrop { position: absolute; inset: 0; background: rgba(11, 11, 12, 0.65); }
 
   &__panel {
     position: relative;
     width: 100%;
     max-width: 340px;
-    background: #ffffff;
-    border-radius: 20px;
+    background: #fff;
+    border-radius: var(--rooster-radius-lg);
     padding: 28px 24px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
   }
 
   &__close {
@@ -764,37 +786,36 @@
     height: 30px;
     border-radius: 50%;
     border: none;
-    background: var(--rooster-bg);
+    background: var(--client-surface);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
 
-    ion-icon { font-size: 16px; color: var(--rooster-dark); }
+    ion-icon { font-size: 16px; color: var(--client-text); }
   }
 
   &__title {
-    font-family: var(--rooster-font-serif);
+    font-family: var(--client-font-display);
     font-size: 18px;
-    font-weight: 700;
-    color: var(--rooster-dark);
+    font-weight: 800;
+    color: var(--client-text);
     margin: 0 0 16px;
   }
 
   &__codigo {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 1.5px;
-    color: var(--rooster-red);
+    color: var(--client-red);
     margin: 16px 0 4px;
   }
 
   &__hint {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     margin: 0;
   }
 }
-

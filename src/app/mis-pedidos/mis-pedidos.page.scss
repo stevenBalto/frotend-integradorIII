@@ -1,5 +1,5 @@
 .mispedidos-content {
-  --background: var(--rooster-bg);
+  --background: var(--client-bg);
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────────── */
@@ -14,29 +14,33 @@
   }
 
   &__back {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--rooster-radius-sm);
     border: none;
     background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--rooster-shadow-sm);
+    transition: transform var(--rooster-ease-fast);
+
+    &:active { transform: scale(0.92); }
 
     ion-icon {
       font-size: 20px;
-      color: var(--rooster-dark);
+      color: var(--client-text);
     }
   }
 
   &__title {
-    font-family: var(--rooster-font-serif);
-    font-size: 21px;
+    font-family: var(--client-font-display);
+    font-size: 22px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-ink);
     margin: 0;
+    letter-spacing: -0.01em;
 
     @media (min-width: 768px) {
       font-size: 28px;
@@ -48,21 +52,21 @@
 .mispedidos-status {
   padding: 20px;
   text-align: center;
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 14px;
-  color: var(--rooster-brown);
+  color: var(--client-text-muted);
 
   &--error {
-    color: var(--rooster-red);
+    color: var(--client-red);
   }
 }
 
 .mispedidos-empty {
   padding: 40px 20px;
   text-align: center;
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   font-size: 14px;
-  color: var(--rooster-brown);
+  color: var(--client-text-muted);
 }
 
 /* ── Lista de pedidos ────────────────────────────────────────────────────────── */
@@ -80,12 +84,15 @@
 
 .pedido-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: 1px solid rgba(20, 17, 15, 0.05);
+  border-radius: var(--rooster-radius-md);
+  padding: 18px;
+  box-shadow: var(--rooster-shadow-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: box-shadow var(--rooster-ease-fast), transform var(--rooster-ease-fast);
+  animation: rooster-rise var(--rooster-ease-med) both;
 
+  &:hover { box-shadow: var(--rooster-shadow-md); }
   &:active {
     transform: scale(0.99);
   }
@@ -110,10 +117,11 @@
   }
 
   &__codigo {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 15px;
-    font-weight: 700;
-    color: var(--rooster-dark);
+    font-weight: 800;
+    color: var(--client-ink);
+    letter-spacing: 0.02em;
   }
 
   &__copy {
@@ -126,23 +134,24 @@
     border-radius: 7px;
     background: #fff1f2;
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: transform var(--rooster-ease-fast), background var(--rooster-ease-fast);
 
+    &:hover { background: #ffe4e6; }
     &:active { transform: scale(0.9); }
-    ion-icon { font-size: 13px; color: var(--rooster-red); }
+    ion-icon { font-size: 13px; color: var(--client-red); }
   }
 
   &__fecha {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
   }
 
   &__estado {
     display: inline-block;
     padding: 4px 10px;
     border-radius: 9999px;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 10px;
     font-weight: 700;
   }
@@ -158,23 +167,23 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
-    color: var(--rooster-dark);
+    color: var(--client-text);
 
     ion-icon {
       font-size: 14px;
-      color: var(--rooster-brown);
+      color: var(--client-text-muted);
     }
   }
 
   &__modalidad {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     padding: 3px 8px;
     border-radius: 6px;
-    background: var(--rooster-bg);
+    background: var(--client-bg);
   }
 
   &__footer {
@@ -184,29 +193,29 @@
   }
 
   &__total {
-    font-family: var(--rooster-font-sans);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--rooster-red);
+    font-family: var(--client-font-body);
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--client-red);
   }
 
   &__expand {
     font-size: 20px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
   }
 
   /* ── Detalle expandido ── */
   &__detalle {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid var(--rooster-border);
+    border-top: 1px solid var(--client-border);
   }
 
   &__detalle-title {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
     font-weight: 700;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     text-transform: uppercase;
     margin: 0 0 12px;
   }
@@ -225,24 +234,24 @@
   }
 
   &__item-qty {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
     font-weight: 700;
-    color: var(--rooster-red);
+    color: var(--client-red);
     min-width: 24px;
   }
 
   &__item-name {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
-    color: var(--rooster-dark);
+    color: var(--client-text);
   }
 
   &__item-price {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
     font-weight: 600;
-    color: var(--rooster-dark);
+    color: var(--client-text);
   }
 
   &__extras {
@@ -252,24 +261,24 @@
 
   &__extra {
     display: block;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     padding: 2px 0;
   }
 
   &__summary {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid var(--rooster-border);
+    border-top: 1px solid var(--client-border);
   }
 
   &__summary-row {
     display: flex;
     justify-content: space-between;
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
-    color: var(--rooster-dark);
+    color: var(--client-text);
     padding: 4px 0;
 
     &--discount {
@@ -282,7 +291,7 @@
       padding-top: 8px;
 
       span:last-child {
-        color: var(--rooster-red);
+        color: var(--client-red);
       }
     }
   }
@@ -295,7 +304,7 @@
     padding: 10px;
     border-radius: 10px;
     background: rgba(245, 158, 11, 0.1);
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 600;
     color: #D97706;

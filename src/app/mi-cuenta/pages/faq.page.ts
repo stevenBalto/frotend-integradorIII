@@ -28,19 +28,19 @@ import { FAQ, PreguntaFrecuente } from '../../shared/constants/mi-cuenta-conteni
     }
     .faq-q__text {
       flex: 1;
-      font-family: var(--rooster-font-sans);
+      font-family: var(--client-font-body);
       font-size: 14px;
       font-weight: 700;
-      color: var(--rooster-dark);
+      color: var(--client-text);
     }
-    .faq-q__icon { font-size: 18px; color: var(--rooster-red); flex-shrink: 0; transition: transform 0.2s; }
+    .faq-q__icon { font-size: 18px; color: var(--client-red); flex-shrink: 0; transition: transform 0.2s; }
     .faq-q__icon--open { transform: rotate(180deg); }
     .faq-a {
       padding: 0 16px 16px;
-      font-family: var(--rooster-font-sans);
+      font-family: var(--client-font-body);
       font-size: 13px;
       line-height: 1.55;
-      color: var(--rooster-brown);
+      color: var(--client-text-muted);
       margin: 0;
     }
   `],

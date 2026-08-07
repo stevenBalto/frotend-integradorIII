@@ -36,6 +36,15 @@ export class HomePage implements OnInit {
   cargando = false;
   error: string | null = null;
 
+  /** DEMO temporal: foto de relleno cuando el producto no tiene imagen_url real
+      (ver assets/productos-demo/). Mismo id -> misma foto siempre. Quitar
+      cuando el catalogo real tenga fotos cargadas. */
+  private readonly TOTAL_DEMO_IMAGENES = 18;
+  demoImagen(id: number): string {
+    const n = ((id - 1) % this.TOTAL_DEMO_IMAGENES + this.TOTAL_DEMO_IMAGENES) % this.TOTAL_DEMO_IMAGENES + 1;
+    return `assets/productos-demo/producto-${n}.jpg`;
+  }
+
   detalleAbierto = false;
   productoDetalle: Producto | null = null;
 
@@ -57,6 +66,15 @@ export class HomePage implements OnInit {
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   private readonly colores = ['#E13642', '#F58220', '#A8895E', '#F2B134'];
+
+  /** Rail de categorias de marca (decorativo, enlaza al menu). Iconos reales
+      de assets/sistema/*-rojo.svg — no depende de datos del backend. */
+  readonly categoriasDestacadas = [
+    { label: 'Pizza', icon: 'assets/sistema/pizza-rojo.svg' },
+    { label: 'Parrilla', icon: 'assets/sistema/grill-rojo.svg' },
+    { label: 'Pastas', icon: 'assets/sistema/pastas-rojo.svg' },
+    { label: 'Bebidas', icon: 'assets/sistema/bebidas-rojo.svg' },
+  ];
 
   // Selecciones del modal de detalle
   tamanoSeleccionado: ProductoTamano | null = null;

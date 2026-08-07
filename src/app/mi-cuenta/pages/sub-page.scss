@@ -1,9 +1,9 @@
 /* Estilos compartidos por las sub-paginas de Mi cuenta (header + contenedores). */
 :host {
-  --background: var(--rooster-bg);
+  --background: var(--client-bg);
 }
 .sub-content {
-  --background: var(--rooster-bg);
+  --background: var(--client-bg);
 }
 
 .sub-header {
@@ -18,55 +18,58 @@
 .sub-back {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: var(--rooster-radius-sm);
   border: none;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--rooster-shadow-sm);
   flex-shrink: 0;
+  transition: transform var(--rooster-ease-fast);
 
-  ion-icon { font-size: 20px; color: var(--rooster-dark); }
+  ion-icon { font-size: 20px; color: var(--client-text); }
   &:active { transform: scale(0.95); }
 }
 
 .sub-title {
-  font-family: var(--rooster-font-serif);
-  font-size: 20px;
+  font-family: var(--client-font-display);
+  font-size: 21px;
   font-weight: 700;
-  color: var(--rooster-dark);
+  color: var(--client-ink);
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .sub-body {
-  padding: 4px 16px 40px;
+  padding: 8px 16px 40px;
   max-width: 768px;
   margin: 0 auto;
 }
 
 .sub-card {
   background: #fff;
-  border-radius: 16px;
+  border-radius: var(--rooster-radius-md);
   padding: 18px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--rooster-shadow-sm);
+  border: 1px solid rgba(20, 17, 15, 0.05);
   margin-bottom: 14px;
+  animation: rooster-rise var(--rooster-ease-med) both;
 }
 
 .sub-empty {
   text-align: center;
-  color: var(--rooster-brown);
-  font-family: var(--rooster-font-sans);
+  color: var(--client-text-muted);
+  font-family: var(--client-font-body);
   font-size: 14px;
   padding: 40px 20px;
 }
 
 .sub-status {
   text-align: center;
-  color: var(--rooster-brown);
-  font-family: var(--rooster-font-sans);
+  color: var(--client-text-muted);
+  font-family: var(--client-font-body);
   font-size: 14px;
   padding: 20px;
 }

@@ -51,6 +51,15 @@ export class PedirPage implements OnInit, OnDestroy {
   errorProductos: string | null = null;
   busqueda = '';
 
+  /** DEMO temporal: foto de relleno cuando el producto no tiene imagen_url real
+      (ver assets/productos-demo/). Mismo id -> misma foto siempre. Quitar
+      cuando el catalogo real tenga fotos cargadas. */
+  private readonly TOTAL_DEMO_IMAGENES = 18;
+  demoImagen(id: number): string {
+    const n = ((id - 1) % this.TOTAL_DEMO_IMAGENES + this.TOTAL_DEMO_IMAGENES) % this.TOTAL_DEMO_IMAGENES + 1;
+    return `assets/productos-demo/producto-${n}.jpg`;
+  }
+
   // Modal detalle producto
   detalleAbierto = false;
   productoDetalle: Producto | null = null;

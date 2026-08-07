@@ -37,31 +37,37 @@
     </div>
 
     <!-- Estados de carga/error -->
-    <p *ngIf="cargandoProductos" class="pedir-status">Cargando menú...</p>
+    <div class="pedir-list" *ngIf="cargandoProductos">
+      <div class="menu-card menu-card--skeleton" *ngFor="let s of [1,2,3,4]">
+        <div class="menu-card__img rooster-skeleton"></div>
+        <div class="menu-card__body">
+          <div class="menu-card__skeleton-line rooster-skeleton"></div>
+          <div class="menu-card__skeleton-line menu-card__skeleton-line--sm rooster-skeleton"></div>
+        </div>
+      </div>
+    </div>
     <p *ngIf="errorProductos" class="pedir-status pedir-status--error">{{ errorProductos }}</p>
 
     <!-- Listado de platillos -->
     <div class="pedir-list" *ngIf="!cargandoProductos">
-      <div class="menu-card" *ngFor="let p of productosFiltrados" (click)="abrirDetalle(p)">
-        <div class="menu-card__img menu-card__img--placeholder" *ngIf="!p.imagen_url">
-          <ion-icon name="restaurant-outline"></ion-icon>
-        </div>
-        <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" class="menu-card__img" />
-        <div class="menu-card__body">
-          <div class="menu-card__info">
-            <span class="menu-card__name">{{ p.nombre }}</span>
-            <span class="menu-card__rating" *ngIf="p.resenas_count > 0">
-              <ion-icon name="star"></ion-icon>{{ p.calificacion_promedio }}
-              <span class="menu-card__rating-count">· {{ p.resenas_count }}</span>
-            </span>
-            <span class="menu-card__desc">{{ p.descripcion }}</span>
-            <span class="menu-card__price">{{ p.precio_base | crcCurrency }}</span>
-          </div>
-          <button class="menu-card__add" (click)="abrirDetalle(p); $event.stopPropagation()">
+      <article class="menu-card" *ngFor="let p of productosFiltrados" (click)="abrirDetalle(p)">
+        <div class="menu-card__media">
+          <img [src]="p.imagen_url || demoImagen(p.id)" [alt]="p.nombre" class="menu-card__img" />
+          <span class="menu-card__price">{{ p.precio_base | crcCurrency }}</span>
+          <button class="menu-card__add" (click)="abrirDetalle(p); $event.stopPropagation()" aria-label="Agregar">
             <ion-icon name="add"></ion-icon>
           </button>
         </div>
-      </div>
+        <div class="menu-card__body">
+          <span class="menu-card__cat" *ngIf="p.categoria">{{ p.categoria }}</span>
+          <span class="menu-card__name">{{ p.nombre }}</span>
+          <span class="menu-card__desc">{{ p.descripcion }}</span>
+          <span class="menu-card__rating" *ngIf="p.resenas_count > 0">
+            <ion-icon name="star"></ion-icon>{{ p.calificacion_promedio }}
+            <span class="menu-card__rating-count">({{ p.resenas_count }})</span>
+          </span>
+        </div>
+      </article>
 
       <p *ngIf="productosFiltrados.length === 0 && !cargandoProductos" class="pedir-status">
         No hay productos disponibles.
@@ -94,8 +100,7 @@
     <div class="cart-list" *ngIf="(lineas$ | async) as lineas">
       <div class="cart-item" *ngFor="let l of lineas; let i = index">
         <div class="cart-item__img">
-          <img *ngIf="l.producto.imagen_url" [src]="l.producto.imagen_url" [alt]="l.producto.nombre" />
-          <ion-icon *ngIf="!l.producto.imagen_url" name="restaurant-outline"></ion-icon>
+          <img [src]="l.producto.imagen_url || demoImagen(l.producto.id)" [alt]="l.producto.nombre" />
         </div>
         <div class="cart-item__info">
           <p class="cart-item__name">{{ l.producto.nombre }}</p>
@@ -328,8 +333,7 @@
     </button>
 
     <div class="dish-modal__img">
-      <img *ngIf="productoDetalle.imagen_url" [src]="productoDetalle.imagen_url" [alt]="productoDetalle.nombre" />
-      <ion-icon *ngIf="!productoDetalle.imagen_url" name="restaurant-outline"></ion-icon>
+      <img [src]="productoDetalle.imagen_url || demoImagen(productoDetalle.id)" [alt]="productoDetalle.nombre" />
     </div>
 
     <div class="dish-modal__body">

@@ -8,7 +8,7 @@ import { Producto } from '../../core/models/producto.model';
   standalone: false,
   styleUrls: ['./sub-page.scss'],
   styles: [`
-    .prod-intro { font-family: var(--rooster-font-sans); font-size: 14px; line-height: 1.5; color: var(--rooster-brown); text-align: center; margin: 0 0 18px; }
+    .prod-intro { font-family: var(--client-font-body); font-size: 14px; line-height: 1.5; color: var(--client-text-muted); text-align: center; margin: 0 0 18px; }
     .mq { overflow: hidden; margin: 0 -16px 18px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
     .mq-track { display: flex; gap: 14px; width: max-content; padding: 0 7px; animation: mq-left 48s linear infinite; }
     .mq-track--rev { animation: mq-right 60s linear infinite; }
@@ -24,13 +24,13 @@ import { Producto } from '../../core/models/producto.model';
     .prod-card__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: #f0f0f0; }
     .prod-card__ph { width: 100%; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; background: #f5f5f5; ion-icon { font-size: 34px; color: #ccc; } }
     .prod-card__body { padding: 10px 12px 12px; }
-    .prod-card__name { font-family: var(--rooster-font-sans); font-size: 13px; font-weight: 700; color: var(--rooster-dark); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .prod-card__price { font-family: var(--rooster-font-sans); font-size: 13px; font-weight: 700; color: var(--rooster-red); margin: 4px 0 0; }
+    .prod-card__name { font-family: var(--client-font-body); font-size: 13px; font-weight: 700; color: var(--client-text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prod-card__price { font-family: var(--client-font-body); font-size: 13px; font-weight: 700; color: var(--client-red); margin: 4px 0 0; }
     .prod-cta {
       display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-      padding: 15px; border: none; border-radius: 16px; background: var(--rooster-red); color: #fff;
-      font-family: var(--rooster-font-sans); font-size: 15px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 6px 20px rgba(225,54,66,0.28);
+      padding: 15px; border: none; border-radius: 16px; background: var(--client-red); color: #fff;
+      font-family: var(--client-font-body); font-size: 15px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(var(--client-red-rgb),0.28);
       &:active { transform: scale(0.98); }
     }
   `],

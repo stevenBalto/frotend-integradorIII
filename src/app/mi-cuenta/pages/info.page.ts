@@ -10,10 +10,10 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
   styleUrls: ['./sub-page.scss'],
   styles: [`
     .info-parrafo {
-      font-family: var(--rooster-font-sans);
+      font-family: var(--client-font-body);
       font-size: 14px;
       line-height: 1.6;
-      color: var(--rooster-dark);
+      color: var(--client-text);
       margin: 0 0 14px;
     }
     .info-web {
@@ -26,9 +26,9 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
       margin-top: 6px;
       border: none;
       border-radius: 14px;
-      background: var(--rooster-red);
+      background: var(--client-red);
       color: #fff;
-      font-family: var(--rooster-font-sans);
+      font-family: var(--client-font-body);
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
@@ -47,11 +47,11 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
     .info-dev__avatar {
       width: 40px; height: 40px; border-radius: 12px; background: #fff1f2;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      ion-icon { font-size: 20px; color: var(--rooster-red); }
+      ion-icon { font-size: 20px; color: var(--client-red); }
     }
-    .info-dev__name { font-family: var(--rooster-font-sans); font-size: 14px; font-weight: 700; color: var(--rooster-dark); }
-    .info-dev__rol { font-family: var(--rooster-font-sans); font-size: 12px; color: var(--rooster-brown); }
-    .info-meta { font-family: var(--rooster-font-sans); font-size: 12px; color: var(--rooster-brown); text-align: center; margin: 10px 0 0; line-height: 1.6; }
+    .info-dev__name { font-family: var(--client-font-body); font-size: 14px; font-weight: 700; color: var(--client-text); }
+    .info-dev__rol { font-family: var(--client-font-body); font-size: 12px; color: var(--client-text-muted); }
+    .info-meta { font-family: var(--client-font-body); font-size: 12px; color: var(--client-text-muted); text-align: center; margin: 10px 0 0; line-height: 1.6; }
   `],
   template: `
     <ion-content [fullscreen]="true" class="sub-content">

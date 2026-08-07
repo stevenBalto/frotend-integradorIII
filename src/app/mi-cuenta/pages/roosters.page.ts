@@ -12,37 +12,37 @@ import { RoostersResumen, MovimientoRooster } from '../../core/models/puntos.mod
       border-radius: 20px;
       padding: 22px;
       text-align: center;
-      background: linear-gradient(135deg, #7a1f27 0%, var(--rooster-red, #e13642) 100%);
-      box-shadow: 0 10px 28px rgba(225,54,66,0.3);
+      background: var(--client-red);
+      box-shadow: 0 10px 28px rgba(var(--client-red-rgb),0.3);
       margin-bottom: 16px;
     }
-    .roo-hero__label { font-family: var(--rooster-font-sans); font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0 0 4px; }
-    .roo-hero__balance { font-family: var(--rooster-font-serif); font-size: 40px; font-weight: 800; color: #fff; margin: 0; }
-    .roo-hero__hint { font-family: var(--rooster-font-sans); font-size: 12px; color: rgba(255,255,255,0.85); margin: 8px 0 0; }
+    .roo-hero__label { font-family: var(--client-font-body); font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0 0 4px; }
+    .roo-hero__balance { font-family: var(--client-font-display); font-size: 40px; font-weight: 800; color: #fff; margin: 0; }
+    .roo-hero__hint { font-family: var(--client-font-body); font-size: 12px; color: rgba(255,255,255,0.85); margin: 8px 0 0; }
     .roo-stats { display: flex; gap: 12px; margin-bottom: 18px; }
     .roo-stat {
       flex: 1; background: #fff; border-radius: 14px; padding: 14px; text-align: center;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05);
     }
-    .roo-stat__value { font-family: var(--rooster-font-serif); font-size: 18px; font-weight: 800; margin: 0; }
+    .roo-stat__value { font-family: var(--client-font-display); font-size: 18px; font-weight: 800; margin: 0; }
     .roo-stat__value--in { color: #15803d; }
-    .roo-stat__value--out { color: var(--rooster-red); }
-    .roo-stat__label { font-family: var(--rooster-font-sans); font-size: 11px; color: var(--rooster-brown); margin: 4px 0 0; }
-    .roo-section-title { font-family: var(--rooster-font-sans); font-size: 12px; font-weight: 700; color: var(--rooster-brown); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 4px; }
+    .roo-stat__value--out { color: var(--client-red); }
+    .roo-stat__label { font-family: var(--client-font-body); font-size: 11px; color: var(--client-text-muted); margin: 4px 0 0; }
+    .roo-section-title { font-family: var(--client-font-body); font-size: 12px; font-weight: 700; color: var(--client-text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 4px; }
     .roo-mov {
       display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 12px;
       padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     .roo-mov__icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .roo-mov__icon--in { background: #ecfdf3; ion-icon { color: #15803d; } }
-    .roo-mov__icon--out { background: #fff1f2; ion-icon { color: var(--rooster-red); } }
+    .roo-mov__icon--out { background: #fff1f2; ion-icon { color: var(--client-red); } }
     .roo-mov__icon ion-icon { font-size: 17px; }
     .roo-mov__info { flex: 1; min-width: 0; }
-    .roo-mov__desc { font-family: var(--rooster-font-sans); font-size: 13px; font-weight: 600; color: var(--rooster-dark); margin: 0; }
-    .roo-mov__date { font-family: var(--rooster-font-sans); font-size: 11px; color: var(--rooster-brown); margin: 2px 0 0; }
-    .roo-mov__amount { font-family: var(--rooster-font-sans); font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .roo-mov__desc { font-family: var(--client-font-body); font-size: 13px; font-weight: 600; color: var(--client-text); margin: 0; }
+    .roo-mov__date { font-family: var(--client-font-body); font-size: 11px; color: var(--client-text-muted); margin: 2px 0 0; }
+    .roo-mov__amount { font-family: var(--client-font-body); font-size: 14px; font-weight: 800; flex-shrink: 0; }
     .roo-mov__amount--in { color: #15803d; }
-    .roo-mov__amount--out { color: var(--rooster-red); }
+    .roo-mov__amount--out { color: var(--client-red); }
   `],
   template: `
     <ion-content [fullscreen]="true" class="sub-content">

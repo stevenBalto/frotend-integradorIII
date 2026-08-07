@@ -1,33 +1,34 @@
 .ofertas-content {
-  --background: var(--rooster-bg);
-  color: var(--rooster-dark);
+  --background: var(--client-bg);
+  color: var(--client-text);
 }
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
 .ofertas-header {
-  padding: 16px 20px 4px;
+  padding: 22px 20px 4px;
 
   @media (min-width: 768px) {
-    padding: 32px 32px 8px;
+    padding: 40px 32px 8px;
   }
 
   &__title {
-    font-family: var(--rooster-font-serif);
-    font-size: 21px;
+    font-family: var(--client-font-display);
+    font-size: 24px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-ink);
     margin: 0 0 4px;
+    letter-spacing: -0.01em;
 
     @media (min-width: 768px) {
-      font-size: 30px;
+      font-size: 32px;
       margin-bottom: 4px;
     }
   }
 
   &__sub {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     margin: 0;
 
     @media (min-width: 768px) {
@@ -39,11 +40,11 @@
 /* ── Tabs ────────────────────────────────────────────────────────────────────── */
 .ofertas-tabs {
   display: flex;
-  border-bottom: 1px solid #ebebeb;
-  margin: 16px 20px 0;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.08);
+  margin: 20px 20px 0;
 
   @media (min-width: 768px) {
-    margin: 16px 32px 0;
+    margin: 24px 32px 0;
   }
 
   @media (min-width: 1024px) {
@@ -56,13 +57,13 @@
   padding: 14px 0;
   background: none;
   border: none;
-  border-bottom: 2.5px solid transparent;
-  font-family: var(--rooster-font-sans);
+  border-bottom: 3px solid transparent;
+  font-family: var(--client-font-body);
   font-size: 14px;
   font-weight: 700;
-  color: var(--rooster-brown);
+  color: var(--client-text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color var(--rooster-ease-fast), border-color var(--rooster-ease-fast);
   text-transform: capitalize;
 
   @media (min-width: 1024px) {
@@ -70,9 +71,11 @@
     padding: 14px 32px;
   }
 
+  &:hover { color: var(--client-red); }
+
   &--active {
-    color: var(--rooster-red);
-    border-bottom-color: var(--rooster-red);
+    color: var(--client-red);
+    border-bottom-color: var(--client-red);
   }
 }
 
@@ -82,64 +85,74 @@
 }
 
 .ofertas-empty {
-  margin: 16px 20px 0;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(168, 137, 94, 0.18);
-  color: var(--rooster-brown);
-  font-family: var(--rooster-font-sans);
+  margin: 20px 20px 0;
+  padding: 16px;
+  border-radius: var(--rooster-radius-md);
+  background: #fff;
+  border: 1px solid rgba(20, 17, 15, 0.06);
+  box-shadow: var(--rooster-shadow-sm);
+  color: var(--client-text-muted);
+  font-family: var(--client-font-body);
   font-size: 13px;
 
   &--error {
-    border-color: rgba(225, 54, 66, 0.2);
-    color: var(--rooster-red);
+    border-color: rgba(var(--client-red-rgb), 0.2);
+    color: var(--client-red);
   }
 }
 
-/* ── Grid de ofertas ────────────────────────────────────────────────────────── */
+/* ── Grid de ofertas ─────────────────────────────────────────────────────────
+   auto-fill con ancho maximo fijo por tarjeta: con pocos items las tarjetas
+   quedan compactas y alineadas a la izquierda (no estiradas a lo ancho de una
+   columna gigante cuando sobra espacio en pantallas grandes). */
 .ofertas-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 16px 20px 24px;
+  gap: 14px;
+  padding: 20px 20px 24px;
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 360px));
     gap: 16px;
-    padding: 20px 32px 32px;
-  }
-
-  @media (min-width: 1280px) {
-    grid-template-columns: repeat(3, 1fr);
+    padding: 24px 32px 32px;
   }
 }
 
-/* ── Tarjeta de oferta ──────────────────────────────────────────────────────── */
+/* ── Tarjeta de oferta (blanca, acento de color solo en icono/cinta/CTA) ─────── */
 .oferta-card {
+  position: relative;
   display: flex;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: var(--rooster-radius-md);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s;
+  border: 1px solid var(--client-border);
+  transition: transform var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
+  animation: rooster-rise var(--rooster-ease-med) both;
 
-  &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  }
+  &:hover { transform: translateY(-3px); box-shadow: var(--rooster-shadow-md); }
 
   &__illus {
-    width: 96px;
-    min-height: 100px;
+    position: relative;
+    width: 92px;
+    min-height: 108px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 60%);
+    }
   }
 
   &__icon {
-    font-size: 38px;
+    font-size: 34px;
     color: #ffffff;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
   }
 
   &__body {
@@ -152,10 +165,10 @@
   }
 
   &__name {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 900;
-    color: var(--rooster-red);
+    color: var(--client-text);
     text-transform: uppercase;
     line-height: 1.3;
     letter-spacing: 0.3px;
@@ -163,79 +176,90 @@
   }
 
   &__badge {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
     font-weight: 700;
-    color: var(--rooster-orange);
+    color: var(--client-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin: 0;
   }
 
   &__price {
-    font-family: var(--rooster-font-sans);
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--rooster-dark);
+    font-family: var(--client-font-display);
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--client-ink);
     margin: 4px 0 0;
   }
 
   &__btn {
     align-self: flex-start;
-    margin-top: 8px;
-    padding: 6px 12px;
-    border-radius: 10px;
+    margin-top: 10px;
+    padding: 7px 14px;
+    border-radius: var(--rooster-radius-pill);
     border: none;
-    font-family: var(--rooster-font-sans);
+    background: var(--client-red);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.02em;
     color: #ffffff;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
 
+    &:hover { filter: brightness(1.08); }
     &:active { transform: scale(0.95); }
   }
 }
 
-/* ── Tarjetas de cupon ─────────────────────────────────────────────────────── */
+/* ── Tarjetas de cupon (mismo criterio auto-fill que .ofertas-grid) ──────────── */
 .cupones-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 16px 20px 24px;
+  gap: 14px;
+  padding: 20px 20px 24px;
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 360px));
     gap: 16px;
-    padding: 20px 32px 32px;
-  }
-
-  @media (min-width: 1280px) {
-    grid-template-columns: repeat(3, 1fr);
+    padding: 24px 32px 32px;
   }
 }
 
 .cupon-card {
   display: flex;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: var(--rooster-radius-md);
   overflow: hidden;
-  border: 1.5px dashed rgba(225, 54, 66, 0.3);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  min-height: 104px;
+  border: 1.5px dashed rgba(var(--client-red-rgb), 0.3);
+  min-height: 108px;
+  transition: transform var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
+  animation: rooster-rise var(--rooster-ease-med) both;
+
+  &:hover { transform: translateY(-3px); box-shadow: var(--rooster-shadow-md); }
 
   &__illus {
-    width: 96px;
+    position: relative;
+    width: 92px;
     min-height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 60%);
+    }
   }
 
   &__icon {
     font-size: 34px;
     color: #ffffff;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
   }
 
   &__divider {
@@ -249,7 +273,7 @@
     span {
       width: 1px;
       height: 6px;
-      background: var(--rooster-red);
+      background: var(--client-border);
     }
   }
 
@@ -269,41 +293,44 @@
   }
 
   &__code {
-    font-family: var(--rooster-font-sans);
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 1.5px;
+    font-family: var(--client-font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--client-red);
   }
 
   &__btn {
-    padding: 6px 10px;
-    border-radius: 10px;
+    padding: 6px 12px;
+    border-radius: var(--rooster-radius-pill);
     border: none;
-    font-family: var(--rooster-font-sans);
+    background: var(--client-red);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
     color: #ffffff;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
 
+    &:hover { filter: brightness(1.08); }
     &:active {
       transform: scale(0.95);
     }
   }
 
   &__desc {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 600;
-    color: var(--rooster-dark);
+    color: var(--client-text);
     line-height: 1.4;
     margin: 0 0 6px;
   }
 
   &__expira {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 11px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     margin: 0;
   }
 }
@@ -317,25 +344,28 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  animation: rooster-fade var(--rooster-ease-fast) both;
 
   &__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(30, 30, 30, 0.55);
+    background: rgba(20, 17, 15, 0.62);
+    backdrop-filter: blur(2px);
   }
 
   &__panel {
     position: relative;
     width: 100%;
     max-width: 340px;
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 28px 24px 24px;
+    background: var(--client-white);
+    border-radius: var(--rooster-radius-lg);
+    padding: 30px 24px 26px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--rooster-shadow-xl);
+    animation: rooster-pop var(--rooster-ease-med) both;
   }
 
   &__close {
@@ -346,36 +376,38 @@
     height: 30px;
     border-radius: 50%;
     border: none;
-    background: var(--rooster-bg);
+    background: var(--client-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: transform var(--rooster-ease-fast);
 
-    ion-icon { font-size: 16px; color: var(--rooster-dark); }
+    &:active { transform: scale(0.9); }
+    ion-icon { font-size: 16px; color: var(--client-text); }
   }
 
   &__title {
-    font-family: var(--rooster-font-serif);
-    font-size: 18px;
+    font-family: var(--client-font-display);
+    font-size: 19px;
     font-weight: 700;
-    color: var(--rooster-dark);
+    color: var(--client-ink);
     margin: 0 0 16px;
   }
 
   &__codigo {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 1.5px;
-    color: var(--rooster-red);
+    color: var(--client-red);
     margin: 16px 0 4px;
   }
 
   &__hint {
-    font-family: var(--rooster-font-sans);
+    font-family: var(--client-font-body);
     font-size: 12px;
-    color: var(--rooster-brown);
+    color: var(--client-text-muted);
     margin: 0;
   }
 }

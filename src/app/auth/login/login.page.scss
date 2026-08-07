@@ -35,7 +35,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 18px 20px;
-  background: var(--rooster-red);
+  background: var(--client-red);
   flex-shrink: 0;
 }
 
@@ -81,11 +81,11 @@
   padding: 14px 16px;
   background: rgba(225, 54, 66, 0.06);
   border-radius: 12px;
-  border-left: 4px solid var(--rooster-red);
+  border-left: 4px solid var(--client-red);
 
   ion-icon {
     font-size: 22px;
-    color: var(--rooster-red);
+    color: var(--client-red);
     flex-shrink: 0;
     margin-top: 2px;
   }
@@ -122,7 +122,7 @@
   transition: border-color 0.2s;
 
   &:focus-within {
-    border-color: var(--rooster-red);
+    border-color: var(--client-red);
     background: #fff;
   }
 }
@@ -135,7 +135,7 @@
   font-size: 14px;
   color: #111827;
   outline: none;
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
 
   &::placeholder {
     color: #9CA3AF;
@@ -160,11 +160,11 @@
   padding: 14px;
   border: none;
   border-radius: 14px;
-  background: var(--rooster-red);
+  background: var(--client-red);
   color: #fff;
   font-weight: 700;
   font-size: 14px;
-  font-family: var(--rooster-font-sans);
+  font-family: var(--client-font-body);
   cursor: pointer;
   margin-top: 8px;
   box-shadow: 0 6px 20px rgba(225, 54, 66, 0.25);

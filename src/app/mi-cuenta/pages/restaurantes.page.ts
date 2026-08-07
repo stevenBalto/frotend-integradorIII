@@ -15,20 +15,20 @@ import { ConfiguracionService, Restaurante } from '../../core/services/configura
   styles: [`
     .rest-card { display: flex; flex-direction: column; gap: 10px; }
     .rest-name {
-      font-family: var(--rooster-font-serif);
+      font-family: var(--client-font-display);
       font-size: 17px;
       font-weight: 700;
-      color: var(--rooster-dark);
+      color: var(--client-text);
       margin: 0;
     }
     .rest-row {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      font-family: var(--rooster-font-sans);
+      font-family: var(--client-font-body);
       font-size: 13px;
-      color: var(--rooster-brown);
-      ion-icon { font-size: 17px; color: var(--rooster-red); flex-shrink: 0; margin-top: 1px; }
+      color: var(--client-text-muted);
+      ion-icon { font-size: 17px; color: var(--client-red); flex-shrink: 0; margin-top: 1px; }
       span { line-height: 1.4; }
     }
     .rest-map {
@@ -39,11 +39,11 @@ import { ConfiguracionService, Restaurante } from '../../core/services/configura
       width: 100%;
       padding: 12px;
       margin-top: 4px;
-      border: 1.5px solid rgba(225,54,66,0.3);
+      border: 1.5px solid rgba(var(--client-red-rgb),0.3);
       border-radius: 12px;
       background: #fff1f2;
-      color: var(--rooster-red);
-      font-family: var(--rooster-font-sans);
+      color: var(--client-red);
+      font-family: var(--client-font-body);
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;

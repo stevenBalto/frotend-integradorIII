@@ -11,6 +11,60 @@
   --rooster-bg: #faf7f2;
   --rooster-border: #d1d1d1;
 
+  /* Acentos premium (rediseño vista cliente, pasada anterior — en desuso,
+     se retiran cuando todas las paginas cliente migren al bloque --client-*) */
+  --rooster-wine: #6e1423;
+  --rooster-olive: #6b7a3d;
+  --rooster-ink: #14110f;
+  --rooster-cream: #fffaf3;
+  --rooster-red-rgb: 225, 54, 66;
+  --rooster-wine-rgb: 110, 20, 35;
+  --rooster-ink-rgb: 20, 17, 15;
+
+  /* ══════════════════════════════════════════════════════════════════════
+     VISTA CLIENTE — identidad real de marca (ver Identidad ROOSTER - 2.pdf
+     y src/assets/logo/rooster-logo.png). Namespace propio --client-* para
+     NO tocar --rooster-red/--rooster-bg/--rooster-font-* ni --ion-*, que
+     usa el panel admin extensamente. Blanco / negro / rojo, con el ambar
+     de la llama del isotipo como unico acento secundario.
+     ══════════════════════════════════════════════════════════════════════ */
+  --client-red: #e4002b;
+  --client-red-rgb: 228, 0, 43;
+  --client-red-dark: #b8001f;
+  --client-ink: #0b0b0c;
+  --client-ink-rgb: 11, 11, 12;
+  --client-white: #ffffff;
+  --client-bg: #ffffff;
+  --client-surface: #f7f7f8;
+  --client-border: #e7e5e3;
+  --client-text: #0b0b0c;
+  --client-text-muted: #6b6b6f;
+  --client-amber: #ff9500;
+  --client-amber-rgb: 255, 149, 0;
+  --client-shadow-red: 0 10px 24px rgba(228, 0, 43, 0.28);
+
+  --client-font-display: 'Poppins', sans-serif;
+  --client-font-body: 'Inter', sans-serif;
+
+  /* Elevación: sombras en capas (ambiente + contacto), no una sombra plana */
+  --rooster-shadow-sm: 0 1px 2px rgba(20, 17, 15, 0.06), 0 2px 6px rgba(20, 17, 15, 0.05);
+  --rooster-shadow-md: 0 2px 6px rgba(20, 17, 15, 0.05), 0 10px 24px rgba(20, 17, 15, 0.09);
+  --rooster-shadow-lg: 0 6px 16px rgba(20, 17, 15, 0.08), 0 20px 48px rgba(20, 17, 15, 0.14);
+  --rooster-shadow-xl: 0 12px 28px rgba(20, 17, 15, 0.12), 0 32px 72px rgba(20, 17, 15, 0.18);
+  --rooster-shadow-red: 0 10px 24px rgba(225, 54, 66, 0.28);
+
+  /* Radios unificados */
+  --rooster-radius-sm: 10px;
+  --rooster-radius-md: 16px;
+  --rooster-radius-lg: 22px;
+  --rooster-radius-xl: 28px;
+  --rooster-radius-pill: 999px;
+
+  /* Curva de movimiento estándar */
+  --rooster-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rooster-ease-fast: 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  --rooster-ease-med: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
   /* Tipografias */
   --rooster-font-serif: 'Playfair Display', serif;
   --rooster-font-sans: 'Nunito', sans-serif;
