@@ -85,6 +85,19 @@
 }
 .admin-sidebar__nav::-webkit-scrollbar { display: none; }
 
+/* Grupos del sidebar con encabezado de sección (Resumen, Operación, Catálogo, …). */
+.admin-sidebar__group + .admin-sidebar__group { margin-top: 10px; }
+.admin-sidebar__group-title {
+  margin: 0;
+  padding: 6px 16px 4px;
+  font-family: var(--rooster-font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
 .admin-nav-item {
   display: flex;
   align-items: center;
