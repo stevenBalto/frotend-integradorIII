@@ -326,11 +326,11 @@
         <div class="of-form__row">
           <label class="of-form__label of-form__label--half">
             Fecha inicio
-            <input type="date" formControlName="fecha_inicio" class="of-form__input" />
+            <input type="date" formControlName="fecha_inicio" class="of-form__input" (click)="$any($event.target).showPicker && $any($event.target).showPicker()" />
           </label>
           <label class="of-form__label of-form__label--half">
             Fecha fin
-            <input type="date" formControlName="fecha_fin" class="of-form__input" />
+            <input type="date" formControlName="fecha_fin" class="of-form__input" (click)="$any($event.target).showPicker && $any($event.target).showPicker()" />
           </label>
         </div>
 
@@ -345,6 +345,24 @@
             </div>
             <p *ngIf="productos.length === 0" class="of-form__no-products">No hay productos disponibles.</p>
           </div>
+        </label>
+
+        <label class="of-form__label">
+          ¿A quién se le muestra?
+          <div class="of-form__alcance">
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance" value="todos" /> Todos los clientes
+            </label>
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance" value="especifico" /> Clientes específicos
+            </label>
+          </div>
+          <ng-container *ngIf="formOferta.value.alcance === 'especifico'">
+            <button type="button" class="of-form__sysbtn" (click)="abrirPickerClientes('oferta')">
+              <ion-icon name="people-outline"></ion-icon>
+              Elegir clientes ({{ ofertaClientesSel.size }} seleccionados)
+            </button>
+          </ng-container>
         </label>
 
         <label class="of-form__check">
@@ -436,17 +454,35 @@
         <div class="of-form__row">
           <label class="of-form__label of-form__label--half">
             Fecha inicio
-            <input type="date" formControlName="fecha_inicio" class="of-form__input" />
+            <input type="date" formControlName="fecha_inicio" class="of-form__input" (click)="$any($event.target).showPicker && $any($event.target).showPicker()" />
           </label>
           <label class="of-form__label of-form__label--half">
             Fecha fin
-            <input type="date" formControlName="fecha_fin" class="of-form__input" />
+            <input type="date" formControlName="fecha_fin" class="of-form__input" (click)="$any($event.target).showPicker && $any($event.target).showPicker()" />
           </label>
         </div>
 
         <label class="of-form__label">
           Usos maximos
           <input type="number" min="0" step="1" formControlName="usos_max" class="of-form__input" placeholder="Dejar vacio para ilimitados" />
+        </label>
+
+        <label class="of-form__label">
+          ¿A quién se le muestra?
+          <div class="of-form__alcance">
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance" value="todos" /> Todos los clientes
+            </label>
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance" value="especifico" /> Clientes específicos
+            </label>
+          </div>
+          <ng-container *ngIf="formCupon.value.alcance === 'especifico'">
+            <button type="button" class="of-form__sysbtn" (click)="abrirPickerClientes('cupon')">
+              <ion-icon name="people-outline"></ion-icon>
+              Elegir clientes ({{ cuponClientesSel.size }} seleccionados)
+            </button>
+          </ng-container>
         </label>
 
         <label class="of-form__check">
@@ -489,6 +525,68 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: elegir clientes especificos (compartido oferta/cupon) -->
+<div class="order-modal" *ngIf="modalClientesOpen">
+  <div class="order-modal__backdrop" (click)="cerrarPickerClientes()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Elegir clientes</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarPickerClientes()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="of-search">
+        <input
+          type="text"
+          class="of-search__input"
+          placeholder="Buscar por nombre o correo..."
+          [(ngModel)]="busquedaCliente"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <ion-icon name="search-outline" class="of-search__icon"></ion-icon>
+      </div>
+
+      <div class="of-form__row" style="margin-top: 10px;">
+        <button type="button" class="of-form__sysbtn" [class.of-form__sysbtn--active]="ordenCliente === 'gasto'" (click)="setOrdenCliente('gasto')">
+          Mayor gasto
+        </button>
+        <button type="button" class="of-form__sysbtn" [class.of-form__sysbtn--active]="ordenCliente === 'pedidos'" (click)="setOrdenCliente('pedidos')">
+          Más pedidos
+        </button>
+        <button type="button" class="of-form__sysbtn" [class.of-form__sysbtn--active]="ordenCliente === 'nombre'" (click)="setOrdenCliente('nombre')">
+          Nombre (A-Z)
+        </button>
+      </div>
+
+      <p *ngIf="cargandoClientes" class="of-form__no-products">Cargando clientes...</p>
+
+      <div class="of-form__products" *ngIf="!cargandoClientes" style="margin-top: 10px;">
+        <div
+          *ngFor="let c of clientesFiltrados"
+          class="of-form__product-item"
+          [class.of-form__product-item--selected]="isClienteSelected(c.id)"
+          (click)="toggleCliente(c.id)"
+        >
+          <span class="of-form__product-check">{{ isClienteSelected(c.id) ? '&#10003;' : '' }}</span>
+          {{ c.nombre }}
+          <span class="of-form__note">· ₡{{ c.total_gastado | number:'1.0-0' }} · {{ c.cantidad_pedidos }} pedidos</span>
+        </div>
+        <p *ngIf="clientesFiltrados.length === 0" class="of-form__no-products">No hay clientes que coincidan.</p>
+      </div>
+
+      <button type="button" class="order-modal__cta" (click)="cerrarPickerClientes()">
+        Listo ({{ cantidadClientesSel }} seleccionados)
+      </button>
     </div>
   </div>
 </div>

@@ -81,6 +81,11 @@ export class CuponService {
     // Booleano como '1'/'0' para que Laravel lo interprete correctamente
     fd.append('activo', payload.activo ? '1' : '0');
 
+    fd.append('alcance', payload.alcance);
+    for (const cid of payload.cliente_ids) {
+      fd.append('cliente_ids[]', String(cid));
+    }
+
     // Imagen: archivo tiene prioridad sobre URL
     if (imagenOpts?.imagen) {
       fd.append('imagen', imagenOpts.imagen);

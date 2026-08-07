@@ -4,6 +4,15 @@ export interface OfertaProducto {
   nombre: string;
 }
 
+/** Cliente asignado a una oferta especifica (solo id y nombre). */
+export interface OfertaCliente {
+  id: number;
+  nombre: string;
+}
+
+/** Alcance de visibilidad: 'todos' los clientes, o solo los 'especifico'-camente asignados. */
+export type AlcanceOferta = 'todos' | 'especifico';
+
 /** Oferta tal como la devuelve la API. */
 export interface Oferta {
   id: number;
@@ -17,6 +26,8 @@ export interface Oferta {
   productos: OfertaProducto[];
   productos_count: number;
   imagen_url: string | null;
+  alcance: AlcanceOferta;
+  clientes?: OfertaCliente[];
   created_at: string | null;
   updated_at: string | null;
 }
@@ -33,6 +44,8 @@ export interface OfertaPayload {
   producto_ids: number[];
   /** URL de imagen por defecto (del sistema). */
   imagen_url?: string | null;
+  alcance: AlcanceOferta;
+  cliente_ids: number[];
 }
 
 /** Opciones de imagen para crear/actualizar oferta. */

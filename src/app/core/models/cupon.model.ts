@@ -1,3 +1,12 @@
+/** Cliente asignado a un cupon especifico (solo id y nombre). */
+export interface CuponCliente {
+  id: number;
+  nombre: string;
+}
+
+/** Alcance de visibilidad: 'todos' los clientes, o solo los 'especifico'-camente asignados. */
+export type AlcanceCupon = 'todos' | 'especifico';
+
 /** Cupon tal como lo devuelve la API. */
 export interface Cupon {
   id: number;
@@ -11,6 +20,8 @@ export interface Cupon {
   usos_actuales: number;
   activo: boolean;
   imagen_url: string | null;
+  alcance: AlcanceCupon;
+  clientes?: CuponCliente[];
   created_at: string | null;
   updated_at: string | null;
 }
@@ -27,6 +38,8 @@ export interface CuponPayload {
   activo?: boolean;
   /** URL de imagen por defecto (del sistema). */
   imagen_url?: string | null;
+  alcance: AlcanceCupon;
+  cliente_ids: number[];
 }
 
 /** Opciones de imagen para crear/actualizar cupon. */

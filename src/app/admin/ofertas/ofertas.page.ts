@@ -5,8 +5,10 @@ import { Router } from '@angular/router';
 import { OfertaService } from '../../core/services/oferta.service';
 import { CuponService } from '../../core/services/cupon.service';
 import { ProductoService } from '../../core/services/producto.service';
-import { Oferta, OfertaPayload, OfertaImagenOpts } from '../../core/models/oferta.model';
-import { Cupon, CuponPayload, CuponImagenOpts } from '../../core/models/cupon.model';
+import { ClienteService } from '../../core/services/cliente.service';
+import { Oferta, OfertaPayload, OfertaImagenOpts, AlcanceOferta } from '../../core/models/oferta.model';
+import { Cupon, CuponPayload, CuponImagenOpts, AlcanceCupon } from '../../core/models/cupon.model';
+import { Cliente } from '../../core/models/cliente.model';
 
 interface ProductoOpt {
   id: number;
@@ -66,6 +68,7 @@ export class AdminOfertasPage implements OnInit {
   readonly formOferta: FormGroup;
   private ofertaEditId: number | null = null;
   private productosSel = new Set<number>();
+  ofertaClientesSel = new Set<number>();
 
   // Imagen oferta
   ofertaImagenArchivo: File | null = null;
@@ -80,6 +83,7 @@ export class AdminOfertasPage implements OnInit {
   formCuponError: string | null = null;
   readonly formCupon: FormGroup;
   private cuponEditId: number | null = null;
+  cuponClientesSel = new Set<number>();
 
   // Imagen cupon
   cuponImagenArchivo: File | null = null;
@@ -144,6 +148,15 @@ export class AdminOfertasPage implements OnInit {
   modalImagenOpen = false;
   private imagenTarget: 'oferta' | 'cupon' = 'oferta';
 
+  // Picker de clientes especificos (contextual segun oferta/cupon).
+  modalClientesOpen = false;
+  private clientesTarget: 'oferta' | 'cupon' = 'oferta';
+  clientes: Cliente[] = [];
+  cargandoClientes = false;
+  clientesCargados = false;
+  busquedaCliente = '';
+  ordenCliente: 'gasto' | 'pedidos' | 'nombre' = 'gasto';
+
   /** Grupos a mostrar en el modal segun desde donde se abrio (oferta/cupon). */
   get imagenesSistema(): GrupoImagenes[] {
     return this.imagenTarget === 'oferta' ? this.imagenesOferta : this.imagenesCupon;
@@ -155,6 +168,7 @@ export class AdminOfertasPage implements OnInit {
     private ofertaService: OfertaService,
     private cuponService: CuponService,
     private productoService: ProductoService,
+    private clienteService: ClienteService,
   ) {
     this.formOferta = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -164,6 +178,7 @@ export class AdminOfertasPage implements OnInit {
       fecha_inicio: [''],
       fecha_fin: [''],
       activa: [true],
+      alcance: ['todos' as AlcanceOferta],
     });
     this.formCupon = this.fb.group({
       codigo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[A-Za-z0-9]+$/)]],
@@ -174,6 +189,7 @@ export class AdminOfertasPage implements OnInit {
       fecha_fin: [''],
       usos_max: [null],
       activo: [true],
+      alcance: ['todos' as AlcanceCupon],
     });
   }
 
@@ -378,14 +394,85 @@ export class AdminOfertasPage implements OnInit {
     this.modalImagenOpen = false;
   }
 
+  // ── Picker de clientes especificos (compartido oferta/cupon) ──────
+  abrirPickerClientes(target: 'oferta' | 'cupon'): void {
+    this.clientesTarget = target;
+    this.modalClientesOpen = true;
+    if (!this.clientesCargados) {
+      this.cargarClientes();
+    }
+  }
+
+  cerrarPickerClientes(): void {
+    this.modalClientesOpen = false;
+  }
+
+  private cargarClientes(): void {
+    this.cargandoClientes = true;
+    this.clienteService.listarConEstadisticas().subscribe({
+      next: (data) => {
+        this.clientes = data;
+        this.clientesCargados = true;
+        this.cargandoClientes = false;
+      },
+      error: () => {
+        this.cargandoClientes = false;
+      },
+    });
+  }
+
+  /** Set de seleccion activo segun desde donde se abrio el picker (oferta/cupon). */
+  private get clientesSelActivo(): Set<number> {
+    return this.clientesTarget === 'oferta' ? this.ofertaClientesSel : this.cuponClientesSel;
+  }
+
+  isClienteSelected(id: number): boolean {
+    return this.clientesSelActivo.has(id);
+  }
+
+  toggleCliente(id: number): void {
+    const sel = this.clientesSelActivo;
+    if (sel.has(id)) {
+      sel.delete(id);
+    } else {
+      sel.add(id);
+    }
+  }
+
+  get cantidadClientesSel(): number {
+    return this.clientesTarget === 'oferta' ? this.ofertaClientesSel.size : this.cuponClientesSel.size;
+  }
+
+  /** Lista visible en el picker: busqueda por nombre/email + orden elegido. */
+  get clientesFiltrados(): Cliente[] {
+    const texto = this.busquedaCliente.trim().toLowerCase();
+    const lista = this.clientes.filter(
+      (c) => !texto || c.nombre.toLowerCase().includes(texto) || c.email.toLowerCase().includes(texto),
+    );
+    const copia = [...lista];
+    if (this.ordenCliente === 'gasto') {
+      copia.sort((a, b) => b.total_gastado - a.total_gastado);
+    } else if (this.ordenCliente === 'pedidos') {
+      copia.sort((a, b) => b.cantidad_pedidos - a.cantidad_pedidos);
+    } else {
+      copia.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    }
+    return copia;
+  }
+
+  setOrdenCliente(orden: 'gasto' | 'pedidos' | 'nombre'): void {
+    this.ordenCliente = orden;
+  }
+
   // ── Modal oferta ──────────────────────────────────────────────────
   abrirNuevaOferta(): void {
     this.editandoOferta = false;
     this.ofertaEditId = null;
     this.formOfertaError = null;
     this.productosSel.clear();
+    this.ofertaClientesSel.clear();
     this.limpiarImagenOferta();
-    this.formOferta.reset({ tipo_descuento: 'porcentaje', activa: true });
+    this.formOferta.reset({ tipo_descuento: 'porcentaje', activa: true, alcance: 'todos' });
     this.modalOfertaOpen = true;
   }
 
@@ -394,6 +481,7 @@ export class AdminOfertasPage implements OnInit {
     this.ofertaEditId = o.id;
     this.formOfertaError = null;
     this.productosSel = new Set((o.productos ?? []).map((p) => p.id));
+    this.ofertaClientesSel = new Set((o.clientes ?? []).map((c) => c.id));
     this.limpiarImagenOferta();
     // Precargar imagen existente
     if (o.imagen_url) {
@@ -408,6 +496,7 @@ export class AdminOfertasPage implements OnInit {
       fecha_inicio: o.fecha_inicio ?? '',
       fecha_fin: o.fecha_fin ?? '',
       activa: o.activa,
+      alcance: o.alcance,
     });
     this.modalOfertaOpen = true;
   }
@@ -415,6 +504,7 @@ export class AdminOfertasPage implements OnInit {
   cerrarModalOferta(): void {
     this.modalOfertaOpen = false;
     this.modalImagenOpen = false;
+    this.modalClientesOpen = false;
     this.limpiarImagenOferta();
   }
 
@@ -446,6 +536,8 @@ export class AdminOfertasPage implements OnInit {
       fecha_fin: v.fecha_fin || null,
       activa: !!v.activa,
       producto_ids: Array.from(this.productosSel),
+      alcance: v.alcance,
+      cliente_ids: v.alcance === 'especifico' ? Array.from(this.ofertaClientesSel) : [],
     };
 
     const imagenOpts: OfertaImagenOpts = {
@@ -486,8 +578,9 @@ export class AdminOfertasPage implements OnInit {
     this.editandoCupon = false;
     this.cuponEditId = null;
     this.formCuponError = null;
+    this.cuponClientesSel.clear();
     this.limpiarImagenCupon();
-    this.formCupon.reset({ tipo: 'porcentaje', activo: true });
+    this.formCupon.reset({ tipo: 'porcentaje', activo: true, alcance: 'todos' });
     this.modalCuponOpen = true;
   }
 
@@ -495,6 +588,7 @@ export class AdminOfertasPage implements OnInit {
     this.editandoCupon = true;
     this.cuponEditId = c.id;
     this.formCuponError = null;
+    this.cuponClientesSel = new Set((c.clientes ?? []).map((cl) => cl.id));
     this.limpiarImagenCupon();
     // Precargar imagen existente
     if (c.imagen_url) {
@@ -509,6 +603,7 @@ export class AdminOfertasPage implements OnInit {
       fecha_fin: c.fecha_fin ?? '',
       usos_max: c.usos_max,
       activo: c.activo,
+      alcance: c.alcance,
     });
     this.modalCuponOpen = true;
   }
@@ -516,6 +611,7 @@ export class AdminOfertasPage implements OnInit {
   cerrarModalCupon(): void {
     this.modalCuponOpen = false;
     this.modalImagenOpen = false;
+    this.modalClientesOpen = false;
     this.limpiarImagenCupon();
   }
 
@@ -535,6 +631,8 @@ export class AdminOfertasPage implements OnInit {
       fecha_fin: v.fecha_fin || null,
       usos_max: v.usos_max === null || v.usos_max === '' ? null : Number(v.usos_max),
       activo: !!v.activo,
+      alcance: v.alcance,
+      cliente_ids: v.alcance === 'especifico' ? Array.from(this.cuponClientesSel) : [],
     };
 
     const imagenOpts: CuponImagenOpts = {

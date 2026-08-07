@@ -210,6 +210,14 @@
   &:focus { border-color: var(--rooster-red, #e13642); background: #fff; }
 }
 textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
+input[type="date"].of-form__input {
+  cursor: pointer;
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 1;
+    filter: invert(28%) sepia(64%) saturate(3000%) hue-rotate(340deg) brightness(95%) contrast(95%);
+  }
+}
 .of-form__note { font-size: 11px; font-weight: 500; color: var(--admin-text-soft, #9ca3af); }
 .of-form__hint { font-size: 11px; font-weight: 500; color: var(--admin-text-soft, #9ca3af); font-style: italic; }
 .of-form__row { display: flex; gap: 12px; }
@@ -430,6 +438,59 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
 
   ion-icon { font-size: 15px; color: var(--rooster-red, #e13642); }
   &:hover { border-color: var(--rooster-red, #e13642); }
+
+  &--active {
+    border-color: var(--rooster-red, #e13642);
+    background: rgba(225, 54, 66, 0.08);
+    color: var(--rooster-red, #e13642);
+    ion-icon { color: var(--rooster-red, #e13642); }
+  }
+}
+
+/* Buscador fijo (no colapsable) del picker de clientes */
+.of-search {
+  position: relative;
+  width: 100%;
+}
+.of-search__input {
+  width: 100%;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 40px 0 16px;
+  border: 1px solid var(--rooster-red, #e13642);
+  border-radius: 9999px;
+  background: var(--admin-card, #fff);
+  font-size: 13px;
+  font-family: var(--rooster-font-sans);
+  color: var(--admin-text, #1e1e1e);
+  outline: none;
+}
+.of-search__input::placeholder { color: var(--admin-text-soft, #9ca3af); }
+.of-search__icon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--rooster-red, #e13642);
+  pointer-events: none;
+}
+
+/* Alcance (Todos / Clientes especificos) */
+.of-form__alcance {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+.of-form__radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text, #1e1e1e);
+  cursor: pointer;
+  input { width: 15px; height: 15px; }
 }
 
 /* Modal selector de imagen del sistema: grilla de tiles agrupada por icono */

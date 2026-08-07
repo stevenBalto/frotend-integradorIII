@@ -72,6 +72,11 @@ export class OfertaService {
       fd.append('producto_ids[]', String(pid));
     }
 
+    fd.append('alcance', payload.alcance);
+    for (const cid of payload.cliente_ids) {
+      fd.append('cliente_ids[]', String(cid));
+    }
+
     // Imagen: archivo tiene prioridad sobre URL
     if (imagenOpts?.imagen) {
       fd.append('imagen', imagenOpts.imagen);
