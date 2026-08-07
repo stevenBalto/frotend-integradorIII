@@ -11,7 +11,7 @@ import {
   rutaDeNotificacion,
   iconoDeNotificacion,
 } from '../../core/models/notificacion.model';
-import { AdminHeaderService } from '../shared/admin-header.service';
+import { AdminHeaderLead, AdminHeaderService } from '../shared/admin-header.service';
 
 interface NavItem {
   id: string;
@@ -79,7 +79,7 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   readonly headerActions$: Observable<TemplateRef<unknown> | null>;
 
   /** Slot izquierdo/central: contenido (KPIs) que la página proyecta al header. */
-  readonly headerLead$: Observable<TemplateRef<unknown> | null>;
+  readonly headerLead$: Observable<AdminHeaderLead | null>;
 
   readonly saludo = this.calcularSaludo();
   readonly fechaTexto = this.calcularFecha();
