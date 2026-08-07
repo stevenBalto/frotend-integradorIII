@@ -318,7 +318,24 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
       );
     }
 
-    return resultado;
+    // Orden: los pedidos NO cerrados (abiertos) van primero y, dentro de ellos, los más
+    // antiguos arriba (el que lleva más tiempo esperando encabeza). Los cerrados después.
+    return [...resultado].sort((a, b) => {
+      const ca = this.esCerrado(a.estado) ? 1 : 0;
+      const cb = this.esCerrado(b.estado) ? 1 : 0;
+      if (ca !== cb) {
+        return ca - cb;
+      }
+      const ta = new Date(a.created_at).getTime();
+      const tb = new Date(b.created_at).getTime();
+      // Abiertos: antiguo → nuevo. Cerrados: nuevo → antiguo (historial reciente arriba).
+      return ca === 0 ? ta - tb : tb - ta;
+    });
+  }
+
+  /** "Cerrado" = estado terminal (entregado o cancelado). Los demás siguen abiertos. */
+  private esCerrado(estado: PedidoEstado): boolean {
+    return estado === 'entregado' || estado === 'cancelado';
   }
 
   // ── Carga ──

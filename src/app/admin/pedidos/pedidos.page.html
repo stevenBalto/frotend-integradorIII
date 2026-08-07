@@ -126,11 +126,10 @@
         <table class="admin-table">
           <thead>
             <tr>
-              <th>Código</th>
+              <th>ID Pedido</th>
               <th>Fecha</th>
               <th>Cliente</th>
               <th>Modalidad</th>
-              <th>Items</th>
               <th>Total</th>
               <th>Estado</th>
               <th>Pago</th>
@@ -147,12 +146,12 @@
               <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>
               <td class="admin-table__semi">{{ p.nombre_cliente || p.cliente.nombre }}</td>
               <td><modality-pill [mode]="p.modalidad === 'comer_aqui' ? 'aqui' : 'llevar'"></modality-pill></td>
-              <td>{{ p.items.length }}</td>
               <td class="admin-table__strong">{{ p.total | crcCurrency }}</td>
               <td><status-badge [type]="estadoToStatusType(p.estado)"></status-badge></td>
               <td>
-                <span class="ped-pago" [class.ped-pago--si]="p.pagado">
-                  {{ p.pagado ? 'Pagado' : 'Pendiente' }}
+                <span class="pago-badge" [class.pago-badge--si]="p.pagado" [class.pago-badge--no]="!p.pagado">
+                  <ion-icon [name]="p.pagado ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                  {{ p.pagado ? 'Pagado' : 'No pagado' }}
                 </span>
               </td>
               <td>
@@ -163,7 +162,7 @@
               </td>
             </tr>
             <tr *ngIf="pedidosFiltrados.length === 0 && !cargando">
-              <td colspan="9" class="ped-empty">
+              <td colspan="8" class="ped-empty">
                 {{ pedidos.length === 0 ? 'No hay pedidos registrados.' : 'Ningun pedido coincide con el filtro.' }}
               </td>
             </tr>
