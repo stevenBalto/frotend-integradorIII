@@ -82,7 +82,14 @@ export class AuthService {
    * @param destino Ruta del front a la que volver ya con la sesion iniciada.
    */
   irAGoogle(destino: string): void {
-    const url = `${this.base}/auth/google/redirect?destino=${encodeURIComponent(destino)}`;
+    // Se manda el origen para que el backend arme el redirect_uri con el mismo
+    // puerto en el que estamos corriendo: 4200 con `ng serve`, 8100 con
+    // `ionic serve`, o la URL del tunel en una demo. El backend lo valida contra
+    // su lista blanca (GOOGLE_ALLOWED_ORIGINS), asi que no es un agujero.
+    const url =
+      `${this.base}/auth/google/redirect` +
+      `?destino=${encodeURIComponent(destino)}` +
+      `&origen=${encodeURIComponent(window.location.origin)}`;
     window.location.href = url;
   }
 
