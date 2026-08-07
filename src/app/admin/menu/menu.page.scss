@@ -671,3 +671,18 @@
   color: #b8860b;
   white-space: nowrap;
 }
+
+/* ── Reparto móvil (<640px) ↔ tablet+ (>=640px) de los KPIs ─────────────────────
+   Igual que Pedidos, Dashboard, Inicio e Inventario: en tablet/PC los KPIs viven en
+   el header (portal [adminHeaderLead], carril <admin-hkpi-strip> con flechas) y en
+   móvil se muestran como tarjetas en el cuerpo. */
+@media (min-width: 640px) {
+  .menu-kpis-body { display: none; }
+}
+
+/* Los <select> del panel van mas redondeados que los inputs de texto (12px). */
+select.menu-form__input,
+select.menu-form__input--sm,
+select.menu-form__input--full {
+  border-radius: 12px;
+}

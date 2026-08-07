@@ -1,8 +1,60 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- Stats / filtros -->
-    <div class="admin-grid-4">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título). En móvil
+         el slot queda oculto y se muestran los KPIs del cuerpo. Estilos .admin-hkpi en
+         global.scss; el carril los corre con flechas si no caben. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'todos'"
+          (click)="setFiltro('todos')">
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="people-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Clientes totales</span>
+            <span class="admin-hkpi__value">{{ totalClientes }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'recientes'"
+          (click)="setFiltro('recientes')">
+          <span class="admin-hkpi__icon" style="background: #16A34A1a">
+            <ion-icon name="checkmark-circle-outline" style="color: #16A34A"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Compraron (30 días)</span>
+            <span class="admin-hkpi__value">{{ clientesRecientes }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'sin_compras'"
+          (click)="setFiltro('sin_compras')">
+          <span class="admin-hkpi__icon" style="background: #9CA3AF26">
+            <ion-icon name="alert-circle-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Sin compras</span>
+            <span class="admin-hkpi__value">{{ clientesSinCompras }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--static]="!topComprador"
+          [class.admin-hkpi--active]="filtro === 'top_comprador'"
+          (click)="topComprador && setFiltro('top_comprador')">
+          <span class="admin-hkpi__icon" style="background: #F59E0B1f">
+            <ion-icon name="trophy-outline" style="color: #F59E0B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Top comprador</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">{{ topComprador ? formatMonto(topComprador.total_gastado) : '—' }}</span>
+              <span class="admin-hkpi__sub" style="color: #6B7280" *ngIf="topComprador">{{ topComprador.nombre }}</span>
+            </span>
+          </span>
+        </button>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 cli-kpis-body">
       <admin-kpi-card label="Clientes totales" [value]="totalClientes"
         icon="people-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>

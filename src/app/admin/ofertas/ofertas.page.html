@@ -13,8 +13,100 @@
       </admin-btn>
     </ng-template>
 
-    <!-- Stats Ofertas -->
-    <div class="admin-grid-4" *ngIf="tab === 'ofertas'">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título). Acá hay
+         dos botones a la derecha, así que el carril <admin-hkpi-strip> los corre con
+         flechas cuando no caben. Cambian según la pestaña activa. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip>
+        <ng-container *ngIf="tab === 'ofertas'">
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'todos'"
+            (click)="setFiltroOferta('todos')">
+            <span class="admin-hkpi__icon" style="background: #6B728014">
+              <ion-icon name="storefront-outline" style="color: #374151"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Ofertas totales</span>
+              <span class="admin-hkpi__value">{{ totalOfertas }}</span>
+            </span>
+          </button>
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'activas'"
+            (click)="setFiltroOferta('activas')">
+            <span class="admin-hkpi__icon" style="background: #16A34A1a">
+              <ion-icon name="checkmark-circle-outline" style="color: #16A34A"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Activas</span>
+              <span class="admin-hkpi__value">{{ ofertasActivas }}</span>
+            </span>
+          </button>
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'por_vencer'"
+            (click)="setFiltroOferta('por_vencer')">
+            <span class="admin-hkpi__icon" style="background: #F59E0B1f">
+              <ion-icon name="time-outline" style="color: #F59E0B"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Por vencer (7 dias)</span>
+              <span class="admin-hkpi__value">{{ ofertasPorVencer }}</span>
+            </span>
+          </button>
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroOferta === 'vencidas'"
+            (click)="setFiltroOferta('vencidas')">
+            <span class="admin-hkpi__icon" style="background: #9CA3AF26">
+              <ion-icon name="alert-circle-outline" style="color: #374151"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Vencidas</span>
+              <span class="admin-hkpi__value">{{ ofertasVencidas }}</span>
+            </span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="tab === 'cupones'">
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroCupon === 'todos'"
+            (click)="setFiltroCupon('todos')">
+            <span class="admin-hkpi__icon" style="background: #6B728014">
+              <ion-icon name="pricetag-outline" style="color: #374151"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Cupones totales</span>
+              <span class="admin-hkpi__value">{{ totalCupones }}</span>
+            </span>
+          </button>
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroCupon === 'activos'"
+            (click)="setFiltroCupon('activos')">
+            <span class="admin-hkpi__icon" style="background: #16A34A1a">
+              <ion-icon name="checkmark-circle-outline" style="color: #16A34A"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Activos</span>
+              <span class="admin-hkpi__value">{{ cuponesActivos }}</span>
+            </span>
+          </button>
+          <div class="admin-hkpi admin-hkpi--static">
+            <span class="admin-hkpi__icon" style="background: #16A34A1a">
+              <ion-icon name="trending-up-outline" style="color: #16A34A"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Usos totales</span>
+              <span class="admin-hkpi__value">{{ usosTotales }}</span>
+            </span>
+          </div>
+          <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroCupon === 'agotados'"
+            (click)="setFiltroCupon('agotados')">
+            <span class="admin-hkpi__icon" style="background: #DC26261a">
+              <ion-icon name="alert-circle-outline" style="color: #DC2626"></ion-icon>
+            </span>
+            <span class="admin-hkpi__text">
+              <span class="admin-hkpi__label">Agotados</span>
+              <span class="admin-hkpi__value">{{ cuponesAgotados }}</span>
+            </span>
+          </button>
+        </ng-container>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- Stats Ofertas (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 of-kpis-body" *ngIf="tab === 'ofertas'">
       <admin-kpi-card label="Ofertas totales" [value]="totalOfertas"
         icon="storefront-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroOferta === 'todos'" (cardClick)="setFiltroOferta('todos')"></admin-kpi-card>
@@ -29,8 +121,8 @@
         [clickable]="true" [active]="filtroOferta === 'vencidas'" (cardClick)="setFiltroOferta('vencidas')"></admin-kpi-card>
     </div>
 
-    <!-- Stats Cupones -->
-    <div class="admin-grid-4" *ngIf="tab === 'cupones'">
+    <!-- Stats Cupones (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 of-kpis-body" *ngIf="tab === 'cupones'">
       <admin-kpi-card label="Cupones totales" [value]="totalCupones"
         icon="pricetag-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroCupon === 'todos'" (cardClick)="setFiltroCupon('todos')"></admin-kpi-card>

@@ -1,8 +1,33 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
-    <!-- KPIs -->
-    <div class="admin-grid-2 res-kpis">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título). Son
+         informativos (no filtran), por eso van con .admin-hkpi--static. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip>
+        <div class="admin-hkpi admin-hkpi--static">
+          <span class="admin-hkpi__icon" style="background: #F59E0B1f">
+            <ion-icon name="star-outline" style="color: #F59E0B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Calificación promedio</span>
+            <span class="admin-hkpi__value">{{ promedioGeneral }} ★</span>
+          </span>
+        </div>
+        <div class="admin-hkpi admin-hkpi--static">
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="chatbubble-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Total reseñas</span>
+            <span class="admin-hkpi__value">{{ total }}</span>
+          </span>
+        </div>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-2 res-kpis res-kpis-body">
       <admin-kpi-card label="Calificación promedio" [value]="promedioGeneral + ' ★'"
         icon="star-outline" iconBg="#F59E0B1f" iconColor="#F59E0B"></admin-kpi-card>
       <admin-kpi-card label="Total reseñas" [value]="total"

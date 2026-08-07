@@ -98,6 +98,121 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   .admin-grid-3 { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* ── KPIs compactos del header (portal [adminHeaderLead]) ──────────────────────
+   Version reducida de <admin-kpi-card> para las paginas que llevan sus KPIs al
+   header en tablet+ (Pedidos, Dashboard), ocupando el espacio del titulo/saludo.
+   Van en global.scss —y no en el scss de cada pagina— porque el template se
+   proyecta al shell y las comparten varias paginas. */
+.admin-hkpis {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+.admin-hkpi {
+  /* Los KPIs se reparten por igual TODO el ancho disponible del header (flex: 1
+     sobre la misma base), con 136px como piso antes de scrollear. */
+  flex: 1 1 136px;
+  min-width: 136px;
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  cursor: pointer;
+  font-family: var(--rooster-font-sans);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.15s;
+}
+.admin-hkpi__icon {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-hkpi__icon ion-icon { font-size: 14px; }
+.admin-hkpi__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  /* Sin esto el texto largo (comparativas de Analiticas) se sale del chip. */
+  overflow: hidden;
+  max-width: 100%;
+}
+.admin-hkpi__label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.admin-hkpi__valuerow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+.admin-hkpi__value {
+  /* El valor nunca se recorta: manda el dato principal. */
+  flex: 0 0 auto;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--admin-text);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+/* Variacion / detalle (ej. "+12% vs ayer"): se corta antes que el valor. Necesita
+   flex-shrink + min-width:0 o el texto desborda el chip en vez de elipsarse. */
+.admin-hkpi__sub {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-hkpi:hover {
+  border-color: rgba(225, 54, 66, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+.admin-hkpi--active {
+  border-color: var(--admin-accent);
+  background: rgba(225, 54, 66, 0.06);
+  box-shadow: 0 0 0 1px var(--admin-accent);
+}
+.admin-hkpi--active .admin-hkpi__value { color: var(--admin-accent); }
+/* KPI con subtexto largo (comparativas de Analiticas): piso mas ancho, para que el
+   carril saque las flechas antes de llegar a recortar el texto. */
+.admin-hkpi--wide {
+  flex-basis: 200px;
+  min-width: 200px;
+}
+/* KPI informativo (no filtra nada): sin cursor de mano ni realce al pasar. */
+.admin-hkpi--static { cursor: default; }
+.admin-hkpi--static:hover {
+  border-color: var(--admin-border);
+  box-shadow: none;
+}
+/* Equivalente al [accent] de <admin-kpi-card>: destaca el valor principal. */
+.admin-hkpi__value--accent { color: var(--admin-accent); }
+
 /* Buscador colapsable (admin-search-input): al abrirse marca su contenedor-fila con
    .admin-search-open; ocultamos los demas controles/filtros de esa fila (conservan su
    espacio, sin reflow; el input del buscador queda por encima). Global = cruza el

@@ -2,7 +2,8 @@
 
 /* Select reutilizable de las cards del dashboard (rango de ventas, filtro pedidos). */
 .dash-select {
-  border-radius: 8px;
+  /* Mas redondeado que un input: los <select> del panel usan 12px. */
+  border-radius: 12px;
   padding: 6px 12px;
   background: var(--admin-card);
   border: 1px solid var(--admin-border);
@@ -149,3 +150,11 @@
 }
 .new-orders__cta:active { transform: scale(0.98); }
 .new-orders__cta ion-icon { font-size: 14px; }
+
+/* ── Reparto móvil (<640px) ↔ tablet+ (>=640px) de los KPIs ─────────────────────
+   Mismo criterio que Pedidos: en tablet/PC los KPIs viven en el header (portal
+   [adminHeaderLead], estilos .admin-hkpi en global.scss) y en móvil se muestran
+   como tarjetas en el cuerpo, donde el saludo del header sigue visible. */
+@media (min-width: 640px) {
+  .dash-kpis-body { display: none; }
+}

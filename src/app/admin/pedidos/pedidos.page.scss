@@ -614,62 +614,8 @@
   &:active { transform: scale(0.95); }
 }
 
-/* ── KPIs compactos proyectados al header (tablet+, ver [adminHeaderLead]) ──────
-   Fila horizontal que se distribuye de izquierda a derecha en el espacio que dejó
-   el título. Cada chip es un filtro por estado (misma acción que las KPIs del cuerpo). */
-.ped-hkpis {
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-start;
-  gap: 8px;
-  width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-}
-.ped-hkpi {
-  /* Ancho FIJO uniforme: todos los KPIs iguales (no deformes) y el grupo NO llena
-     el header (arranca a la izquierda, deja aire a la derecha). Alto estandar 44px. */
-  flex: 0 0 108px;
-  width: 108px;
-  height: 44px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  padding: 4px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--admin-border);
-  background: var(--admin-card);
-  cursor: pointer;
-  font-family: var(--rooster-font-sans);
-  transition: border-color 0.15s, background 0.15s;
-
-  &__label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--admin-text-muted);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  &__value {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--admin-text);
-    line-height: 1.15;
-  }
-  &:hover { border-color: rgba(225, 54, 66, 0.4); }
-  &--active {
-    border-color: var(--admin-accent);
-    background: rgba(225, 54, 66, 0.06);
-    box-shadow: 0 0 0 1px var(--admin-accent);
-  }
-  &--active .ped-hkpi__value { color: var(--admin-accent); }
-}
+/* Los chips KPI del header viven en global.scss (.admin-hkpi), compartidos con
+   Dashboard: el template se proyecta al shell y lo usan varias paginas. */
 
 /* KPIs del cuerpo (solo visibles en movil, <640px): son 5 y admin-grid-4 usa 2
    columnas en movil. Con 5 tarjetas la 5ª (Entregados) queda sola en la última

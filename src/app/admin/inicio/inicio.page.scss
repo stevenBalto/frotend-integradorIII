@@ -32,3 +32,11 @@
   background: linear-gradient(135deg, var(--rooster-red), #b8232f);
   white-space: nowrap;
 }
+
+/* ── Reparto móvil (<640px) ↔ tablet+ (>=640px) de los KPIs ─────────────────────
+   Mismo criterio que Pedidos y Dashboard: en tablet/PC los KPIs viven en el header
+   (portal [adminHeaderLead], estilos .admin-hkpi en global.scss) y en móvil se
+   muestran como tarjetas en el cuerpo. */
+@media (min-width: 640px) {
+  .inicio-kpis-body { display: none; }
+}

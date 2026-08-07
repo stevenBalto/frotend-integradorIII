@@ -15,7 +15,56 @@
     </ng-template>
 
     <!-- Stats (clic = filtro con focus) -->
-    <div class="admin-grid-4">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título). Como
+         Menú tiene varios botones a la derecha, el carril los corre con flechas
+         cuando no caben. En móvil el slot queda oculto y van al cuerpo. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstadoMenu === 'todos'"
+          (click)="filtrarMenu('todos')">
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="cube-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Productos totales</span>
+            <span class="admin-hkpi__value">{{ productos.length }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstadoMenu === 'disponibles'"
+          (click)="filtrarMenu('disponibles')">
+          <span class="admin-hkpi__icon" style="background: #16A34A1a">
+            <ion-icon name="checkmark-circle-outline" style="color: #16A34A"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Disponibles</span>
+            <span class="admin-hkpi__value">{{ totalDisponibles }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstadoMenu === 'agotados'"
+          (click)="filtrarMenu('agotados')">
+          <span class="admin-hkpi__icon" style="background: #DC26261a">
+            <ion-icon name="alert-circle-outline" style="color: #DC2626"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Agotados</span>
+            <span class="admin-hkpi__value">{{ totalAgotados }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstadoMenu === 'destacados'"
+          (click)="filtrarMenu('destacados')">
+          <span class="admin-hkpi__icon" style="background: #F59E0B1f">
+            <ion-icon name="star-outline" style="color: #F59E0B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Destacados</span>
+            <span class="admin-hkpi__value">{{ totalDestacados }}</span>
+          </span>
+        </button>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 menu-kpis-body">
       <admin-kpi-card label="Productos totales" [value]="productos.length"
         icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtroEstadoMenu === 'todos'" (cardClick)="filtrarMenu('todos')"></admin-kpi-card>

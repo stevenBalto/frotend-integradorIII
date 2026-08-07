@@ -3,7 +3,55 @@
 
     <p *ngIf="error" class="inicio-error">{{ error }}</p>
 
-    <div class="admin-grid-4">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título).
+         En móvil este slot queda oculto y se muestran los KPIs del cuerpo (abajo).
+         Mismo patrón que Pedidos y Dashboard; estilos .admin-hkpi en global.scss. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroInicio === 'destacado'"
+          (click)="filtrarInicio('destacado')">
+          <span class="admin-hkpi__icon" style="background: #F2B1341a">
+            <ion-icon name="star-outline" style="color: #B8860B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Destacados</span>
+            <span class="admin-hkpi__value">{{ destacados.length }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroInicio === 'popular'"
+          (click)="filtrarInicio('popular')">
+          <span class="admin-hkpi__icon" style="background: #E136421a">
+            <ion-icon name="flame-outline" style="color: #E13642"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Populares</span>
+            <span class="admin-hkpi__value">{{ populares.length }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroInicio === 'nuevo'"
+          (click)="filtrarInicio('nuevo')">
+          <span class="admin-hkpi__icon" style="background: #16A34A1a">
+            <ion-icon name="sparkles-outline" style="color: #16A34A"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Lo nuevo</span>
+            <span class="admin-hkpi__value">{{ nuevos.length }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" (click)="enfocarOfertas()">
+          <span class="admin-hkpi__icon" style="background: #9CA3AF26">
+            <ion-icon name="pricetag-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Ofertas vigentes</span>
+            <span class="admin-hkpi__value">{{ ofertasVigentes.length }}</span>
+          </span>
+        </button>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 inicio-kpis-body">
       <admin-kpi-card label="Destacados" [value]="destacados.length"
         icon="star-outline" iconBg="#F2B1341a" iconColor="#B8860B"
         [clickable]="true" [active]="filtroInicio === 'destacado'" (cardClick)="filtrarInicio('destacado')"></admin-kpi-card>

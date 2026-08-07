@@ -3,8 +3,69 @@
 
     <p *ngIf="cargando" class="dash-loading">Cargando dashboard...</p>
 
-    <!-- KPIs -->
-    <div class="admin-grid-4" *ngIf="resumen as r">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del saludo, que el
+         shell oculta cuando la página publica un lead). En móvil este slot queda
+         oculto y se muestran los KPIs del cuerpo (abajo). Mismo patrón que Pedidos. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip *ngIf="resumen as r">
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'pedidos_hoy'"
+          (click)="seleccionarKpi('pedidos_hoy', 'hoy')">
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="clipboard-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Pedidos hoy</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">{{ r.pedidos_hoy }}</span>
+              <span class="admin-hkpi__sub" [style.color]="variacionColor(r.pedidos_hoy_variacion)">
+                {{ variacionTexto(r.pedidos_hoy_variacion) }}
+              </span>
+            </span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'ventas_hoy'"
+          (click)="seleccionarKpi('ventas_hoy', 'entregado')">
+          <span class="admin-hkpi__icon" style="background: #16A34A1a">
+            <ion-icon name="trending-up-outline" style="color: #16A34A"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Ventas hoy</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">{{ r.ventas_hoy | crcCurrency }}</span>
+              <span class="admin-hkpi__sub" [style.color]="variacionColor(r.ventas_hoy_variacion)">
+                {{ variacionTexto(r.ventas_hoy_variacion) }}
+              </span>
+            </span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'ticket'"
+          (click)="seleccionarKpi('ticket', 'todos')">
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="pricetag-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Ticket promedio</span>
+            <span class="admin-hkpi__value">{{ r.ticket_promedio | crcCurrency }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="kpiSel === 'activos'"
+          (click)="seleccionarKpi('activos', 'activos')">
+          <span class="admin-hkpi__icon" style="background: #F59E0B1f">
+            <ion-icon name="time-outline" style="color: #F59E0B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Pedidos activos</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">{{ r.pedidos_activos }}</span>
+              <span class="admin-hkpi__sub" style="color: #6B7280">en preparación</span>
+            </span>
+          </span>
+        </button>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 dash-kpis-body" *ngIf="resumen as r">
       <admin-kpi-card label="Pedidos hoy" [value]="r.pedidos_hoy" [sub]="variacionTexto(r.pedidos_hoy_variacion)" [subColor]="variacionColor(r.pedidos_hoy_variacion)"
         icon="clipboard-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="kpiSel === 'pedidos_hoy'" (cardClick)="seleccionarKpi('pedidos_hoy', 'hoy')"></admin-kpi-card>

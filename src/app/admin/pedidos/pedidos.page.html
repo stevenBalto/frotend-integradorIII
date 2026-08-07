@@ -19,33 +19,58 @@
     <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título quitado).
          En móvil este slot queda oculto y se muestran los KPIs del cuerpo (abajo). -->
     <ng-template adminHeaderLead>
-      <div class="ped-hkpis">
-        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'todos'"
+      <admin-hkpi-strip>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstado === 'todos'"
           (click)="setFiltroEstado('todos')">
-          <span class="ped-hkpi__label">Totales</span>
-          <span class="ped-hkpi__value">{{ totalPedidos }}</span>
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="clipboard-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Totales</span>
+            <span class="admin-hkpi__value">{{ totalPedidos }}</span>
+          </span>
         </button>
-        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'pendiente'"
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstado === 'pendiente'"
           (click)="setFiltroEstado('pendiente')">
-          <span class="ped-hkpi__label">Pendientes</span>
-          <span class="ped-hkpi__value">{{ totalPendientes }}</span>
+          <span class="admin-hkpi__icon" style="background: #6B72801a">
+            <ion-icon name="hourglass-outline" style="color: #6B7280"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Pendientes</span>
+            <span class="admin-hkpi__value">{{ totalPendientes }}</span>
+          </span>
         </button>
-        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'en_proceso'"
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstado === 'en_proceso'"
           (click)="setFiltroEstado('en_proceso')">
-          <span class="ped-hkpi__label">En preparación</span>
-          <span class="ped-hkpi__value">{{ totalEnProceso }}</span>
+          <span class="admin-hkpi__icon" style="background: #F59E0B1f">
+            <ion-icon name="flame-outline" style="color: #F59E0B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">En preparación</span>
+            <span class="admin-hkpi__value">{{ totalEnProceso }}</span>
+          </span>
         </button>
-        <button type="button" class="ped-hkpi" [class.ped-hkpi--active]="filtroEstado === 'listo'"
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstado === 'listo'"
           (click)="setFiltroEstado('listo')">
-          <span class="ped-hkpi__label">Listos</span>
-          <span class="ped-hkpi__value">{{ totalListos }}</span>
+          <span class="admin-hkpi__icon" style="background: #3B82F61a">
+            <ion-icon name="checkmark-done-outline" style="color: #3B82F6"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Listos</span>
+            <span class="admin-hkpi__value">{{ totalListos }}</span>
+          </span>
         </button>
-        <button type="button" class="ped-hkpi ped-hkpi--entregados" [class.ped-hkpi--active]="filtroEstado === 'entregado'"
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtroEstado === 'entregado'"
           (click)="setFiltroEstado('entregado')">
-          <span class="ped-hkpi__label">Entregados</span>
-          <span class="ped-hkpi__value">{{ totalEntregados }}</span>
+          <span class="admin-hkpi__icon" style="background: #16A34A1a">
+            <ion-icon name="checkmark-circle-outline" style="color: #16A34A"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Entregados</span>
+            <span class="admin-hkpi__value">{{ totalEntregados }}</span>
+          </span>
         </button>
-      </div>
+      </admin-hkpi-strip>
     </ng-template>
 
     <!-- KPIs / Filtros (cuerpo). En tablet+ se ocultan porque van al header. -->

@@ -9,7 +9,56 @@
     </ng-template>
 
     <!-- Stats / filtros -->
-    <div class="admin-grid-4">
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título; el botón
+         "Nuevo insumo" sigue en el grupo derecho). En móvil este slot queda oculto y
+         se muestran los KPIs del cuerpo. Estilos .admin-hkpi en global.scss. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'todos'"
+          (click)="setFiltro('todos')">
+          <span class="admin-hkpi__icon" style="background: #6B728014">
+            <ion-icon name="cube-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Insumos totales</span>
+            <span class="admin-hkpi__value">{{ totalInsumos }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'bajo_stock'"
+          (click)="setFiltro('bajo_stock')">
+          <span class="admin-hkpi__icon" style="background: #DC26261a">
+            <ion-icon name="alert-circle-outline" style="color: #DC2626"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Bajo stock</span>
+            <span class="admin-hkpi__value">{{ totalBajoStock }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'normal'"
+          (click)="setFiltro('normal')">
+          <span class="admin-hkpi__icon" style="background: #16A34A1a">
+            <ion-icon name="checkmark-circle-outline" style="color: #16A34A"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Stock normal</span>
+            <span class="admin-hkpi__value">{{ totalNormal }}</span>
+          </span>
+        </button>
+        <button type="button" class="admin-hkpi" [class.admin-hkpi--active]="filtro === 'sin_minimo'"
+          (click)="setFiltro('sin_minimo')">
+          <span class="admin-hkpi__icon" style="background: #9CA3AF26">
+            <ion-icon name="help-circle-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Sin mínimo definido</span>
+            <span class="admin-hkpi__value">{{ totalSinMinimo }}</span>
+          </span>
+        </button>
+      </admin-hkpi-strip>
+    </ng-template>
+
+    <!-- KPIs (cuerpo). En tablet+ se ocultan porque van al header. -->
+    <div class="admin-grid-4 inv-kpis-body">
       <admin-kpi-card label="Insumos totales" [value]="totalInsumos"
         icon="cube-outline" iconBg="#6B728014" iconColor="#374151"
         [clickable]="true" [active]="filtro === 'todos'" (cardClick)="setFiltro('todos')"></admin-kpi-card>

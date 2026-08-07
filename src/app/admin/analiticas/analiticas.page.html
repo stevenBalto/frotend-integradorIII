@@ -21,6 +21,62 @@
       </div>
     </ng-template>
 
+    <!-- KPIs proyectados al header en tablet+ (ocupan el espacio del título; los botones
+         de exportar/caché siguen en el grupo derecho y el carril los corre con flechas
+         si no caben). Son informativos: no filtran, por eso van con .admin-hkpi--static. -->
+    <ng-template adminHeaderLead>
+      <admin-hkpi-strip *ngIf="!cargando && !error">
+        <div class="admin-hkpi admin-hkpi--static admin-hkpi--wide">
+          <span class="admin-hkpi__icon" style="background: rgba(225,54,66,0.08)">
+            <ion-icon name="cash-outline" style="color: #E13642"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Ventas {{ etiquetaKpi() }}</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value admin-hkpi__value--accent">{{ formatMonto(ventasMes) }}</span>
+              <span class="admin-hkpi__sub" [style.color]="compVentas.color">{{ compVentas.texto }}</span>
+            </span>
+          </span>
+        </div>
+        <div class="admin-hkpi admin-hkpi--static admin-hkpi--wide">
+          <span class="admin-hkpi__icon" style="background: rgba(55,65,81,0.08)">
+            <ion-icon name="receipt-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Pedidos {{ etiquetaKpi() }}</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">{{ pedidosMes }}</span>
+              <span class="admin-hkpi__sub" [style.color]="compPedidos.color">{{ compPedidos.texto }}</span>
+            </span>
+          </span>
+        </div>
+        <div class="admin-hkpi admin-hkpi--static admin-hkpi--wide">
+          <span class="admin-hkpi__icon" style="background: rgba(55,65,81,0.08)">
+            <ion-icon name="pricetag-outline" style="color: #374151"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Ticket promedio</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">{{ formatMonto(ticketPromedio) }}</span>
+              <span class="admin-hkpi__sub" style="color: #6B7280">vs {{ etiquetaAnteriorCorta() }}</span>
+            </span>
+          </span>
+        </div>
+        <div class="admin-hkpi admin-hkpi--static admin-hkpi--wide">
+          <span class="admin-hkpi__icon" style="background: rgba(245,158,11,0.08)">
+            <ion-icon name="star-outline" style="color: #F59E0B"></ion-icon>
+          </span>
+          <span class="admin-hkpi__text">
+            <span class="admin-hkpi__label">Calificación promedio</span>
+            <span class="admin-hkpi__valuerow">
+              <span class="admin-hkpi__value">4.6</span>
+              <span class="admin-hkpi__sub" style="color: #6B7280">312 reseñas</span>
+            </span>
+          </span>
+        </div>
+      </admin-hkpi-strip>
+    </ng-template>
+
     <!-- Error -->
     <div class="an-feedback an-feedback--error" *ngIf="error">
       <ion-icon name="alert-circle-outline"></ion-icon>
@@ -66,8 +122,8 @@
         </div>
       </div>
 
-      <!-- KPIs principales -->
-      <section class="an-kpis">
+      <!-- KPIs principales (cuerpo). En tablet+ se ocultan porque van al header. -->
+      <section class="an-kpis an-kpis-body">
         <admin-kpi-card
           icon="cash-outline"
           [iconBg]="'rgba(225,54,66,0.08)'"
