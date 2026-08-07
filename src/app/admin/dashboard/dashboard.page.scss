@@ -1,27 +1,7 @@
 .dash-loading { font-size: 12px; color: var(--admin-text-muted); margin: 0 0 16px; }
 
-/* Select reutilizable de las cards del dashboard (rango de ventas, filtro pedidos).
-   La flecha nativa se dibuja pegada al borde; se reemplaza por una SVG propia con
-   offset (background-position: right 12px) para que respire. */
-.dash-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* Mas redondeado que un input: los <select> del panel usan 12px. */
-  border-radius: 12px;
-  padding: 6px 34px 6px 12px;
-  background-color: var(--admin-card);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px;
-  border: 1px solid var(--admin-border);
-  color: var(--admin-text);
-  font-size: 11px;
-  font-weight: 600;
-  font-family: var(--rooster-font-sans);
-  cursor: pointer;
-}
+/* Los selects del dashboard son <admin-select> (componente propio): su look y
+   su flecha los define el componente, no esta hoja. */
 .dash-empty { text-align: center; color: var(--admin-text-muted); font-size: 11px; padding: 16px 0; }
 
 /* Registros de "Últimos pedidos" en MAYÚSCULA (solicitado). Solo el cuerpo de la tabla. */
