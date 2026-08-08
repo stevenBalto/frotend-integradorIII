@@ -1,11 +1,5 @@
 <ion-content [fullscreen]="true" class="cuenta-content">
 
-  <!-- Encabezado -->
-  <div class="cuenta-header">
-    <h2 class="cuenta-header__title">Mi cuenta</h2>
-    <img src="assets/logo/rooster-logo.png" alt="Rooster" class="cuenta-header__logo" />
-  </div>
-
   <ng-container *ngIf="(usuario$ | async) as usuario; else invitado">
 
     <!-- Perfil -->

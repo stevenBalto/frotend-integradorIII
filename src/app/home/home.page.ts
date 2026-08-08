@@ -74,6 +74,8 @@ export class HomePage implements OnInit {
     { label: 'Parrilla', icon: 'assets/sistema/grill-rojo.svg' },
     { label: 'Pastas', icon: 'assets/sistema/pastas-rojo.svg' },
     { label: 'Bebidas', icon: 'assets/sistema/bebidas-rojo.svg' },
+    { label: 'Platillos', icon: 'assets/sistema/cubiertos-rojo.svg' },
+    { label: 'Combos', icon: 'assets/sistema/regalo-rojo.svg' },
   ];
 
   // Selecciones del modal de detalle

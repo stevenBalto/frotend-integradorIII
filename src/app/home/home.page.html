@@ -28,7 +28,7 @@
   <p *ngIf="error" class="home-section__error" style="padding: 0 20px;">{{ error }}</p>
 
   <!-- Ofertas vigentes -->
-  <div class="home-section" *ngIf="!cargando && ofertas.length > 0">
+  <div class="home-section home-section--promo" *ngIf="!cargando && ofertas.length > 0">
     <div class="home-section__row">
       <span class="home-section__label">Ofertas</span>
     </div>
@@ -47,7 +47,7 @@
   </div>
 
   <!-- Cupones vigentes -->
-  <div class="home-section" *ngIf="!cargando && cupones.length > 0">
+  <div class="home-section home-section--promo" *ngIf="!cargando && cupones.length > 0">
     <div class="home-section__row">
       <span class="home-section__label">Cupones para ti</span>
     </div>

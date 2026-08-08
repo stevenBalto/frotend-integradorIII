@@ -2,44 +2,7 @@
   --background: var(--client-bg);
 }
 
-/* ── Encabezado ─────────────────────────────────────────────────────────────── */
-.cuenta-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 20px 24px;
-
-  @media (min-width: 768px) {
-    padding: 40px 32px 32px;
-    max-width: 768px;
-    margin: 0 auto;
-  }
-
-  &__title {
-    font-family: var(--client-font-display);
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--client-ink);
-    margin: 0;
-    letter-spacing: -0.01em;
-
-    @media (min-width: 768px) {
-      font-size: 32px;
-    }
-  }
-
-  &__logo {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-
-    @media (min-width: 1024px) {
-      display: none;
-    }
-  }
-}
-
-/* ── Perfil ──────────────────────────────────────────────────────────────────── */
+/* ── Perfil (sin header arriba — "Mi cuenta" era redundante con el tab activo) ── */
 .cuenta-perfil {
   display: flex;
   align-items: center;
@@ -47,14 +10,14 @@
   background: #ffffff;
   border-radius: var(--rooster-radius-md);
   padding: 16px;
-  margin: 0 20px 16px;
+  margin: 24px 20px 16px;
   box-shadow: var(--rooster-shadow-sm);
   border: 1px solid rgba(20, 17, 15, 0.05);
   animation: rooster-rise var(--rooster-ease-med) both;
 
   @media (min-width: 768px) {
     max-width: 728px;
-    margin: 0 auto 20px;
+    margin: 36px auto 20px;
   }
 
   &__avatar {
@@ -218,7 +181,7 @@
   justify-content: space-between;
   width: calc(100% - 40px);
   margin: 0 20px 16px;
-  padding: 18px;
+  padding: 14px 16px;
   border: none;
   border-radius: var(--rooster-radius-md);
   cursor: pointer;
@@ -248,8 +211,8 @@
   &__left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
 
   &__icon {
-    width: 46px;
-    height: 46px;
+    width: 38px;
+    height: 38px;
     border-radius: var(--rooster-radius-sm);
     background: rgba(255, 255, 255, 0.16);
     display: flex;
@@ -257,7 +220,7 @@
     justify-content: center;
     flex-shrink: 0;
 
-    ion-icon { font-size: 24px; color: #ffd76a; }
+    ion-icon { font-size: 20px; color: #ffd76a; }
   }
 
   &__label {
@@ -270,13 +233,13 @@
 
   &__balance {
     font-family: var(--client-font-display);
-    font-size: 23px;
+    font-size: 19px;
     font-weight: 800;
     color: #fff;
     margin: 0;
   }
 
-  &__arrow { position: relative; z-index: 1; font-size: 20px; color: rgba(255, 255, 255, 0.8); flex-shrink: 0; }
+  &__arrow { position: relative; z-index: 1; font-size: 18px; color: rgba(255, 255, 255, 0.8); flex-shrink: 0; }
 }
 
 /* ── Invitado (sin sesion) ──────────────────────────────────────────────────── */

@@ -3,40 +3,6 @@
   color: var(--client-text);
 }
 
-/* ── Encabezado ─────────────────────────────────────────────────────────────── */
-.ofertas-header {
-  padding: 22px 20px 4px;
-
-  @media (min-width: 768px) {
-    padding: 40px 32px 8px;
-  }
-
-  &__title {
-    font-family: var(--client-font-display);
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--client-ink);
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
-
-    @media (min-width: 768px) {
-      font-size: 32px;
-      margin-bottom: 4px;
-    }
-  }
-
-  &__sub {
-    font-family: var(--client-font-body);
-    font-size: 12px;
-    color: var(--client-text-muted);
-    margin: 0;
-
-    @media (min-width: 768px) {
-      font-size: 14px;
-    }
-  }
-}
-
 /* ── Tabs ────────────────────────────────────────────────────────────────────── */
 .ofertas-tabs {
   display: flex;
@@ -49,6 +15,18 @@
 
   @media (min-width: 1024px) {
     max-width: none;
+  }
+
+  /* Sin el header de arriba (era redundante, ya se ve claro con las 2 pestañas),
+     este bloque queda pegado al top del contenido: le damos un respiro chico,
+     no un hueco grande — sin header visual arriba, mucho margen se lee como
+     espacio vacio/roto en vez de aire intencional. */
+  &--top {
+    margin-top: 14px;
+
+    @media (min-width: 768px) {
+      margin-top: 18px;
+    }
   }
 }
 
@@ -102,9 +80,11 @@
 }
 
 /* ── Grid de ofertas ─────────────────────────────────────────────────────────
-   auto-fill con ancho maximo fijo por tarjeta: con pocos items las tarjetas
-   quedan compactas y alineadas a la izquierda (no estiradas a lo ancho de una
-   columna gigante cuando sobra espacio en pantallas grandes). */
+   Tope maximo en 1fr (no en px fijo): con un maximo en px, las columnas que
+   caben al minimo se quedan angostas y el resto del ancho se queda vacio a
+   la derecha (el contenedor no las estira). Con 1fr como tope, auto-fit
+   colapsa las columnas vacias y reparte todo el ancho disponible entre las
+   tarjetas que si existen — la fila queda siempre completa. */
 .ofertas-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -112,7 +92,7 @@
   padding: 20px 20px 24px;
 
   @media (min-width: 560px) {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 360px));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
     padding: 24px 32px 32px;
   }
@@ -213,7 +193,7 @@
   }
 }
 
-/* ── Tarjetas de cupon (mismo criterio auto-fill que .ofertas-grid) ──────────── */
+/* ── Tarjetas de cupon (mismo criterio que .ofertas-grid) ─────────────────── */
 .cupones-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -221,7 +201,7 @@
   padding: 20px 20px 24px;
 
   @media (min-width: 560px) {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 360px));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
     padding: 24px 32px 32px;
   }

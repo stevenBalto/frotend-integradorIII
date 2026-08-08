@@ -1,13 +1,7 @@
 <ion-content [fullscreen]="true" class="ofertas-content">
 
-  <!-- Encabezado -->
-  <div class="ofertas-header">
-    <h2 class="ofertas-header__title">Ofertas y cupones</h2>
-    <p class="ofertas-header__sub">Aprovecha estas promociones exclusivas</p>
-  </div>
-
   <!-- Tabs Ofertas / Cupones -->
-  <div class="ofertas-tabs">
+  <div class="ofertas-tabs ofertas-tabs--top">
     <button type="button" class="ofertas-tab" [class.ofertas-tab--active]="tab === 'ofertas'" (click)="tab = 'ofertas'">Ofertas</button>
     <button type="button" class="ofertas-tab" [class.ofertas-tab--active]="tab === 'cupones'" (click)="tab = 'cupones'">Cupones</button>
   </div>
