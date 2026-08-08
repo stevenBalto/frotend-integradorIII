@@ -83,7 +83,7 @@ export class LoginPage implements OnInit {
         // Google es puerta de CLIENTES (el backend rechaza cuentas admin), asi
         // que el destino es siempre la app del cliente.
         void this.router.navigateByUrl('/tabs/home');
-        void this.notificar(`Hola, ${res.data.nombre.split(' ')[0]}.`);
+        void this.notificarExito(`Hola, ${res.data.nombre.split(' ')[0]}.`);
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;

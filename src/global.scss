@@ -815,3 +815,103 @@ body.tabbar-oculto ion-tab-bar { display: none; }
   /* Tablet/PC: los KPIs del cuerpo se ocultan porque viven en el header. */
   .admin-kpis-body { display: none; }
 }
+
+/* ── Toasts del sistema (mensajes propios de la app) ───────────────────────────
+   Hay ~25 llamadas a ToastController repartidas en 17 archivos (login, admin,
+   superadmin, pedir, home, mis-pedidos, resenas...). En vez de tocar cada una,
+   el estilo se define UNA sola vez aca y todas lo heredan.
+
+   Por defecto Ionic estira el toast de lado a lado (`--start/--end: 8px` con
+   `--width: auto`, max 700px) y le pone `--border-radius: 4px`: de ahi salia la
+   barra roja gigante y cuadrada de punta a punta. Se cambia a una tarjeta
+   compacta, redondeada y centrada.
+
+   Detalles del componente (verificados en @ionic/core toast.md.css):
+   - `.toast-wrapper` YA trae `margin-inline: auto`, asi que basta con darle un
+     ancho definido (`fit-content`) para que quede centrado solo.
+   - `margin-top/bottom` vienen en `auto` (= 0 con `top:0`); al fijarlos explicito
+     se despega del borde. Se ponen los dos: el de arriba solo surte efecto en los
+     toasts `position: 'top'` y el de abajo en los `position: 'bottom'`.
+   - Se estilan por `::part()` (wrapper/content/button), que son partes expuestas
+     oficialmente por el componente. Las reglas de ::part() del documento le ganan
+     a las internas del shadow DOM, por eso pisan los colores de `color="..."`. */
+ion-toast {
+  --border-radius: var(--rooster-radius-md);
+  --width: fit-content;
+  --min-width: 0;
+  --max-width: min(90vw, 420px);
+  --start: 12px;
+  --end: 12px;
+  --min-height: 0;
+  --box-shadow: var(--rooster-shadow-lg);
+  --background: rgba(20, 17, 15, 0.92);
+  --color: #fff;
+  --button-color: #fff;
+
+  font-family: var(--rooster-font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+ion-toast::part(wrapper) {
+  /* Despegado del borde de la pantalla, respetando el notch en movil. */
+  margin-top: calc(12px + var(--ion-safe-area-top, 0px));
+  margin-bottom: calc(12px + var(--ion-safe-area-bottom, 0px));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+ion-toast::part(content) {
+  /* Mas apretado que el default de Ionic (16/14px). */
+  padding-inline: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+ion-toast::part(message) {
+  line-height: 1.35;
+  letter-spacing: 0.1px;
+}
+
+ion-toast::part(button) {
+  font-family: var(--rooster-font-sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  border-radius: var(--rooster-radius-pill);
+}
+
+/* Colores semanticos: se conservan los `color="..."` que ya usan las paginas,
+   pero en tonos mas profundos y menos neon que los `--ion-color-*` crudos, y
+   siempre con texto blanco para que el contraste no dependa del tema. */
+ion-toast.ion-color-success::part(wrapper) { background: rgba(21, 108, 63, 0.95); }
+ion-toast.ion-color-danger::part(wrapper)  { background: rgba(150, 26, 36, 0.95); }
+ion-toast.ion-color-warning::part(wrapper) { background: rgba(146, 84, 14, 0.95); }
+ion-toast.ion-color-medium::part(wrapper),
+ion-toast.ion-color-dark::part(wrapper)    { background: rgba(20, 17, 15, 0.92); }
+ion-toast.ion-color-primary::part(wrapper) { background: rgba(var(--rooster-red-rgb), 0.95); }
+
+ion-toast.ion-color { color: #fff; }
+
+/* `notif-toast` (notificaciones en vivo del panel admin, admin-shell) lleva
+   header + boton, asi que necesita un poco mas de aire y ancho que el resto. */
+ion-toast.notif-toast {
+  --max-width: min(92vw, 460px);
+}
+ion-toast.notif-toast::part(header) {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  margin-bottom: 3px;
+}
+
+/* Accesibilidad: si el usuario pidio menos movimiento, se quita el blur
+   (es caro de componer) pero se mantiene el fondo solido. */
+@media (prefers-reduced-motion: reduce) {
+  ion-toast::part(wrapper) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
