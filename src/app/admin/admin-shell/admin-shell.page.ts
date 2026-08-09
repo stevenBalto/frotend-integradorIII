@@ -72,10 +72,10 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly seccionesSinTitulo = new Set<string>([
     'dashboard', 'inicio', 'menu', 'inventario', 'ofertas',
     'clientes', 'usuarios', 'analiticas', 'notificaciones',
-    'resenas',
-    // 'configuracion' NO va acá: su lead es el chip de estado del negocio, que se
-    // muestra A LA PAR del título "Configuración general" (conservaTitulo), no en
-    // su lugar.
+    'resenas', 'configuracion',
+    // 'configuracion' usa conservaTitulo (su lead es el chip de estado del negocio):
+    // el chip se muestra igual, y kpimode oculta título/subtítulo en tablet+ (en móvil
+    // el título sigue visible, como en el resto de secciones).
   ]);
   ocultarHeaderTexto = true;
 
