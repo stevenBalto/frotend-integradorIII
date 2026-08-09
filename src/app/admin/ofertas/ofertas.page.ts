@@ -9,6 +9,7 @@ import { ClienteService } from '../../core/services/cliente.service';
 import { Oferta, OfertaPayload, OfertaImagenOpts, AlcanceOferta } from '../../core/models/oferta.model';
 import { Cupon, CuponPayload, CuponImagenOpts, AlcanceCupon } from '../../core/models/cupon.model';
 import { Cliente } from '../../core/models/cliente.model';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 interface ProductoOpt {
   id: number;
@@ -169,6 +170,7 @@ export class AdminOfertasPage implements OnInit {
     private cuponService: CuponService,
     private productoService: ProductoService,
     private clienteService: ClienteService,
+    private confirm: ConfirmService,
   ) {
     this.formOferta = this.fb.group({
       nombre: ['', [Validators.required]],
@@ -566,8 +568,15 @@ export class AdminOfertasPage implements OnInit {
     });
   }
 
-  eliminarOferta(o: Oferta): void {
-    if (!confirm(`¿Eliminar la oferta "${o.nombre}"?`)) {
+  async eliminarOferta(o: Oferta): Promise<void> {
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Eliminar oferta?',
+      mensaje: `"${o.nombre}" dejará de estar disponible para los clientes. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar',
+      tono: 'peligro',
+      icono: 'trash-outline',
+    });
+    if (!confirmado) {
       return;
     }
     this.ofertaService.eliminar(o.id).subscribe({ next: () => this.cargarOfertas() });
@@ -661,8 +670,15 @@ export class AdminOfertasPage implements OnInit {
     });
   }
 
-  eliminarCupon(c: Cupon): void {
-    if (!confirm(`¿Eliminar el cupon "${c.codigo}"?`)) {
+  async eliminarCupon(c: Cupon): Promise<void> {
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Eliminar cupón?',
+      mensaje: `El cupón "${c.codigo}" dejará de poder canjearse. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar',
+      tono: 'peligro',
+      icono: 'trash-outline',
+    });
+    if (!confirmado) {
       return;
     }
     this.cuponService.eliminar(c.id).subscribe({ next: () => this.cargarCupones() });

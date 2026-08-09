@@ -16,6 +16,7 @@ import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/mo
 import { Pedido, PedidoPublico, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
 import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
+import { ConfirmService } from '../core/services/confirm.service';
 
 type VistaCarrito = 'menu' | 'carrito' | 'checkout' | 'confirmacion';
 
@@ -109,6 +110,7 @@ export class PedirPage implements OnInit, OnDestroy {
     private resenaService: ResenaService,
     private toast: ToastController,
     private router: Router,
+    private confirm: ConfirmService,
   ) {
     this.lineas$ = this.carritoService.lineas$;
     this.total$ = this.carritoService.total$;
@@ -346,8 +348,15 @@ export class PedirPage implements OnInit, OnDestroy {
     this.carritoService.quitar(index);
   }
 
-  vaciarCarrito(): void {
-    if (window.confirm('¿Vaciar el carrito?')) {
+  async vaciarCarrito(): Promise<void> {
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Vaciar el carrito?',
+      mensaje: 'Se quitarán todos los productos que agregaste.',
+      textoConfirmar: 'Vaciar',
+      tono: 'peligro',
+      icono: 'trash-outline',
+    });
+    if (confirmado) {
       this.carritoService.vaciar();
     }
   }

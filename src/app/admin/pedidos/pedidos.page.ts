@@ -12,6 +12,7 @@ import {
 } from '../../shared/constants/pedido-estado';
 import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
 import { estadoToStatusType } from '../shared/status-badge.component';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 type FiltroEstado = 'todos' | PedidoEstado;
 
@@ -71,6 +72,7 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     private host: ElementRef<HTMLElement>,
     private zone: NgZone,
     private gestureCtrl: GestureController,
+    private confirm: ConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -490,13 +492,24 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     );
   }
 
-  registrarPago(): void {
+  async registrarPago(): Promise<void> {
     if (!this.pedidoSeleccionado || !this.puedeRegistrarPago) {
       return;
     }
 
-    const confirmado = window.confirm('¿Confirmar pago de este pedido?');
-    if (!confirmado) {
+    // Dialogo propio, NO window.confirm: el nativo hace que Chrome salga del
+    // fullscreen, y como el modo extendido escucha `fullscreenchange` para
+    // cerrarse, confirmar un pago expulsaba al usuario de ese modo (EF: ver
+    // ConfirmDialogComponent).
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Confirmar pago de este pedido?',
+      mensaje: `Se marcará como pagado el pedido de ${this.pedidoSeleccionado.nombre_cliente || 'este cliente'}.`,
+      textoConfirmar: 'Registrar pago',
+      icono: 'cash-outline',
+    });
+    // Se revalida despues del await: el dialogo es asincronico y el usuario pudo
+    // cerrar el detalle (o cambiar de pedido) mientras estaba abierto.
+    if (!confirmado || !this.pedidoSeleccionado || !this.puedeRegistrarPago) {
       return;
     }
 

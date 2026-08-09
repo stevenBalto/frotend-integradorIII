@@ -7,6 +7,7 @@ import { Extra, ExtraPayload } from '../../core/models/extra.model';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { ExtraService } from '../../core/services/extra.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 /** Gestión de menú / catálogo, conectada a la API real. */
 @Component({
@@ -67,6 +68,7 @@ export class AdminMenuPage implements OnInit {
     private categoriaService: CategoriaService,
     private extraService: ExtraService,
     private toast: ToastController,
+    private confirm: ConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -291,8 +293,14 @@ export class AdminMenuPage implements OnInit {
     });
   }
 
-  eliminar(producto: Producto): void {
-    const confirmado = window.confirm(`Eliminar "${producto.nombre}" del catalogo?`);
+  async eliminar(producto: Producto): Promise<void> {
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Eliminar producto?',
+      mensaje: `"${producto.nombre}" se quitará del catálogo. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar',
+      tono: 'peligro',
+      icono: 'trash-outline',
+    });
     if (!confirmado) {
       return;
     }
@@ -417,8 +425,14 @@ export class AdminMenuPage implements OnInit {
     });
   }
 
-  eliminarExtra(extra: Extra): void {
-    const confirmado = window.confirm(`Eliminar el extra "${extra.nombre}"?`);
+  async eliminarExtra(extra: Extra): Promise<void> {
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Eliminar extra?',
+      mensaje: `"${extra.nombre}" dejará de estar disponible. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar',
+      tono: 'peligro',
+      icono: 'trash-outline',
+    });
     if (!confirmado) {
       return;
     }
@@ -428,7 +442,11 @@ export class AdminMenuPage implements OnInit {
       error: (err) => {
         // Si ya fue usado en un pedido, mostrar mensaje y sugerir desactivar
         const mensaje = err?.error?.message || 'No se pudo eliminar el extra.';
-        window.alert(mensaje + ' Puedes desactivarlo en lugar de eliminarlo.');
+        void this.confirm.avisar({
+          titulo: 'No se puede eliminar',
+          mensaje: mensaje + ' Podés desactivarlo en lugar de eliminarlo.',
+          icono: 'alert-circle-outline',
+        });
       },
     });
   }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Insumo, InsumoMovimiento } from '../../core/models/insumo.model';
 import { InsumoService } from '../../core/services/insumo.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 type FiltroInventario = 'todos' | 'bajo_stock' | 'normal' | 'sin_minimo';
 
@@ -70,6 +71,7 @@ export class AdminInventarioPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private insumoService: InsumoService,
+    private confirm: ConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -226,8 +228,14 @@ export class AdminInventarioPage implements OnInit {
     this.formError = 'No se pudo guardar el insumo. Revisá los datos e intentá de nuevo.';
   }
 
-  eliminar(insumo: Insumo): void {
-    const confirmado = window.confirm(`¿Eliminar "${insumo.nombre}" del inventario?`);
+  async eliminar(insumo: Insumo): Promise<void> {
+    const confirmado = await this.confirm.preguntar({
+      titulo: '¿Eliminar insumo?',
+      mensaje: `"${insumo.nombre}" se quitará del inventario. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar',
+      tono: 'peligro',
+      icono: 'trash-outline',
+    });
     if (!confirmado) {
       return;
     }
