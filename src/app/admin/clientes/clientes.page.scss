@@ -1,4 +1,6 @@
 /* ── Tabla ──────────────────────────────────────────────────────────────── */
+/* Registros en MAYUSCULA, mismo criterio que el resto de tablas del panel. */
+.admin-table tbody td { text-transform: uppercase; }
 .cli-muted { font-size: 11px; color: var(--admin-text-muted); }
 
 .cli-actions { display: flex; gap: 8px; }
@@ -92,6 +94,14 @@
 .cli-toolbar__range { flex-wrap: nowrap; }
 .cli-toolbar__range .cli-datechip { flex-shrink: 0; }
 
+/* Carril que agrupa los chips rapidos + el rango. En <=531px entra en scroll horizontal. */
+.cli-toolbar__filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 /* Copia del rango que solo se usa en movil (full-width, fila propia). Oculta en desktop.
    Especificidad (0,2,0) para ganarle a `.cli-datefilter { display:flex }` sin depender del orden (EF-19). */
 .cli-datefilter.cli-range--mobile { display: none; }
@@ -157,6 +167,53 @@
    para que los overrides apliquen (EF-19). */
 @media (max-width: 767px) {
   .cli-toolbar { gap: 6px; }
-  .cli-toolbar__range.cli-range--desktop { display: none; }
-  .cli-datefilter.cli-range--mobile { display: flex; }
+  /* Todo en UNA fila: el rango (Mes/Ano/calendario) se queda inline en la fila del
+     titulo. El calendario colapsa a SOLO icono para que quepa (el <input date> tapa el
+     chip, invisible, y su indicador nativo ocupa todo el chip -> tocar el icono abre el
+     date-picker). Ya no se baja a la copia full-width de una 2a fila. */
+  .cli-datefilter.cli-range--mobile { display: none; }
+  .cli-toolbar__range.cli-range--desktop { display: flex; }
+
+  .cli-range--desktop .cli-datechip--date {
+    position: relative;
+    gap: 0;
+    padding: 7px;                 /* cuadrado: solo el icono */
+  }
+  .cli-range--desktop .cli-datechip--date input[type="date"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;                   /* invisible; el icono de abajo queda a la vista */
+    cursor: pointer;
+  }
+  /* El indicador nativo llena el chip: cualquier toque sobre el icono abre el picker. */
+  .cli-range--desktop .cli-datechip--date input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+/* <=531px: los filtros ya no caben -> el carril entra en scroll horizontal (los chips no
+   se comprimen ni se cortan); el buscador (lupa) queda pegado a la derecha, fuera del
+   carril que scrollea. */
+@media (max-width: 531px) {
+  .cli-toolbar__filters {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;              /* Firefox */
+  }
+  .cli-toolbar__filters::-webkit-scrollbar { display: none; } /* WebKit */
+  .cli-toolbar__filters > *,
+  .cli-toolbar__filters .cli-datechip { flex-shrink: 0; }
 }

@@ -78,6 +78,9 @@
       <!-- Toolbar en la fila del titulo. Desktop: TODO inline (chips + Mes/Ano/calendario + buscador).
            Movil: solo chips rapidos + lupa (el rango baja a la copia .cli-range--mobile del body). -->
       <div card-action class="cli-toolbar">
+        <!-- Carril de filtros (chips rapidos + rango). Entra en scroll horizontal
+             cuando no caben (<=531px); el buscador queda pegado a la derecha, fuera del scroll. -->
+        <div class="cli-toolbar__filters">
         <!-- Chips rapidos: siempre en la fila del titulo -->
         <div class="cli-toolbar__quick cli-datefilter">
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'todos'"
@@ -99,6 +102,7 @@
             <ion-icon name="calendar-outline"></ion-icon>
             <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
           </label>
+        </div>
         </div>
 
         <!-- Buscador colapsable compartido (misma logica en todo el sistema). -->
