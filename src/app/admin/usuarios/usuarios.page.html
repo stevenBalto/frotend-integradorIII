@@ -8,17 +8,16 @@
       </admin-btn>
     </ng-template>
 
-    <!-- Item 18: Toolbar compacto - solo buscador y total en la misma fila -->
-    <admin-section-card id="usr-tabla">
-      <div class="usr-toolbar-compact">
-        <admin-search-input placeholder="Buscar usuario..." (searchChange)="onBuscar($event)"></admin-search-input>
-      </div>
+    <!-- Buscador (lupa) en la fila del título, esquina superior derecha (actionInline
+         lo mantiene ahí en todo tamaño; hay espacio de sobra). -->
+    <admin-section-card id="usr-tabla" title="Usuarios" [actionInline]="true">
+      <admin-search-input card-action placeholder="Buscar usuario..." (searchChange)="onBuscar($event)"></admin-search-input>
 
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
             <tr>
-              <th></th><th>Nombre</th><th>Usuario</th><th>Email</th><th>Rol</th>
+              <th></th><th>Nombre</th><th>Usuario</th><th>Email</th><th>Teléfono</th>
               <th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
@@ -36,12 +35,7 @@
               <td class="admin-table__strong" style="font-size: 12px;">{{ u.nombre }}</td>
               <td class="admin-table__muted">{{ u.usuario || '-' }}</td>
               <td class="admin-table__muted">{{ u.email }}</td>
-              <td>
-                <span class="usr-role" [class.usr-role--super]="u.rol !== 'cliente'">
-                  <span class="usr-role__dot"></span>
-                  {{ etiquetaRol(u.rol) }}
-                </span>
-              </td>
+              <td class="admin-table__muted">{{ u.telefono || '-' }}</td>
               <td>
                 <status-badge [type]="u.activo ? 'active' : 'inactive'"></status-badge>
               </td>
@@ -153,7 +147,7 @@
 <!-- Item 16: Modal de modulos y permisos -->
 <div class="usr-modal" *ngIf="showModulosModal">
   <div class="usr-modal__backdrop" (click)="cerrarModulosModal()"></div>
-  <div class="usr-modal__panel usr-modal__panel--wide">
+  <div class="usr-modal__panel">
     <div class="usr-modal__head">
       <span class="usr-modal__title">Modulos y permisos</span>
       <button type="button" class="usr-modal__close" (click)="cerrarModulosModal()">

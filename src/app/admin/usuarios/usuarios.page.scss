@@ -1,10 +1,8 @@
-/* Item 18: Toolbar compacto - buscador y total en la misma fila */
-.usr-toolbar-compact {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;  /* buscador (lupa) pegado a la derecha */
-  gap: 16px;
-  margin-bottom: 16px;
+/* Buscador (lupa) en la fila del título: en móvil (<=767) el header de la card no
+   envuelve y la acción NO se estira, así la lupa se queda SIEMPRE en la esquina
+   superior derecha (hay ancho de sobra). Sin esto la acción tomaría toda la fila. */
+@media (max-width: 767px) {
+  #usr-tabla ::ng-deep .section-card__head--inline .section-card__action { flex: 0 0 auto; }
 }
 
 .usr-total {
@@ -22,15 +20,6 @@
 }
 
 @media (max-width: 560px) {
-  .usr-toolbar-compact {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .usr-toolbar-compact > admin-search-input {
-    display: block;
-    width: 100%;
-  }
   .usr-total {
     text-align: right;
   }
@@ -49,22 +38,6 @@
   align-items: center;
   justify-content: center;
 }
-
-.usr-role {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 9999px;
-  font-weight: 600;
-  white-space: nowrap;
-  font-size: 9px;
-  padding: 3px 9px;
-  background: var(--admin-neutral1);
-  color: var(--admin-neutral4);
-}
-.usr-role__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--admin-neutral3); }
-.usr-role--super { background: rgba(225, 54, 66, 0.08); color: var(--admin-accent); }
-.usr-role--super .usr-role__dot { background: var(--admin-accent); }
 
 .usr-actions { display: flex; gap: 8px; }
 .usr-action {
@@ -114,9 +87,6 @@
   overflow: hidden;
   background: var(--rooster-bg);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-.usr-modal__panel--wide {
-  max-width: 520px;
 }
 .usr-modal__head {
   display: flex;

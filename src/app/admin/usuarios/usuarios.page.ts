@@ -107,13 +107,6 @@ export class AdminUsuariosPage implements OnInit {
     return this.usuarios.length;
   }
 
-  etiquetaRol(nombre: string): string {
-    if (nombre === 'admin_sede') return 'Administrador';
-    if (nombre === 'super_admin') return 'Administrador';
-    if (nombre === 'cliente') return 'Cliente';
-    return nombre;
-  }
-
   // -- ID del rol admin_sede (se setea automaticamente) --
   private get roleIdAdminSede(): number | null {
     const rol = this.roles.find((r) => r.nombre === 'admin_sede');
