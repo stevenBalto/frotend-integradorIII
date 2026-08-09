@@ -11,7 +11,7 @@
     <!-- Buscador (lupa) en la fila del título, esquina superior derecha (actionInline
          lo mantiene ahí en todo tamaño; hay espacio de sobra). -->
     <admin-section-card id="usr-tabla" title="Usuarios" [actionInline]="true">
-      <admin-search-input card-action placeholder="Buscar usuario..." (searchChange)="onBuscar($event)"></admin-search-input>
+      <admin-search-input card-action placeholder="Buscar usuario..." [maxlength]="80" (searchChange)="onBuscar($event)"></admin-search-input>
 
       <div class="admin-table-wrap">
         <table class="admin-table">
@@ -83,19 +83,19 @@
     <form class="usr-modal__body" [formGroup]="form" (ngSubmit)="guardar()">
       <div class="usr-field">
         <p class="usr-field__label">Nombre completo</p>
-        <input class="usr-input" formControlName="nombre" placeholder="Ej: Bryan Vega Ordonez" />
+        <input class="usr-input" formControlName="nombre" maxlength="50" placeholder="Ej: Bryan Vega Ordonez" />
       </div>
       <div class="usr-field">
         <p class="usr-field__label">Usuario</p>
-        <input class="usr-input" formControlName="usuario" placeholder="Ej: bvega" autocomplete="off" />
+        <input class="usr-input" formControlName="usuario" maxlength="20" placeholder="Ej: bvega" autocomplete="off" />
       </div>
       <div class="usr-field">
         <p class="usr-field__label">Correo electronico</p>
-        <input class="usr-input" formControlName="email" placeholder="correo@rooster.com" autocomplete="off" />
+        <input class="usr-input" type="email" formControlName="email" maxlength="60" placeholder="correo@rooster.com" autocomplete="off" />
       </div>
       <div class="usr-field">
         <p class="usr-field__label">Telefono (opcional)</p>
-        <input class="usr-input" formControlName="telefono" placeholder="8888-8888" />
+        <input class="usr-input" type="tel" formControlName="telefono" maxlength="15" placeholder="8888-8888" />
       </div>
 
       <!-- Item 21: Contrasena solo al crear (no al editar) -->

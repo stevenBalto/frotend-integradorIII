@@ -244,7 +244,7 @@
 
         <label class="menu-form__label">
           Nombre
-          <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Pizza Pepperoni" />
+          <input type="text" formControlName="nombre" class="menu-form__input" maxlength="40" placeholder="Ej. Pizza Pepperoni" />
         </label>
 
         <label class="menu-form__label">
@@ -257,12 +257,12 @@
 
         <label class="menu-form__label">
           Descripción
-          <textarea formControlName="descripcion" class="menu-form__input" rows="2" placeholder="Opcional"></textarea>
+          <textarea formControlName="descripcion" class="menu-form__input" rows="2" maxlength="150" placeholder="Opcional"></textarea>
         </label>
 
         <label class="menu-form__label">
           Precio base
-          <input type="number" min="0" step="1" formControlName="precio_base" class="menu-form__input" placeholder="Ej. 4900" />
+          <input type="number" min="0" max="1000000" step="1" formControlName="precio_base" class="menu-form__input" placeholder="Ej. 4900" />
         </label>
 
         <!-- Tamanos -->
@@ -276,15 +276,15 @@
           <div class="menu-form__tamanos" formArrayName="tamanos">
             <div class="menu-form__tamano" *ngFor="let t of tamanos.controls; let i = index" [formGroupName]="i">
               <input type="text" formControlName="nombre" class="menu-form__input menu-form__input--sm"
-                placeholder="Nombre (ej. Grande)" />
+                maxlength="20" placeholder="Nombre (ej. Grande)" />
               <input type="number" formControlName="precio" class="menu-form__input menu-form__input--sm"
-                placeholder="Precio" min="0" />
+                placeholder="Precio" min="0" max="1000000" />
               <button type="button" class="menu-form__remove-btn" (click)="quitarTamano(i)">
                 <ion-icon name="trash-outline"></ion-icon>
               </button>
               <input type="text" formControlName="descripcion"
                 class="menu-form__input menu-form__input--sm menu-form__input--full"
-                placeholder="Cantidad (opcional, ej. 12 slices)" maxlength="40" />
+                placeholder="Cantidad (opcional, ej. 12 slices)" maxlength="25" />
             </div>
             <p class="menu-form__hint" *ngIf="tamanos.length === 0">
               Sin tamaños. El producto usará el precio base.
@@ -428,12 +428,12 @@
 
           <label class="menu-form__label">
             Nombre
-            <input type="text" formControlName="nombre" class="menu-form__input" placeholder="Ej. Extra queso" />
+            <input type="text" formControlName="nombre" class="menu-form__input" maxlength="40" placeholder="Ej. Extra queso" />
           </label>
 
           <label class="menu-form__label">
             Precio
-            <input type="number" min="0" step="1" formControlName="precio" class="menu-form__input" placeholder="Ej. 500" />
+            <input type="number" min="0" max="1000000" step="1" formControlName="precio" class="menu-form__input" placeholder="Ej. 500" />
           </label>
 
           <label class="menu-form__check">
@@ -480,7 +480,7 @@
     <div class="order-modal__body">
       <div class="picker-search">
         <ion-icon name="search-outline"></ion-icon>
-        <input type="text" placeholder="Buscar producto..." [(ngModel)]="productosExtrasBusqueda" />
+        <input type="text" placeholder="Buscar producto..." maxlength="60" [(ngModel)]="productosExtrasBusqueda" />
       </div>
 
       <div class="picker-list">
@@ -524,7 +524,7 @@
     <div class="order-modal__body">
       <div class="picker-search">
         <ion-icon name="search-outline"></ion-icon>
-        <input type="text" placeholder="Buscar extra..." [(ngModel)]="elegirExtrasBusqueda" />
+        <input type="text" placeholder="Buscar extra..." maxlength="60" [(ngModel)]="elegirExtrasBusqueda" />
       </div>
       <p *ngIf="asignarError" class="menu-error">{{ asignarError }}</p>
 
@@ -590,7 +590,7 @@
       <form [formGroup]="catForm" (ngSubmit)="guardarCategoria()" class="menu-form">
         <label class="menu-form__label">
           Nombre
-          <input type="text" formControlName="nombre" class="menu-form__input" maxlength="80"
+          <input type="text" formControlName="nombre" class="menu-form__input" maxlength="40"
             placeholder="Ej. Bebidas" />
         </label>
 

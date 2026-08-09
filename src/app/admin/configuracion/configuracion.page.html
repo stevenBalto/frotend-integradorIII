@@ -67,7 +67,7 @@
           <div class="cfg-field">
             <p class="cfg-field__label">Pedido mínimo (₡)</p>
             <div class="cfg-input">
-              <input type="number" min="0" step="100" [(ngModel)]="ajustes.pedido_monto_minimo" />
+              <input type="number" min="0" max="1000000" step="100" [(ngModel)]="ajustes.pedido_monto_minimo" />
             </div>
             <p class="cfg-field__hint">
               Monto mínimo de compra para aceptar un pedido.

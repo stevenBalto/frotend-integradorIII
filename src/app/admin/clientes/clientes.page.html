@@ -107,7 +107,7 @@
 
         <!-- Buscador colapsable compartido (misma logica en todo el sistema). -->
         <admin-search-input placeholder="Buscar por nombre o correo..."
-          [(value)]="busqueda"></admin-search-input>
+          [maxlength]="80" [(value)]="busqueda"></admin-search-input>
       </div>
 
       <!-- Copia del rango SOLO para movil: fila propia full-width bajo el head (como estaba). -->

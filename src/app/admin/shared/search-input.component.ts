@@ -25,7 +25,7 @@ const CLASE_FILA_ABIERTA = 'admin-search-open';
         class="asi__input"
         [placeholder]="placeholder"
         [value]="value"
-        maxlength="100"
+        [attr.maxlength]="maxlength"
         (input)="onInput($event)"
         (keydown.escape)="cerrar()"
       />
@@ -86,6 +86,8 @@ const CLASE_FILA_ABIERTA = 'admin-search-open';
 export class SearchInputComponent {
   @Input() placeholder = '';
   @Input() value = '';
+  /** Límite de caracteres del texto de búsqueda (coherente con lo que se busca). */
+  @Input() maxlength = 60;
   @Output() valueChange = new EventEmitter<string>();
   @Output() searchChange = new EventEmitter<string>();
   /** Emite true/false al abrir/cerrar (para vistas cuyos filtros NO son hermanos directos). */

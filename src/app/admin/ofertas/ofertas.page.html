@@ -142,7 +142,7 @@
           <filter-tab label="Cupones (codigos)" [active]="tab === 'cupones'" (select)="tab = 'cupones'"></filter-tab>
         </div>
         <admin-search-input *ngIf="tab === 'ofertas'" placeholder="Buscar oferta..." [(value)]="busquedaOferta"></admin-search-input>
-        <admin-search-input *ngIf="tab === 'cupones'" placeholder="Buscar codigo..." [(value)]="busquedaCupon"></admin-search-input>
+        <admin-search-input *ngIf="tab === 'cupones'" placeholder="Buscar codigo..." [maxlength]="40" [(value)]="busquedaCupon"></admin-search-input>
       </div>
 
       <ng-container *ngIf="tab === 'ofertas'">
@@ -350,7 +350,7 @@
       </div>
 
       <button type="button" class="order-modal__cta" (click)="editarDesdeDetalleCupon()">
-        Editar cupon
+        Editar cupón
       </button>
     </div>
   </div>
@@ -405,12 +405,12 @@
 
         <label class="of-form__label">
           Nombre
-          <input type="text" formControlName="nombre" class="of-form__input" placeholder="Ej. Combo Pizza + Bebida" />
+          <input type="text" formControlName="nombre" class="of-form__input" maxlength="40" placeholder="Ej. Combo Pizza + Bebida" />
         </label>
 
         <label class="of-form__label">
           Descripcion
-          <textarea formControlName="descripcion" class="of-form__input" rows="2" placeholder="Opcional"></textarea>
+          <textarea formControlName="descripcion" class="of-form__input" rows="2" maxlength="150" placeholder="Opcional"></textarea>
         </label>
 
         <div class="of-form__row">
@@ -423,7 +423,7 @@
           </label>
           <label class="of-form__label of-form__label--half">
             Valor
-            <input type="number" min="0" step="1" formControlName="valor" class="of-form__input" placeholder="Ej. 20" />
+            <input type="number" min="0" [max]="formOferta.value.tipo_descuento === 'porcentaje' ? 100 : 1000000" step="1" formControlName="valor" class="of-form__input" placeholder="Ej. 20" />
           </label>
         </div>
 
@@ -489,7 +489,7 @@
   <div class="order-modal__panel">
     <div class="order-modal__head">
       <div>
-        <p class="order-modal__title">{{ editandoCupon ? 'Editar cupon' : 'Nuevo cupon' }}</p>
+        <p class="order-modal__title">{{ editandoCupon ? 'Editar cupón' : 'Nuevo cupón' }}</p>
       </div>
       <div class="order-modal__head-right">
         <button type="button" class="order-modal__close" (click)="cerrarModalCupon()">
@@ -532,7 +532,7 @@
 
         <label class="of-form__label">
           Codigo
-          <input type="text" formControlName="codigo" class="of-form__input" placeholder="Ej. ROOSTER20" maxlength="20" />
+          <input type="text" formControlName="codigo" class="of-form__input" placeholder="Ej. ROOSTER20" maxlength="16" />
           <span class="of-form__note">Solo letras y numeros, sin espacios (es lo que el cliente muestra en el QR).</span>
         </label>
 
@@ -546,13 +546,13 @@
           </label>
           <label class="of-form__label of-form__label--half">
             Valor
-            <input type="number" min="0" step="1" formControlName="valor" class="of-form__input" placeholder="Ej. 20" />
+            <input type="number" min="0" [max]="formCupon.value.tipo === 'porcentaje' ? 100 : 1000000" step="1" formControlName="valor" class="of-form__input" placeholder="Ej. 20" />
           </label>
         </div>
 
         <label class="of-form__label">
           Monto minimo de compra
-          <input type="number" min="0" step="1" formControlName="monto_minimo" class="of-form__input" placeholder="Dejar vacio para sin minimo" />
+          <input type="number" min="0" max="1000000" step="1" formControlName="monto_minimo" class="of-form__input" placeholder="Dejar vacio para sin minimo" />
         </label>
 
         <div class="of-form__row">
@@ -568,7 +568,7 @@
 
         <label class="of-form__label">
           Usos maximos
-          <input type="number" min="0" step="1" formControlName="usos_max" class="of-form__input" placeholder="Dejar vacio para ilimitados" />
+          <input type="number" min="0" max="1000000" step="1" formControlName="usos_max" class="of-form__input" placeholder="Dejar vacio para ilimitados" />
         </label>
 
         <label class="of-form__label">
@@ -654,6 +654,7 @@
           type="text"
           class="of-search__input"
           placeholder="Buscar por nombre o correo..."
+          maxlength="80"
           [(ngModel)]="busquedaCliente"
           [ngModelOptions]="{ standalone: true }"
         />
@@ -701,7 +702,7 @@
   <div class="order-modal__panel">
     <div class="order-modal__head">
       <div>
-        <p class="order-modal__title">Canjear codigo</p>
+        <p class="order-modal__title">Canjear código</p>
       </div>
       <div class="order-modal__head-right">
         <button type="button" class="order-modal__close" (click)="cerrarCanjear()">

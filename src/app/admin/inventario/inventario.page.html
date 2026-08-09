@@ -146,13 +146,13 @@
       <form [formGroup]="form" (ngSubmit)="guardar()" class="inv-form">
         <label class="inv-form__label">
           Nombre
-          <input type="text" formControlName="nombre" maxlength="120"
+          <input type="text" formControlName="nombre" maxlength="50"
             class="inv-form__input" placeholder="Ej. Queso mozzarella" />
         </label>
 
         <label class="inv-form__label">
           Unidad de medida
-          <input type="text" list="inv-unidades" formControlName="unidad_medida" maxlength="20"
+          <input type="text" list="inv-unidades" formControlName="unidad_medida" maxlength="12"
             class="inv-form__input" placeholder="Ej. kg" />
           <datalist id="inv-unidades">
             <option *ngFor="let u of unidades" [value]="u"></option>

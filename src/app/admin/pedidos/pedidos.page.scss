@@ -427,6 +427,15 @@
     cursor: pointer;
   }
   .ped-toolbar__searchrow { width: 100%; }
+
+  /* Tabla VACÍA (ej. "Hoy" sin pedidos): el truco global display:block + width:max-content
+     la deja del ancho de los encabezados y se ve "cortada". Con :has vuelve a table 100%
+     para llenar el div; con datos conserva el scroll horizontal 1D. */
+  .admin-table:has(.ped-empty) {
+    display: table;
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* Filtro por fecha (Todos / Hoy / Semana / una fecha puntual). Nunca se parte a
