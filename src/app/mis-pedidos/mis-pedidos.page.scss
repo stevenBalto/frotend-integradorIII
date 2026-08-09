@@ -9,8 +9,15 @@
   gap: 12px;
   padding: 16px 20px;
 
+  /* Como historial de compras: en pantallas anchas, la cabecera y la lista
+     quedan centradas como una columna angosta en vez de pegadas a la
+     izquierda con un vacio enorme a la derecha (mismo max-width que
+     .mispedidos-list, para que ambas queden alineadas). */
   @media (min-width: 768px) {
     padding: 32px 32px 24px;
+    max-width: 664px;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
 
   &__back {
@@ -78,7 +85,9 @@
 
   @media (min-width: 768px) {
     padding: 0 32px 32px;
-    max-width: 600px;
+    max-width: 664px;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
 }
 
