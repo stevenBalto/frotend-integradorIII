@@ -6,6 +6,7 @@ import { ResenaAdmin } from '../../core/models/resena.model';
 
 type FiltroEstado = 'todas' | 'publicada' | 'oculta';
 type FiltroTipo = 'todas' | 'general' | 'producto';
+type FiltroComentario = 'todas' | 'con' | 'sin';
 
 /** Gestión de reseñas del admin: listado, filtros, stats y moderación (conectado a API real). */
 @Component({
@@ -28,6 +29,7 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   filtroEstrella = 0; // 0 = todas
   filtroEstado: FiltroEstado = 'todas';
   filtroTipo: FiltroTipo = 'todas';
+  filtroComentario: FiltroComentario = 'todas';
   filtroProductoId: number | 'todas' = 'todas';
   busqueda = '';
   filtrosOcultos = false; // el buscador (lupa) abierto oculta el cuerpo de filtros
@@ -113,6 +115,10 @@ export class AdminResenasPage implements OnInit, OnDestroy {
     return this.resenas.filter((r) => r.estado === 'oculta').length;
   }
 
+  get totalPublicadas(): number {
+    return this.resenas.filter((r) => r.estado === 'publicada').length;
+  }
+
   /** Distribución 1..5 sobre las reseñas publicadas (lo que ven los clientes). */
   get distribucion(): { estrella: number; cantidad: number }[] {
     if (this._distribucionCache.length > 0) return this._distribucionCache;
@@ -161,11 +167,16 @@ export class AdminResenasPage implements OnInit, OnDestroy {
     this.mostrarPickerProducto = false;
   }
 
+  /** Filtro por estado disparado desde los KPIs (toggle: si ya estaba activo, vuelve a 'todas'). */
+  setFiltroEstado(estado: FiltroEstado): void {
+    this.filtroEstado = this.filtroEstado === estado ? 'todas' : estado;
+  }
+
   // ── Filtrado (en memoria) ──
 
   get resenasFiltradas(): ResenaAdmin[] {
     const q = this.busqueda.trim().toLowerCase();
-    const key = `${this.resenas.map((x) => x.id).join(',')}|${this.filtroEstrella}|${this.filtroEstado}|${this.filtroTipo}|${this.filtroProductoId}|${q}|${this.desde}|${this.hasta}`;
+    const key = `${this.resenas.map((x) => x.id).join(',')}|${this.filtroEstrella}|${this.filtroEstado}|${this.filtroTipo}|${this.filtroComentario}|${this.filtroProductoId}|${q}|${this.desde}|${this.hasta}`;
     if (key === this._resenasCacheKey) {
       return this._resenasFiltradasCache;
     }
@@ -174,6 +185,9 @@ export class AdminResenasPage implements OnInit, OnDestroy {
       if (this.filtroEstrella !== 0 && r.calificacion !== this.filtroEstrella) return false;
       if (this.filtroEstado !== 'todas' && r.estado !== this.filtroEstado) return false;
       if (this.filtroTipo !== 'todas' && r.tipo !== this.filtroTipo) return false;
+      const tieneComentario = !!(r.comentario && r.comentario.trim());
+      if (this.filtroComentario === 'con' && !tieneComentario) return false;
+      if (this.filtroComentario === 'sin' && tieneComentario) return false;
       if (this.filtroProductoId !== 'todas' && r.producto?.id !== this.filtroProductoId) return false;
       if (q) {
         const c = `${r.cliente?.nombre ?? ''} ${r.cliente?.email ?? ''}`.toLowerCase();
@@ -191,13 +205,15 @@ export class AdminResenasPage implements OnInit, OnDestroy {
 
   hayFiltros(): boolean {
     return this.filtroEstrella !== 0 || this.filtroEstado !== 'todas' || this.filtroTipo !== 'todas'
-      || this.filtroProductoId !== 'todas' || this.busqueda.trim() !== '' || this.desde !== '' || this.hasta !== '';
+      || this.filtroComentario !== 'todas' || this.filtroProductoId !== 'todas'
+      || this.busqueda.trim() !== '' || this.desde !== '' || this.hasta !== '';
   }
 
   limpiarFiltros(): void {
     this.filtroEstrella = 0;
     this.filtroEstado = 'todas';
     this.filtroTipo = 'todas';
+    this.filtroComentario = 'todas';
     this.filtroProductoId = 'todas';
     this.busqueda = '';
     this.desde = '';

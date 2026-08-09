@@ -9,6 +9,58 @@
 .dist__label { font-size: 12px; font-weight: 600; color: var(--admin-text); }
 .dist__count { font-size: 12px; color: var(--admin-text-soft); text-align: right; }
 
+// ── Distribución + Filtrar en la misma fila (tablet/desktop); se apilan en <=900px ──
+.res-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;          // Filtrar (con [fill]) iguala el alto de la columna izquierda
+}
+// Columna izquierda: apila Distribución + "Filtrar por estrellas". Ancho suficiente
+// para que las 6 estrellas (Todas/5..1) quepan en UNA sola fila.
+.res-row__col--left {
+  flex: 0 0 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.res-row__col--filtros { flex: 1 1 auto; min-width: 0; }
+// Distribución crece para absorber el hueco de la columna izquierda (con [fill] su fondo
+// llega hasta abajo) y empuja "Filtrar por estrellas" al fondo -> bordes inferiores parejos con Filtrar.
+.res-dist-card { flex: 1 1 auto; }
+// Chips de estrellas dentro de su card (mismo look que los filter-tab del resto).
+.res-estrellas { display: flex; flex-wrap: wrap; gap: 8px; }
+// El grupo de estrellas dentro de Filtrar solo se usa en <=1024 (arriba manda la card propia).
+// Compuesto para ganarle en especificidad a `.res-filtros__group { display:flex }` (definido despues).
+.res-filtros__group.res-estrellas-inline { display: none; }
+
+@media (max-width: 1024px) {
+  .res-row { flex-direction: column; gap: 20px; }
+  .res-row__col--left,
+  .res-row__col--filtros { flex: 1 1 auto; width: 100%; }
+  // Estrellas pasa a ser parte de Filtrar: se oculta la card propia y aparece el grupo interno.
+  .res-estrellas-card { display: none; }
+  .res-filtros__group.res-estrellas-inline { display: flex; }
+}
+
+// <=1145: los inputs de rango de fecha (Desde/Hasta) se muestran SOLO con el icono (se
+// oculta el texto dd/mm/aaaa); el date-picker sigue funcionando. Ahorra ancho al comprimirse.
+@media (max-width: 1145px) {
+  .res-field input[type="date"] {
+    width: 38px;
+    padding: 0 8px;              // el alto (31px) lo fija la regla base; solo padding horizontal
+    color: transparent;
+    &::-webkit-datetime-edit { display: none; }
+    &::-webkit-inner-spin-button { display: none; }
+    &::-webkit-calendar-picker-indicator { margin: 0; cursor: pointer; }
+  }
+}
+
+// <=767: el buscador (lupa) se queda pegado arriba a la derecha (no baja a una 2a fila).
+// actionInline lo mantiene en la fila del titulo; flex:0 0 auto hace que space-between lo empuje a la derecha.
+@media (max-width: 767px) {
+  #res-filtrar ::ng-deep .section-card__head--inline .section-card__action { flex: 0 0 auto; }
+}
+
 // ── Filtros ──
 .res-filtros { display: flex; flex-direction: column; gap: 14px; }
 // Al abrir el buscador (lupa del header), se ocultan los filtros de esta card.
@@ -56,20 +108,15 @@
   color: var(--admin-text);
   font-family: var(--rooster-font-sans);
 }
-// EXTRA: los dos KPIs de reseñas siempre en la misma fila (incluido móvil).
-// .admin-grid-2 NO existe en global.scss (solo grid-3/grid-4) -> faltaba display:grid y
-// las cards se apilaban. Forzamos grid de 2 columnas en todos los breakpoints.
-.res-kpis {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+// Inputs de fecha (Desde/Hasta) con el MISMO alto que el select de productos (.res-prodpicker__btn = 31px).
+.res-field input[type="date"] {
+  height: 31px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--admin-text);
+  font-family: var(--rooster-font-sans);
 }
-// Los KPIs viven en el header desde tablet+ (>=640px); el grid del cuerpo se
-// oculta ahí (va después del base para ganar por orden a igual especificidad).
-@media (min-width: 640px) {
-  .res-kpis.admin-kpis-body { display: none; }
-}
-
 // ── Picker visual de producto (item 26): despliega productos con imagen ──
 .res-prodpicker { position: relative; min-width: 200px; }
 .res-prodpicker__btn {
