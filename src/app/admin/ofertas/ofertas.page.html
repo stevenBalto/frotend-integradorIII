@@ -158,9 +158,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let o of ofertasFiltradas" [class.of-row--off]="!o.activa">
+            <tr *ngFor="let o of ofertasFiltradas" [class.of-row--off]="!o.activa"
+              class="of-row--clickable" (click)="abrirDetalleOferta(o)">
               <td>
-                <div class="of-combo-icon" [style.background]="o.activa ? '#E13642' : '#1E1E1E'">
+                <div class="of-combo-icon">
                   <img *ngIf="o.imagen_url" [src]="o.imagen_url" [alt]="o.nombre" class="of-combo-icon__img" />
                   <ion-icon *ngIf="!o.imagen_url" name="restaurant-outline"></ion-icon>
                 </div>
@@ -175,10 +176,10 @@
               <td><status-badge [type]="getOfertaBadgeType(o)"></status-badge></td>
               <td>
                 <div class="of-actions">
-                  <button type="button" class="of-action of-action--edit" (click)="abrirEditarOferta(o)">
+                  <button type="button" class="of-action of-action--edit" (click)="abrirEditarOferta(o); $event.stopPropagation()">
                     <ion-icon name="create-outline"></ion-icon>
                   </button>
-                  <button type="button" class="of-action of-action--del" (click)="eliminarOferta(o)">
+                  <button type="button" class="of-action of-action--del" (click)="eliminarOferta(o); $event.stopPropagation()">
                     <ion-icon name="trash-outline"></ion-icon>
                   </button>
                 </div>
@@ -207,9 +208,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of cuponesFiltrados" [class.of-row--off]="!c.activo">
+            <tr *ngFor="let c of cuponesFiltrados" [class.of-row--off]="!c.activo"
+              class="of-row--clickable" (click)="abrirDetalleCupon(c)">
               <td>
-                <div class="of-combo-icon" [style.background]="c.activo ? '#F58220' : '#1E1E1E'">
+                <div class="of-combo-icon">
                   <img *ngIf="c.imagen_url" [src]="c.imagen_url" [alt]="c.codigo" class="of-combo-icon__img" />
                   <ion-icon *ngIf="!c.imagen_url" name="pricetag-outline"></ion-icon>
                 </div>
@@ -229,10 +231,10 @@
               <td><status-badge [type]="getCuponBadgeType(c)"></status-badge></td>
               <td>
                 <div class="of-actions">
-                  <button type="button" class="of-action of-action--edit" (click)="abrirEditarCupon(c)">
+                  <button type="button" class="of-action of-action--edit" (click)="abrirEditarCupon(c); $event.stopPropagation()">
                     <ion-icon name="create-outline"></ion-icon>
                   </button>
-                  <button type="button" class="of-action of-action--del" (click)="eliminarCupon(c)">
+                  <button type="button" class="of-action of-action--del" (click)="eliminarCupon(c); $event.stopPropagation()">
                     <ion-icon name="trash-outline"></ion-icon>
                   </button>
                 </div>
@@ -251,6 +253,108 @@
 
   </div>
 </ion-content>
+
+<!-- Modal Detalle Oferta (imagen en grande, como el detalle de productos en Menu) -->
+<div class="order-modal" *ngIf="detalleOfertaAbierta && ofertaDetalle">
+  <div class="order-modal__backdrop" (click)="cerrarDetalleOferta()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ ofertaDetalle.nombre }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarDetalleOferta()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="of-detail__img">
+        <img *ngIf="ofertaDetalle.imagen_url" [src]="ofertaDetalle.imagen_url" [alt]="ofertaDetalle.nombre" />
+        <ion-icon *ngIf="!ofertaDetalle.imagen_url" name="restaurant-outline"></ion-icon>
+      </div>
+
+      <div class="of-detail__row">
+        <status-badge [type]="getOfertaBadgeType(ofertaDetalle)"></status-badge>
+        <span class="of-detail__chip">{{ formatTipoDescuento(ofertaDetalle.tipo_descuento) }}</span>
+      </div>
+
+      <p class="of-detail__desc">{{ ofertaDetalle.descripcion || 'Sin descripcion.' }}</p>
+
+      <div class="of-detail__meta">
+        <div class="of-detail__meta-row">
+          <span class="of-detail__meta-label">Productos</span>
+          <span class="of-detail__meta-value">{{ ofertaDetalle.productos_count }} producto{{ ofertaDetalle.productos_count !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="of-detail__meta-row">
+          <span class="of-detail__meta-label">Vigencia</span>
+          <span class="of-detail__meta-value">{{ formatVigencia(ofertaDetalle.fecha_fin) }}</span>
+        </div>
+      </div>
+
+      <div class="of-detail__price-row">
+        <span class="of-detail__price">{{ formatValorOferta(ofertaDetalle) }}</span>
+      </div>
+
+      <button type="button" class="order-modal__cta" (click)="editarDesdeDetalleOferta()">
+        Editar oferta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Cupon -->
+<div class="order-modal" *ngIf="detalleCuponAbierto && cuponDetalle">
+  <div class="order-modal__backdrop" (click)="cerrarDetalleCupon()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">{{ cuponDetalle.codigo }}</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarDetalleCupon()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <div class="of-detail__img">
+        <img *ngIf="cuponDetalle.imagen_url" [src]="cuponDetalle.imagen_url" [alt]="cuponDetalle.codigo" />
+        <ion-icon *ngIf="!cuponDetalle.imagen_url" name="pricetag-outline"></ion-icon>
+      </div>
+
+      <div class="of-detail__row">
+        <status-badge [type]="getCuponBadgeType(cuponDetalle)"></status-badge>
+        <span class="of-detail__chip">{{ formatTipoCupon(cuponDetalle.tipo) }}</span>
+      </div>
+
+      <div class="of-detail__meta">
+        <div class="of-detail__meta-row">
+          <span class="of-detail__meta-label">Min. compra</span>
+          <span class="of-detail__meta-value">{{ formatMontoMinimo(cuponDetalle.monto_minimo) }}</span>
+        </div>
+        <div class="of-detail__meta-row">
+          <span class="of-detail__meta-label">Usos</span>
+          <span class="of-detail__meta-value">{{ formatUsosLabel(cuponDetalle) }}</span>
+        </div>
+        <div class="of-detail__meta-row">
+          <span class="of-detail__meta-label">Vigencia</span>
+          <span class="of-detail__meta-value">{{ formatVigencia(cuponDetalle.fecha_fin) }}</span>
+        </div>
+      </div>
+
+      <div class="of-detail__price-row">
+        <span class="of-detail__price">{{ formatValorCupon(cuponDetalle) }}</span>
+      </div>
+
+      <button type="button" class="order-modal__cta" (click)="editarDesdeDetalleCupon()">
+        Editar cupon
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal Nueva/Editar Oferta -->
 <div class="order-modal" *ngIf="modalOfertaOpen">

@@ -10,12 +10,14 @@
 }
 .of-toolbar__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
 
-/* Movil: apilar los tabs y dejar el buscador a lo ancho (sin desperdiciar espacio). */
+/* Movil: TODO en una sola fila como la tabla de productos (Menu). Los tabs (Ofertas/Cupones)
+   scrollean en horizontal si no caben y el buscador queda pegado a la DERECHA como lupa (antes
+   se apilaban en columna y la lupa caia a una 2a fila a la izquierda). */
 @media (max-width: 767px) {
-  .of-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
-  .of-toolbar__tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .of-toolbar { flex-wrap: nowrap; align-items: center; gap: 10px; }
+  .of-toolbar__tabs { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
   .of-toolbar__tabs > * { flex-shrink: 0; }
-  .of-toolbar > admin-search-input { display: block; width: 100%; }
+  .of-toolbar > admin-search-input { flex-shrink: 0; margin-left: auto; }
 }
 
 .of-tabs { display: flex; gap: 8px; }
@@ -45,64 +47,74 @@
   border-collapse: collapse;
   font-family: var(--rooster-font-sans);
 }
-/* Movil: mismo patron anidado 1D que las tablas globales (alto fijo sin diagonal). */
+/* Movil: encabezados fijos (sticky) tambien en movil, igual que la tabla de productos
+   (Menu, ver EF-27). El patron display:block volvia la tabla su propio scroller y rompia el
+   sticky del thead (que ya declara global.scss para .of-table thead th). Se usa UN contenedor
+   de scroll 2D (el wrap) + tabla normal (display:table) que desborda para el scroll horizontal. */
 @media (max-width: 767px) {
-  .of-table-wrap {
-    max-height: 60vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
-  }
+  .of-table-wrap { max-height: 60vh; overflow: auto; }
   .of-table {
-    display: block;
+    display: table;
     width: max-content;
-    max-width: 100%;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
+    min-width: 100%;
+    max-width: none;
+    overflow: visible;
   }
 }
-.of-table td, .of-table th { padding-left: 4px; }
-/* Primera columna (logo de oferta / codigo de cupon) con aire, no pegada al borde. */
-.of-table td:first-child, .of-table th:first-child { padding-left: 12px; }
-.of-table thead tr { border-bottom: 0.5px solid rgba(168, 137, 94, 0.25); }
+/* Campos alineados al estandar .admin-table (global.scss): mismos colores (gris, no
+   cafe), tamanos y bordes. thead con fondo panel + encabezados en MAYUSCULA gris muted;
+   td 11px color texto; filas con borde y hover grises. Antes usaba una paleta calida
+   propia que se veia distinta al resto de tablas del panel. */
+.of-table thead tr { background: var(--admin-panel); border-bottom: 1px solid var(--admin-border); }
 .of-table th {
   text-align: left;
-  padding: 0 12px 8px 0;
+  padding: 10px 12px;
   font-size: 9px;
-  color: var(--rooster-brown);
-  font-weight: 600;
+  color: var(--admin-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
   white-space: nowrap;
 }
-.of-table td { padding: 12px 12px 12px 0; vertical-align: middle; white-space: nowrap; }
-.of-table tbody tr { border-bottom: 0.5px solid rgba(168, 137, 94, 0.1); }
+.of-table td {
+  padding: 12px;
+  font-size: 11px;
+  color: var(--admin-text);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.of-table tbody tr { border-bottom: 1px solid var(--admin-border); transition: background 0.15s; }
+.of-table tbody tr:last-child { border-bottom: none; }
+.of-table tbody tr:hover { background: #f9fafb; }
+.of-row--clickable { cursor: pointer; }
 .of-row--off { opacity: 0.55; }
 
-.of-muted { font-size: 10px; color: #6b6b6b; }
+.of-muted { font-size: 11px; color: var(--admin-text-muted); }
 .of-urgent { color: var(--rooster-red) !important; font-weight: 600; }
 
+/* Miniatura de la 1a columna: neutra como .menu-thumb de productos (antes cuadro rojo/
+   naranja). El estado ya se comunica con la fila atenuada + el badge de la columna Estado. */
 .of-combo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--admin-neutral1);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
-.of-combo-icon ion-icon { font-size: 16px; color: #fff; }
+.of-combo-icon ion-icon { font-size: 16px; color: var(--admin-neutral4); }
 .of-combo-icon__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.of-combo__name { font-size: 12px; font-weight: 700; color: #1e1e1e; margin: 0; }
+.of-combo__name { font-size: 12px; font-weight: 700; color: var(--admin-text); margin: 0; }
 .of-combo__price { font-size: 9px; color: var(--rooster-red); font-weight: 600; margin: 0; }
 
-.of-code { font-size: 11px; font-weight: 700; color: #1e1e1e; }
-.of-value { font-size: 11px; color: #1e1e1e; }
-.of-uses { font-size: 10px; color: #1e1e1e; margin: 0; }
+.of-code { font-size: 11px; font-weight: 700; color: var(--admin-text); }
+.of-value { font-size: 11px; color: var(--admin-text); }
+.of-uses { font-size: 11px; color: var(--admin-text); margin: 0; }
 .of-uses--red { color: var(--rooster-red); }
 .of-usebar { width: 60px; height: 4px; background: #eee; border-radius: 2px; margin-top: 3px; }
 .of-usebar__fill { height: 4px; border-radius: 2px; }
@@ -186,6 +198,38 @@
   cursor: pointer;
   &:disabled { opacity: 0.7; }
 }
+
+/* ── Modal Detalle (imagen en grande, igual que el detalle de productos en Menu) ── */
+.of-detail__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--admin-neutral1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.of-detail__img img { width: 100%; height: 100%; object-fit: cover; }
+.of-detail__img ion-icon { font-size: 40px; color: var(--admin-neutral4); }
+.of-detail__row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.of-detail__chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: var(--admin-neutral1);
+  color: var(--admin-text-muted);
+}
+.of-detail__desc { font-size: 12px; color: var(--admin-text-muted); line-height: 1.5; margin: 0 0 16px; }
+.of-detail__meta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.of-detail__meta-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
+.of-detail__meta-label { color: var(--admin-text-muted); font-weight: 600; }
+.of-detail__meta-value { color: var(--admin-text); font-weight: 700; }
+.of-detail__price-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.of-detail__price { font-size: 20px; font-weight: 700; color: var(--rooster-red); }
 
 /* ── Formulario ───────────────────────────────────────── */
 .of-form { display: flex; flex-direction: column; gap: 14px; }

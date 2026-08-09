@@ -99,6 +99,12 @@ export class AdminOfertasPage implements OnInit {
   canjeCupon: Cupon | null = null;
   canjeOferta: Oferta | null = null;
 
+  // Detalle (imagen en modal, igual que el detalle de productos en Menu)
+  detalleOfertaAbierta = false;
+  ofertaDetalle: Oferta | null = null;
+  detalleCuponAbierto = false;
+  cuponDetalle: Cupon | null = null;
+
   // Imagenes del sistema para ofertas/cupones: logo Rooster + iconos (cubiertos,
   // pizza, grill, bebidas, pastas, etiqueta) en la misma secuencia de colores que
   // la vista cliente. Se eligen desde un modal; se guardan como imagen_url (ruta corta).
@@ -682,6 +688,39 @@ export class AdminOfertasPage implements OnInit {
       return;
     }
     this.cuponService.eliminar(c.id).subscribe({ next: () => this.cargarCupones() });
+  }
+
+  // ── Detalle (click en la fila abre modal con la imagen en grande) ──
+  abrirDetalleOferta(o: Oferta): void {
+    this.ofertaDetalle = o;
+    this.detalleOfertaAbierta = true;
+  }
+
+  cerrarDetalleOferta(): void {
+    this.detalleOfertaAbierta = false;
+    this.ofertaDetalle = null;
+  }
+
+  editarDesdeDetalleOferta(): void {
+    const o = this.ofertaDetalle;
+    this.cerrarDetalleOferta();
+    if (o) this.abrirEditarOferta(o);
+  }
+
+  abrirDetalleCupon(c: Cupon): void {
+    this.cuponDetalle = c;
+    this.detalleCuponAbierto = true;
+  }
+
+  cerrarDetalleCupon(): void {
+    this.detalleCuponAbierto = false;
+    this.cuponDetalle = null;
+  }
+
+  editarDesdeDetalleCupon(): void {
+    const c = this.cuponDetalle;
+    this.cerrarDetalleCupon();
+    if (c) this.abrirEditarCupon(c);
   }
 
   // ── Canje por QR ──────────────────────────────────────────────────
