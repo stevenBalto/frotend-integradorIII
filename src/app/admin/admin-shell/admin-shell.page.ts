@@ -9,9 +9,11 @@ import { NotificacionService } from '../../core/services/notificacion.service';
 import {
   Notificacion,
   rutaDeNotificacion,
+  seccionDeNotificacion,
   iconoDeNotificacion,
 } from '../../core/models/notificacion.model';
 import { AdminHeaderLead, AdminHeaderService } from '../shared/admin-header.service';
+import { SidebarFocusService } from '../shared/sidebar-focus.service';
 import { InactivityService } from '../../core/services/inactivity.service';
 
 interface NavItem {
@@ -49,6 +51,11 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   sidebarOpen = false;
   sucursalNombre: string | null = null;
+
+  /** Id de la sección del sidebar con el pulso de "foco" activo (al llegar desde una
+   *  notificación). Se limpia solo tras el pulso; el estado activo lo maneja el router. */
+  focoSidebarId: string | null = null;
+  private focoTimer?: ReturnType<typeof setTimeout>;
 
   // Header contextual (tentativo): el saludo solo se muestra en Dashboard; en el
   // resto de secciones el header global muestra el titulo/subtitulo de la seccion
@@ -144,6 +151,7 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
     private notificaciones: NotificacionService,
     private toastCtrl: ToastController,
     private adminHeader: AdminHeaderService,
+    private sidebarFocus: SidebarFocusService,
     private host: ElementRef<HTMLElement>,
     private zone: NgZone,
     private gestureCtrl: GestureController,
@@ -220,6 +228,11 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((nuevas) => nuevas.forEach((n) => void this.mostrarToast(n)));
 
+    // Pulso de foco en el sidebar al abrir una notificación que redirige a otra sección.
+    this.sidebarFocus.foco$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((id) => this.enfocarSidebar(id));
+
     this.notificaciones.iniciarPolling();
   }
 
@@ -247,11 +260,23 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.notificaciones.detenerPolling();
     this.sidebarGesture?.destroy();
+    clearTimeout(this.focoTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   closeSidebar(): void { this.sidebarOpen = false; }
+
+  /** Ilumina brevemente el ítem del sidebar de la sección indicada (pulso ~1.6s). */
+  private enfocarSidebar(seccionId: string): void {
+    clearTimeout(this.focoTimer);
+    // Reinicia la animación aunque se pida la misma sección dos veces seguidas.
+    this.focoSidebarId = null;
+    setTimeout(() => {
+      this.focoSidebarId = seccionId;
+      this.focoTimer = setTimeout(() => (this.focoSidebarId = null), 1600);
+    });
+  }
 
   /** Deriva la seccion activa del URL (/admin/<id>) para el header contextual. */
   private actualizarSeccion(url: string): void {
@@ -329,6 +354,8 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
     }
     const destino = rutaDeNotificacion(n);
     if (destino) {
+      const seccion = seccionDeNotificacion(n);
+      if (seccion) this.sidebarFocus.enfocar(seccion);
       void this.router.navigate(destino.path, destino.extras);
     }
   }

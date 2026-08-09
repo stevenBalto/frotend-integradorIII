@@ -19,6 +19,7 @@
         <a
           *ngFor="let item of grupo.items"
           class="admin-nav-item"
+          [class.admin-nav-item--foco]="item.id === focoSidebarId"
           [routerLink]="['/admin', item.id]"
           routerLinkActive="admin-nav-item--active"
           (click)="closeSidebar()"

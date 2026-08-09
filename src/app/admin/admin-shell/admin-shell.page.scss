@@ -131,6 +131,19 @@
 .admin-nav-item--active ion-icon { color: #fff; }
 .admin-nav-item--active .admin-nav-item__label { color: #fff; font-weight: 700; }
 
+/* Pulso breve al llegar a una sección desde una notificación: un anillo rojo que
+   se expande y se apaga, para que el admin ubique en el sidebar dónde quedó. El
+   estado activo normal lo sigue pintando .admin-nav-item--active. */
+.admin-nav-item--foco { animation: adminNavFoco 1.5s ease-out; }
+@keyframes adminNavFoco {
+  0%   { box-shadow: 0 0 0 0 rgba(225, 54, 66, 0.6); }
+  55%  { box-shadow: 0 0 0 6px rgba(225, 54, 66, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(225, 54, 66, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-nav-item--foco { animation: none; }
+}
+
 .admin-sidebar__footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }

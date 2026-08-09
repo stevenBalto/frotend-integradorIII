@@ -1,47 +1,83 @@
-.notif-mark {
-  background: none;
-  border: none;
+/* Botones de acción del header (marcar todas / borrar todas): SOLO ícono, cuadrado
+   32x32, mismo estándar que la campana y el "?" de Pedidos. Se proyectan al header
+   vía [adminHeaderActions]; los estilos aplican por la encapsulación del componente. */
+.notif-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-panel);
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--rooster-red);
+  transition: border-color 0.15s, opacity 0.15s, transform 0.1s;
+  ion-icon { font-size: 16px; color: var(--rooster-red); }
+  &:hover { border-color: rgba(225, 54, 66, 0.4); }
+  &:active { transform: scale(0.95); }
+  &:disabled { opacity: 0.4; cursor: default; }
+}
+.notif-act--danger ion-icon { color: #dc2626; }
+.notif-act--danger:hover { border-color: rgba(220, 38, 38, 0.4); }
+
+/* #17 Contador + filtros (estado y fecha). Se proyectan al header en tablet+ y se
+   muestran en el cuerpo en móvil (misma plantilla, dos ubicaciones). */
+.notif-filtros {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   font-family: var(--rooster-font-sans);
 }
-
-/* #17 Barra de contador + filtros (estado y periodo). */
-/* Barra superior: filtros a la izquierda, acciones (marcar/borrar) a la derecha,
-   todo en la misma altura. */
-.notif-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.notif-bar__acciones { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-.notif-bar__count {
-  font-size: 12px;
-  color: var(--admin-text-muted);
-  margin: 0;
-  white-space: nowrap;
-}
-.notif-bar__count strong { color: var(--rooster-red); }
-.notif-bar__unread { color: var(--admin-text-muted); font-weight: 600; }
-.notif-bar__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.notif-bar__sep { width: 1px; height: 18px; background: var(--admin-border); margin: 0 2px; }
-
-/* Filtros agrupados: "Estado" y "Fecha" con su etiqueta, para que se lea
-   claro que son dos criterios distintos. */
-.notif-bar__filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
-.notif-bar__grupo { display: flex; align-items: center; gap: 8px; }
-.notif-bar__label {
+.notif-filtros__count { font-size: 12px; color: var(--admin-text-muted); margin: 0; white-space: nowrap; }
+.notif-filtros__count strong { color: var(--rooster-red); }
+.notif-filtros__unread { color: var(--admin-text-muted); font-weight: 600; }
+.notif-filtros__sep { width: 1px; height: 18px; background: var(--admin-border); flex-shrink: 0; }
+/* Grupos "Estado" y "Fecha" con su etiqueta, para que se lea que son dos criterios. */
+.notif-filtros__grupo { display: flex; align-items: center; gap: 8px; }
+.notif-filtros__label {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--admin-text-muted);
 }
+.notif-filtros__chips { display: flex; align-items: center; gap: 6px; }
+
+/* En el header: una sola fila; si no cabe se desplaza horizontal (sin barra visible),
+   igual que el carril de KPIs. Cada elemento no se encoge. */
+.notif-filtros--head {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  .notif-filtros__grupo,
+  .notif-filtros__chips,
+  .notif-filtros__count,
+  .notif-filtros__sep,
+  .notif-chip { flex-shrink: 0; }
+}
+
+/* En el cuerpo (solo móvil <640): TODOS los filtros en una sola fila con scroll
+   horizontal (no se apilan). En tablet+ se oculta (viven en el header). */
+.notif-filtros--body {
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  .notif-filtros__grupo,
+  .notif-filtros__chips,
+  .notif-filtros__count,
+  .notif-filtros__sep,
+  .notif-chip { flex-shrink: 0; }
+}
+@media (min-width: 640px) {
+  .notif-filtros--body { display: none; }
+}
+
 .notif-chip {
   border: 1px solid rgba(168, 137, 94, 0.3);
   background: #fff;
@@ -87,6 +123,18 @@
   border-color: rgba(225, 54, 66, 0.2);
 }
 .notif--unread:hover { background: #fff2f2; }
+/* Animación de salida al eliminar una notificación: se desvanece y se corre un
+   poco, corta (~0.26s). El borrado real del stream se dispara al terminar. */
+.notif--saliendo {
+  animation: notifSalir 0.26s ease forwards;
+  pointer-events: none;
+}
+@keyframes notifSalir {
+  to { opacity: 0; transform: translateX(16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notif--saliendo { animation-duration: 0.01s; }
+}
 .notif__icon {
   width: 38px;
   height: 38px;
@@ -138,22 +186,6 @@
 }
 .notif-empty ion-icon { font-size: 40px; opacity: 0.5; }
 .notif-empty p { font-size: 13px; margin: 0; }
-
-/* Botón "Borrar todas" del header */
-.notif-clear {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  color: #dc2626;
-  font-family: var(--rooster-font-sans);
-}
-.notif-clear ion-icon { font-size: 14px; }
-.notif-clear:disabled { opacity: 0.45; cursor: default; }
 
 /* Borrar una notificación (dentro del item) */
 .notif__del {

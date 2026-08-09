@@ -1,6 +1,33 @@
 <ion-content class="admin-page-content">
   <div class="admin-page">
 
+    <!-- Acciones del header (junto a la campana): marcar todas / borrar todas, SOLO
+         íconos. Visibles en todo tamaño (el portal de acciones se ve también en móvil). -->
+    <ng-template adminHeaderActions>
+      <ng-container *ngIf="!cargando && notifs.length > 0">
+        <button type="button" class="notif-act"
+          [disabled]="noLeidas === 0 || marcandoTodas"
+          (click)="marcarTodas()"
+          title="Marcar todas como leídas" aria-label="Marcar todas como leídas">
+          <ion-icon name="checkmark-done-outline"></ion-icon>
+        </button>
+        <button type="button" class="notif-act notif-act--danger"
+          [disabled]="borrandoTodas"
+          (click)="borrarTodas()"
+          title="Borrar todas" aria-label="Borrar todas">
+          <ion-icon name="trash-outline"></ion-icon>
+        </button>
+      </ng-container>
+    </ng-template>
+
+    <!-- Filtros (contador + Estado + Fecha) proyectados al header en tablet+. En
+         móvil el slot del header se oculta y se muestran en el cuerpo (abajo). -->
+    <ng-template adminHeaderLead>
+      <div class="notif-filtros notif-filtros--head" *ngIf="!cargando && notifs.length > 0">
+        <ng-container [ngTemplateOutlet]="filtrosTpl"></ng-container>
+      </div>
+    </ng-template>
+
     <!-- Cargando -->
     <div class="notif-empty" *ngIf="cargando">
       <ion-spinner name="crescent"></ion-spinner>
@@ -12,50 +39,36 @@
       <p>No hay notificaciones todavía.</p>
     </div>
 
-    <!-- Barra única: filtros a la izquierda, acciones a la derecha -->
-    <div class="notif-bar" *ngIf="!cargando && notifs.length > 0">
-      <div class="notif-bar__filtros">
-        <p class="notif-bar__count">
-          <strong>{{ notifsFiltradas.length }}</strong>
-          notificaci{{ notifsFiltradas.length === 1 ? 'ón' : 'ones' }}
-          <span class="notif-bar__unread" *ngIf="noLeidas > 0">· {{ noLeidas }} sin leer</span>
-        </p>
-        <span class="notif-bar__sep"></span>
-        <div class="notif-bar__grupo">
-          <span class="notif-bar__label">Estado</span>
-          <div class="notif-bar__chips">
-            <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'todas'" (click)="filtroEstado = 'todas'">Todas</button>
-            <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'no_leidas'" (click)="filtroEstado = 'no_leidas'">No leídas</button>
-            <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'leidas'" (click)="filtroEstado = 'leidas'">Leídas</button>
-          </div>
-        </div>
-        <div class="notif-bar__grupo">
-          <span class="notif-bar__label">Fecha</span>
-          <div class="notif-bar__chips">
-            <button type="button" class="notif-chip" *ngFor="let p of periodos"
-              [class.notif-chip--on]="filtroPeriodo === p.v"
-              (click)="filtroPeriodo = filtroPeriodo === p.v ? 'todas' : p.v">{{ p.l }}</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="notif-bar__acciones">
-        <button
-          type="button"
-          class="notif-mark"
-          [disabled]="noLeidas === 0 || marcandoTodas"
-          (click)="marcarTodas()">
-          Marcar todas como leídas
-        </button>
-        <button
-          type="button"
-          class="notif-clear"
-          [disabled]="notifs.length === 0 || borrandoTodas"
-          (click)="borrarTodas()">
-          <ion-icon name="trash-outline"></ion-icon> Borrar todas
-        </button>
-      </div>
+    <!-- Filtros en el cuerpo (solo móvil <640; en tablet+ viven en el header). -->
+    <div class="notif-filtros notif-filtros--body" *ngIf="!cargando && notifs.length > 0">
+      <ng-container [ngTemplateOutlet]="filtrosTpl"></ng-container>
     </div>
+
+    <!-- Plantilla única de filtros, reutilizada por el header y por el cuerpo. -->
+    <ng-template #filtrosTpl>
+      <p class="notif-filtros__count">
+        <strong>{{ notifsFiltradas.length }}</strong>
+        notificaci{{ notifsFiltradas.length === 1 ? 'ón' : 'ones' }}
+        <span class="notif-filtros__unread" *ngIf="noLeidas > 0">· {{ noLeidas }} sin leer</span>
+      </p>
+      <span class="notif-filtros__sep"></span>
+      <div class="notif-filtros__grupo">
+        <span class="notif-filtros__label">Estado</span>
+        <div class="notif-filtros__chips">
+          <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'todas'" (click)="filtroEstado = 'todas'">Todas</button>
+          <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'no_leidas'" (click)="filtroEstado = 'no_leidas'">No leídas</button>
+          <button type="button" class="notif-chip" [class.notif-chip--on]="filtroEstado === 'leidas'" (click)="filtroEstado = 'leidas'">Leídas</button>
+        </div>
+      </div>
+      <div class="notif-filtros__grupo">
+        <span class="notif-filtros__label">Fecha</span>
+        <div class="notif-filtros__chips">
+          <button type="button" class="notif-chip" *ngFor="let p of periodos"
+            [class.notif-chip--on]="filtroPeriodo === p.v"
+            (click)="filtroPeriodo = filtroPeriodo === p.v ? 'todas' : p.v">{{ p.l }}</button>
+        </div>
+      </div>
+    </ng-template>
 
 
     <!-- Lista real (alto fijo con scroll interno) -->
@@ -64,6 +77,7 @@
         class="notif"
         *ngFor="let n of notifsFiltradas"
         [class.notif--unread]="!n.leida"
+        [class.notif--saliendo]="eliminandoIds.has(n.id)"
         (click)="abrir(n)">
         <div class="notif__icon">
           <ion-icon [name]="icono(n)"></ion-icon>

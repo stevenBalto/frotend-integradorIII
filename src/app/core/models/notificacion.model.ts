@@ -52,6 +52,19 @@ export function rutaDeNotificacion(n: Notificacion): RutaNotificacion | null {
   }
 }
 
+/**
+ * Id de la sección del sidebar a la que apunta la notificación (p. ej. 'pedidos').
+ * Se deriva de la misma ruta que abre la notificación, para poder ENFOCAR ese ítem
+ * del sidebar al navegar. Devuelve null si la notificación no lleva a ninguna sección.
+ */
+export function seccionDeNotificacion(n: Notificacion): string | null {
+  const destino = rutaDeNotificacion(n);
+  if (!destino) return null;
+  // path es del tipo ['/admin/pedidos']; el id es el segmento tras 'admin'.
+  const segmentos = destino.path.join('/').split('/').filter(Boolean);
+  return segmentos[1] ?? null;
+}
+
 /** Ícono (ionicon) según el tipo de notificación. */
 export function iconoDeNotificacion(tipo: string): string {
   switch (tipo) {
