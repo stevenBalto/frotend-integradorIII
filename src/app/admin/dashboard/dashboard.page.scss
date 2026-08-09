@@ -101,15 +101,15 @@
 }
 
 /* Móvil y tablet-retrato (<768px), SOLO #dash-ultimos:
-   Fila 1: título (izq) + HOY + select JUNTOS pegados a la derecha, en la misma fila que el título.
-   Fila 2: el buscador a todo el ancho.
+   TODO en una sola fila: título (izq) + HOY + select + buscador (lupa) pegados a la derecha.
+   Hay ancho de sobra para la lupa colapsada (36px), así que NO baja a una 2ª fila.
    El botón "Fechas" y los calendarios se ocultan (rango no seleccionable en pantalla chica).
    Clave del agrupado: el header base usa justify-content:space-between → con display:contents
    los filtros se repartían; se fuerza flex-start y el título lleva margin-right:auto, que
    absorbe el espacio libre y pega el cluster a la derecha. El título cede con ellipsis. */
 @media (max-width: 767px) {
   #dash-ultimos ::ng-deep .section-card__head--inline {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: flex-start;
     gap: 6px;
@@ -130,18 +130,18 @@
   /* Select (admin-select) capado para que el cluster entre en la fila del título; nunca se
      encoge. Scopeado a #dash-ultimos → no afecta al de "Ventas de la semana". */
   #dash-ultimos admin-select { flex-shrink: 0; max-width: 92px; }
-  /* Buscador → 2ª fila, ancho completo; flex-basis:100% lo fuerza a nueva fila y al abrir el
-     input crece a todo el ancho (no a los 240px del estándar de escritorio). */
-  .dash-ultimos__search { flex: 1 1 100%; margin-top: 2px; }
-  .dash-ultimos__search ::ng-deep .asi { display: flex; width: 100%; }
-  .dash-ultimos__search ::ng-deep .asi__toggle { margin-left: auto; }
-  .dash-ultimos__search ::ng-deep .asi--open .asi__input { width: 100%; }
-  /* El buscador está SOLO en la fila 2: al abrirlo no tapa HOY/select (fila 1), así que no
-     hace falta ocultarlos. Se revierte la regla global .admin-search-open solo aquí en móvil. */
-  .dash-ultimos-controls.admin-search-open > :not(admin-search-input) {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
+  /* Buscador (lupa) se queda en la MISMA fila del título, a la derecha (no baja). Al abrirlo,
+     el input crece como overlay hacia la izquierda y la regla global .admin-search-open oculta
+     HOY/select de la fila (sin reflow), así no chocan. */
+  .dash-ultimos__search { flex: 0 0 auto; }
+  /* Tabla VACÍA (solo la fila "ningún pedido"): el truco global display:block +
+     width:max-content la deja del ancho de los encabezados (446px) y la barra del
+     thead se ve "cortada". En ese caso vuelve a table normal al 100% para llenar el
+     div. Con datos NO aplica (:has), así se conserva el scroll horizontal 1D. */
+  #dash-ultimos .admin-table:has(.dash-empty) {
+    display: table;
+    width: 100%;
+    min-width: 0;
   }
 }
 
