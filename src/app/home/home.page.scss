@@ -32,7 +32,10 @@
     bottom: -200px;
     left: -120px;
     right: -120px;
-    background-image: url('/assets/logo/rooster-logo.png');
+    /* Watermark en mosaico a 52px: usa el favicon 180 (10KB) en vez del logo
+       full 903x922 (81KB) — a 52px de tile no se nota y ahorra ~71KB en la carga
+       inicial de la vista cliente. */
+    background-image: url('/assets/logo/rooster-favicon-180.png');
     background-repeat: repeat;
     background-size: 52px 52px;
     opacity: 0.38;

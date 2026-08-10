@@ -88,7 +88,11 @@
     }
     .app-splash__name {
       margin: 0;
-      font-family: 'Playfair Display', Georgia, serif;
+      /* Fuentes de sistema en el splash: Playfair/Nunito son del panel admin y,
+         usadas aquí, forzaban ~76KB de descarga de fuentes en la home del
+         cliente. El splash es momentáneo; system serif/sans se ve igual de bien
+         y no bloquea ni descarga nada. */
+      font-family: Georgia, 'Times New Roman', serif;
       font-weight: 800;
       font-size: 26px;
       letter-spacing: 0.02em;
@@ -101,7 +105,7 @@
     }
     .app-splash__tag {
       margin: 6px 0 0;
-      font-family: 'Nunito', system-ui, sans-serif;
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
       font-weight: 600;
       font-size: 12px;
       letter-spacing: 0.28em;
@@ -158,7 +162,7 @@
   <div id="app-splash">
     <div class="app-splash__logo-wrap">
       <div class="app-splash__ring"></div>
-      <img class="app-splash__logo" src="assets/logo/rooster-logo.png" alt="Rooster Pizza & Grill" />
+      <img class="app-splash__logo" src="assets/logo/rooster-favicon-180.png" alt="Rooster Pizza & Grill" width="96" height="96" />
     </div>
     <p class="app-splash__name">Rooster Pizza &amp; Grill</p>
     <p class="app-splash__tag">Pizza &amp; Grill</p>
@@ -172,7 +176,7 @@
       var splash = document.getElementById('app-splash');
       if (!splash) return;
       var start = Date.now();
-      var minVisible = 1100;
+      var minVisible = 300;
       var hidden = false;
 
       function hide() {

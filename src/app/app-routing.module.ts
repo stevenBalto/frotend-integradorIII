@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
@@ -62,7 +62,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })],
+  // Sin preload global: PreloadAllModules descargaba TODAS las rutas lazy
+  // (admin/superadmin/kiosko) al abrir la vista cliente, inflando la carga
+  // inicial. Ahora cada ruta se trae on-demand al navegar a ella.
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
