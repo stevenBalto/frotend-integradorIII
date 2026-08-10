@@ -36,6 +36,10 @@ interface ProductoForm {
 export class ResenaPromptComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private readonly POLL_MS = 25000;
+  // Primer sondeo diferido: el prompt de reseñas NO es urgente. Arrancarlo en
+  // timer(0) metía GET /resenas/pendientes en el camino crítico de la carga
+  // inicial (competía con productos/LCP). 6s después el usuario ni lo nota.
+  private readonly INICIO_MS = 6000;
   private descartadosSesion = new Set<number>();
 
   readonly estrellas = [1, 2, 3, 4, 5];
@@ -60,7 +64,7 @@ export class ResenaPromptComponent implements OnInit, OnDestroy {
     // Las reseñas se piden SOLO a clientes registrados; los invitados nunca reciben
     // el prompt. Polling suave: si un pedido pasa a Pagado mientras la app está
     // abierta, el prompt aparece sin necesidad de refrescar (item 27, "tiempo real").
-    timer(0, this.POLL_MS)
+    timer(this.INICIO_MS, this.POLL_MS)
       .pipe(
         filter(() => this.auth.estaAutenticado),
         switchMap(() => this.resenaService.pendientes()),
