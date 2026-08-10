@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -7,9 +7,9 @@ import { ApiCollection, ApiResource, Categoria } from '../models/producto.model'
 /** Consumo de categorias del catalogo (para filtros y formularios). */
 @Injectable({ providedIn: 'root' })
 export class CategoriaService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   listarActivas(): Observable<Categoria[]> {
     return this.http

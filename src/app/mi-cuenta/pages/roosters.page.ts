@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PuntosService } from '../../core/services/puntos.service';
 import { RoostersResumen, MovimientoRooster } from '../../core/models/puntos.model';
 
@@ -96,11 +96,11 @@ import { RoostersResumen, MovimientoRooster } from '../../core/models/puntos.mod
   `,
 })
 export class RoostersPage implements OnInit {
+  private puntosService = inject(PuntosService);
+
   resumen: RoostersResumen | null = null;
   cargando = false;
   error: string | null = null;
-
-  constructor(private puntosService: PuntosService) {}
 
   ngOnInit(): void {
     this.cargando = true;

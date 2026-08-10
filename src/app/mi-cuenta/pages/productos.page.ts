@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ProductoService } from '../../core/services/producto.service';
 import { Producto } from '../../core/models/producto.model';
 
@@ -81,13 +81,13 @@ import { Producto } from '../../core/models/producto.model';
   `,
 })
 export class ProductosPage implements OnInit {
+  private productoService = inject(ProductoService);
+
   productos: Producto[] = [];
   /** Cada fila se renderiza con la lista DUPLICADA para que el loop sea continuo (-50%). */
   fila1: Producto[] = [];
   fila2: Producto[] = [];
   cargando = false;
-
-  constructor(private productoService: ProductoService) {}
 
   ngOnInit(): void {
     this.cargando = true;

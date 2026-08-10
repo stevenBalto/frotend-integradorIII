@@ -1,4 +1,4 @@
-import { Component, TemplateRef } from '@angular/core';
+import { Component, TemplateRef, inject as inject_1 } from '@angular/core';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -17,7 +17,9 @@ import { AdminHeaderActionsDirective } from './admin-header-actions.directive';
 class PaginaConPortalesComponent {
   /** La ruta que el router le inyecta: es la que la directiva usa para re-publicar. */
   static ultimaRuta: ActivatedRoute | null = null;
-  constructor(route: ActivatedRoute) {
+  constructor() {
+    const route = inject_1(ActivatedRoute);
+
     PaginaConPortalesComponent.ultimaRuta = route;
   }
 }

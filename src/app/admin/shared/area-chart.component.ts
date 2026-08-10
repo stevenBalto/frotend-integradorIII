@@ -1,15 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  NgZone,
-  OnChanges,
-  OnDestroy,
-  Output,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, inject } from '@angular/core';
 
 interface Guide { pos: number; label: string; }
 interface Pt { i: number; cx: number; cy: number; }
@@ -77,6 +66,10 @@ interface Pt { i: number; cx: number; cy: number; }
   `],
 })
 export class AreaChartComponent implements OnChanges, AfterViewInit, OnDestroy {
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private zone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
+
   /** Montos crudos por día (colones). Fuente principal del gráfico. */
   @Input() values: number[] = [];
   /** Etiquetas del eje X (un label por punto). */
@@ -115,12 +108,6 @@ export class AreaChartComponent implements OnChanges, AfterViewInit, OnDestroy {
   /** Ancho disponible del contenedor (px). Se mide con ResizeObserver. */
   private contW = 640;
   private ro?: ResizeObserver;
-
-  constructor(
-    private host: ElementRef<HTMLElement>,
-    private zone: NgZone,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   ngAfterViewInit(): void {
     if (typeof ResizeObserver === 'undefined') { return; }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -8,9 +8,9 @@ import { Extra, ExtraPayload } from '../models/extra.model';
 /** Consumo de extras/acompañamientos (panel admin). */
 @Injectable({ providedIn: 'root' })
 export class ExtraService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /admin/extras — listado completo. */
   listarTodos(): Observable<Extra[]> {

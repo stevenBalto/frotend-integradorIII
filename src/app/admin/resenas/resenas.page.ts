@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AlertController, ToastController } from '@ionic/angular';
 import { ResenaService } from '../../core/services/resena.service';
@@ -16,6 +16,10 @@ type FiltroComentario = 'todas' | 'con' | 'sin';
   standalone: false,
 })
 export class AdminResenasPage implements OnInit, OnDestroy {
+  private resenaService = inject(ResenaService);
+  private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
+
   private destroy$ = new Subject<void>();
 
   readonly stars = [1, 2, 3, 4, 5];
@@ -44,12 +48,6 @@ export class AdminResenasPage implements OnInit, OnDestroy {
   private _distribucionCache: { estrella: number; cantidad: number }[] = [];
   private _productosCache: { id: number; nombre: string; imagen_url?: string | null }[] = [];
   private _promedioCache: number | null = null;
-
-  constructor(
-    private resenaService: ResenaService,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
-  ) {}
 
   ngOnInit(): void {
     this.cargar();

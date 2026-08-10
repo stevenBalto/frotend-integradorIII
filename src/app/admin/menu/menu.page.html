@@ -83,12 +83,12 @@
       <div class="menu-toolbar">
         <div class="menu-toolbar__left">
           <div class="menu-toolbar__modes">
-            <filter-tab label="Productos" [active]="vistaTabla === 'productos'" (select)="vistaTabla = 'productos'"></filter-tab>
-            <filter-tab label="Extras" [active]="vistaTabla === 'extras'" (select)="vistaTabla = 'extras'"></filter-tab>
+            <filter-tab label="Productos" [active]="vistaTabla === 'productos'" (selected)="vistaTabla = 'productos'"></filter-tab>
+            <filter-tab label="Extras" [active]="vistaTabla === 'extras'" (selected)="vistaTabla = 'extras'"></filter-tab>
           </div>
           <div class="menu-toolbar__tabs" *ngIf="vistaTabla === 'productos'">
             <filter-tab *ngFor="let c of categories" [label]="c"
-              [active]="activeCat === c" (select)="activeCat = c"></filter-tab>
+              [active]="activeCat === c" (selected)="activeCat = c"></filter-tab>
           </div>
         </div>
         <admin-search-input [placeholder]="vistaTabla === 'productos' ? 'Buscar producto...' : 'Buscar extra...'"></admin-search-input>

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { Subject, takeUntil, timer, switchMap, filter } from 'rxjs';
 import { ResenaService } from '../core/services/resena.service';
@@ -34,6 +34,10 @@ interface ProductoForm {
   standalone: false,
 })
 export class ResenaPromptComponent implements OnInit, OnDestroy {
+  private resenaService = inject(ResenaService);
+  private toastCtrl = inject(ToastController);
+  private auth = inject(AuthService);
+
   private destroy$ = new Subject<void>();
   private readonly POLL_MS = 25000;
   // Primer sondeo diferido: el prompt de reseñas NO es urgente. Arrancarlo en
@@ -53,12 +57,6 @@ export class ResenaPromptComponent implements OnInit, OnDestroy {
   generalCalificacion = 0;
   generalComentario = '';
   productos: ProductoForm[] = [];
-
-  constructor(
-    private resenaService: ResenaService,
-    private toastCtrl: ToastController,
-    private auth: AuthService,
-  ) {}
 
   ngOnInit(): void {
     // Las reseñas se piden SOLO a clientes registrados; los invitados nunca reciben

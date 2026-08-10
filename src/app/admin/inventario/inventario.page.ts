@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Insumo, InsumoMovimiento } from '../../core/models/insumo.model';
 import { InsumoService } from '../../core/services/insumo.service';
@@ -14,6 +14,10 @@ type FiltroInventario = 'todos' | 'bajo_stock' | 'normal' | 'sin_minimo';
   standalone: false,
 })
 export class AdminInventarioPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private insumoService = inject(InsumoService);
+  private confirm = inject(ConfirmService);
+
   /** Presets comunes de unidad de medida (el backend acepta cualquier string). */
   private readonly unidadesBase: string[] = ['kg', 'g', 'l', 'ml', 'unidad', 'docena', 'caja', 'paquete'];
 
@@ -67,12 +71,6 @@ export class AdminInventarioPage implements OnInit {
   historialMovimientos: InsumoMovimiento[] = [];
   cargandoHistorial = false;
   historialError: string | null = null;
-
-  constructor(
-    private fb: FormBuilder,
-    private insumoService: InsumoService,
-    private confirm: ConfirmService,
-  ) {}
 
   ngOnInit(): void {
     this.cargarInsumos();

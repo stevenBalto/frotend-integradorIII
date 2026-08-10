@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfiguracionService, AjustesConfig } from '../../core/services/configuracion.service';
 
 /**
@@ -16,6 +16,8 @@ import { ConfiguracionService, AjustesConfig } from '../../core/services/configu
   standalone: false,
 })
 export class AdminConfiguracionPage implements OnInit {
+  private configuracionService = inject(ConfiguracionService);
+
   ajustes: AjustesConfig = {
     negocio_nombre: '',
     negocio_telefono: '',
@@ -45,8 +47,6 @@ export class AdminConfiguracionPage implements OnInit {
   guardandoAjustes = false;
   ajustesError: string | null = null;
   ajustesGuardado = false;
-
-  constructor(private configuracionService: ConfiguracionService) {}
 
   ngOnInit(): void {
     this.cargarAjustes();

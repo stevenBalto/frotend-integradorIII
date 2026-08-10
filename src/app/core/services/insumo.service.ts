@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -14,9 +14,9 @@ import {
 /** Consumo del inventario de insumos/ingredientes (panel admin). */
 @Injectable({ providedIn: 'root' })
 export class InsumoService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /admin/insumos — listado completo. */
   listarTodos(): Observable<Insumo[]> {

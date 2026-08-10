@@ -1,13 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  NgZone,
-  OnDestroy,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 
 /**
  * Carril horizontal para los KPIs compactos del header (portal [adminHeaderLead]).
@@ -122,6 +113,9 @@ import {
   ],
 })
 export class AdminHkpiStripComponent implements AfterViewInit, OnDestroy {
+  private readonly zone = inject(NgZone);
+  private readonly cd = inject(ChangeDetectorRef);
+
   @ViewChild('viewport', { static: true }) viewport!: ElementRef<HTMLElement>;
 
   puedeIzquierda = false;
@@ -130,11 +124,6 @@ export class AdminHkpiStripComponent implements AfterViewInit, OnDestroy {
   private observer?: ResizeObserver;
   private mutaciones?: MutationObserver;
   private readonly onScroll = (): void => this.recalcular();
-
-  constructor(
-    private readonly zone: NgZone,
-    private readonly cd: ChangeDetectorRef,
-  ) {}
 
   ngAfterViewInit(): void {
     const el = this.viewport.nativeElement;

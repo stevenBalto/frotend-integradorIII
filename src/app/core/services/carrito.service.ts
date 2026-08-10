@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { Producto, ProductoTamano, ExtraDisponible } from '../models/producto.model';
 import { CarritoStorageService } from './carrito-storage.service';
@@ -25,6 +25,8 @@ export interface DatosCarrito {
  */
 @Injectable({ providedIn: 'root' })
 export class CarritoService {
+  private storage = inject(CarritoStorageService);
+
   private readonly lineasSubject = new BehaviorSubject<LineaCarrito[]>([]);
   private readonly datosSubject = new BehaviorSubject<DatosCarrito>({
     sucursalId: null,
@@ -48,8 +50,6 @@ export class CarritoService {
   readonly cantidadItems$: Observable<number> = this.lineas$.pipe(
     map((lineas) => lineas.reduce((acc, l) => acc + l.cantidad, 0))
   );
-
-  constructor(private storage: CarritoStorageService) {}
 
   /** APP_INITIALIZER: carga carrito persistido a memoria. */
   async init(): Promise<void> {

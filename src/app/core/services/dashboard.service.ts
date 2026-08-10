@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -8,9 +8,9 @@ import { DashboardResumen } from '../models/dashboard.model';
 /** Resumen del dashboard admin (KPIs, ventas de la semana, pedidos nuevos/últimos). */
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /**
    * GET /admin/dashboard?dias=7|14|30&desde&hasta

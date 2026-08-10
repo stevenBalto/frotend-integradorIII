@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Oferta } from '../core/models/oferta.model';
 import { Cupon } from '../core/models/cupon.model';
 import { OfertaService } from '../core/services/oferta.service';
@@ -31,6 +31,9 @@ interface CouponCard {
   standalone: false,
 })
 export class OfertasPage implements OnInit {
+  private readonly ofertaService = inject(OfertaService);
+  private readonly cuponService = inject(CuponService);
+
   tab: OfferTab = 'ofertas';
 
   ofertas: OfferCard[] = [];
@@ -49,11 +52,6 @@ export class OfertasPage implements OnInit {
   qrCodigoTexto = '';
   qrTitulo = '';
   qrSubtitulo = '';
-
-  constructor(
-    private readonly ofertaService: OfertaService,
-    private readonly cuponService: CuponService,
-  ) {}
 
   ngOnInit(): void {
     this.cargarOfertas();

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -21,9 +21,9 @@ export interface AnaliticasParams {
 /** Servicio para obtener reportes y analiticas del panel admin. */
 @Injectable({ providedIn: 'root' })
 export class AnaliticasService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /admin/analiticas?granularidad=mes|semana|dia&mes=YYYY-MM&fecha=YYYY-MM-DD&sucursal_id=N */
   obtenerAnaliticas(params: AnaliticasParams): Observable<AnaliticasResponse> {

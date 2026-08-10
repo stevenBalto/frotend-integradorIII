@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import jsQR from 'jsqr';
@@ -84,7 +84,7 @@ import jsQR from 'jsqr';
     }
   `],
 })
-export class QrScannerComponent implements OnDestroy {
+export class QrScannerComponent implements OnDestroy, AfterViewInit {
   @Output() readonly decoded = new EventEmitter<string>();
 
   @ViewChild('video') private videoRef?: ElementRef<HTMLVideoElement>;

@@ -77,9 +77,9 @@
 
       <admin-section-card title="Filtrar por estrellas" class="res-estrellas-card">
         <div class="res-estrellas">
-          <filter-tab label="Todas" [active]="filtroEstrella === 0" (select)="filtroEstrella = 0"></filter-tab>
+          <filter-tab label="Todas" [active]="filtroEstrella === 0" (selected)="filtroEstrella = 0"></filter-tab>
           <filter-tab *ngFor="let s of [5,4,3,2,1]" [label]="s + ' ★'"
-            [active]="filtroEstrella === s" (select)="filtroEstrella = s"></filter-tab>
+            [active]="filtroEstrella === s" (selected)="filtroEstrella = s"></filter-tab>
         </div>
       </admin-section-card>
     </div>
@@ -94,27 +94,27 @@
         <div class="res-filtros__group res-estrellas-inline">
           <span class="res-filtros__caption">Estrellas</span>
           <div class="res-filtros__tabs">
-            <filter-tab label="Todas" [active]="filtroEstrella === 0" (select)="filtroEstrella = 0"></filter-tab>
+            <filter-tab label="Todas" [active]="filtroEstrella === 0" (selected)="filtroEstrella = 0"></filter-tab>
             <filter-tab *ngFor="let s of [5,4,3,2,1]" [label]="s + ' ★'"
-              [active]="filtroEstrella === s" (select)="filtroEstrella = s"></filter-tab>
+              [active]="filtroEstrella === s" (selected)="filtroEstrella = s"></filter-tab>
           </div>
         </div>
 
         <div class="res-filtros__group">
           <span class="res-filtros__caption">Estado</span>
           <div class="res-filtros__tabs">
-            <filter-tab label="Todas" [active]="filtroEstado === 'todas'" (select)="filtroEstado = 'todas'"></filter-tab>
-            <filter-tab label="Publicadas" [active]="filtroEstado === 'publicada'" (select)="filtroEstado = 'publicada'"></filter-tab>
-            <filter-tab label="Ocultas" [active]="filtroEstado === 'oculta'" (select)="filtroEstado = 'oculta'"></filter-tab>
+            <filter-tab label="Todas" [active]="filtroEstado === 'todas'" (selected)="filtroEstado = 'todas'"></filter-tab>
+            <filter-tab label="Publicadas" [active]="filtroEstado === 'publicada'" (selected)="filtroEstado = 'publicada'"></filter-tab>
+            <filter-tab label="Ocultas" [active]="filtroEstado === 'oculta'" (selected)="filtroEstado = 'oculta'"></filter-tab>
           </div>
         </div>
 
         <div class="res-filtros__group">
           <span class="res-filtros__caption">Tipo</span>
           <div class="res-filtros__tabs">
-            <filter-tab label="Todas" [active]="filtroTipo === 'todas'" (select)="filtroTipo = 'todas'"></filter-tab>
-            <filter-tab label="Varios" [active]="filtroTipo === 'general'" (select)="filtroTipo = 'general'"></filter-tab>
-            <filter-tab label="Producto" [active]="filtroTipo === 'producto'" (select)="filtroTipo = 'producto'"></filter-tab>
+            <filter-tab label="Todas" [active]="filtroTipo === 'todas'" (selected)="filtroTipo = 'todas'"></filter-tab>
+            <filter-tab label="Varios" [active]="filtroTipo === 'general'" (selected)="filtroTipo = 'general'"></filter-tab>
+            <filter-tab label="Producto" [active]="filtroTipo === 'producto'" (selected)="filtroTipo = 'producto'"></filter-tab>
           </div>
         </div>
 
@@ -156,9 +156,9 @@
         <div class="res-filtros__group">
           <span class="res-filtros__caption">Comentario</span>
           <div class="res-filtros__tabs">
-            <filter-tab label="Todas" [active]="filtroComentario === 'todas'" (select)="filtroComentario = 'todas'"></filter-tab>
-            <filter-tab label="Con comentario" [active]="filtroComentario === 'con'" (select)="filtroComentario = 'con'"></filter-tab>
-            <filter-tab label="Sin comentario" [active]="filtroComentario === 'sin'" (select)="filtroComentario = 'sin'"></filter-tab>
+            <filter-tab label="Todas" [active]="filtroComentario === 'todas'" (selected)="filtroComentario = 'todas'"></filter-tab>
+            <filter-tab label="Con comentario" [active]="filtroComentario === 'con'" (selected)="filtroComentario = 'con'"></filter-tab>
+            <filter-tab label="Sin comentario" [active]="filtroComentario === 'sin'" (selected)="filtroComentario = 'sin'"></filter-tab>
           </div>
         </div>
       </div>

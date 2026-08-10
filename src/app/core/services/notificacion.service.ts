@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, Subscription, timer, of } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
@@ -24,6 +24,8 @@ import {
  */
 @Injectable({ providedIn: 'root' })
 export class NotificacionService {
+  private http = inject(HttpClient);
+
   private readonly base = environment.apiBaseUrl;
 
   /** Cada cuanto se sondea (ms). 15s: imperceptible para avisar de un pedido. */
@@ -45,8 +47,6 @@ export class NotificacionService {
   private idsVistos = new Set<number>();
   /** True hasta el primer sondeo: evita un aluvion de toasts al abrir el panel. */
   private primerSondeo = true;
-
-  constructor(private http: HttpClient) {}
 
   // ── Transporte (hoy: polling) ─────────────────────────────────────────────
 

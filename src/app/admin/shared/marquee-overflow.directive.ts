@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Directive,
-  ElementRef,
-  NgZone,
-  OnDestroy,
-} from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, NgZone, OnDestroy, inject } from '@angular/core';
 
 /**
  * Anima el contenido (marquee suave ida-y-vuelta) SOLO cuando desborda su
@@ -19,12 +13,10 @@ import {
   standalone: false,
 })
 export class MarqueeOverflowDirective implements AfterViewInit, OnDestroy {
-  private ro?: ResizeObserver;
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly zone = inject(NgZone);
 
-  constructor(
-    private readonly host: ElementRef<HTMLElement>,
-    private readonly zone: NgZone,
-  ) {}
+  private ro?: ResizeObserver;
 
   ngAfterViewInit(): void {
     const el = this.host.nativeElement;

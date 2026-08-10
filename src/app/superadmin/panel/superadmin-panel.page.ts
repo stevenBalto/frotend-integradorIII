@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -15,6 +15,12 @@ import { InactivityService } from '../../core/services/inactivity.service';
   providers: [InactivityService],
 })
 export class SuperadminPanelPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private auth = inject(SuperAdminAuthService);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+  private alert = inject(AlertController);
+
   superadmins: SuperAdmin[] = [];
   cargando = false;
   miId: number | null = null;
@@ -33,13 +39,7 @@ export class SuperadminPanelPage implements OnInit {
   showResetPass = false;
   readonly resetForm: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private auth: SuperAdminAuthService,
-    private router: Router,
-    private toast: ToastController,
-    private alert: AlertController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
       usuario: ['', [Validators.required]],

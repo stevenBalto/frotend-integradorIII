@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -15,9 +15,9 @@ import {
  */
 @Injectable({ providedIn: 'root' })
 export class InstanciaService {
-  private readonly base = `${environment.apiBaseUrl}/superadmin/instancias`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = `${environment.apiBaseUrl}/superadmin/instancias`;
 
   listar(): Observable<{ data: Instancia[] }> {
     return this.http.get<{ data: Instancia[] }>(this.base);

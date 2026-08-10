@@ -138,8 +138,8 @@
     <admin-section-card>
       <div class="of-toolbar">
         <div class="of-toolbar__tabs">
-          <filter-tab label="Ofertas (combos)" [active]="tab === 'ofertas'" (select)="tab = 'ofertas'"></filter-tab>
-          <filter-tab label="Cupones (codigos)" [active]="tab === 'cupones'" (select)="tab = 'cupones'"></filter-tab>
+          <filter-tab label="Ofertas (combos)" [active]="tab === 'ofertas'" (selected)="tab = 'ofertas'"></filter-tab>
+          <filter-tab label="Cupones (codigos)" [active]="tab === 'cupones'" (selected)="tab = 'cupones'"></filter-tab>
         </div>
         <admin-search-input *ngIf="tab === 'ofertas'" placeholder="Buscar oferta..." [(value)]="busquedaOferta"></admin-search-input>
         <admin-search-input *ngIf="tab === 'cupones'" placeholder="Buscar codigo..." [maxlength]="40" [(value)]="busquedaCupon"></admin-search-input>

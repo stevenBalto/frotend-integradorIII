@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { Usuario } from '../../core/models/usuario.model';
@@ -74,9 +74,11 @@ import { Usuario } from '../../core/models/usuario.model';
   `,
 })
 export class PerfilPage implements OnInit {
+  private auth = inject(AuthService);
+
   readonly usuario$: Observable<Usuario | null>;
 
-  constructor(private auth: AuthService) {
+  constructor() {
     this.usuario$ = this.auth.usuarioActual$;
   }
 

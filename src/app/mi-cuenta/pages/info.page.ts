@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { INFO_TEMAS, SeccionInfo } from '../../shared/constants/mi-cuenta-contenido';
 import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/negocio';
@@ -96,12 +96,12 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
   `,
 })
 export class InfoPage implements OnInit {
+  private route = inject(ActivatedRoute);
+
   tema = '';
   seccion: SeccionInfo | null = null;
   readonly negocio = NEGOCIO;
   readonly devs: Desarrollador[] = DESARROLLADORES;
-
-  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {

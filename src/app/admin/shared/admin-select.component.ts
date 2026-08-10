@@ -1,19 +1,4 @@
-import {
-  AfterContentInit,
-  ChangeDetectorRef,
-  Component,
-  ContentChildren,
-  ElementRef,
-  EventEmitter,
-  forwardRef,
-  HostBinding,
-  HostListener,
-  Inject,
-  Input,
-  OnDestroy,
-  Output,
-  QueryList,
-} from '@angular/core';
+import { AfterContentInit, ChangeDetectorRef, Component, ContentChildren, ElementRef, EventEmitter, forwardRef, HostBinding, HostListener, Input, OnDestroy, Output, QueryList, inject } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -59,17 +44,15 @@ import { Subscription } from 'rxjs';
   ],
 })
 export class AdminOptionComponent {
+  readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly select = inject(AdminSelectComponent);
+
   @Input() value: unknown;
   @Input() disabled = false;
 
   @HostBinding('class.opt--seleccionada') seleccionada = false;
   @HostBinding('class.opt--resaltada') resaltada = false;
   @HostBinding('attr.role') readonly rol = 'option';
-
-  constructor(
-    readonly el: ElementRef<HTMLElement>,
-    @Inject(forwardRef(() => AdminSelectComponent)) private readonly select: AdminSelectComponent,
-  ) {}
 
   @HostBinding('class.opt--deshabilitada')
   get esDeshabilitada(): boolean {
@@ -221,6 +204,9 @@ export class AdminOptionComponent {
   ],
 })
 export class AdminSelectComponent implements AfterContentInit, ControlValueAccessor, OnDestroy {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly cd = inject(ChangeDetectorRef);
+
   /** Texto cuando no hay nada elegido (equivale al <option> deshabilitado del nativo). */
   @Input() placeholder = 'Seleccioná una opción';
   @Input() ariaLabel = '';
@@ -239,17 +225,11 @@ export class AdminSelectComponent implements AfterContentInit, ControlValueAcces
   private alTocar: () => void = () => undefined;
   private alCambiar: (valor: unknown) => void = () => undefined;
 
-  constructor(
-    private readonly host: ElementRef<HTMLElement>,
-    private readonly cd: ChangeDetectorRef,
-  ) {}
-
   /**
    * Valor actual, para leerlo con una referencia de plantilla igual que el nativo
    * (`#x="adminSelect"` … `x.value`). Se tipa `any` a propósito: el valor lo define
    * cada `<admin-option>` y el nativo expone `.value` sin tipo útil tampoco.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get value(): any {
     return this.valor;
   }

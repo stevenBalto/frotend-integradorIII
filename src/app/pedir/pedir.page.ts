@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { Observable, Subject } from 'rxjs';
@@ -27,6 +27,17 @@ type VistaCarrito = 'menu' | 'carrito' | 'checkout' | 'confirmacion';
   standalone: false,
 })
 export class PedirPage implements OnInit, OnDestroy {
+  private auth = inject(AuthService);
+  carritoService = inject(CarritoService);
+  private sucursalService = inject(SucursalService);
+  private pedidoService = inject(PedidoService);
+  private categoriaService = inject(CategoriaService);
+  private productoService = inject(ProductoService);
+  private resenaService = inject(ResenaService);
+  private toast = inject(ToastController);
+  private router = inject(Router);
+  private confirm = inject(ConfirmService);
+
   private destroy$ = new Subject<void>();
 
   // Vista actual. Al cambiar, oculta/muestra el tab bar (inmersivo en carrito).
@@ -100,18 +111,7 @@ export class PedirPage implements OnInit, OnDestroy {
   // Etiquetas compartidas para el template
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
-  constructor(
-    private auth: AuthService,
-    public carritoService: CarritoService,
-    private sucursalService: SucursalService,
-    private pedidoService: PedidoService,
-    private categoriaService: CategoriaService,
-    private productoService: ProductoService,
-    private resenaService: ResenaService,
-    private toast: ToastController,
-    private router: Router,
-    private confirm: ConfirmService,
-  ) {
+  constructor() {
     this.lineas$ = this.carritoService.lineas$;
     this.total$ = this.carritoService.total$;
     this.cantidadItems$ = this.carritoService.cantidadItems$;

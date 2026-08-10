@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ToastController } from '@ionic/angular';
@@ -14,6 +14,9 @@ import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
   standalone: false,
 })
 export class MisPedidosPage implements OnInit, OnDestroy {
+  private pedidoService = inject(PedidoService);
+  private toast = inject(ToastController);
+
   private destroy$ = new Subject<void>();
 
   pedidos: Pedido[] = [];
@@ -24,11 +27,6 @@ export class MisPedidosPage implements OnInit, OnDestroy {
   pedidoExpandido: number | null = null;
 
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
-
-  constructor(
-    private pedidoService: PedidoService,
-    private toast: ToastController,
-  ) {}
 
   ngOnInit(): void {
     this.cargarPedidos();

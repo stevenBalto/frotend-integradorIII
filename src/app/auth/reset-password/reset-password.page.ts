@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -12,6 +12,12 @@ import { PasswordResetService } from '../../core/services/password-reset.service
   standalone: false,
 })
 export class ResetPasswordPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private service = inject(PasswordResetService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+
   readonly form: FormGroup;
   cargando = false;
   showPass = false;
@@ -19,13 +25,7 @@ export class ResetPasswordPage implements OnInit {
   private email = '';
   private token = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private service: PasswordResetService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private toast: ToastController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(12)]],
       password_confirmation: ['', [Validators.required]],

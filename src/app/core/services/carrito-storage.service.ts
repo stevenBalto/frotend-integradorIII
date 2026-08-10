@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { LineaCarrito, DatosCarrito } from './carrito.service';
 
@@ -8,9 +8,9 @@ import { LineaCarrito, DatosCarrito } from './carrito.service';
  */
 @Injectable({ providedIn: 'root' })
 export class CarritoStorageService {
-  private store: Storage | null = null;
+  private ionicStorage = inject(Storage);
 
-  constructor(private ionicStorage: Storage) {}
+  private store: Storage | null = null;
 
   async init(): Promise<void> {
     if (!this.store) {

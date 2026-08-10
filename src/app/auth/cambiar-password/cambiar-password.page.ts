@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -13,18 +13,18 @@ import { CuentaService } from '../../core/services/cuenta.service';
   standalone: false,
 })
 export class CambiarPasswordPage {
+  private fb = inject(FormBuilder);
+  private cuenta = inject(CuentaService);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+
   readonly form: FormGroup;
   cargando = false;
   showActual = false;
   showNueva = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private cuenta: CuentaService,
-    private auth: AuthService,
-    private router: Router,
-    private toast: ToastController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       password_actual: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(12)]],

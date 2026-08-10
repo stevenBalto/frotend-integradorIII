@@ -1,4 +1,4 @@
-import { Directive, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { Directive, Input, OnDestroy, OnInit, TemplateRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AdminHeaderService } from './admin-header.service';
@@ -25,6 +25,11 @@ import { alEntrarALaPagina } from './admin-header-portal.util';
   standalone: false,
 })
 export class AdminHeaderLeadDirective implements OnInit, OnDestroy {
+  private readonly tpl = inject<TemplateRef<unknown>>(TemplateRef);
+  private readonly header = inject(AdminHeaderService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   /**
    * true = el contenido se muestra A LA PAR del título de la sección, sin ocultarlo
    * (Configuración: chip de estado del negocio). Por defecto el lead reemplaza al
@@ -33,13 +38,6 @@ export class AdminHeaderLeadDirective implements OnInit, OnDestroy {
   @Input() conservaTitulo = false;
 
   private readonly destroy$ = new Subject<void>();
-
-  constructor(
-    private readonly tpl: TemplateRef<unknown>,
-    private readonly header: AdminHeaderService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute,
-  ) {}
 
   ngOnInit(): void {
     Promise.resolve().then(() => this.header.setLead(this.tpl, this.conservaTitulo));

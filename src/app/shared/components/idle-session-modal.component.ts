@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -107,6 +107,8 @@ import { InactivityService } from '../../core/services/inactivity.service';
   `],
 })
 export class IdleSessionModalComponent implements OnInit, OnDestroy {
+  private inactivity = inject(InactivityService);
+
   /** Minutos sin actividad antes de mostrar el aviso. */
   @Input() avisoMinutos = 15;
   /** Segundos de cuenta regresiva del aviso antes de cerrar sesion. */
@@ -121,8 +123,6 @@ export class IdleSessionModalComponent implements OnInit, OnDestroy {
   readonly remaining$ = this.inactivity.remainingSeconds$;
 
   private expiredSub?: Subscription;
-
-  constructor(private inactivity: InactivityService) {}
 
   ngOnInit(): void {
     this.inactivity.configure({

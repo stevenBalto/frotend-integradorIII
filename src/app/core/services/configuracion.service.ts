@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -57,9 +57,9 @@ export interface Restaurante {
 /** Configuración general del panel (GET/PUT /admin/configuracion). */
 @Injectable({ providedIn: 'root' })
 export class ConfiguracionService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /restaurantes — público. Lista dinámica para la app cliente. */
   listarRestaurantes(): Observable<Restaurante[]> {

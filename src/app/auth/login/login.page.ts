@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -14,6 +14,12 @@ import { LoginResultado, PasswordExpiradaResponse } from '../../core/models/usua
   standalone: false,
 })
 export class LoginPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private superAuth = inject(SuperAdminAuthService);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+
   readonly form: FormGroup;
   showPassword = false;
   cargando = false;
@@ -28,13 +34,7 @@ export class LoginPage implements OnInit {
   private loginPendiente: string = '';
   private motivoExpiracion: string = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private superAuth: SuperAdminAuthService,
-    private router: Router,
-    private toast: ToastController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],

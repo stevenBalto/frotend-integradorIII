@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       type="button"
       class="filter-tab"
       [class.filter-tab--active]="active"
-      (click)="select.emit()"
+      (click)="selected.emit()"
     >
       {{ label }}
     </button>
@@ -37,5 +37,5 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class FilterTabComponent {
   @Input() label = '';
   @Input() active = false;
-  @Output() select = new EventEmitter<void>();
+  @Output() selected = new EventEmitter<void>();
 }

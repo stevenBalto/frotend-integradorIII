@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, NgZone, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Gesture, GestureController } from '@ionic/angular';
 import { Subject, interval } from 'rxjs';
@@ -24,6 +24,13 @@ type FiltroEstado = 'todos' | PedidoEstado;
   standalone: false,
 })
 export class AdminPedidosPage implements OnInit, OnDestroy {
+  private pedidoService = inject(PedidoService);
+  private route = inject(ActivatedRoute);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private zone = inject(NgZone);
+  private gestureCtrl = inject(GestureController);
+  private confirm = inject(ConfirmService);
+
   private destroy$ = new Subject<void>();
   private pausarPolling = false;
 
@@ -65,15 +72,6 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // notificación con ?codigo=). La fila anima con .ped-row--destacado unos segundos.
   destacadoCodigo: string | null = null;
   private destacarTimer?: ReturnType<typeof setTimeout>;
-
-  constructor(
-    private pedidoService: PedidoService,
-    private route: ActivatedRoute,
-    private host: ElementRef<HTMLElement>,
-    private zone: NgZone,
-    private gestureCtrl: GestureController,
-    private confirm: ConfirmService,
-  ) {}
 
   ngOnInit(): void {
     // Si venimos con ?codigo= (Dashboard "pedidos nuevos" o una notificación),

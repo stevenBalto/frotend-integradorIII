@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -42,6 +42,14 @@ interface GrupoImagenes {
   standalone: false,
 })
 export class AdminOfertasPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private ofertaService = inject(OfertaService);
+  private cuponService = inject(CuponService);
+  private productoService = inject(ProductoService);
+  private clienteService = inject(ClienteService);
+  private confirm = inject(ConfirmService);
+
   tab: 'ofertas' | 'cupones' = 'ofertas';
 
   // Datos
@@ -169,15 +177,7 @@ export class AdminOfertasPage implements OnInit {
     return this.imagenTarget === 'oferta' ? this.imagenesOferta : this.imagenesCupon;
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private ofertaService: OfertaService,
-    private cuponService: CuponService,
-    private productoService: ProductoService,
-    private clienteService: ClienteService,
-    private confirm: ConfirmService,
-  ) {
+  constructor() {
     this.formOferta = this.fb.group({
       nombre: ['', [Validators.required]],
       descripcion: [''],

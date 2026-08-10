@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -16,6 +16,13 @@ import { InactivityService } from '../../core/services/inactivity.service';
   providers: [InactivityService],
 })
 export class SuperadminInstanciasPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private service = inject(InstanciaService);
+  private superAuth = inject(SuperAdminAuthService);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+  private alert = inject(AlertController);
+
   instancias: Instancia[] = [];
   cargando = false;
 
@@ -28,14 +35,7 @@ export class SuperadminInstanciasPage implements OnInit {
   credenciales: CredencialesTemporales | null = null;
   instanciaCreada = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private service: InstanciaService,
-    private superAuth: SuperAdminAuthService,
-    private router: Router,
-    private toast: ToastController,
-    private alert: AlertController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
       correo_principal: ['', [Validators.required, Validators.email]],

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -8,9 +8,9 @@ import { Oferta, OfertaPayload, OfertaImagenOpts } from '../models/oferta.model'
 /** Consumo de ofertas (panel admin). */
 @Injectable({ providedIn: 'root' })
 export class OfertaService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /admin/ofertas — listado completo (panel admin). */
   listarTodos(): Observable<Oferta[]> {

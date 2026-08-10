@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Cliente, PedidoResumen } from '../../core/models/cliente.model';
 import { ClienteService } from '../../core/services/cliente.service';
 import { MODALIDAD_LABEL, Modalidad } from '../../shared/constants/modalidad';
@@ -16,6 +16,8 @@ const DIAS_RECIENTE = 30;
   standalone: false,
 })
 export class AdminClientesPage implements OnInit {
+  private clienteService = inject(ClienteService);
+
   clientes: Cliente[] = [];
   cargando = false;
   error: string | null = null;
@@ -37,8 +39,6 @@ export class AdminClientesPage implements OnInit {
   historialPedidos: PedidoResumen[] = [];
   cargandoHistorial = false;
   historialError: string | null = null;
-
-  constructor(private clienteService: ClienteService) {}
 
   ngOnInit(): void {
     this.cargarClientes();

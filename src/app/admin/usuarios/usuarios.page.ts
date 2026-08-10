@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AlertController, ToastController } from '@ionic/angular';
@@ -13,6 +13,11 @@ import { AdminUser, ModuloOpt, RolOpt } from '../../core/models/admin-user.model
   standalone: false,
 })
 export class AdminUsuariosPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private service = inject(UsuarioAdminService);
+  private toast = inject(ToastController);
+  private alert = inject(AlertController);
+
   usuarios: AdminUser[] = [];
   usuariosFiltrados: AdminUser[] = [];
   roles: RolOpt[] = [];
@@ -38,12 +43,7 @@ export class AdminUsuariosPage implements OnInit {
     { value: 60, label: '60 dias' },
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private service: UsuarioAdminService,
-    private toast: ToastController,
-    private alert: AlertController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       nombre: ['', [Validators.required]],
       usuario: ['', [Validators.required]],

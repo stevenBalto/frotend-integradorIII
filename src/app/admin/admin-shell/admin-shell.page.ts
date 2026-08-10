@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, TemplateRef, inject } from '@angular/core';
 import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { Gesture, GestureController, ToastController } from '@ionic/angular';
 import { Observable, map, Subject, takeUntil, filter, startWith } from 'rxjs';
@@ -46,6 +46,17 @@ interface NavGroup {
   providers: [InactivityService],
 })
 export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
+  private router = inject(Router);
+  private auth = inject(AuthService);
+  private sucursalService = inject(SucursalService);
+  private notificaciones = inject(NotificacionService);
+  private toastCtrl = inject(ToastController);
+  private adminHeader = inject(AdminHeaderService);
+  private sidebarFocus = inject(SidebarFocusService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private zone = inject(NgZone);
+  private gestureCtrl = inject(GestureController);
+
   private destroy$ = new Subject<void>();
   private sidebarGesture?: Gesture;
 
@@ -144,18 +155,7 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
     { titulo: 'Administración',  items: this.itemsPorId('usuarios', 'configuracion') },
   ];
 
-  constructor(
-    private router: Router,
-    private auth: AuthService,
-    private sucursalService: SucursalService,
-    private notificaciones: NotificacionService,
-    private toastCtrl: ToastController,
-    private adminHeader: AdminHeaderService,
-    private sidebarFocus: SidebarFocusService,
-    private host: ElementRef<HTMLElement>,
-    private zone: NgZone,
-    private gestureCtrl: GestureController,
-  ) {
+  constructor() {
     this.usuario$ = this.auth.usuarioActual$;
     this.headerActions$ = this.adminHeader.actions$;
     this.headerLead$ = this.adminHeader.lead$;

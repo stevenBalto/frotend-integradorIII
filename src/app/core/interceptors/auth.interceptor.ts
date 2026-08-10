@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpErrorResponse,
   HttpEvent,
@@ -18,11 +18,10 @@ import { SuperAdminAuthService } from '../services/superadmin-auth.service';
  */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(
-    private auth: AuthService,
-    private superAuth: SuperAdminAuthService,
-    private router: Router,
-  ) {}
+  private auth = inject(AuthService);
+  private superAuth = inject(SuperAdminAuthService);
+  private router = inject(Router);
+
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const esSuper = req.url.includes('/superadmin/');

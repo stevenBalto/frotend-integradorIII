@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, finalize, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -20,12 +20,12 @@ const SA_USER_KEY = 'sa_user';
  */
 @Injectable({ providedIn: 'root' })
 export class SuperAdminAuthService {
+  private http = inject(HttpClient);
+
   private readonly base = environment.apiBaseUrl;
   private tokenMem: string | null = null;
   private readonly superadminSubject = new BehaviorSubject<SuperAdmin | null>(null);
   readonly superadminActual$ = this.superadminSubject.asObservable();
-
-  constructor(private http: HttpClient) {}
 
   /** APP_INITIALIZER: carga token/superadmin persistidos a memoria antes de arrancar. */
   async init(): Promise<void> {

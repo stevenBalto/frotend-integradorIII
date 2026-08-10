@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { Directive, OnDestroy, OnInit, TemplateRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AdminHeaderService } from './admin-header.service';
@@ -25,14 +25,12 @@ import { alEntrarALaPagina } from './admin-header-portal.util';
   standalone: false,
 })
 export class AdminHeaderActionsDirective implements OnInit, OnDestroy {
-  private readonly destroy$ = new Subject<void>();
+  private readonly tpl = inject<TemplateRef<unknown>>(TemplateRef);
+  private readonly header = inject(AdminHeaderService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  constructor(
-    private readonly tpl: TemplateRef<unknown>,
-    private readonly header: AdminHeaderService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute,
-  ) {}
+  private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     Promise.resolve().then(() => this.header.setActions(this.tpl));

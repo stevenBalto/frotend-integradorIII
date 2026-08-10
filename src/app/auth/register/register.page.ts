@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -19,17 +19,17 @@ function passwordFuerte(control: AbstractControl): ValidationErrors | null {
   standalone: false,
 })
 export class RegisterPage {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+
   readonly form: FormGroup;
   showPassword = false;
   showConfirm = false;
   cargando = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-    private toast: ToastController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(120)]],
       email: ['', [Validators.required, Validators.email]],

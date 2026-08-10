@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild, inject } from '@angular/core';
 
 /** Clase que el buscador pone en su contenedor-fila al abrirse, para que el CSS global
  *  oculte los demas controles/filtros de esa fila (regla en global.scss). */
@@ -84,6 +84,8 @@ const CLASE_FILA_ABIERTA = 'admin-search-open';
   `],
 })
 export class SearchInputComponent {
+  private el = inject<ElementRef<HTMLElement>>(ElementRef);
+
   @Input() placeholder = '';
   @Input() value = '';
   /** Límite de caracteres del texto de búsqueda (coherente con lo que se busca). */
@@ -97,8 +99,6 @@ export class SearchInputComponent {
 
   @ViewChild('box') box?: ElementRef<HTMLElement>;
   @ViewChild('inp') inp?: ElementRef<HTMLInputElement>;
-
-  constructor(private el: ElementRef<HTMLElement>) {}
 
   onInput(event: Event): void {
     const texto = (event.target as HTMLInputElement).value;

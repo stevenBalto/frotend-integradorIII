@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
@@ -25,6 +25,15 @@ import { Cupon } from '../core/models/cupon.model';
   standalone: false,
 })
 export class HomePage implements OnInit {
+  private auth = inject(AuthService);
+  private productoService = inject(ProductoService);
+  private ofertaService = inject(OfertaService);
+  private cuponService = inject(CuponService);
+  private carritoService = inject(CarritoService);
+  private resenaService = inject(ResenaService);
+  private pedidoService = inject(PedidoService);
+  private toast = inject(ToastController);
+
   readonly usuario$: Observable<Usuario | null>;
 
   destacados: Producto[] = [];
@@ -87,16 +96,7 @@ export class HomePage implements OnInit {
   opinionesProducto: ResenaPublica[] = [];
   resumenProducto: ResumenProducto | null = null;
 
-  constructor(
-    private auth: AuthService,
-    private productoService: ProductoService,
-    private ofertaService: OfertaService,
-    private cuponService: CuponService,
-    private carritoService: CarritoService,
-    private resenaService: ResenaService,
-    private pedidoService: PedidoService,
-    private toast: ToastController,
-  ) {
+  constructor() {
     this.usuario$ = this.auth.usuarioActual$;
   }
 

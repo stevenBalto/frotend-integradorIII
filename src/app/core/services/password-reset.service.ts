@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -15,9 +15,9 @@ export interface ResetBody {
  */
 @Injectable({ providedIn: 'root' })
 export class PasswordResetService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   solicitar(email: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/forgot-password`, { email });

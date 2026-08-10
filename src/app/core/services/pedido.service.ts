@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -16,9 +16,9 @@ import { PedidoEstado } from '../../shared/constants/pedido-estado';
 /** Consumo de pedidos (cliente y admin). */
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   // ── Cliente ──
 

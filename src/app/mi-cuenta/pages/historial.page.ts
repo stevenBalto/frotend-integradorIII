@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { PedidoService } from '../../core/services/pedido.service';
 import { Pedido } from '../../core/models/pedido.model';
@@ -70,15 +70,13 @@ import { MODALIDAD_LABEL } from '../../shared/constants/modalidad';
   `,
 })
 export class HistorialPage implements OnInit {
+  private pedidoService = inject(PedidoService);
+  private toast = inject(ToastController);
+
   pedidos: Pedido[] = [];
   cargando = false;
   error: string | null = null;
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
-
-  constructor(
-    private pedidoService: PedidoService,
-    private toast: ToastController,
-  ) {}
 
   ngOnInit(): void {
     this.cargando = true;

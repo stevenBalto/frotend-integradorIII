@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { NotificacionService } from '../../core/services/notificacion.service';
@@ -14,6 +14,11 @@ import { ConfirmService } from '../../core/services/confirm.service';
   standalone: false,
 })
 export class AdminNotificacionesPage implements OnInit, OnDestroy {
+  private notificaciones = inject(NotificacionService);
+  private router = inject(Router);
+  private confirm = inject(ConfirmService);
+  private sidebarFocus = inject(SidebarFocusService);
+
   private destroy$ = new Subject<void>();
 
   notifs: Notificacion[] = [];
@@ -32,13 +37,6 @@ export class AdminNotificacionesPage implements OnInit, OnDestroy {
     { v: 'semana', l: 'Semana' },
     { v: 'mes', l: 'Mes' },
   ];
-
-  constructor(
-    private notificaciones: NotificacionService,
-    private router: Router,
-    private confirm: ConfirmService,
-    private sidebarFocus: SidebarFocusService,
-  ) {}
 
   ngOnInit(): void {
     this.notificaciones.notificaciones$

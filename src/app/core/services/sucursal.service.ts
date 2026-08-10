@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -8,9 +8,9 @@ import { Sucursal, SucursalPayload } from '../models/sucursal.model';
 /** Consumo del catalogo de sucursales. */
 @Injectable({ providedIn: 'root' })
 export class SucursalService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /sucursales — sucursales activas (requiere auth). */
   listarActivas(): Observable<Sucursal[]> {

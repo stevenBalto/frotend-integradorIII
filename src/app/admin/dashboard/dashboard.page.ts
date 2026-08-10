@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -26,6 +26,9 @@ function hoyLocalISO(): string {
   standalone: false,
 })
 export class AdminDashboardPage implements ViewWillEnter, ViewWillLeave, OnDestroy {
+  private router = inject(Router);
+  private dashboardService = inject(DashboardService);
+
   cargando = true;
   resumen: DashboardResumen | null = null;
 
@@ -69,11 +72,6 @@ export class AdminDashboardPage implements ViewWillEnter, ViewWillLeave, OnDestr
 
   /** Búsqueda por texto (código o cliente) sobre la lista ya cargada de últimos pedidos. */
   busquedaUltimos = '';
-
-  constructor(
-    private router: Router,
-    private dashboardService: DashboardService,
-  ) {}
 
   // Ciclo de vida Ionic (la página se cachea con IonicRouteStrategy → EF-13): cargar
   // y arrancar el polling al ENTRAR, detenerlo al SALIR (si no, sigue sondeando en

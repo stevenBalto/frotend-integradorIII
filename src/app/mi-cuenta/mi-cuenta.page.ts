@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
@@ -15,6 +15,10 @@ import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
   standalone: false,
 })
 export class MiCuentaPage {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private pedidoService = inject(PedidoService);
+
   /** Usuario logueado (o null = invitado). El template muestra login o el menu segun esto. */
   readonly usuario$: Observable<Usuario | null>;
 
@@ -30,11 +34,7 @@ export class MiCuentaPage {
 
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
-  constructor(
-    private auth: AuthService,
-    private router: Router,
-    private pedidoService: PedidoService,
-  ) {
+  constructor() {
     this.usuario$ = this.auth.usuarioActual$;
   }
 

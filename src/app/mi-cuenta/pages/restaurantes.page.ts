@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ConfiguracionService, Restaurante } from '../../core/services/configuracion.service';
 
 /**
@@ -88,11 +88,11 @@ import { ConfiguracionService, Restaurante } from '../../core/services/configura
   `,
 })
 export class RestaurantesPage implements OnInit {
+  private configuracionService = inject(ConfiguracionService);
+
   restaurantes: Restaurante[] = [];
   cargando = false;
   error: string | null = null;
-
-  constructor(private configuracionService: ConfiguracionService) {}
 
   ngOnInit(): void {
     this.cargando = true;

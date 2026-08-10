@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, finalize, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -30,12 +30,13 @@ export interface LoginBody {
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private http = inject(HttpClient);
+  private storage = inject(TokenStorageService);
+
   private readonly base = environment.apiBaseUrl;
   private tokenMem: string | null = null;
   private readonly usuarioSubject = new BehaviorSubject<Usuario | null>(null);
   readonly usuarioActual$ = this.usuarioSubject.asObservable();
-
-  constructor(private http: HttpClient, private storage: TokenStorageService) {}
 
   /** APP_INITIALIZER: carga token/usuario persistidos a memoria antes de arrancar. */
   async init(): Promise<void> {

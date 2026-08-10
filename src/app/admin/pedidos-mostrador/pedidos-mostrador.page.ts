@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProductoService } from '../../core/services/producto.service';
@@ -34,6 +34,14 @@ interface LineaMostrador {
   standalone: false,
 })
 export class PedidosMostradorPage implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private productoService = inject(ProductoService);
+  private sucursalService = inject(SucursalService);
+  private cuponService = inject(CuponService);
+  private ofertaService = inject(OfertaService);
+  private pedidoService = inject(PedidoService);
+
   productos: Producto[] = [];
   sucursales: Sucursal[] = [];
   busqueda = '';
@@ -57,16 +65,6 @@ export class PedidosMostradorPage implements OnInit {
   enviando = false;
   errorEnvio: string | null = null;
   pedidoCreado: PedidoAdmin | null = null;
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private productoService: ProductoService,
-    private sucursalService: SucursalService,
-    private cuponService: CuponService,
-    private ofertaService: OfertaService,
-    private pedidoService: PedidoService,
-  ) {}
 
   private productosListos = false;
 

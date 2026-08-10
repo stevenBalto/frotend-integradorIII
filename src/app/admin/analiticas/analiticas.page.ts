@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { AnaliticasParams, AnaliticasService } from '../../core/services/analiticas.service';
@@ -19,6 +19,8 @@ interface ComparacionTexto { texto: string; color: string; pct: number | null; }
   standalone: false,
 })
 export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDestroy {
+  private analiticasService = inject(AnaliticasService);
+
   cargando = false;
   error: string | null = null;
   exportando: 'excel' | 'pdf' | null = null;
@@ -80,8 +82,6 @@ export class AdminAnaliticasPage implements ViewWillEnter, ViewWillLeave, OnDest
   // Comparativos mes actual vs anterior (charts de barras)
   comparativoVentas: PeakHourDatum[] = [];
   comparativoPedidos: PeakHourDatum[] = [];
-
-  constructor(private analiticasService: AnaliticasService) {}
 
   /**
    * Ionic cachea las páginas (IonicRouteStrategy) y no siempre destruye el

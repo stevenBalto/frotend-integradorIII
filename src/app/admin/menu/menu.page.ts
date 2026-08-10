@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -17,6 +17,13 @@ import { ConfirmService } from '../../core/services/confirm.service';
   standalone: false,
 })
 export class AdminMenuPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private productoService = inject(ProductoService);
+  private categoriaService = inject(CategoriaService);
+  private extraService = inject(ExtraService);
+  private toast = inject(ToastController);
+  private confirm = inject(ConfirmService);
+
   activeCat = 'Todos';
   categories: string[] = ['Todos'];
   vistaTabla: 'productos' | 'extras' = 'productos';
@@ -61,15 +68,6 @@ export class AdminMenuPage implements OnInit {
     precio: [null, [Validators.required, Validators.min(0)]],
     disponible: [true],
   });
-
-  constructor(
-    private fb: FormBuilder,
-    private productoService: ProductoService,
-    private categoriaService: CategoriaService,
-    private extraService: ExtraService,
-    private toast: ToastController,
-    private confirm: ConfirmService,
-  ) {}
 
   ngOnInit(): void {
     this.cargarCategorias();

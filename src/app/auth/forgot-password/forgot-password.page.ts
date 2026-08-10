@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
@@ -11,16 +11,16 @@ import { PasswordResetService } from '../../core/services/password-reset.service
   standalone: false,
 })
 export class ForgotPasswordPage {
+  private fb = inject(FormBuilder);
+  private service = inject(PasswordResetService);
+  private router = inject(Router);
+  private toast = inject(ToastController);
+
   readonly form: FormGroup;
   cargando = false;
   enviado = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private service: PasswordResetService,
-    private router: Router,
-    private toast: ToastController,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
     });

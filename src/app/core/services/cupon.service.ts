@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -13,9 +13,9 @@ export interface CuponValidado {
 /** Consumo de cupones (panel admin). */
 @Injectable({ providedIn: 'root' })
 export class CuponService {
-  private readonly base = environment.apiBaseUrl;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private readonly base = environment.apiBaseUrl;
 
   /** GET /admin/cupones — listado completo (panel admin). */
   listarTodos(): Observable<Cupon[]> {

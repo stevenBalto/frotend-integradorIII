@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { ProductoService } from '../../core/services/producto.service';
 import { OfertaService } from '../../core/services/oferta.service';
@@ -19,6 +19,11 @@ import { Cupon } from '../../core/models/cupon.model';
   standalone: false,
 })
 export class AdminInicioPage implements OnInit {
+  private productoService = inject(ProductoService);
+  private ofertaService = inject(OfertaService);
+  private cuponService = inject(CuponService);
+  private toast = inject(ToastController);
+
   productos: Producto[] = [];
   ofertas: Oferta[] = [];
   cupones: Cupon[] = [];
@@ -28,13 +33,6 @@ export class AdminInicioPage implements OnInit {
 
   // #11 Filtro de la tabla "Secciones del Home" alimentado por los KPIs.
   filtroInicio: 'todos' | 'destacado' | 'popular' | 'nuevo' = 'todos';
-
-  constructor(
-    private productoService: ProductoService,
-    private ofertaService: OfertaService,
-    private cuponService: CuponService,
-    private toast: ToastController,
-  ) {}
 
   ngOnInit(): void {
     this.cargarTodo();
