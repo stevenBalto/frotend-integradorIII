@@ -117,9 +117,12 @@ export type ConfirmTono = 'normal' | 'peligro';
       justify-content: center;
       font-size: 26px;
     }
+    /* El tono de peligro usa el MISMO rojo de marca que el resto del sistema
+       (--rooster-red), no un granate propio: asi el dialogo no desentona con
+       los botones primarios ni con el rojo del panel. */
     .cdlg__icon--peligro {
-      background: rgba(150, 26, 36, 0.12);
-      color: #961a24;
+      background: rgba(var(--rooster-red-rgb, 225, 54, 66), 0.12);
+      color: var(--rooster-red, #e13642);
     }
 
     .cdlg__title {
@@ -159,7 +162,7 @@ export type ConfirmTono = 'normal' | 'peligro';
       color: var(--admin-text, #1e1e1e);
     }
     .cdlg__btn--primary { background: var(--rooster-red, #e13642); color: #fff; }
-    .cdlg__btn--peligro { background: #961a24; color: #fff; }
+    .cdlg__btn--peligro { background: var(--rooster-red, #e13642); color: #fff; }
 
     @keyframes cdlg-fade { from { opacity: 0; } to { opacity: 1; } }
     @keyframes cdlg-pop {

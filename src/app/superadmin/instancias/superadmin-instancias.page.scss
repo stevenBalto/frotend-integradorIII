@@ -103,6 +103,16 @@
 }
 
 @media (max-width: 680px) {
+  /* En pantallas angostas el boton deja de pelear por el ancho con el titulo:
+     baja completo debajo del texto en vez de quedar apretado a la derecha. */
+  .sec-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+
+    .btn { width: 100%; }
+  }
+
   .row { grid-template-columns: 1fr 1fr; row-gap: 6px; }
   .c-correo { grid-column: 1 / -1; color: var(--admin-text-muted); font-size: 13px; }
   .row--head { display: none; }

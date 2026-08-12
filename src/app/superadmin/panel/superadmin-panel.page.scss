@@ -108,6 +108,33 @@
   }
 }
 
+// Ayuda de formato, debajo del input y con aire para que no se lea apretada.
+.field__hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--admin-text-muted);
+}
+
+// Campo con error: borde rojo + mensaje concreto debajo.
+.field--error {
+  input { border-color: #c62828; background: #fff8f8; }
+  .pass { border-color: #c62828; background: #fff8f8; }
+  label { color: #c62828; }
+}
+
+.field__error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c62828;
+
+  ion-icon { font-size: 14px; flex-shrink: 0; }
+}
+
 .pass {
   display: flex;
   align-items: center;
@@ -170,6 +197,19 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: var(--admin-text-muted);
+  }
+}
+
+/* Igual que en Instancias (mismo breakpoint, para que las dos pestañas del panel
+   se apilen a la vez): el boton "Nuevo" baja completo debajo del texto en vez de
+   quedar apretado contra el borde derecho. */
+@media (max-width: 680px) {
+  .sec-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+
+    .btn { width: 100%; }
   }
 }
 

@@ -57,6 +57,11 @@ export class SuperAdminAuthService {
       .pipe(finalize(() => this.limpiarSesion()));
   }
 
+  /** Comprueba contra el servidor que la sesión siga viva (usado por el latido). */
+  me(): Observable<{ data: SuperAdmin }> {
+    return this.http.get<{ data: SuperAdmin }>(`${this.base}/superadmin/me`);
+  }
+
   listarSuperadmins(): Observable<{ data: SuperAdmin[] }> {
     return this.http.get<{ data: SuperAdmin[] }>(`${this.base}/superadmin/superadmins`);
   }

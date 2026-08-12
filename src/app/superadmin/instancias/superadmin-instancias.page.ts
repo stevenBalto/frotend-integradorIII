@@ -7,13 +7,14 @@ import { InstanciaService } from '../../core/services/instancia.service';
 import { SuperAdminAuthService } from '../../core/services/superadmin-auth.service';
 import { CredencialesTemporales, Instancia } from '../../core/models/instancia.model';
 import { InactivityService } from '../../core/services/inactivity.service';
+import { SuperAdminSessionWatchService } from '../../core/services/superadmin-session-watch.service';
 
 @Component({
   selector: 'app-superadmin-instancias',
   templateUrl: './superadmin-instancias.page.html',
   styleUrls: ['./superadmin-instancias.page.scss'],
   standalone: false,
-  providers: [InactivityService],
+  providers: [InactivityService, SuperAdminSessionWatchService],
 })
 export class SuperadminInstanciasPage implements OnInit {
   private fb = inject(FormBuilder);
@@ -22,6 +23,7 @@ export class SuperadminInstanciasPage implements OnInit {
   private router = inject(Router);
   private toast = inject(ToastController);
   private alert = inject(AlertController);
+  private sessionWatch = inject(SuperAdminSessionWatchService);
 
   instancias: Instancia[] = [];
   cargando = false;
@@ -45,6 +47,8 @@ export class SuperadminInstanciasPage implements OnInit {
 
   ngOnInit(): void {
     this.cargar();
+    // Cierra sola esta ventana si la cuenta se elimina/desactiva desde otra.
+    this.sessionWatch.iniciar();
   }
 
   cargar(): void {

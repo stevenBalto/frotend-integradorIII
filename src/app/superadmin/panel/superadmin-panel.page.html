@@ -44,30 +44,51 @@
       </div>
       <form [formGroup]="form" (ngSubmit)="guardar()">
         <div class="grid">
-          <div class="field">
+          <div class="field" [class.field--error]="campoInvalido(form, 'nombre')">
             <label>Nombre completo</label>
-            <input type="text" formControlName="nombre" placeholder="Ej. Ana Root" />
+            <input type="text" formControlName="nombre" placeholder="Ej. Ana Root" maxlength="60" />
+            <p class="field__error" *ngIf="errorDe(form, 'nombre') as msg">
+              <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+            </p>
           </div>
-          <div class="field">
+          <div class="field" [class.field--error]="campoInvalido(form, 'usuario')">
             <label>Usuario</label>
-            <input type="text" formControlName="usuario" placeholder="anaroot" autocomplete="off" />
+            <input type="text" formControlName="usuario" placeholder="anaroot" autocomplete="off" maxlength="60" />
+            <p class="field__error" *ngIf="errorDe(form, 'usuario') as msg">
+              <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+            </p>
           </div>
-          <div class="field">
+          <div class="field" [class.field--error]="campoInvalido(form, 'email')">
             <label>Correo</label>
-            <input type="email" formControlName="email" placeholder="ana@rooster.com" autocomplete="off" />
+            <input type="email" formControlName="email" placeholder="ana@rooster.com" autocomplete="off" maxlength="120" />
+            <p class="field__error" *ngIf="errorDe(form, 'email') as msg">
+              <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+            </p>
           </div>
-          <div class="field" *ngIf="!editandoId">
-            <label>Contraseña (mín. 12, mayús/minús/número/símbolo)</label>
+          <div class="field" *ngIf="!editandoId" [class.field--error]="campoInvalido(form, 'password')">
+            <label>Contraseña</label>
             <div class="pass">
-              <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="new-password" />
-              <button type="button" (click)="showPassword = !showPassword">
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="new-password" maxlength="72" />
+              <button type="button" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" (click)="showPassword = !showPassword">
                 <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
               </button>
             </div>
+            <p class="field__hint">Mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo.</p>
+            <p class="field__error" *ngIf="errorDe(form, 'password') as msg">
+              <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+            </p>
           </div>
-          <div class="field" *ngIf="!editandoId">
+          <div class="field" *ngIf="!editandoId" [class.field--error]="campoInvalido(form, 'password_confirmation')">
             <label>Confirmar contraseña</label>
-            <input type="password" formControlName="password_confirmation" placeholder="••••••••••••" autocomplete="new-password" />
+            <div class="pass">
+              <input [type]="showPasswordConf ? 'text' : 'password'" formControlName="password_confirmation" placeholder="••••••••••••" autocomplete="new-password" maxlength="72" />
+              <button type="button" [attr.aria-label]="showPasswordConf ? 'Ocultar contraseña' : 'Mostrar contraseña'" (click)="showPasswordConf = !showPasswordConf">
+                <ion-icon [name]="showPasswordConf ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </div>
+            <p class="field__error" *ngIf="errorDe(form, 'password_confirmation') as msg">
+              <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+            </p>
           </div>
         </div>
         <button type="submit" class="btn btn--primary btn--block" [disabled]="guardando">
@@ -131,18 +152,30 @@
     </div>
     <form class="sa-modal__body" [formGroup]="resetForm" (ngSubmit)="guardarReset()">
       <p class="reset-sub">Nueva contraseña para <b>{{ resetNombre }}</b>.</p>
-      <div class="field">
-        <label>Nueva contraseña (mín. 12, mayús/minús/número/símbolo)</label>
+      <div class="field" [class.field--error]="campoInvalido(resetForm, 'password')">
+        <label>Nueva contraseña</label>
         <div class="pass">
-          <input [type]="showResetPass ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="new-password" />
-          <button type="button" (click)="showResetPass = !showResetPass">
+          <input [type]="showResetPass ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="new-password" maxlength="72" />
+          <button type="button" [attr.aria-label]="showResetPass ? 'Ocultar contraseña' : 'Mostrar contraseña'" (click)="showResetPass = !showResetPass">
             <ion-icon [name]="showResetPass ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
           </button>
         </div>
+        <p class="field__hint">Mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo.</p>
+        <p class="field__error" *ngIf="errorDe(resetForm, 'password') as msg">
+          <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+        </p>
       </div>
-      <div class="field">
+      <div class="field" [class.field--error]="campoInvalido(resetForm, 'password_confirmation')">
         <label>Confirmar contraseña</label>
-        <input type="password" formControlName="password_confirmation" placeholder="••••••••••••" autocomplete="new-password" />
+        <div class="pass">
+          <input [type]="showResetPassConf ? 'text' : 'password'" formControlName="password_confirmation" placeholder="••••••••••••" autocomplete="new-password" maxlength="72" />
+          <button type="button" [attr.aria-label]="showResetPassConf ? 'Ocultar contraseña' : 'Mostrar contraseña'" (click)="showResetPassConf = !showResetPassConf">
+            <ion-icon [name]="showResetPassConf ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <p class="field__error" *ngIf="errorDe(resetForm, 'password_confirmation') as msg">
+          <ion-icon name="alert-circle-outline"></ion-icon> {{ msg }}
+        </p>
       </div>
       <button type="submit" class="btn btn--primary btn--block" [disabled]="reseteando">
         <ng-container *ngIf="!reseteando">Restablecer</ng-container>
