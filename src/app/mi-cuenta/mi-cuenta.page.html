@@ -194,18 +194,25 @@
     <div class="buscar-modal__body">
       <p class="buscar-modal__desc">Ingresa el código de tu pedido para ver su estado.</p>
 
-      <input type="text" class="buscar-modal__input"
-        placeholder="Ej. ABCD-1234"
-        [(ngModel)]="codigoBusqueda"
-        (keyup.enter)="buscarPedido()" />
+      <div class="buscar-modal__inputrow">
+        <div class="buscar-modal__inputwrap">
+          <input type="text" class="buscar-modal__input"
+            placeholder="Ej. ABCD-1234"
+            [(ngModel)]="codigoBusqueda"
+            (keyup.enter)="buscarPedido()" />
+          <button type="button" class="buscar-modal__paste" (click)="pegarCodigo()" aria-label="Pegar código">
+            <ion-icon name="clipboard-outline"></ion-icon><span>Pegar</span>
+          </button>
+        </div>
+        <button type="button" class="buscar-modal__go"
+          *ngIf="codigoBusqueda.trim()"
+          [disabled]="buscandoPedido"
+          (click)="buscarPedido()" aria-label="Buscar pedido">
+          <ion-icon name="arrow-forward-circle"></ion-icon>
+        </button>
+      </div>
 
       <p *ngIf="buscarError" class="buscar-modal__error">{{ buscarError }}</p>
-
-      <button type="button" class="buscar-modal__btn"
-        [disabled]="buscandoPedido || !codigoBusqueda.trim()"
-        (click)="buscarPedido()">
-        {{ buscandoPedido ? 'Buscando...' : 'Buscar pedido' }}
-      </button>
 
       <!-- Resultado detallado -->
       <div class="buscar-resultado" *ngIf="pedidoEncontrado">

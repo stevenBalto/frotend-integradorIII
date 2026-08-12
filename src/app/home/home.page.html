@@ -275,18 +275,25 @@
     <div class="buscar-modal__body">
       <p class="buscar-modal__desc">Ingresá el código de tu pedido para ver su detalle.</p>
 
-      <input type="text" class="buscar-modal__input"
-        placeholder="Ej. ABCD-1234"
-        [(ngModel)]="codigoBusqueda"
-        (keyup.enter)="buscarMiPedido()" />
+      <div class="buscar-modal__inputrow">
+        <div class="buscar-modal__inputwrap">
+          <input type="text" class="buscar-modal__input"
+            placeholder="Ej. ABCD-1234"
+            [(ngModel)]="codigoBusqueda"
+            (keyup.enter)="buscarMiPedido()" />
+          <button type="button" class="buscar-modal__paste" (click)="pegarCodigo()" aria-label="Pegar código">
+            <ion-icon name="clipboard-outline"></ion-icon><span>Pegar</span>
+          </button>
+        </div>
+        <button type="button" class="buscar-modal__go"
+          *ngIf="codigoBusqueda.trim()"
+          [disabled]="buscandoPedido"
+          (click)="buscarMiPedido()" aria-label="Buscar pedido">
+          <ion-icon name="arrow-forward-circle"></ion-icon>
+        </button>
+      </div>
 
       <p *ngIf="buscarError" class="buscar-modal__error">{{ buscarError }}</p>
-
-      <button type="button" class="buscar-modal__btn"
-        [disabled]="buscandoPedido || !codigoBusqueda.trim()"
-        (click)="buscarMiPedido()">
-        {{ buscandoPedido ? 'Buscando...' : 'Buscar pedido' }}
-      </button>
 
       <!-- Resultado completo (usuario logueado) -->
       <div class="buscar-resultado" *ngIf="pedidoBuscado">

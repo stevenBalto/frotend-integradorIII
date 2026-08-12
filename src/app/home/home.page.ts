@@ -120,10 +120,28 @@ export class HomePage implements OnInit {
     this.buscarError = null;
     this.pedidoBuscado = null;
     this.pedidoBuscadoPublico = null;
+    document.body.classList.add('buscar-modal-open');
   }
 
   cerrarBuscarPedido(): void {
     this.buscarModalAbierto = false;
+    document.body.classList.remove('buscar-modal-open');
+  }
+
+  /** Pega el codigo desde el portapapeles al input (un toque, sin escribir). */
+  async pegarCodigo(): Promise<void> {
+    try {
+      const texto = (await navigator.clipboard.readText()).trim();
+      if (!texto) {
+        const t = await this.toast.create({ message: 'El portapapeles está vacío', duration: 1500, position: 'bottom', color: 'medium' });
+        await t.present();
+        return;
+      }
+      this.codigoBusqueda = texto;
+    } catch {
+      const t = await this.toast.create({ message: 'No pudimos leer el portapapeles', duration: 1800, position: 'bottom', color: 'medium' });
+      await t.present();
+    }
   }
 
   buscarMiPedido(): void {

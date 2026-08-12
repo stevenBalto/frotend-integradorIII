@@ -596,6 +596,9 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
 .buscar-modal {
   position: fixed;
   inset: 0;
+  bottom: auto;
+  height: 100vh;
+  height: 100dvh;            /* el panel nace desde el fondo real, no arriba del tab bar */
   z-index: 200;
   display: flex;
   align-items: flex-end;
@@ -603,9 +606,28 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   animation: rooster-fade var(--rooster-ease-fast) both;
 }
 @media (min-width: 768px) {
-  .buscar-modal { align-items: center; padding: 16px; }
+  .buscar-modal { align-items: center; padding: 16px; height: 100dvh; }
 }
-.buscar-modal__backdrop { position: absolute; inset: 0; background: rgba(20, 17, 15, 0.6); backdrop-filter: blur(2px); }
+/* En telefono el panel llega hasta abajo (fondo blanco), pero su CONTENIDO
+   reserva el alto del tab bar flotante para no quedar tapado por las opciones. */
+@media (max-width: 767.98px) {
+  .buscar-modal__panel { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+}
+/* El tab bar (Home/Carrito/Ofertas/Mi cuenta) sigue VISIBLE encima del backdrop
+   mientras el modal esta abierto, pero sin navegar (estamos consultando codigo). */
+body.buscar-modal-open ion-tab-bar { pointer-events: none; }
+/* Backdrop fijo a TODO el viewport (incluso detras del tab bar) para que el
+   oscurecido llegue hasta el fondo; el panel sigue acomodado arriba del tab bar. */
+.buscar-modal__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(20, 17, 15, 0.6);
+  backdrop-filter: blur(2px);
+}
 .buscar-modal__panel {
   position: relative;
   width: 100%;
@@ -697,6 +719,96 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
 .buscar-modal__btn:not(:disabled):hover { filter: brightness(1.05); }
 .buscar-modal__btn:not(:disabled):active { transform: scale(0.97); }
 .buscar-modal__btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* ── Fila de busqueda: input (con boton "Pegar" dentro) + boton buscar (icono) ── */
+.buscar-modal__inputrow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 14px;
+}
+.buscar-modal__inputwrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+}
+/* dentro del row el input no lleva margen y reserva espacio a la derecha para el chip */
+.buscar-modal__inputwrap .buscar-modal__input {
+  width: 100%;
+  margin: 0;
+  padding: 15px 100px 15px 16px;
+}
+/* Boton PEGAR: chip rojo suave dentro del input (derecha) */
+.buscar-modal__paste {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(228, 0, 43, 0.10);
+  color: var(--client-red);
+  font-family: var(--client-font-body);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--rooster-ease-fast), transform var(--rooster-ease-fast);
+}
+.buscar-modal__paste ion-icon { font-size: 15px; }
+.buscar-modal__paste:hover { background: rgba(228, 0, 43, 0.16); }
+.buscar-modal__paste:active { transform: translateY(-50%) scale(0.94); }
+
+/* Boton BUSCAR: cuadrado negro con flecha-en-circulo. Aparece SOLO cuando hay
+   codigo (ngIf), con animacion de entrada; el icono late/empuja para invitar. */
+.buscar-modal__go {
+  flex: 0 0 auto;
+  align-self: stretch;
+  min-width: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 14px;
+  background: var(--client-ink);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -6px rgba(11, 11, 12, 0.5);
+  animation: buscar-go-in var(--rooster-ease-med) both;
+  transition: transform var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
+}
+.buscar-modal__go ion-icon {
+  font-size: 26px;
+  animation: buscar-go-nudge 1.9s ease-in-out infinite;
+}
+.buscar-modal__go:hover { box-shadow: 0 8px 20px -6px rgba(228, 0, 43, 0.5); }
+.buscar-modal__go:active { transform: scale(0.93); }
+.buscar-modal__go:disabled { opacity: 0.6; cursor: default; }
+.buscar-modal__go:disabled ion-icon { animation: none; }
+
+/* Entrada al aparecer (cuando ya hay codigo escrito/pegado) */
+@keyframes buscar-go-in {
+  from { opacity: 0; transform: translateX(10px) scale(0.7); }
+  60%  { transform: translateX(-2px) scale(1.06); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+/* Latido + empujoncito que invita a tocar (motiva al cliente) */
+@keyframes buscar-go-nudge {
+  0%, 100% { transform: translateX(0) scale(1); }
+  12%      { transform: scale(1.16); }
+  24%      { transform: scale(1); }
+  46%      { transform: translateX(3px) scale(1.1); }
+  64%      { transform: translateX(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buscar-modal__go,
+  .buscar-modal__go ion-icon { animation: none !important; }
+}
 
 .buscar-resultado {
   background: #fff;
