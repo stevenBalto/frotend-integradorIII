@@ -2,13 +2,13 @@
 
   <!-- Encabezado: negro solido, isotipo real de marca, sin degradados ni emojis -->
   <div class="home-header">
-    <button type="button" class="home-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
-      <ion-icon name="receipt-outline"></ion-icon>
-    </button>
     <div class="home-header__hero">
       <div class="home-header__copy">
         <h1 class="home-header__title">¿Qué vas a pedir hoy?</h1>
       </div>
+      <button type="button" class="home-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
+        <ion-icon name="receipt-outline"></ion-icon>
+      </button>
     </div>
   </div>
 
@@ -18,10 +18,41 @@
       <span class="home-section__label">Categorías</span>
     </div>
     <div class="cat-rail">
-      <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas" routerLink="/tabs/pedir">
-        <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
-        <span class="cat-rail__label">{{ c.label }}</span>
-      </a>
+      <!-- Dos filas. En >=375px .cat-rail__row es display:contents (los 6 items
+           caen directo al grid; los --dup quedan display:none) -> todos los
+           breakpoints funcionan igual. En <=374px cada fila es un carrusel
+           marquee lento con las pills CON texto; los --dup se muestran para que
+           el bucle no tenga costura. -->
+      <div class="cat-rail__row">
+        <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas | slice:0:3" routerLink="/tabs/pedir">
+          <span class="cat-rail__badge-wrap">
+            <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
+          </span>
+          <span class="cat-rail__label">{{ c.label }}</span>
+        </a>
+        <a class="cat-rail__item cat-rail__item--dup" *ngFor="let c of categoriasDestacadas | slice:0:3"
+           routerLink="/tabs/pedir" aria-hidden="true" tabindex="-1">
+          <span class="cat-rail__badge-wrap">
+            <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
+          </span>
+          <span class="cat-rail__label">{{ c.label }}</span>
+        </a>
+      </div>
+      <div class="cat-rail__row">
+        <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas | slice:3:6" routerLink="/tabs/pedir">
+          <span class="cat-rail__badge-wrap">
+            <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
+          </span>
+          <span class="cat-rail__label">{{ c.label }}</span>
+        </a>
+        <a class="cat-rail__item cat-rail__item--dup" *ngFor="let c of categoriasDestacadas | slice:3:6"
+           routerLink="/tabs/pedir" aria-hidden="true" tabindex="-1">
+          <span class="cat-rail__badge-wrap">
+            <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
+          </span>
+          <span class="cat-rail__label">{{ c.label }}</span>
+        </a>
+      </div>
     </div>
   </div>
 

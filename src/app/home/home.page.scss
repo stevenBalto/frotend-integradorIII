@@ -2,23 +2,30 @@
   --background: var(--client-bg);
 }
 
+/* Los roosters del watermark BAJAN en vertical, lento: 456px = 6 tiles de 76px
+   en 100s -> loop sin salto. Al llegar al pie, el "doblez" (::after) los
+   curva/oscurece como borde waterfall y parecen salirse por abajo. */
 @keyframes home-rooster-drift {
   from { background-position: 0 0; }
-  to   { background-position: 256px 256px; }
+  to   { background-position: 0 456px; }
 }
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
 .home-header {
   position: relative;
   background: var(--client-ink);
-  padding: 30px 20px;
+  /* padding-bottom extendido + margin-bottom negativo: el negro se prolonga
+     hacia abajo DETRAS del contenido, para que las esquinas superiores
+     redondeadas de .home-section--tight caigan sobre negro (sin que se asome el
+     blanco de la pagina en los lados). El margin negativo cancela el alto extra,
+     asi no mueve el layout. */
+  padding: 30px 20px 56px;
+  margin-bottom: -34px;
   overflow: hidden;
-  /* Sombra hacia abajo en vez de borde/linea recta: la transicion al
-     contenido blanco se siente mas suave, sin bordes redondeados. */
   box-shadow: 0 14px 24px -12px rgba(11, 11, 12, 0.4);
 
   @media (min-width: 768px) {
-    padding: 40px 32px;
+    padding: 40px 32px 66px;
   }
 
   &::before {
@@ -32,16 +39,18 @@
     bottom: -200px;
     left: -120px;
     right: -120px;
-    /* Watermark en mosaico a 52px: usa el favicon 180 (10KB) en vez del logo
-       full 903x922 (81KB) — a 52px de tile no se nota y ahorra ~71KB en la carga
-       inicial de la vista cliente. */
-    background-image: url('/assets/logo/rooster-favicon-180.png');
+    /* Watermark en mosaico: rooster-logo.png (903x922) en vez del favicon porque
+       el favicon esta recortado al borde y las R quedan pegadas; este logo trae
+       padding interno, asi las R salen mas chicas y SEPARADAS al escalar. Cuesta
+       ~71KB mas que el favicon (bg-image, no bloquea el primer paint). Tile 60px,
+       drift vertical lento (100s). */
+    background-image: url('/assets/logo/rooster-logo.png');
     background-repeat: repeat;
-    background-size: 52px 52px;
-    opacity: 0.38;
-    filter: brightness(2);
+    background-size: 76px 76px;
+    opacity: 0.62;
+    filter: brightness(2.5);
     transform: rotate(-18deg);
-    animation: home-rooster-drift 70s linear infinite;
+    animation: home-rooster-drift 100s linear infinite;
     pointer-events: none;
   }
 
@@ -55,30 +64,21 @@
   }
 
   &__icon-btn {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--rooster-radius-sm);
     border: none;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 2px 8px rgba(11, 11, 12, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: transform 0.15s;
-    z-index: 1;
 
-    @media (min-width: 768px) {
-      right: 32px;
-    }
-
-    &:hover { transform: translateY(-50%) scale(1.06); }
-    &:active { transform: translateY(-50%) scale(0.92); }
-    ion-icon { font-size: 16px; color: var(--client-ink); }
+    &:active { transform: scale(0.94); }
+    ion-icon { font-size: 20px; color: var(--client-text); }
   }
 
   &__hero {
@@ -92,11 +92,6 @@
 
   &__copy {
     min-width: 0;
-    padding-right: 44px;
-
-    @media (min-width: 640px) {
-      padding-right: 0;
-    }
   }
 
   &__eyebrow {
@@ -138,79 +133,186 @@
      desparejas entre un modelo y otro, porque cada columna es 1/3 del ancho
      disponible. Si se agregan/quitan categorias, ajustar este numero para
      que siga dividiendo parejo (o volver a 4 si son 4/8, etc.). */
+  /* Pills (chip horizontal: badge + label). En telefono: 2 columnas parejas.
+     De 560px en adelante NO se estiran: columnas con ancho TOPE (max 300px, no
+     1fr) y fila centrada -> al ensancharse aparecen mas columnas en vez de
+     pills gigantes. */
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
   padding-bottom: 4px;
 
-  /* Desktop: en vez de una fila de iconos chicos sueltos (se ve dispersa en
-     una columna de 1400px), tarjetas mas grandes con borde propio — 4 tiles
-     ocupan un bloque visualmente intencional, no un puñado de iconos perdidos
-     en el espacio. Tope maximo en 1fr (no en px fijo): con un maximo en px,
-     las columnas que SÍ caben se quedan angostas y el resto del ancho se
-     queda vacio a la derecha (el contenedor no las estira). Con 1fr como
-     tope, auto-fit colapsa las columnas vacias y reparte todo el ancho
-     disponible entre las columnas que sí tienen tarjeta — la fila queda
-     siempre completa, sin importar cuantas categorias haya. */
-  @media (min-width: 768px) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
+  /* Wrapper de fila: en >=375px es transparente al layout (display:contents),
+     asi los 6 items caen directo al grid y NO afectan ningun breakpoint. En
+     <=374px se convierte en una pista de carrusel (ver media al final). */
+  &__row { display: contents; }
+
+  /* 375–559px: 3 columnas (2 filas de 3) para que los pills no queden tan
+     anchos en ese rango intermedio. */
+  @media (min-width: 375px) and (max-width: 559.98px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  /* 560–726px (opcion 1 aprobada): 3 columnas con tope y centradas. En este
+     tramo el auto-fill daba 2 columnas anchas; forzar 3 columnas capadas (max
+     260px) las mantiene angostas y parejas (2 filas de 3). La fila unica de 6
+     entra con texto completo desde 727px (verificado por el usuario). */
+  @media (min-width: 560px) and (max-width: 726.98px) {
+    grid-template-columns: repeat(3, minmax(0, 260px));
+    justify-content: center;
+    gap: 12px 14px;
+  }
+
+  /* ≥727px: las 6 categorias en UNA sola fila (desde 727 entran con texto completo). */
+  @media (min-width: 727px) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    justify-content: center;
+    gap: 8px;
   }
 
   &__item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 10px;
     min-width: 0;
+    padding: 8px 16px 8px 8px;
+    border-radius: 999px;
     text-decoration: none;
+    /* Pill mayormente NEGRO (--client-ink) con un glow ROJO de marca detras del
+       badge como unico contraste. */
+    background: radial-gradient(80% 110% at 9% 50%, rgba(228, 0, 43, 0.55) 0%, var(--client-ink) 26%);
     transition: transform 0.15s;
 
-    &:active { transform: scale(0.94); }
+    &:active { transform: scale(0.96); }
 
-    @media (min-width: 768px) {
-      flex-direction: row;
-      justify-content: flex-start;
-      gap: 14px;
-      padding: 14px;
-      border: 1px solid var(--client-border, #e7e5e3);
-      border-radius: var(--rooster-radius-md);
-      background: #fff;
-      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    /* Rango 375–559 (3 columnas): mas compacto para que quepa el label. */
+    @media (min-width: 375px) and (max-width: 559.98px) {
+      gap: 7px;
+      padding: 6px 8px 6px 6px;
+    }
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--rooster-shadow-md);
-        border-color: transparent;
-      }
+    /* Fila unica (≥727): chip compacto para que entren las 6 categorias. */
+    @media (min-width: 727px) {
+      gap: 7px;
+      padding: 6px 10px 6px 6px;
     }
   }
 
+  /* Badge circular rojo (con su icono blanco) = el contraste de marca sobre el
+     pill negro. */
+  &__badge-wrap {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
   &__badge {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    display: block;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
 
-    @media (min-width: 768px) {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
+    @media (min-width: 375px) and (max-width: 559.98px) {
+      width: 36px;
+      height: 36px;
+    }
+
+    @media (min-width: 727px) {
+      width: 36px;
+      height: 36px;
     }
   }
 
   &__label {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
     font-family: var(--client-font-body);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-    color: var(--client-text);
+    color: var(--client-white);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
-    @media (min-width: 768px) {
-      font-size: 14px;
+    @media (min-width: 375px) and (max-width: 559.98px) {
+      font-size: 12px;
+    }
+
+    @media (min-width: 727px) {
+      font-size: 12px;
     }
   }
+
+  /* Copia para el bucle del carrusel: oculta por defecto (solo visible en el
+     marquee de <=374px). Va DESPUES de &__item para ganarle a su display:flex. */
+  &__item--dup { display: none; }
+
+  /* ≤374px: los labels ya no entran completos en un grid fijo. Solucion: pills
+     CON texto (identicas a >=375) en 2 filas tipo CARRUSEL marquee lento y
+     legible. Cada fila desplaza sus 3 pills en bucle infinito; los --dup (copia)
+     se muestran para que el loop no tenga costura. Fila 1 va a la izquierda,
+     fila 2 a la derecha, a distinta velocidad, para un movimiento organico.
+     Tope en 374.98px (no 374) para que anchos fraccionales 374.x tambien caigan
+     aqui y no en el grid base -> 374 queda 100% dentro del rango del carrusel. */
+  @media (max-width: 374.98px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;            /* ventana del carrusel: recorta lo que sale */
+
+    &__row {
+      display: flex;
+      flex-wrap: nowrap;
+      width: max-content;
+      gap: 0;                    /* separacion via margin del item (loop exacto) */
+      will-change: transform;
+      animation: cat-marquee-left 18s linear infinite;
+    }
+    &__row:nth-child(2) {
+      animation-name: cat-marquee-right;
+      animation-duration: 20s;
+    }
+
+    /* pausa al tocar para poder leer/pulsar */
+    &__row:active { animation-play-state: paused; }
+
+    &__item {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 0;
+      margin-right: 10px;        /* = gap uniforme en las 6 (3 reales + 3 dup) */
+    }
+
+    &__item--dup { display: flex; }
+  }
+
+  /* Accesibilidad: sin animacion -> quieto y desplazable a mano, sin duplicados. */
+  @media (max-width: 374.98px) and (prefers-reduced-motion: reduce) {
+    overflow-x: auto;
+    &__row { animation: none; }
+    &__item--dup { display: none; }
+  }
+}
+
+/* Marquee del carrusel de categorias (solo <=374px). translateX(-50%) = un set
+   completo (los 6 items son 2 copias identicas de 3), por eso el bucle es exacto. */
+@keyframes cat-marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes cat-marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
 }
 
 /* ── Seccion generica ────────────────────────────────────────────────────────── */
@@ -221,12 +323,31 @@
   margin-right: auto;
   box-sizing: content-box;
 
-  &--tight { padding-top: 18px; }
+  /* Prototipo 7: la primera seccion (Categorias) "sube" curvada hacia el header.
+     Fondo del cliente + esquinas superiores redondeadas + margen negativo que la
+     mete sobre el pie del header -> costura curva. El fundido rojo del header
+     (::after) asoma bajo la curva. padding-top compensa el margen negativo para
+     que el contenido no quede tapado por el header. */
+  &--tight {
+    position: relative;
+    z-index: 5;
+    background: var(--client-bg);
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    margin-top: -6px;
+    padding-top: 24px;
+    /* Prototipo 61 (fundido rojo) integrado a la curva: un glow rojo de marca
+       que sube desde el borde superior de la hoja hacia el negro. El box-shadow
+       respeta el border-radius, asi el rojo TRAZA la curva en la costura.
+       offset/blur/spread calibrados para que NO se escape hacia abajo (sin el
+       "piso" bajo la seccion): borde inferior de la sombra = eB -10 -4 +13 = -1. */
+    box-shadow: 0 -10px 13px -4px rgba(225, 54, 66, 0.6);
+  }
 
   @media (min-width: 768px) {
     padding: 28px 32px 0;
 
-    &--tight { padding-top: 22px; }
+    &--tight { padding-top: 28px; }
   }
 
   &__row {
