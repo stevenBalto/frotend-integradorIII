@@ -12,20 +12,36 @@
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
 .home-header {
-  position: relative;
+  /* FIJO: el header + su marco (::after) quedan pegados arriba; el resto
+     scrollea normal y se oculta al llegar. Geometria calculada (padding-bottom
+     44/54 + lip 22) para que el marco y "Categorias" queden en la MISMA Y que el
+     diseno actual -> identico en reposo, solo que ahora es fijo. Sin sombra. */
+  position: sticky;
+  top: 0;
+  z-index: 12;
   background: var(--client-ink);
-  /* padding-bottom extendido + margin-bottom negativo: el negro se prolonga
-     hacia abajo DETRAS del contenido, para que las esquinas superiores
-     redondeadas de .home-section--tight caigan sobre negro (sin que se asome el
-     blanco de la pagina en los lados). El margin negativo cancela el alto extra,
-     asi no mueve el layout. */
-  padding: 30px 20px 56px;
-  margin-bottom: -34px;
+  padding: 30px 20px 44px;
   overflow: hidden;
-  box-shadow: 0 14px 24px -12px rgba(11, 11, 12, 0.4);
 
   @media (min-width: 768px) {
-    padding: 40px 32px 66px;
+    padding: 40px 32px 54px;
+  }
+
+  /* Marco = el mismo borde blanco redondeado + glow rojo de antes, ahora en el
+     filo inferior del header (dentro de su caja, bottom:0, asi el overflow no lo
+     corta) para viajar fijo con el. */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 22px;
+    background: var(--client-bg);
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    box-shadow: 0 -10px 13px -4px rgba(225, 54, 66, 0.6);
+    z-index: 2;
   }
 
   &::before {
@@ -79,6 +95,13 @@
 
     &:active { transform: scale(0.94); }
     ion-icon { font-size: 20px; color: var(--client-text); }
+
+    /* ≤425px: un pelin mas pequeno para pantallas angostas. */
+    @media (max-width: 425px) {
+      width: 36px;
+      height: 36px;
+      ion-icon { font-size: 18px; }
+    }
   }
 
   &__hero {
@@ -328,26 +351,21 @@
      mete sobre el pie del header -> costura curva. El fundido rojo del header
      (::after) asoma bajo la curva. padding-top compensa el margen negativo para
      que el contenido no quede tapado por el header. */
+  /* El marco (curva blanca + glow) lo dibuja ahora el header fijo (::after). Aca
+     la hoja va PLANA y por debajo del header; su contenido se oculta al llegar
+     al marco cuando scrolleas. padding-top calculado para que "Categorias" caiga
+     en la misma Y que el diseno actual. */
   &--tight {
     position: relative;
-    z-index: 5;
+    z-index: 1;
     background: var(--client-bg);
-    border-top-left-radius: 28px;
-    border-top-right-radius: 28px;
-    margin-top: -6px;
-    padding-top: 24px;
-    /* Prototipo 61 (fundido rojo) integrado a la curva: un glow rojo de marca
-       que sube desde el borde superior de la hoja hacia el negro. El box-shadow
-       respeta el border-radius, asi el rojo TRAZA la curva en la costura.
-       offset/blur/spread calibrados para que NO se escape hacia abajo (sin el
-       "piso" bajo la seccion): borde inferior de la sombra = eB -10 -4 +13 = -1. */
-    box-shadow: 0 -10px 13px -4px rgba(225, 54, 66, 0.6);
+    padding-top: 2px;
   }
 
   @media (min-width: 768px) {
     padding: 28px 32px 0;
 
-    &--tight { padding-top: 28px; }
+    &--tight { padding-top: 6px; }
   }
 
   &__row {
