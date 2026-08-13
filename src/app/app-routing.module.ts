@@ -44,13 +44,16 @@ const routes: Routes = [
       import('./superadmin/panel/superadmin-panel.module').then((m) => m.SuperadminPanelPageModule),
   },
   {
-    // Superadmin: CRUD de instancias (cuentas independientes).
-    path: 'superadmin/instancias',
+    // Superadmin: sedes del negocio (comparten menú y clientes; separan pedidos).
+    path: 'superadmin/sedes',
     loadChildren: () =>
-      import('./superadmin/instancias/superadmin-instancias.module').then(
-        (m) => m.SuperadminInstanciasPageModule,
+      import('./superadmin/sedes/superadmin-sedes.module').then(
+        (m) => m.SuperadminSedesPageModule,
       ),
   },
+  // La pestaña se llamaba "instancias" antes de que las sedes tuvieran su propio
+  // módulo: se redirige para no romper enlaces guardados.
+  { path: 'superadmin/instancias', redirectTo: 'superadmin/sedes', pathMatch: 'full' },
   { path: 'superadmin', redirectTo: 'superadmin/panel', pathMatch: 'full' },
   // La app ya no obliga a loguearse al abrir: se entra directo a la vitrina.
   // El login vive en la tab "Mi cuenta" para quien no tenga sesion.
