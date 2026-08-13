@@ -197,8 +197,8 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     { label: 'Parrilla', icon: 'assets/sistema/grill-rojo.svg' },
     { label: 'Pastas', icon: 'assets/sistema/pastas-rojo.svg' },
     { label: 'Bebidas', icon: 'assets/sistema/bebidas-rojo.svg' },
-    { label: 'Platillos', icon: 'assets/sistema/cubiertos-rojo.svg' },
-    { label: 'Combos', icon: 'assets/sistema/regalo-rojo.svg' },
+    { label: 'Ofertas', icon: 'assets/sistema/etiqueta-rojo.svg' },
+    { label: 'Cupones', icon: 'assets/sistema/ticket-rojo.svg' },
   ];
 
   // Selecciones del modal de detalle
