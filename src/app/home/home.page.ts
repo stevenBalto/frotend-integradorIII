@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, NgZone, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
@@ -24,7 +24,7 @@ import { Cupon } from '../core/models/cupon.model';
   styleUrls: ['home.page.scss'],
   standalone: false,
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   private auth = inject(AuthService);
   private productoService = inject(ProductoService);
   private ofertaService = inject(OfertaService);
@@ -33,6 +33,7 @@ export class HomePage implements OnInit {
   private resenaService = inject(ResenaService);
   private pedidoService = inject(PedidoService);
   private toast = inject(ToastController);
+  private zone = inject(NgZone);
 
   readonly usuario$: Observable<Usuario | null>;
 
@@ -44,6 +45,119 @@ export class HomePage implements OnInit {
 
   cargando = false;
   error: string | null = null;
+
+  /** Carrusel continuo de Destacados / Populares / Nuevos. En vez de animar por
+      CSS (que bloquea el scroll manual), se usa SCROLL NATIVO manejado por JS:
+      un loop rAF avanza `scrollLeft` a velocidad constante y va envolviendo en la
+      mitad (la lista se renderiza DUPLICADA -> bucle sin costura). Asi el usuario
+      puede arrastrar/scrollear a mano cuando quiera; al soltar (idle ~1.2s) el
+      auto continua. Se activa SOLO si las tarjetas desbordan (si no, estatico, no
+      se daña el diseño) y se respeta prefers-reduced-motion. Direccion:
+      Destacados +derecha (dir -1), Populares +izquierda (dir +1), Nuevos +derecha. */
+  destacadosMarquee = false;
+  popularesMarquee = false;
+  nuevosMarquee = false;
+  get destacadosLoop(): Producto[] { return [...this.destacados, ...this.destacados]; }
+  get popularesLoop(): Producto[] { return [...this.populares, ...this.populares]; }
+  get nuevosLoop(): Producto[] { return [...this.nuevos, ...this.nuevos]; }
+
+  private readonly MARQUEE_SPEED = 26; // px/s (lento, legible)
+  private marqueeObservers: ResizeObserver[] = [];
+  private marqueeCleanups: (() => void)[] = [];
+  private marqueeObserved = new WeakSet<HTMLElement>();
+
+  @ViewChildren('dishGridEl') private dishGrids?: QueryList<ElementRef<HTMLElement>>;
+
+  ngAfterViewInit(): void {
+    this.wireDishGrids();
+    this.dishGrids?.changes.subscribe(() => this.wireDishGrids());
+  }
+
+  /** Conecta cada .dish-grid (identificado por data-mq) con su motor de carrusel. */
+  private wireDishGrids(): void {
+    this.dishGrids?.forEach((ref) => {
+      const el = ref.nativeElement;
+      const k = el.dataset['mq'];
+      if (k === 'destacados') this.setupMarquee(el, -1, () => this.destacadosMarquee, (b) => (this.destacadosMarquee = b));
+      else if (k === 'populares') this.setupMarquee(el, +1, () => this.popularesMarquee, (b) => (this.popularesMarquee = b));
+      else if (k === 'nuevos') this.setupMarquee(el, -1, () => this.nuevosMarquee, (b) => (this.nuevosMarquee = b));
+    });
+  }
+
+  /** Motor de carrusel de una seccion: detecta overflow (ResizeObserver), avanza
+      scrollLeft por rAF, pausa mientras el usuario interactua y reanuda al soltar. */
+  private setupMarquee(host: HTMLElement, dir: number, getMq: () => boolean, setMq: (b: boolean) => void): void {
+    if (this.marqueeObserved.has(host)) return;
+    this.marqueeObserved.add(host);
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let pausado = false;
+    let idle: ReturnType<typeof setTimeout> | undefined;
+    let raf = 0;
+    const pausar = () => { pausado = true; };
+    const reanudarPronto = () => { if (idle) clearTimeout(idle); idle = setTimeout(() => { pausado = false; }, 1200); };
+    const onEnter = () => { pausado = true; };
+    const onLeave = () => { pausado = false; };
+    host.addEventListener('mouseenter', onEnter);
+    host.addEventListener('mouseleave', onLeave);
+    host.addEventListener('pointerdown', pausar);
+    host.addEventListener('pointerup', reanudarPronto);
+    host.addEventListener('touchstart', pausar, { passive: true });
+    host.addEventListener('touchend', reanudarPronto, { passive: true });
+    host.addEventListener('wheel', () => { pausado = true; reanudarPronto(); }, { passive: true });
+
+    const evaluar = () => {
+      const total = host.scrollWidth;
+      const unSet = getMq() ? total / 2 : total;            // si ya esta duplicado, un set = la mitad
+      const overflow = !reducido && unSet > host.clientWidth + 4;
+      this.zone.run(() => setMq(overflow));
+    };
+
+    let last = performance.now();
+    let pos = host.scrollLeft;   // acumulador FLOAT (scrollLeft se redondea; el sub-pixel se perderia)
+    const loop = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const half = host.scrollWidth / 2;
+      if (getMq() && half > 0) {
+        if (pausado) {
+          pos = host.scrollLeft;            // sincroniza con el scroll manual: al soltar, sigue desde ahi
+        } else {
+          pos += this.MARQUEE_SPEED * dt * dir;
+          // envolver en la mitad: como el contenido esta duplicado, el salto es invisible
+          if (pos >= half) pos -= half;
+          else if (pos < 0) pos += half;
+          host.scrollLeft = pos;
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+
+    this.zone.runOutsideAngular(() => {
+      const ro = new ResizeObserver(() => evaluar());
+      ro.observe(host);
+      this.marqueeObservers.push(ro);
+      setTimeout(evaluar, 80);
+      raf = requestAnimationFrame(loop);
+    });
+
+    this.marqueeCleanups.push(() => {
+      cancelAnimationFrame(raf);
+      if (idle) clearTimeout(idle);
+      host.removeEventListener('mouseenter', onEnter);
+      host.removeEventListener('mouseleave', onLeave);
+      host.removeEventListener('pointerdown', pausar);
+      host.removeEventListener('pointerup', reanudarPronto);
+      host.removeEventListener('touchstart', pausar);
+      host.removeEventListener('touchend', reanudarPronto);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.marqueeObservers.forEach((ro) => ro.disconnect());
+    this.marqueeCleanups.forEach((fn) => fn());
+    this.marqueeObservers = [];
+    this.marqueeCleanups = [];
+  }
 
   /** DEMO temporal: foto de relleno cuando el producto no tiene imagen_url real
       (ver assets/productos-demo/). Mismo id -> misma foto siempre. Quitar

@@ -112,7 +112,7 @@
     <div class="home-section__row">
       <span class="home-section__label">Destacados</span>
     </div>
-    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: destacados }"></ng-container>
+    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: destacados, loop: destacadosLoop, mq: destacadosMarquee, k: 'destacados' }"></ng-container>
   </div>
 
   <!-- Populares -->
@@ -120,7 +120,7 @@
     <div class="home-section__row">
       <span class="home-section__label">Populares</span>
     </div>
-    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: populares }"></ng-container>
+    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: populares, loop: popularesLoop, mq: popularesMarquee, k: 'populares' }"></ng-container>
   </div>
 
   <!-- Lo nuevo -->
@@ -128,7 +128,7 @@
     <div class="home-section__row">
       <span class="home-section__label">Lo nuevo</span>
     </div>
-    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: nuevos }"></ng-container>
+    <ng-container *ngTemplateOutlet="dishGrid; context: { lista: nuevos, loop: nuevosLoop, mq: nuevosMarquee, k: 'nuevos' }"></ng-container>
   </div>
 
   <p *ngIf="!cargando && !error && destacados.length === 0 && populares.length === 0 && nuevos.length === 0"
@@ -138,9 +138,12 @@
 
 </ion-content>
 
-<ng-template #dishGrid let-lista="lista">
-  <div class="dish-grid">
-    <article class="dish-card" *ngFor="let p of lista" (click)="abrirDetalle(p)">
+<ng-template #dishGrid let-lista="lista" let-loop="loop" let-mq="mq" let-k="k">
+  <div class="dish-grid" #dishGridEl [attr.data-mq]="k" [class.dish-grid--marquee]="mq">
+    <div class="dish-track">
+    <article class="dish-card" *ngFor="let p of (mq ? loop : lista); let i = index"
+             [attr.aria-hidden]="mq && i >= lista.length ? 'true' : null"
+             (click)="abrirDetalle(p)">
       <div class="dish-card__media">
         <img [src]="p.imagen_url || demoImagen(p.id)" [alt]="p.nombre" class="dish-card__img" loading="lazy" />
         <span class="dish-card__price">{{ p.precio_base | crcCurrency }}</span>
@@ -158,6 +161,7 @@
         </span>
       </div>
     </article>
+    </div>
   </div>
 </ng-template>
 

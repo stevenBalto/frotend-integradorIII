@@ -576,6 +576,15 @@
   }
 }
 
+/* Carrusel continuo de Destacados / Populares / Nuevos: es SCROLL NATIVO (no
+   animacion CSS) manejado por JS, asi permite arrastre manual y reanuda el auto
+   al soltar. La lista se renderiza DUPLICADA (bucle sin costura). El track es
+   display:contents -> las tarjetas participan del flex/grid del contenedor tal
+   cual (no cambia el diseno). Al activar el carrusel se quita el scroll-snap
+   para que el avance automatico sea fluido. */
+.dish-track { display: contents; }
+.dish-grid--marquee { scroll-snap-type: none; }
+
 .dish-card {
   display: flex;
   flex-direction: column;
