@@ -77,18 +77,25 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Secciones donde el header NO muestra titulo/subtitulo (ni el saludo del
-   * dashboard): limpieza de UX pedida. Pedidos y Pedido de mostrador conservan
-   * su encabezado (no estan en la lista).
+   * dashboard): limpieza de UX pedida. Pedidos conserva su encabezado (no
+   * esta en la lista).
    */
   private readonly seccionesSinTitulo = new Set<string>([
     'dashboard', 'inicio', 'menu', 'inventario', 'ofertas',
     'clientes', 'usuarios', 'analiticas', 'notificaciones',
-    'resenas', 'configuracion',
+    'resenas', 'configuracion', 'pedidos-mostrador',
     // 'configuracion' usa conservaTitulo (su lead es el chip de estado del negocio):
     // el chip se muestra igual, y kpimode oculta título/subtítulo en tablet+ (en móvil
     // el título sigue visible, como en el resto de secciones).
   ]);
   ocultarHeaderTexto = true;
+
+  /** Secciones donde el título NO se muestra NUNCA, ni en móvil (a diferencia del
+   *  resto de "kpimode", que sí lo muestran en móvil). Pedido de mostrador es una
+   *  sub-pantalla a la que solo se llega canjeando un código: su propio resumen del
+   *  canje (o nada, si no hay canje) ocupa ese lugar en vez de un título fijo. */
+  private readonly seccionesSinTituloSiempre = new Set<string>(['pedidos-mostrador']);
+  ocultarTituloSiempre = false;
 
   /** Titulo/subtitulo por seccion, replicando lo que mostraba cada admin-page-header. */
   private readonly secciones: Record<string, { titulo: string; subtitulo: string }> = {
@@ -283,6 +290,7 @@ export class AdminShellPage implements OnInit, AfterViewInit, OnDestroy {
     const id = url.split('?')[0].split('/').filter(Boolean)[1] ?? 'dashboard';
     this.esDashboard = id === 'dashboard';
     this.ocultarHeaderTexto = this.seccionesSinTitulo.has(id);
+    this.ocultarTituloSiempre = this.seccionesSinTituloSiempre.has(id);
     const sec = this.secciones[id];
     this.seccionTitulo = sec?.titulo ?? '';
     this.seccionSubtitulo = sec?.subtitulo ?? '';

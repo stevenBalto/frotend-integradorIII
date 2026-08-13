@@ -1,5 +1,45 @@
+/* En monitores anchos el contenido no se estira borde a borde: se centra con
+   un tope, igual de legible que las demas paginas (que no lo necesitan porque
+   usan tablas que sí aprovechan el ancho completo). Scopeado a esta página. */
+.admin-page { max-width: 1440px; margin: 0 auto; width: 100%; }
+
 .mostrador-hint { font-size: 12px; color: var(--admin-text-muted); margin: 0; }
 .mostrador-error { font-size: 12px; color: var(--rooster-red, #e13642); margin: 0 0 12px; }
+
+/* ── Resumen del canje en el header (tablet+) ───────────────────────────────
+   Ocupa el espacio del título que se quitó — el bloque de "Canje" ya no
+   empuja el catálogo/carrito hacia abajo por un dato tan chico. En móvil el
+   portal del header se oculta solo (admin-shell.page.scss) y se muestra la
+   tarjeta .mostrador-canje-movil de abajo. */
+.mostrador-canje-lead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--rooster-font-sans);
+
+  &__nombre { font-weight: 800; font-size: 14px; color: var(--admin-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__valor { font-weight: 700; font-size: 12px; color: var(--rooster-red, #e13642); flex-shrink: 0; }
+  &__detalle {
+    font-size: 12px;
+    color: var(--admin-text-muted);
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    /* Si no hay lugar, este es el primero en sacrificarse (el nombre/valor no). */
+    flex-shrink: 3;
+  }
+}
+
+.mostrador-canje-movil { display: block; }
+@media (min-width: 640px) {
+  .mostrador-canje-movil { display: none; }
+}
+
+/* Separa el bloque de acciones (error/botón/aviso) del formulario — sin esto
+   "Confirmar pedido" quedaba pegado justo debajo de "Notas". */
+.mostrador-acciones { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--admin-border); }
 
 .mostrador-cupon {
   display: flex;
@@ -56,23 +96,52 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 480px;
+  /* Relativo al viewport, como .admin-table-wrap en Menú (EF-27) — un valor fijo
+     en px se comía la mitad de la pantalla en celulares chicos. */
+  max-height: 50vh;
   overflow-y: auto;
+
+  @media (min-width: 1024px) {
+    max-height: 480px;
+  }
 }
 
 .mostrador-producto {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 8px 10px;
   border: 1px solid var(--admin-border);
   border-radius: 10px;
   background: #fff;
+  transition: border-color 0.15s, background 0.15s;
 
-  &--oferta { border-color: var(--rooster-red, #e13642); background: rgba(225, 54, 66, 0.04); }
+  &:hover { border-color: var(--admin-neutral3, #d4d4d4); background: var(--admin-neutral1, #fafafa); }
 
-  &__info { flex: 1; min-width: 0; }
-  &__nombre { font-size: 13px; font-weight: 600; margin: 0; color: var(--admin-text); display: flex; align-items: center; gap: 6px; }
+  &--oferta {
+    border-color: var(--rooster-red, #e13642);
+    background: rgba(225, 54, 66, 0.04);
+    &:hover { background: rgba(225, 54, 66, 0.07); }
+  }
+
+  /* Miniatura: mismo tratamiento que la fila de Menú (icono placeholder si no hay foto). */
+  &__thumb {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--admin-neutral1, #f5f5f4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon { font-size: 16px; color: var(--admin-neutral4, #a3a3a3); }
+    img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+  }
+
+  &__info { flex: 1 1 auto; min-width: 140px; }
+  &__nombre { font-size: 13px; font-weight: 600; margin: 0; color: var(--admin-text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   &__tag {
     font-size: 9px;
     font-weight: 800;
@@ -92,6 +161,21 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     background: #fdfcfb;
     color: var(--admin-text);
   }
+
+  /* Bloque tamaño+botón con ancho fijo: sin esto, en filas sin selector de
+     tamaño el botón "+" queda pegado al nombre, y en filas CON selector queda
+     con un salto enorme respecto a las que no lo tienen. Ancho fijo = todas
+     las filas alinean su botón en la misma columna, prolijo como una tabla. */
+  &__controles {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 160px;
+    justify-content: flex-end;
+  }
+  &__select { flex: 1 1 auto; min-width: 0; }
+
   &__add {
     width: 32px;
     height: 32px;
@@ -109,21 +193,32 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     &:active { transform: scale(0.92); }
     ion-icon { font-size: 16px; }
   }
+
+  /* ≤480px: la columna fija de controles ya no cabe junto al nombre. Todo
+     pasa a ancho completo en su propia fila. */
+  @media (max-width: 480px) {
+    &__info { flex-basis: 100%; order: 1; }
+    &__controles { width: 100%; order: 2; justify-content: flex-start; }
+  }
 }
 
 .mostrador-linea {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 8px 0;
   border-bottom: 1px solid var(--admin-border);
 
+  &__info { flex: 1 1 auto; min-width: 140px; }
   &__nombre { font-size: 13px; font-weight: 600; margin: 0; color: var(--admin-text); }
   &__precio { font-size: 11px; color: var(--admin-text-muted); margin: 2px 0 0; }
   &__qty {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
 
     button {
       width: 24px;
@@ -168,7 +263,7 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px;
+  padding: 10px 6px;
   border-radius: 10px;
   border: 1.5px solid var(--admin-border);
   background: #fdfcfb;
@@ -177,9 +272,10 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
   font-family: inherit;
   color: var(--admin-text);
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.15s;
 
-  ion-icon { font-size: 15px; }
+  ion-icon { font-size: 15px; flex-shrink: 0; }
 
   &--active {
     border-color: var(--rooster-red, #e13642);
@@ -187,15 +283,60 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     color: var(--rooster-red, #e13642);
   }
 }
+/* Muy angosto (celular chico, tarjeta a 100%): el texto ya no entra junto al
+   icono en las dos pastillas a la vez, se apila. */
+@media (max-width: 360px) {
+  .mostrador-form__modalidad { flex-direction: column; }
+}
 
 .mostrador-confirm {
   text-align: center;
-  padding: 12px 0;
 
   &__codigo { font-size: 26px; font-weight: 900; letter-spacing: 1px; color: var(--rooster-red, #e13642); margin: 0 0 6px; }
-  &__total { font-size: 14px; color: var(--admin-text-muted); margin: 0 0 16px; }
-  &__actions { display: flex; gap: 10px; justify-content: center; }
+  &__total { font-size: 14px; color: var(--admin-text-muted); margin: 0 0 18px; }
 }
+
+/* ── Modal de confirmación de pedido (mismos tokens que "Canjear código" en
+   Ofertas y cupones — .order-modal*) ────────────────────────────────────── */
+.order-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: var(--rooster-font-sans, sans-serif);
+}
+.order-modal__backdrop { position: absolute; inset: 0; background: rgba(30, 30, 30, 0.55); }
+.order-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+}
+.order-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--admin-sidebar, #1e1e1e);
+  color: #fff;
+  flex-shrink: 0;
+}
+.order-modal__title { font-weight: 700; font-size: 15px; margin: 0; color: #fff; }
+.order-modal__close {
+  background: none; border: none; color: #fff; cursor: pointer;
+  display: flex; align-items: center; font-size: 18px;
+}
+.order-modal__body { padding: 24px 20px; overflow-y: auto; min-height: 0; flex: 1; }
 
 /* Los <select> del panel van mas redondeados que los inputs de texto (12px). */
 select.of-form__input {

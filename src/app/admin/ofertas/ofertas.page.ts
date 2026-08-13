@@ -819,7 +819,9 @@ export class AdminOfertasPage implements OnInit {
     if (!this.canjeCupon) {
       return;
     }
-    void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { cupon: this.canjeCupon.codigo } });
+    const codigo = this.canjeCupon.codigo;
+    this.cerrarCanjear();
+    void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { cupon: codigo } });
   }
 
   /** Arma el pedido de mostrador con la oferta ya validada. */
@@ -827,7 +829,9 @@ export class AdminOfertasPage implements OnInit {
     if (!this.canjeOferta) {
       return;
     }
-    void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { oferta: this.canjeOferta.id } });
+    const ofertaId = this.canjeOferta.id;
+    this.cerrarCanjear();
+    void this.router.navigate(['/admin/pedidos-mostrador'], { queryParams: { oferta: ofertaId } });
   }
 
   // ── Formateo / helpers de vista ───────────────────────────────────

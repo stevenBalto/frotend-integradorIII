@@ -256,6 +256,11 @@
    oculta (regla de arriba dentro del @media). */
 .admin-header__left--kpimode .admin-header__meta,
 .admin-header__left--kpimode .admin-header__submeta { display: none; }
+
+/* Secciones "sintitulo": a diferencia de "kpimode", el título tampoco se
+   muestra en móvil (Pedido de mostrador — no hay nada fijo que titular, su
+   propio resumen del canje ocupa ese lugar en tablet+, o queda limpio). */
+.admin-header__left--sintitulo .admin-header__titlewrap { display: none; }
 .admin-header__meta {
   display: flex;
   align-items: center;

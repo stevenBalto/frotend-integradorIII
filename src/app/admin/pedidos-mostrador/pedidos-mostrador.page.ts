@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProductoService } from '../../core/services/producto.service';
@@ -33,7 +34,7 @@ interface LineaMostrador {
   styleUrls: ['./pedidos-mostrador.page.scss'],
   standalone: false,
 })
-export class PedidosMostradorPage implements OnInit {
+export class PedidosMostradorPage implements ViewWillEnter {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productoService = inject(ProductoService);
@@ -68,7 +69,17 @@ export class PedidosMostradorPage implements OnInit {
 
   private productosListos = false;
 
-  ngOnInit(): void {
+  /**
+   * Ionic cachea esta página (IonicRouteStrategy): si se entra dos veces (ej.
+   * escaneando un código, volviendo a Ofertas y escaneando otro), Angular NO
+   * vuelve a correr ngOnInit — reusa la misma instancia. Sin este hook se veía
+   * un instante el carrito/canje de la visita anterior antes de refrescar
+   * ("carga con las dimensiones de antes y ya"). ionViewWillEnter sí dispara
+   * cada vez, incluida la primera entrada — reemplaza a ngOnInit por completo.
+   */
+  ionViewWillEnter(): void {
+    this.resetEstado();
+
     this.productoService.listarDisponibles().subscribe({
       next: (p) => {
         this.productos = p;
@@ -97,13 +108,37 @@ export class PedidosMostradorPage implements OnInit {
     }
   }
 
+  /** Vuelve la página al estado inicial antes de recargar — evita arrastrar el
+   *  carrito/canje de una visita anterior a esta misma instancia cacheada. */
+  private resetEstado(): void {
+    this.productos = [];
+    this.sucursales = [];
+    this.busqueda = '';
+    this.lineas = [];
+    this.nombreCliente = '';
+    this.sucursalId = null;
+    this.modalidad = 'comer_aqui';
+    this.notas = '';
+    this.cuponCodigo = null;
+    this.cupon = null;
+    this.ofertaId = null;
+    this.oferta = null;
+    this.cargandoCanje = false;
+    this.errorCanje = null;
+    this.enviando = false;
+    this.errorEnvio = null;
+    this.pedidoCreado = null;
+    this.productosListos = false;
+  }
+
   /**
    * Cuando se canjea una OFERTA, sus productos ya fueron elegidos al crearla
    * (checklist de "Productos incluidos") — no tiene sentido pedirle al staff que
-   * los busque de nuevo. Se agregan solos al carrito (cantidad 1) apenas están
-   * listos tanto el catálogo como la oferta. Los productos con tamaños quedan
-   * para que el staff elija el tamaño manualmente (queda resaltado con el tag
-   * "oferta" en la lista) porque no hay forma de adivinar cuál quiere el cliente.
+   * los busque de nuevo. Se agregan TODOS solos al carrito (cantidad 1) apenas
+   * están listos tanto el catálogo como la oferta, para que el staff solo tenga
+   * que registrar el pedido. Los que tienen tamaños entran con el primero de la
+   * lista por defecto (queda resaltado con el tag "oferta"); el staff lo puede
+   * ajustar como cualquier línea del carrito si el cliente pidió otro tamaño.
    */
   private autoAgregarProductosDeOferta(): void {
     if (!this.productosListos || !this.oferta || this.lineas.length > 0) {
@@ -111,15 +146,18 @@ export class PedidosMostradorPage implements OnInit {
     }
 
     const idsOferta = this.oferta.productos.map((p) => p.id);
-    const productosSinTamano = this.productos.filter((p) => idsOferta.includes(p.id) && p.tamanos.length === 0);
+    const productosDeLaOferta = this.productos.filter((p) => idsOferta.includes(p.id));
 
-    this.lineas = productosSinTamano.map((producto) => ({
-      producto,
-      productoTamanoId: null,
-      tamanoNombre: null,
-      precioUnitario: producto.precio_base,
-      cantidad: 1,
-    }));
+    this.lineas = productosDeLaOferta.map((producto) => {
+      const tamano = producto.tamanos.length > 0 ? producto.tamanos[0] : null;
+      return {
+        producto,
+        productoTamanoId: tamano?.id ?? null,
+        tamanoNombre: tamano?.nombre ?? null,
+        precioUnitario: tamano?.precio ?? producto.precio_base,
+        cantidad: 1,
+      };
+    });
   }
 
   private validarCupon(codigo: string): void {
@@ -232,13 +270,15 @@ export class PedidosMostradorPage implements OnInit {
     return this.subtotal - this.descuentoEstimado;
   }
 
+  /** Campos requeridos completos, sin importar si ya se está enviando. Controla si el
+   *  botón/aviso se muestran — separado de `puedeConfirmar` para que el botón no
+   *  desaparezca (y el aviso "falta el nombre" no aparezca por error) mientras carga. */
+  get camposCompletos(): boolean {
+    return this.lineas.length > 0 && this.sucursalId !== null && this.nombreCliente.trim().length > 0;
+  }
+
   get puedeConfirmar(): boolean {
-    return (
-      !this.enviando &&
-      this.lineas.length > 0 &&
-      this.sucursalId !== null &&
-      this.nombreCliente.trim().length > 0
-    );
+    return !this.enviando && this.camposCompletos;
   }
 
   confirmar(): void {
@@ -280,15 +320,10 @@ export class PedidosMostradorPage implements OnInit {
     void this.router.navigate(['/admin/pedidos']);
   }
 
-  nuevoPedido(): void {
-    this.lineas = [];
-    this.nombreCliente = '';
-    this.notas = '';
-    this.cuponCodigo = null;
-    this.cupon = null;
-    this.ofertaId = null;
-    this.oferta = null;
-    this.pedidoCreado = null;
+  /** Cierra la confirmación (X o click afuera). Sin un cupón/oferta nuevo no hay nada
+   *  más que armar acá — vuelve a Ofertas y cupones para el próximo canje. */
+  cerrarConfirmacion(): void {
+    void this.router.navigate(['/admin/ofertas']);
   }
 
   private primerError(err: HttpErrorResponse): string {

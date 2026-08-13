@@ -11,9 +11,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       [class.admin-btn--outline]="outline"
       [class.admin-btn--small]="small"
       [class.admin-btn--icon]="iconOnly"
+      [disabled]="disabled"
       [attr.aria-label]="ariaLabel || null"
       [attr.title]="ariaLabel || null"
-      (click)="clicked.emit()"
+      (click)="!disabled && clicked.emit()"
     >
       <ng-content></ng-content>
     </button>
@@ -53,6 +54,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       justify-content: center;
     }
     .admin-btn--icon ion-icon { font-size: 16px; }
+    .admin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .admin-btn:disabled:active { transform: none; }
   `],
 })
 export class AdminBtnComponent {
@@ -62,5 +65,7 @@ export class AdminBtnComponent {
   @Input() iconOnly = false;
   /** Etiqueta accesible + tooltip cuando el botón va sin texto. */
   @Input() ariaLabel = '';
+  /** Deshabilita el botón sin ocultarlo (ej. mientras se envía un formulario). */
+  @Input() disabled = false;
   @Output() clicked = new EventEmitter<void>();
 }
