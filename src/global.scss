@@ -605,12 +605,12 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   justify-content: center;
   animation: rooster-fade var(--rooster-ease-fast) both;
 }
-@media (min-width: 768px) {
+@media (min-width: 400px) {
   .buscar-modal { align-items: center; padding: 16px; height: 100dvh; }
 }
 /* En telefono el panel llega hasta abajo (fondo blanco), pero su CONTENIDO
    reserva el alto del tab bar flotante para no quedar tapado por las opciones. */
-@media (max-width: 767.98px) {
+@media (max-width: 399.98px) {
   .buscar-modal__panel { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
 }
 /* El tab bar (Home/Carrito/Ofertas/Mi cuenta) sigue VISIBLE encima del backdrop
@@ -639,7 +639,7 @@ body.buscar-modal-open ion-tab-bar { pointer-events: none; }
   box-shadow: var(--rooster-shadow-xl);
   animation: rooster-rise var(--rooster-ease-med) both;
 }
-@media (min-width: 768px) {
+@media (min-width: 400px) {
   .buscar-modal__panel { border-radius: var(--rooster-radius-lg); }
 }
 .buscar-modal__header {
