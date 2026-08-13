@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Oferta } from '../core/models/oferta.model';
 import { Cupon } from '../core/models/cupon.model';
 import { OfertaService } from '../core/services/oferta.service';
@@ -33,6 +34,7 @@ interface CouponCard {
 export class OfertasPage implements OnInit {
   private readonly ofertaService = inject(OfertaService);
   private readonly cuponService = inject(CuponService);
+  private readonly route = inject(ActivatedRoute);
 
   tab: OfferTab = 'ofertas';
 
@@ -56,6 +58,14 @@ export class OfertasPage implements OnInit {
   ngOnInit(): void {
     this.cargarOfertas();
     this.cargarCupones();
+
+    // Panel pedido desde el Home (?panel=ofertas|cupones) -> abre esa pestana.
+    this.route.queryParamMap.subscribe((pm) => {
+      const panel = pm.get('panel');
+      if (panel === 'ofertas' || panel === 'cupones') {
+        this.tab = panel;
+      }
+    });
   }
 
   cargarOfertas(): void {

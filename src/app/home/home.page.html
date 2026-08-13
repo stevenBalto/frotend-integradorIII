@@ -24,14 +24,15 @@
            marquee lento con las pills CON texto; los --dup se muestran para que
            el bucle no tenga costura. -->
       <div class="cat-rail__row">
-        <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas | slice:0:3" routerLink="/tabs/pedir">
+        <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas | slice:0:3"
+           (click)="irACategoria(c, $event)" (keyup.enter)="irACategoria(c, $event)" role="button" tabindex="0">
           <span class="cat-rail__badge-wrap">
             <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
           </span>
           <span class="cat-rail__label">{{ c.label }}</span>
         </a>
         <a class="cat-rail__item cat-rail__item--dup" *ngFor="let c of categoriasDestacadas | slice:0:3"
-           routerLink="/tabs/pedir" aria-hidden="true" tabindex="-1">
+           (click)="irACategoria(c, $event)" aria-hidden="true" tabindex="-1">
           <span class="cat-rail__badge-wrap">
             <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
           </span>
@@ -39,14 +40,15 @@
         </a>
       </div>
       <div class="cat-rail__row">
-        <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas | slice:3:6" routerLink="/tabs/pedir">
+        <a class="cat-rail__item" *ngFor="let c of categoriasDestacadas | slice:3:6"
+           (click)="irACategoria(c, $event)" (keyup.enter)="irACategoria(c, $event)" role="button" tabindex="0">
           <span class="cat-rail__badge-wrap">
             <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
           </span>
           <span class="cat-rail__label">{{ c.label }}</span>
         </a>
         <a class="cat-rail__item cat-rail__item--dup" *ngFor="let c of categoriasDestacadas | slice:3:6"
-           routerLink="/tabs/pedir" aria-hidden="true" tabindex="-1">
+           (click)="irACategoria(c, $event)" aria-hidden="true" tabindex="-1">
           <span class="cat-rail__badge-wrap">
             <img [src]="c.icon" [alt]="c.label" class="cat-rail__badge" />
           </span>

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -36,6 +36,9 @@ export class PedirPage implements OnInit, OnDestroy {
   private resenaService = inject(ResenaService);
   private toast = inject(ToastController);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  /** Categoria pedida desde el Home (?cat=...) para autoseleccionar el filtro. */
+  private catPendiente: string | null = null;
   private confirm = inject(ConfirmService);
 
   private destroy$ = new Subject<void>();
@@ -122,6 +125,16 @@ export class PedirPage implements OnInit, OnDestroy {
     this.cargarCategorias();
     this.cargarProductos();
 
+    // Categoria pedida desde el Home (?cat=Pizza|Grill|Pastas|Bebidas): se
+    // autoselecciona el filtro cuando ya cargaron las categorias.
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((pm) => {
+      const cat = pm.get('cat');
+      if (cat) {
+        this.catPendiente = cat;
+        this.aplicarCatPendiente();
+      }
+    });
+
     // El nombre del usuario logueado aparece solo como placeholder (texto fantasma);
     // el campo arranca vacio y es obligatorio confirmarlo antes de pagar.
     const usuario = this.auth.usuario;
@@ -201,8 +214,21 @@ export class PedirPage implements OnInit, OnDestroy {
       .subscribe({
         next: (categorias) => {
           this.categorias = categorias;
+          this.aplicarCatPendiente();
         },
       });
+  }
+
+  /** Selecciona el filtro de la categoria pedida desde el Home (match por nombre). */
+  private aplicarCatPendiente(): void {
+    if (!this.catPendiente || this.categorias.length === 0) {
+      return;
+    }
+    const cat = this.categorias.find((x) => x.nombre.toLowerCase() === this.catPendiente!.toLowerCase());
+    if (cat) {
+      this.seleccionarCategoria(cat.id);
+    }
+    this.catPendiente = null;
   }
 
   private cargarProductos(): void {

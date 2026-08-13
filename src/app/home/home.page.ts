@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, inject, NgZone, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
@@ -34,6 +35,7 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   private pedidoService = inject(PedidoService);
   private toast = inject(ToastController);
   private zone = inject(NgZone);
+  private router = inject(Router);
 
   readonly usuario$: Observable<Usuario | null>;
 
@@ -192,14 +194,59 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
 
   /** Rail de categorias de marca (decorativo, enlaza al menu). Iconos reales
       de assets/sistema/*-rojo.svg — no depende de datos del backend. */
-  readonly categoriasDestacadas = [
-    { label: 'Pizza', icon: 'assets/sistema/pizza-rojo.svg' },
-    { label: 'Parrilla', icon: 'assets/sistema/grill-rojo.svg' },
-    { label: 'Pastas', icon: 'assets/sistema/pastas-rojo.svg' },
-    { label: 'Bebidas', icon: 'assets/sistema/bebidas-rojo.svg' },
-    { label: 'Ofertas', icon: 'assets/sistema/etiqueta-rojo.svg' },
-    { label: 'Cupones', icon: 'assets/sistema/ticket-rojo.svg' },
+  readonly categoriasDestacadas: { label: string; icon: string; tab: 'pedir' | 'ofertas'; cat?: string; panel?: 'ofertas' | 'cupones' }[] = [
+    { label: 'Pizza', icon: 'assets/sistema/pizza-rojo.svg', tab: 'pedir', cat: 'Pizza' },
+    { label: 'Parrilla', icon: 'assets/sistema/grill-rojo.svg', tab: 'pedir', cat: 'Grill' },
+    { label: 'Pastas', icon: 'assets/sistema/pastas-rojo.svg', tab: 'pedir', cat: 'Pastas' },
+    { label: 'Bebidas', icon: 'assets/sistema/bebidas-rojo.svg', tab: 'pedir', cat: 'Bebidas' },
+    { label: 'Ofertas', icon: 'assets/sistema/etiqueta-rojo.svg', tab: 'ofertas', panel: 'ofertas' },
+    { label: 'Cupones', icon: 'assets/sistema/ticket-rojo.svg', tab: 'ofertas', panel: 'cupones' },
   ];
+
+  /** Al tocar una categoria: el badge se encoge un instante, crece y "sale" del
+      div, y cae animado hasta el boton del tab bar al que pertenece; al terminar
+      navega a esa seccion y le hace focus (categoria en Carrito, o panel en
+      Ofertas). Respeta prefers-reduced-motion (navega directo, sin animacion). */
+  irACategoria(c: { tab: 'pedir' | 'ofertas'; cat?: string; panel?: 'ofertas' | 'cupones' }, ev: Event): void {
+    ev.preventDefault();
+    const item = ev.currentTarget as HTMLElement | null;
+    const badge = item?.querySelector('.cat-rail__badge-wrap') as HTMLElement | null;
+    const tabBtn = document.querySelector(`ion-tab-button[tab="${c.tab}"]`) as HTMLElement | null;
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!badge || !tabBtn || reducido) { this.navegarCategoria(c); return; }
+
+    const b = badge.getBoundingClientRect();
+    const t = tabBtn.getBoundingClientRect();
+    const clone = badge.cloneNode(true) as HTMLElement;
+    Object.assign(clone.style, {
+      position: 'fixed', left: `${b.left}px`, top: `${b.top}px`,
+      width: `${b.width}px`, height: `${b.height}px`, margin: '0',
+      zIndex: '99999', pointerEvents: 'none', borderRadius: '50%',
+    });
+    document.body.appendChild(clone);
+
+    const dx = (t.left + t.width / 2) - (b.left + b.width / 2);
+    const dy = (t.top + t.height / 2) - (b.top + b.height / 2);
+    const anim = clone.animate([
+      { transform: 'translate(0,0) scale(1)', opacity: 1, offset: 0 },
+      { transform: 'translate(0,0) scale(0.72)', opacity: 1, offset: 0.15 },     // instante pequeno
+      { transform: 'translate(0,0) scale(1.75)', opacity: 1, offset: 0.42 },     // grande, sale del div
+      { transform: `translate(${dx * 0.45}px, ${dy * 0.28}px) scale(1.5)`, opacity: 1, offset: 0.6 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.32)`, opacity: 0.85, offset: 1 }, // cae al tab bar
+    ], { duration: 950, easing: 'cubic-bezier(.5,.05,.4,1)', fill: 'forwards' });
+
+    anim.onfinish = () => { clone.remove(); this.navegarCategoria(c); };
+    anim.oncancel = () => { clone.remove(); };
+  }
+
+  private navegarCategoria(c: { tab: 'pedir' | 'ofertas'; cat?: string; panel?: 'ofertas' | 'cupones' }): void {
+    if (c.tab === 'ofertas') {
+      void this.router.navigate(['/tabs/ofertas'], { queryParams: { panel: c.panel } });
+    } else {
+      void this.router.navigate(['/tabs/pedir'], { queryParams: { cat: c.cat } });
+    }
+  }
 
   // Selecciones del modal de detalle
   tamanoSeleccionado: ProductoTamano | null = null;
