@@ -63,7 +63,7 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   get popularesLoop(): Producto[] { return [...this.populares, ...this.populares]; }
   get nuevosLoop(): Producto[] { return [...this.nuevos, ...this.nuevos]; }
 
-  private readonly MARQUEE_SPEED = 26; // px/s (lento, legible)
+  private readonly MARQUEE_SPEED = 18; // px/s: igual para los 3 carruseles, lento para que no maree pero fluido (rAF)
   private marqueeObservers: ResizeObserver[] = [];
   private marqueeCleanups: (() => void)[] = [];
   private marqueeObserved = new WeakSet<HTMLElement>();
@@ -80,9 +80,10 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     this.dishGrids?.forEach((ref) => {
       const el = ref.nativeElement;
       const k = el.dataset['mq'];
-      if (k === 'destacados') this.setupMarquee(el, -1, () => this.destacadosMarquee, (b) => (this.destacadosMarquee = b));
-      else if (k === 'populares') this.setupMarquee(el, +1, () => this.popularesMarquee, (b) => (this.popularesMarquee = b));
-      else if (k === 'nuevos') this.setupMarquee(el, -1, () => this.nuevosMarquee, (b) => (this.nuevosMarquee = b));
+      // dir con transform: +1 = derecha, -1 = izquierda.
+      if (k === 'destacados') this.setupMarquee(el, +1, () => this.destacadosMarquee, (b) => (this.destacadosMarquee = b));
+      else if (k === 'populares') this.setupMarquee(el, -1, () => this.popularesMarquee, (b) => (this.popularesMarquee = b));
+      else if (k === 'nuevos') this.setupMarquee(el, +1, () => this.nuevosMarquee, (b) => (this.nuevosMarquee = b));
     });
   }
 
@@ -92,51 +93,100 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     if (this.marqueeObserved.has(host)) return;
     this.marqueeObserved.add(host);
     const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const track = host.querySelector('.dish-track') as HTMLElement | null;
 
     let pausado = false;
     let idle: ReturnType<typeof setTimeout> | undefined;
     let raf = 0;
-    const pausar = () => { pausado = true; };
-    const reanudarPronto = () => { if (idle) clearTimeout(idle); idle = setTimeout(() => { pausado = false; }, 1200); };
+    let offset = 0;   // px de translateX del track; rango (-period, 0]
+    let period = 0;   // ancho de UN set (con su gap): el bucle envuelve aqui
+    const reanudar = () => { if (idle) clearTimeout(idle); idle = setTimeout(() => { pausado = false; }, 1000); };
+
+    // Pausa al pasar el mouse (desktop) o con la rueda.
     const onEnter = () => { pausado = true; };
     const onLeave = () => { pausado = false; };
     host.addEventListener('mouseenter', onEnter);
     host.addEventListener('mouseleave', onLeave);
-    host.addEventListener('pointerdown', pausar);
-    host.addEventListener('pointerup', reanudarPronto);
-    host.addEventListener('touchstart', pausar, { passive: true });
-    host.addEventListener('touchend', reanudarPronto, { passive: true });
-    host.addEventListener('wheel', () => { pausado = true; reanudarPronto(); }, { passive: true });
+    host.addEventListener('wheel', () => { pausado = true; reanudar(); }, { passive: true });
+
+    // Movemos el track con transform (sub-pixel, GPU) -> fluido, sin los saltos de
+    // 1px que da scrollLeft (que solo acepta enteros). El bucle envuelve en `period`.
+    const wrap = (o: number): number => {
+      if (period <= 0) return 0;
+      let m = o % period;
+      if (m > 0) m -= period;   // mantiene el rango (-period, 0]
+      return m;
+    };
+    const apply = () => { if (track) track.style.transform = `translate3d(${offset}px,0,0)`; };
+
+    // Ancho de un set = offsetLeft del 1er item de la 2a copia (exacto, con su gap).
+    const medirPeriodo = (): number => {
+      if (!track) return 0;
+      const kids = track.children;
+      const n = Math.floor(kids.length / 2);
+      const el = kids[n] as HTMLElement | undefined;
+      return el ? el.offsetLeft : track.scrollWidth / 2;
+    };
+
+    // Arrastre manual con puntero (en modo carrusel ya no hay scroll nativo):
+    // sigue el dedo y, al soltar, el carrusel continua desde donde quedo.
+    let dragging = false;
+    let startX = 0;
+    let startOffset = 0;
+    let moved = false;
+    const onDown = (e: PointerEvent) => {
+      if (!getMq()) return;
+      dragging = true; pausado = true; moved = false;
+      startX = e.clientX; startOffset = offset;
+      host.setPointerCapture?.(e.pointerId);
+    };
+    const onMoveP = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      offset = wrap(startOffset + dx);
+      apply();
+    };
+    const onUpP = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (moved) {
+        // Evita que el arrastre dispare el (click) de la tarjeta.
+        const block = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); host.removeEventListener('click', block, true); };
+        host.addEventListener('click', block, true);
+        setTimeout(() => host.removeEventListener('click', block, true), 80);
+      }
+      reanudar();
+    };
+    host.addEventListener('pointerdown', onDown);
+    host.addEventListener('pointermove', onMoveP);
+    host.addEventListener('pointerup', onUpP);
+    host.addEventListener('pointercancel', onUpP);
 
     const evaluar = () => {
-      const total = host.scrollWidth;
-      const unSet = getMq() ? total / 2 : total;            // si ya esta duplicado, un set = la mitad
+      const unSet = getMq() ? medirPeriodo() : host.scrollWidth;   // un set overflowea?
       const overflow = !reducido && unSet > host.clientWidth + 4;
+      period = getMq() ? unSet : 0;
       this.zone.run(() => setMq(overflow));
     };
 
     let last = performance.now();
-    let pos = host.scrollLeft;   // acumulador FLOAT (scrollLeft se redondea; el sub-pixel se perderia)
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      const half = host.scrollWidth / 2;
-      if (getMq() && half > 0) {
-        if (pausado) {
-          pos = host.scrollLeft;            // sincroniza con el scroll manual: al soltar, sigue desde ahi
-        } else {
-          pos += this.MARQUEE_SPEED * dt * dir;
-          // envolver en la mitad: como el contenido esta duplicado, el salto es invisible
-          if (pos >= half) pos -= half;
-          else if (pos < 0) pos += half;
-          host.scrollLeft = pos;
+      if (getMq() && track) {
+        if (period <= 0) period = medirPeriodo();   // re-mide tras cargar imgs
+        if (!pausado && !dragging && period > 0) {
+          offset = wrap(offset + this.MARQUEE_SPEED * dt * dir);
+          apply();
         }
       }
       raf = requestAnimationFrame(loop);
     };
 
     this.zone.runOutsideAngular(() => {
-      const ro = new ResizeObserver(() => evaluar());
+      const ro = new ResizeObserver(() => { period = 0; evaluar(); });
       ro.observe(host);
+      if (track) ro.observe(track);
       this.marqueeObservers.push(ro);
       setTimeout(evaluar, 80);
       raf = requestAnimationFrame(loop);
@@ -147,10 +197,10 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
       if (idle) clearTimeout(idle);
       host.removeEventListener('mouseenter', onEnter);
       host.removeEventListener('mouseleave', onLeave);
-      host.removeEventListener('pointerdown', pausar);
-      host.removeEventListener('pointerup', reanudarPronto);
-      host.removeEventListener('touchstart', pausar);
-      host.removeEventListener('touchend', reanudarPronto);
+      host.removeEventListener('pointerdown', onDown);
+      host.removeEventListener('pointermove', onMoveP);
+      host.removeEventListener('pointerup', onUpP);
+      host.removeEventListener('pointercancel', onUpP);
     });
   }
 

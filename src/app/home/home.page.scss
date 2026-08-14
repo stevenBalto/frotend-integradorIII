@@ -583,7 +583,25 @@
    cual (no cambia el diseno). Al activar el carrusel se quita el scroll-snap
    para que el avance automatico sea fluido. */
 .dish-track { display: contents; }
-.dish-grid--marquee { scroll-snap-type: none; }
+
+/* Modo carrusel: el track deja de ser display:contents y pasa a ser una fila flex
+   que movemos con transform (sub-pixel, por GPU -> fluido, sin los saltos de 1px
+   del scrollLeft). El grid quita el scroll nativo (overflow hidden) y el arrastre
+   manual lo maneja el TS; touch-action pan-y deja pasar el scroll vertical. */
+.dish-grid--marquee {
+  overflow: hidden;
+  scroll-snap-type: none;
+  touch-action: pan-y;
+
+  .dish-track {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 14px;
+    width: max-content;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+}
 
 .dish-card {
   display: flex;
