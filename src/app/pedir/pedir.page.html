@@ -38,11 +38,7 @@
             (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
         </div>
       </div>
-
-      <button type="button" class="pedir-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
-        <ion-icon name="receipt-outline"></ion-icon>
-      </button>
-      <img src="assets/logo/rooster-logo.png" alt="Rooster" class="pedir-menu-head__logo pedir-header__logo" />
+      <!-- Buscar-pedido y logo se quitaron de aqui: ya viven en el header (.home-header). -->
     </div>
 
     <!-- Estados de carga/error -->
