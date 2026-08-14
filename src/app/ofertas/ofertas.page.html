@@ -28,6 +28,7 @@
           <p class="oferta-card__name">{{ oferta.name }}</p>
           <p class="oferta-card__badge">{{ oferta.badge }}</p>
           <p class="oferta-card__price">{{ oferta.price }}</p>
+          <p class="oferta-card__sedes">{{ oferta.sedesTexto }}</p>
           <button type="button" class="oferta-card__btn" [style.background]="oferta.color" (click)="verQrOferta(oferta)">Ver código</button>
         </div>
       </div>
@@ -62,6 +63,7 @@
           </div>
           <p class="cupon-card__desc">{{ cup.desc }}</p>
           <p class="cupon-card__expira">{{ cup.expira }}</p>
+          <p class="cupon-card__sedes">{{ cup.sedesTexto }}</p>
         </div>
       </div>
     </div>

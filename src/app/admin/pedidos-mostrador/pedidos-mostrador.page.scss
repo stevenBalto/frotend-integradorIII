@@ -23,6 +23,13 @@
 
 .mostrador-hint { font-size: 12px; color: var(--admin-text-muted); margin: 0; }
 .mostrador-error { font-size: 12px; color: var(--rooster-red, #e13642); margin: 0 0 12px; }
+.mostrador-error--bloqueo {
+  font-weight: 800;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(225, 54, 66, 0.08);
+  border: 1px solid var(--rooster-red, #e13642);
+}
 
 /* ── Resumen del canje en el header (tablet+) ───────────────────────────────
    Ocupa el espacio del título que se quitó — el bloque de "Canje" ya no
@@ -47,6 +54,15 @@
     text-overflow: ellipsis;
     /* Si no hay lugar, este es el primero en sacrificarse (el nombre/valor no). */
     flex-shrink: 3;
+  }
+  &__bloqueo {
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+    background: var(--rooster-red, #e13642);
+    padding: 2px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
   }
 }
 

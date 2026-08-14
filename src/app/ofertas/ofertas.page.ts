@@ -14,6 +14,7 @@ interface OfferCard {
   price: string;
   color: string;
   icon: string;
+  sedesTexto: string;
 }
 
 interface CouponCard {
@@ -23,6 +24,7 @@ interface CouponCard {
   expira: string;
   color: string;
   icon: string;
+  sedesTexto: string;
 }
 
 @Component({
@@ -111,7 +113,19 @@ export class OfertasPage implements OnInit {
       price: this.getPriceForOferta(oferta),
       color,
       icon,
+      sedesTexto: this.getSedesTexto(oferta.alcance_sedes, oferta.sucursales),
     };
+  }
+
+  /** "Disponible en todas las sedes" o "Disponible en: X, Y" — informativo, no
+   *  filtra la lista (el cliente no tiene una sede "actual" hasta que arma el
+   *  pedido). La sede sí se valida de verdad al canjear en el mostrador. */
+  private getSedesTexto(alcanceSedes: 'todas' | 'especifica', sucursales?: { id: number; nombre: string }[]): string {
+    if (alcanceSedes !== 'especifica' || !sucursales || sucursales.length === 0) {
+      return 'Disponible en todas las sedes';
+    }
+
+    return `Disponible en: ${sucursales.map((s) => s.nombre).join(', ')}`;
   }
 
   private getBadgeForOferta(oferta: Oferta): string {
@@ -150,6 +164,7 @@ export class OfertasPage implements OnInit {
       expira: this.getExpiraForCupon(cupon),
       color: this.colores[index % this.colores.length],
       icon: this.getIconForCupon(cupon),
+      sedesTexto: this.getSedesTexto(cupon.alcance_sedes, cupon.sucursales),
     };
   }
 

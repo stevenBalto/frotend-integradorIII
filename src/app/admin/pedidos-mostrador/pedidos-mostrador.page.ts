@@ -92,6 +92,29 @@ export class PedidosMostradorPage implements ViewWillEnter {
   }
 
   /**
+   * El cupón/oferta escaneado puede restringirse a sedes específicas (elegido
+   * al crearlo en el panel). En cuanto se elige la sucursal del pedido, si no
+   * está en esa lista se bloquea todo el panel — no se deja seguir armando el
+   * pedido con un código que no aplica ahí. Reactivo: cambia solo con tocar
+   * el selector de sucursal, sin necesidad de re-escanear.
+   */
+  get sedeNoDisponible(): boolean {
+    if (this.sucursalId === null) {
+      return false;
+    }
+
+    if (this.cupon && this.cupon.alcance_sedes === 'especifica') {
+      return !(this.cupon.sucursales ?? []).some((s) => s.id === this.sucursalId);
+    }
+
+    if (this.oferta && this.oferta.alcance_sedes === 'especifica') {
+      return !(this.oferta.sucursales ?? []).some((s) => s.id === this.sucursalId);
+    }
+
+    return false;
+  }
+
+  /**
    * Ionic cachea esta página (IonicRouteStrategy): si se entra dos veces (ej.
    * escaneando un código, volviendo a Ofertas y escaneando otro), Angular NO
    * vuelve a correr ngOnInit — reusa la misma instancia. Sin este hook se veía
@@ -313,11 +336,11 @@ export class PedidosMostradorPage implements ViewWillEnter {
   }
 
   get puedeConfirmar(): boolean {
-    return !this.enviando && this.camposCompletos;
+    return !this.enviando && this.camposCompletos && !this.sedeNoDisponible;
   }
 
   confirmar(): void {
-    if (!this.puedeConfirmar || this.sucursalId === null) {
+    if (!this.puedeConfirmar || this.sucursalId === null || this.sedeNoDisponible) {
       return;
     }
 

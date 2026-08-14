@@ -12,6 +12,7 @@
                  : (oferta!.tipo_descuento === 'porcentaje' ? oferta!.valor + '% OFF' : (oferta!.valor | crcCurrency) + ' OFF') }}
       </span>
       <span class="mostrador-canje-lead__detalle" *ngIf="oferta">Aplica solo a: {{ ofertaProductosTexto }}</span>
+      <span class="mostrador-canje-lead__bloqueo" *ngIf="sedeNoDisponible">No disponible en esta sede</span>
     </div>
   </ng-template>
 
@@ -33,6 +34,7 @@
         <span class="mostrador-cupon__valor">{{ oferta.tipo_descuento === 'porcentaje' ? oferta.valor + '% OFF' : (oferta.valor | crcCurrency) + ' OFF' }}</span>
       </div>
       <p class="mostrador-hint" *ngIf="oferta">Aplica solo a: {{ ofertaProductosTexto }}</p>
+      <p class="mostrador-error mostrador-error--bloqueo" *ngIf="sedeNoDisponible">No disponible en esta sede.</p>
     </admin-section-card>
 
     <!-- Mientras se sigue un código no se pinta nada del layout final (grid de
@@ -158,14 +160,24 @@
         </div>
 
         <div class="mostrador-acciones">
-          <p class="mostrador-error" *ngIf="errorEnvio">{{ errorEnvio }}</p>
-
-          <admin-btn *ngIf="camposCompletos" [disabled]="enviando" (clicked)="confirmar()">
-            {{ enviando ? 'Creando pedido...' : 'Confirmar pedido' }}
-          </admin-btn>
-          <p class="mostrador-hint" *ngIf="!camposCompletos && lineas.length > 0">
-            Falta el nombre del cliente y/o la sucursal para confirmar.
+          <!-- Sede elegida no habilitada para este código: se bloquea del todo,
+               no se deja seguir armando el pedido con un cupón/oferta que no
+               aplica ahí. El selector de sucursal arriba sigue disponible para
+               corregirlo (elegir la sede correcta) o volver a Ofertas. -->
+          <p class="mostrador-error mostrador-error--bloqueo" *ngIf="sedeNoDisponible">
+            {{ cupon ? 'Este cupón' : 'Esta oferta' }} no está disponible en la sede elegida.
           </p>
+
+          <ng-container *ngIf="!sedeNoDisponible">
+            <p class="mostrador-error" *ngIf="errorEnvio">{{ errorEnvio }}</p>
+
+            <admin-btn *ngIf="camposCompletos" [disabled]="enviando" (clicked)="confirmar()">
+              {{ enviando ? 'Creando pedido...' : 'Confirmar pedido' }}
+            </admin-btn>
+            <p class="mostrador-hint" *ngIf="!camposCompletos && lineas.length > 0">
+              Falta el nombre del cliente y/o la sucursal para confirmar.
+            </p>
+          </ng-container>
         </div>
       </admin-section-card>
     </div>
