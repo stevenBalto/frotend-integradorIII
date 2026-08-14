@@ -86,6 +86,11 @@ export class CuponService {
       fd.append('cliente_ids[]', String(cid));
     }
 
+    fd.append('alcance_sedes', payload.alcance_sedes);
+    for (const sid of payload.sucursal_ids) {
+      fd.append('sucursal_ids[]', String(sid));
+    }
+
     // Imagen: archivo tiene prioridad sobre URL
     if (imagenOpts?.imagen) {
       fd.append('imagen', imagenOpts.imagen);
