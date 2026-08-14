@@ -1,6 +1,10 @@
 <ion-tabs>
 
-  <ion-tab-bar slot="bottom">
+  <ion-tab-bar slot="bottom" #tabBar
+    [class.hidx-0]="dragging && displayIndex === 0"
+    [class.hidx-1]="dragging && displayIndex === 1"
+    [class.hidx-2]="dragging && displayIndex === 2"
+    [class.hidx-3]="dragging && displayIndex === 3">
     <ion-tab-button tab="home" href="/tabs/home">
       <ion-icon aria-hidden="true" name="home-outline"></ion-icon>
       <ion-label>Home</ion-label>
@@ -23,6 +27,21 @@
   </ion-tab-bar>
 
 </ion-tabs>
+
+<!-- Cápsula neumórfica que marca la opción activa y se puede ARRASTRAR de una a
+     otra (estilo segmented control iOS). Overlay alineado al tab bar real por JS. -->
+<div class="tabfx" [class.tabfx--ready]="barWidth > 0"
+     [style.top.px]="barTop" [style.left.px]="barLeft"
+     [style.width.px]="barWidth" [style.height.px]="barHeight">
+  <div class="tabfx__cell" [class.tabfx__cell--dragging]="dragging"
+       [style.width.px]="slotW"
+       [style.transform]="'translateX(' + cellLeft + 'px)'">
+    <div class="tabfx__thumb" (pointerdown)="onDown($event)">
+      <ion-icon class="tabfx__icon" [name]="tabs[displayIndex].icon" aria-hidden="true"></ion-icon>
+      <span class="tabfx__label">{{ tabs[displayIndex].label }}</span>
+    </div>
+  </div>
+</div>
 
 <!-- Re-prompt de reseña (aparece al entrar si hay pedidos entregados sin reseñar) -->
 <app-resena-prompt></app-resena-prompt>
