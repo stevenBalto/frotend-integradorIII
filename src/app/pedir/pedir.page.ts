@@ -65,6 +65,8 @@ export class PedirPage implements OnInit, OnDestroy {
   cargandoProductos = false;
   errorProductos: string | null = null;
   busqueda = '';
+  /** Letras del placeholder animado del buscador (onda continua letra por letra). */
+  readonly buscarChars = 'Buscar platillo...'.split('');
 
   /** DEMO temporal: foto de relleno cuando el producto no tiene imagen_url real
       (ver assets/productos-demo/). Mismo id -> misma foto siempre. Quitar

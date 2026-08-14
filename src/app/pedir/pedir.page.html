@@ -27,8 +27,16 @@
     <div class="pedir-menu-head">
       <div class="pedir-menu-head__tools">
         <div class="pedir-search">
-          <ion-icon name="search-outline"></ion-icon>
-          <input type="text" placeholder="Buscar platillo..." [(ngModel)]="busqueda" />
+          <ion-icon class="pedir-search__icon" name="search-outline"></ion-icon>
+          <div class="pedir-search__field">
+            <input type="text" placeholder="Buscar platillo..." aria-label="Buscar platillo" [(ngModel)]="busqueda" />
+            <!-- Placeholder animado: onda infinita que salta letra por letra empezando
+                 por el icono. Solo cuando el campo esta vacio; al escribir se oculta. -->
+            <div class="pedir-search__anim" *ngIf="!busqueda" aria-hidden="true">
+              <span class="pedir-search__ch" *ngFor="let ch of buscarChars; let i = index"
+                    [style.animation-delay.ms]="(i + 1) * 60">{{ ch }}</span>
+            </div>
+          </div>
         </div>
         <div class="pedir-cats">
           <button class="pedir-cat" [class.pedir-cat--active]="activeCat === null"

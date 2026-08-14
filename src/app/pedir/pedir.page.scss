@@ -404,16 +404,67 @@
     flex-shrink: 0;
   }
 
+  /* El icono es el primer "salto" de la onda del placeholder animado. */
+  &__icon {
+    animation: pedir-search-hop 4s ease-in-out infinite;
+    animation-delay: 0ms;
+    will-change: transform;
+  }
+
+  /* Campo: contiene el input real y el placeholder animado superpuesto. */
+  &__field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
   input {
     flex: 1;
+    min-width: 0;
     border: none;
     outline: none;
     background: transparent;
     font-family: var(--client-font-body);
     font-size: 14px;
     color: var(--client-text);
-    &::placeholder { color: #999; }
+    /* El placeholder visible es el animado (.pedir-search__anim); el nativo se
+       mantiene solo por accesibilidad, pero invisible. */
+    &::placeholder { color: transparent; }
   }
+
+  /* Placeholder animado: fila de letras superpuesta al input vacio. */
+  &__anim {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  &__ch {
+    display: inline-block;
+    white-space: pre;
+    font-family: var(--client-font-body);
+    font-size: 14px;
+    line-height: 1;
+    color: #999;
+    animation: pedir-search-hop 4s ease-in-out infinite;
+    will-change: transform;
+  }
+}
+
+/* Onda cada 4s: el salto ocupa solo el arranque del ciclo (rapido); el desfase por
+   animation-delay hace que recorra icono -> letras en orden, y el resto del ciclo
+   queda en reposo -> se "activa" ~cada 4 segundos, en bucle. */
+@keyframes pedir-search-hop {
+  0%, 8%, 100% { transform: translateY(0); }
+  4% { transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pedir-search__icon,
+  .pedir-search__ch { animation: none; }
 }
 
 /* ── Tabs de categoria ──────────────────────────────────────────────────────── */
