@@ -58,6 +58,14 @@
   background: var(--admin-card);
   color: var(--admin-text);
 }
+.inv-form__select {
+  display: block;
+  width: 100%;
+  --admin-select-height: 38px;
+  --admin-select-font-size: 13px;
+  --admin-select-bg: var(--admin-card);
+}
+.inv-form__note { font-size: 11px; color: var(--admin-text-muted); }
 
 .inv-form__readonly {
   display: flex;

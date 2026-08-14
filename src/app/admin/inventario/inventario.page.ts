@@ -3,6 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Insumo, InsumoMovimiento } from '../../core/models/insumo.model';
 import { InsumoService } from '../../core/services/insumo.service';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { AuthService } from '../../core/services/auth.service';
+import { SucursalService } from '../../core/services/sucursal.service';
+import { Sucursal } from '../../core/models/sucursal.model';
 
 type FiltroInventario = 'todos' | 'bajo_stock' | 'normal' | 'sin_minimo';
 
@@ -17,6 +20,17 @@ export class AdminInventarioPage implements OnInit {
   private fb = inject(FormBuilder);
   private insumoService = inject(InsumoService);
   private confirm = inject(ConfirmService);
+  private authService = inject(AuthService);
+  private sucursalService = inject(SucursalService);
+
+  /** El inventario es exclusivo de cada sede: un admin_sede solo maneja la
+   *  suya (el backend se la fuerza igual); un admin general tiene que elegir
+   *  a cuál sede pertenece cada insumo nuevo. */
+  get esAdminGeneral(): boolean {
+    return this.authService.usuario?.sucursal_id == null;
+  }
+
+  sedes: Sucursal[] = [];
 
   /** Presets comunes de unidad de medida (el backend acepta cualquier string). */
   private readonly unidadesBase: string[] = ['kg', 'g', 'l', 'ml', 'unidad', 'docena', 'caja', 'paquete'];
@@ -52,6 +66,7 @@ export class AdminInventarioPage implements OnInit {
     unidad_medida: ['', [Validators.required, Validators.maxLength(20)]],
     cantidad_actual: [0, [Validators.min(0), Validators.max(AdminInventarioPage.CANTIDAD_MAX)]],
     stock_minimo: [null as number | null, [Validators.min(0), Validators.max(AdminInventarioPage.CANTIDAD_MAX)]],
+    sucursal_id: [null as number | null],
   });
 
   // Modal Toma fisica
@@ -74,6 +89,9 @@ export class AdminInventarioPage implements OnInit {
 
   ngOnInit(): void {
     this.cargarInsumos();
+    if (this.esAdminGeneral) {
+      this.sucursalService.listarAdmin().subscribe({ next: (sedes) => (this.sedes = sedes) });
+    }
   }
 
   // ---- KPIs ----
@@ -146,6 +164,7 @@ export class AdminInventarioPage implements OnInit {
       unidad_medida: '',
       cantidad_actual: 0,
       stock_minimo: null,
+      sucursal_id: this.sedes.length === 1 ? this.sedes[0].id : null,
     });
     this.form.get('cantidad_actual')?.enable();
     this.modalOpen = true;
@@ -178,6 +197,12 @@ export class AdminInventarioPage implements OnInit {
     }
 
     const valor = this.form.getRawValue();
+
+    if (!this.editando && this.esAdminGeneral && !valor.sucursal_id) {
+      this.formError = 'Elegí a cuál sede pertenece este insumo.';
+      return;
+    }
+
     // cantidad_actual: la inicial si se esta creando, o la actual (solo lectura) si se esta editando.
     const cantidadReferencia = Number(valor.cantidad_actual ?? 0);
     if (valor.stock_minimo !== null && valor.stock_minimo !== undefined && Number(valor.stock_minimo) > cantidadReferencia) {
@@ -207,6 +232,7 @@ export class AdminInventarioPage implements OnInit {
         unidad_medida: valor.unidad_medida,
         cantidad_actual: valor.cantidad_actual ?? 0,
         stock_minimo: valor.stock_minimo,
+        ...(valor.sucursal_id ? { sucursal_id: Number(valor.sucursal_id) } : {}),
       };
       this.insumoService.crear(payload).subscribe({
         next: () => this.onGuardadoOk(),

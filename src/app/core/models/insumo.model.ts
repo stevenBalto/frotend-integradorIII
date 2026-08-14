@@ -6,6 +6,9 @@ export interface Insumo {
   stock_minimo: number | null;
   bajo_stock: boolean;
   tiene_movimientos: boolean;
+  /** El inventario es exclusivo de cada sede (no se comparte como productos/ofertas/cupones). */
+  sucursal_id: number;
+  sucursal_nombre?: string;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -16,6 +19,9 @@ export interface InsumoPayload {
   /** Solo se usa al CREAR (cantidad inicial); en edicion normal no se manda/edita. */
   cantidad_actual?: number;
   stock_minimo?: number | null;
+  /** Solo obligatorio al CREAR si quien lo hace es un admin general (sin sede propia);
+   *  a un admin_sede el backend se lo ignora y fuerza la suya. */
+  sucursal_id?: number;
 }
 
 export interface InsumoMovimiento {

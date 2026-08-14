@@ -159,6 +159,14 @@
           </datalist>
         </label>
 
+        <label class="inv-form__label" *ngIf="!editando && esAdminGeneral">
+          Sede
+          <admin-select formControlName="sucursal_id" class="inv-form__select" placeholder="Elegí una sede">
+            <admin-option *ngFor="let s of sedes" [value]="s.id">{{ s.nombre }}</admin-option>
+          </admin-select>
+          <span class="inv-form__note">El inventario es propio de cada sede, no se comparte.</span>
+        </label>
+
         <label class="inv-form__label" *ngIf="!editando">
           Cantidad inicial
           <input type="number" min="0" max="999999" step="any" formControlName="cantidad_actual"
