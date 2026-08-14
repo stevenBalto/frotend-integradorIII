@@ -19,7 +19,7 @@
 
     <!-- Estado del canje (cupón u oferta): visible solo en móvil, donde el header no
          tiene espacio para el resumen de arriba. -->
-    <admin-section-card title="Canje" class="mostrador-canje-movil" *ngIf="cuponCodigo || ofertaId">
+    <admin-section-card [title]="cuponCodigo ? 'Cupón escaneado' : 'Oferta escaneada'" class="mostrador-canje-movil" *ngIf="cuponCodigo || ofertaId">
       <p *ngIf="cargandoCanje" class="mostrador-hint">Validando código...</p>
       <p *ngIf="errorCanje" class="mostrador-error">{{ errorCanje }}</p>
 
@@ -35,32 +35,40 @@
       <p class="mostrador-hint" *ngIf="oferta">Aplica solo a: {{ ofertaProductosTexto }}</p>
     </admin-section-card>
 
-    <div class="mostrador-grid">
-      <!-- Catálogo -->
-      <admin-section-card title="Productos" class="mostrador-grid__catalogo">
-        <label class="of-form__label">
-          Buscar
-          <input type="text" class="of-form__input" placeholder="Nombre del producto..." [(ngModel)]="busqueda" />
-        </label>
+    <!-- Mientras se sigue un código no se pinta nada del layout final (grid de
+         2 columnas para cupón / 1 columna para oferta) hasta tener catálogo +
+         validación resueltos — antes se armaba en 2 pasos visibles: primero el
+         layout de cupón (con catálogo) porque la oferta todavía no cargaba, y
+         de golpe el catálogo desaparecía al terminar de cargar. Ver
+         `cargandoPagina` en el .ts. -->
+    <div class="mostrador-cargando" *ngIf="cargandoPagina">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Preparando el pedido...</p>
+    </div>
+
+    <div class="mostrador-grid" [class.mostrador-grid--sola]="!!oferta" *ngIf="!cargandoPagina">
+      <!-- Catálogo: no aplica a ofertas (sus productos ya vienen fijos desde que se
+           creó la oferta — no tiene sentido dejar agregar productos aparte). Los
+           cupones sí muestran el catálogo, porque no llevan productos predefinidos. -->
+      <admin-section-card title="Productos" class="mostrador-grid__catalogo" [actionInline]="true" [fill]="true" *ngIf="!oferta">
+        <admin-search-input card-action placeholder="Buscar por producto" [(value)]="busqueda"></admin-search-input>
 
         <div class="mostrador-productos">
-          <div class="mostrador-producto" [class.mostrador-producto--oferta]="esProductoDeLaOferta(p)" *ngFor="let p of productosFiltrados">
+          <div class="mostrador-producto" *ngFor="let p of productosFiltrados">
             <div class="mostrador-producto__thumb">
               <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" />
               <ion-icon *ngIf="!p.imagen_url" name="restaurant-outline"></ion-icon>
             </div>
 
             <div class="mostrador-producto__info">
-              <p class="mostrador-producto__nombre">
-                {{ p.nombre }}
-                <span class="mostrador-producto__tag" *ngIf="esProductoDeLaOferta(p)">oferta</span>
-              </p>
+              <p class="mostrador-producto__nombre">{{ p.nombre }}</p>
               <p class="mostrador-producto__precio">{{ p.precio_base | crcCurrency }}</p>
             </div>
 
             <div class="mostrador-producto__controles">
               <ng-container *ngIf="p.tamanos.length > 0; else sinTamano">
                 <admin-select #tamanoSel="adminSelect" class="mostrador-producto__select"
+                  [class.mostrador-producto__select--error]="productoSinTamanoId === p.id"
                   placeholder="Tamaño" ariaLabel="Tamaño del producto">
                   <admin-option *ngFor="let t of p.tamanos" [value]="t.id">{{ t.nombre }} · {{ t.precio | crcCurrency }}</admin-option>
                 </admin-select>
@@ -80,18 +88,28 @@
       </admin-section-card>
 
       <!-- Carrito -->
-      <admin-section-card title="Pedido" class="mostrador-grid__carrito">
-        <p class="mostrador-hint" *ngIf="lineas.length === 0">Agregá productos del catálogo.</p>
+      <admin-section-card title="Pedido" class="mostrador-grid__carrito" [fill]="true">
+        <!-- Solo esta lista scrollea (a partir de 1024px, a la par del catálogo) —
+             el resto (totales/form/botón) se queda fijo debajo, siempre visible. -->
+        <div class="mostrador-lineas-wrap">
+          <p class="mostrador-hint" *ngIf="lineas.length === 0">Agregá productos del catálogo.</p>
 
-        <div class="mostrador-linea" *ngFor="let l of lineas; let i = index">
-          <div class="mostrador-linea__info">
-            <p class="mostrador-linea__nombre">{{ l.producto.nombre }}<span *ngIf="l.tamanoNombre"> — {{ l.tamanoNombre }}</span></p>
-            <p class="mostrador-linea__precio">{{ l.precioUnitario | crcCurrency }} c/u</p>
-          </div>
-          <div class="mostrador-linea__qty">
-            <button type="button" (click)="cambiarCantidad(i, -1)">−</button>
-            <span>{{ l.cantidad }}</span>
-            <button type="button" (click)="cambiarCantidad(i, 1)">+</button>
+          <div class="mostrador-linea" *ngFor="let l of lineas; let i = index">
+            <div class="mostrador-linea__info">
+              <p class="mostrador-linea__nombre">{{ l.producto.nombre }}<span *ngIf="l.tamanoNombre"> — {{ l.tamanoNombre }}</span></p>
+              <p class="mostrador-linea__precio">{{ l.precioUnitario | crcCurrency }} c/u</p>
+            </div>
+            <!-- Oferta: los productos ya vinieron fijos desde que se creó (checklist
+                 de "productos incluidos") — se muestran, no se editan. Cupón: sí se
+                 arma a mano, así que la cantidad se puede ajustar normal. -->
+            <div class="mostrador-linea__qty" *ngIf="!oferta; else soloCantidad">
+              <button type="button" (click)="cambiarCantidad(i, -1)">−</button>
+              <span>{{ l.cantidad }}</span>
+              <button type="button" (click)="cambiarCantidad(i, 1)">+</button>
+            </div>
+            <ng-template #soloCantidad>
+              <span class="mostrador-linea__qty-fija">x{{ l.cantidad }}</span>
+            </ng-template>
           </div>
         </div>
 

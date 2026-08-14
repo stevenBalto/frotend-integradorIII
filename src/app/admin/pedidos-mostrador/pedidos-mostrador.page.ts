@@ -67,7 +67,29 @@ export class PedidosMostradorPage implements ViewWillEnter {
   errorEnvio: string | null = null;
   pedidoCreado: PedidoAdmin | null = null;
 
+  /** Producto cuyo selector de tamaño se resalta un instante porque tocaron "+"
+   *  sin elegir tamaño primero (antes fallaba en silencio, sin ningún aviso). */
+  productoSinTamanoId: number | null = null;
+  private timeoutAvisoTamano?: ReturnType<typeof setTimeout>;
+
   private productosListos = false;
+
+  /**
+   * Mientras se sigue un código (cupón/oferta) escaneado, esconde todo el
+   * panel hasta tener catálogo + validación resueltos. Antes se armaba en
+   * 2 pasos visibles: primero pintaba el layout de cupón (con el catálogo
+   * completo) porque `oferta` todavía era null, y recién cuando la oferta
+   * terminaba de cargar el catálogo desaparecía de golpe — el "parpadeo"
+   * reportado. Se calcula sobre `cuponCodigo`/`ofertaId` (conocidos ya en
+   * `ionViewWillEnter`, sin esperar la respuesta del backend) para que el
+   * layout final se decida desde el primer render, no después.
+   */
+  get cargandoPagina(): boolean {
+    if (!this.cuponCodigo && !this.ofertaId) {
+      return false;
+    }
+    return this.cargandoCanje || !this.productosListos;
+  }
 
   /**
    * Ionic cachea esta página (IonicRouteStrategy): si se entra dos veces (ej.
@@ -129,6 +151,8 @@ export class PedidosMostradorPage implements ViewWillEnter {
     this.errorEnvio = null;
     this.pedidoCreado = null;
     this.productosListos = false;
+    clearTimeout(this.timeoutAvisoTamano);
+    this.productoSinTamanoId = null;
   }
 
   /**
@@ -215,6 +239,7 @@ export class PedidosMostradorPage implements ViewWillEnter {
     const tamano = tamanoId ? producto.tamanos.find((t) => t.id === Number(tamanoId)) ?? null : null;
 
     if (producto.tamanos.length > 0 && tamano === null) {
+      this.avisarFaltaTamano(producto.id);
       return;
     }
 
@@ -228,6 +253,16 @@ export class PedidosMostradorPage implements ViewWillEnter {
         cantidad: 1,
       },
     ];
+  }
+
+  /** Resalta el selector de tamaño un instante — antes tocar "+" sin elegir
+   *  tamaño fallaba en silencio y parecía que "agregar" no hacía nada. */
+  private avisarFaltaTamano(productoId: number): void {
+    clearTimeout(this.timeoutAvisoTamano);
+    this.productoSinTamanoId = productoId;
+    this.timeoutAvisoTamano = setTimeout(() => {
+      this.productoSinTamanoId = null;
+    }, 1500);
   }
 
   quitarLinea(index: number): void {
