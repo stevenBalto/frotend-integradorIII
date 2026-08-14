@@ -80,9 +80,9 @@ ion-tab-button {
   }
 }
 
-/* La cápsula: vidrio esmerilado (frosted glass tipo iOS) que SOBRESALE hacia
-   arriba del tab bar. El blur toma lo que hay detrás (contenido de la app + la
-   barra) y lo difumina. Sube con un pelín de rebote (spring) y crece al agarrarla. */
+/* La cápsula: fondo BLANCO sólido (opaco) que SOBRESALE hacia arriba del tab bar.
+   Blanco sin transparencia = se ve igual en toda la app, sin teñirse del color
+   que haya detrás. Sube con un pelín de rebote (spring) y crece al agarrarla. */
 .tabfx__thumb {
   display: flex;
   flex-direction: column;
@@ -91,16 +91,11 @@ ion-tab-button {
   gap: 2px;
   padding: 8px 15px;
   border-radius: 22px;
-  /* Base blanca alta para que el vidrio se vea claro y PAREJO en las 4 pestañas,
-     sin teñirse de gris cuando detrás hay contenido oscuro (p.ej. fotos en Carrito). */
-  background: rgba(255, 255, 255, 0.62);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  border: 1px solid rgba(11, 11, 12, 0.05);
   box-shadow:
     0 12px 24px -8px rgba(11, 11, 12, 0.30),
-    0 2px 6px rgba(11, 11, 12, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    0 2px 6px rgba(11, 11, 12, 0.12);
   transform: translateY(-13px);
   transition:
     transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -145,9 +140,8 @@ ion-tab-button {
 /* El indicador activo es la cápsula-overlay: ocultamos el ícono/label reales de
    la pestaña seleccionada (y, mientras se arrastra, también la que está debajo
    de la cápsula) para que no asomen grises bajo la cápsula elevada. */
-ion-tab-button {
-  transition: opacity 0.18s ease;
-}
+/* Sin transición: la pestaña activa (y la de destino al arrastrar) desaparece al
+   instante, sin que su texto gris quede desvaneciéndose bajo la cápsula. */
 ion-tab-button.tab-selected,
 ion-tab-bar.hidx-0 ion-tab-button:nth-of-type(1),
 ion-tab-bar.hidx-1 ion-tab-button:nth-of-type(2),
