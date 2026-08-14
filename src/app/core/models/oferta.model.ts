@@ -10,8 +10,17 @@ export interface OfertaCliente {
   nombre: string;
 }
 
+/** Sede donde se puede canjear una oferta especifica (solo id y nombre). */
+export interface OfertaSucursal {
+  id: number;
+  nombre: string;
+}
+
 /** Alcance de visibilidad: 'todos' los clientes, o solo los 'especifico'-camente asignados. */
 export type AlcanceOferta = 'todos' | 'especifico';
+
+/** Alcance por sede: canjeable en 'todas' o solo en sedes 'especifica'-mente elegidas. */
+export type AlcanceSedesOferta = 'todas' | 'especifica';
 
 /** Oferta tal como la devuelve la API. */
 export interface Oferta {
@@ -28,6 +37,8 @@ export interface Oferta {
   imagen_url: string | null;
   alcance: AlcanceOferta;
   clientes?: OfertaCliente[];
+  alcance_sedes: AlcanceSedesOferta;
+  sucursales?: OfertaSucursal[];
   created_at: string | null;
   updated_at: string | null;
 }
@@ -46,6 +57,8 @@ export interface OfertaPayload {
   imagen_url?: string | null;
   alcance: AlcanceOferta;
   cliente_ids: number[];
+  alcance_sedes: AlcanceSedesOferta;
+  sucursal_ids: number[];
 }
 
 /** Opciones de imagen para crear/actualizar oferta. */

@@ -469,6 +469,24 @@
           </ng-container>
         </label>
 
+        <label class="of-form__label">
+          ¿En cuál sede se puede canjear?
+          <div class="of-form__alcance">
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance_sedes" value="todas" /> Todas las sedes
+            </label>
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance_sedes" value="especifica" /> Sedes específicas
+            </label>
+          </div>
+          <ng-container *ngIf="formOferta.value.alcance_sedes === 'especifica'">
+            <button type="button" class="of-form__sysbtn" (click)="abrirPickerSedes('oferta')">
+              <ion-icon name="business-outline"></ion-icon>
+              Elegir sedes ({{ ofertaSedesSel.size }} seleccionadas)
+            </button>
+          </ng-container>
+        </label>
+
         <label class="of-form__check">
           <input type="checkbox" formControlName="activa" /> Activa
         </label>
@@ -589,6 +607,24 @@
           </ng-container>
         </label>
 
+        <label class="of-form__label">
+          ¿En cuál sede se puede canjear?
+          <div class="of-form__alcance">
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance_sedes" value="todas" /> Todas las sedes
+            </label>
+            <label class="of-form__radio">
+              <input type="radio" formControlName="alcance_sedes" value="especifica" /> Sedes específicas
+            </label>
+          </div>
+          <ng-container *ngIf="formCupon.value.alcance_sedes === 'especifica'">
+            <button type="button" class="of-form__sysbtn" (click)="abrirPickerSedes('cupon')">
+              <ion-icon name="business-outline"></ion-icon>
+              Elegir sedes ({{ cuponSedesSel.size }} seleccionadas)
+            </button>
+          </ng-container>
+        </label>
+
         <label class="of-form__check">
           <input type="checkbox" formControlName="activo" /> Activo
         </label>
@@ -691,6 +727,44 @@
 
       <button type="button" class="order-modal__cta" (click)="cerrarPickerClientes()">
         Listo ({{ cantidadClientesSel }} seleccionados)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: elegir sedes especificas (compartido oferta/cupon) -->
+<div class="order-modal" *ngIf="modalSedesOpen">
+  <div class="order-modal__backdrop" (click)="cerrarPickerSedes()"></div>
+  <div class="order-modal__panel">
+    <div class="order-modal__head">
+      <div>
+        <p class="order-modal__title">Elegir sedes</p>
+      </div>
+      <div class="order-modal__head-right">
+        <button type="button" class="order-modal__close" (click)="cerrarPickerSedes()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-modal__body">
+      <p *ngIf="cargandoSedes" class="of-form__no-products">Cargando sedes...</p>
+
+      <div class="of-form__products" *ngIf="!cargandoSedes">
+        <div
+          *ngFor="let s of sedes"
+          class="of-form__product-item"
+          [class.of-form__product-item--selected]="isSedeSelected(s.id)"
+          (click)="toggleSede(s.id)"
+        >
+          <span class="of-form__product-check">{{ isSedeSelected(s.id) ? '&#10003;' : '' }}</span>
+          {{ s.nombre }}
+        </div>
+        <p *ngIf="sedes.length === 0" class="of-form__no-products">No hay sedes registradas.</p>
+      </div>
+
+      <button type="button" class="order-modal__cta" (click)="cerrarPickerSedes()">
+        Listo ({{ cantidadSedesSel }} seleccionadas)
       </button>
     </div>
   </div>

@@ -135,6 +135,8 @@ export class AdminInicioPage implements OnInit {
       producto_ids: oferta.productos.map((p) => p.id),
       alcance: oferta.alcance,
       cliente_ids: (oferta.clientes ?? []).map((c) => c.id),
+      alcance_sedes: oferta.alcance_sedes,
+      sucursal_ids: (oferta.sucursales ?? []).map((s) => s.id),
     };
     this.ofertaService.actualizar(oferta.id, payload).subscribe({
       next: (actualizada) => {
@@ -158,6 +160,8 @@ export class AdminInicioPage implements OnInit {
       activo: !cupon.activo,
       alcance: cupon.alcance,
       cliente_ids: (cupon.clientes ?? []).map((c) => c.id),
+      alcance_sedes: cupon.alcance_sedes,
+      sucursal_ids: (cupon.sucursales ?? []).map((s) => s.id),
     };
     this.cuponService.actualizar(cupon.id, payload).subscribe({
       next: (actualizado) => {

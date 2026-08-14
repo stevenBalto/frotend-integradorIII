@@ -6,9 +6,11 @@ import { OfertaService } from '../../core/services/oferta.service';
 import { CuponService } from '../../core/services/cupon.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { ClienteService } from '../../core/services/cliente.service';
-import { Oferta, OfertaPayload, OfertaImagenOpts, AlcanceOferta } from '../../core/models/oferta.model';
-import { Cupon, CuponPayload, CuponImagenOpts, AlcanceCupon } from '../../core/models/cupon.model';
+import { SucursalService } from '../../core/services/sucursal.service';
+import { Oferta, OfertaPayload, OfertaImagenOpts, AlcanceOferta, AlcanceSedesOferta } from '../../core/models/oferta.model';
+import { Cupon, CuponPayload, CuponImagenOpts, AlcanceCupon, AlcanceSedesCupon } from '../../core/models/cupon.model';
 import { Cliente } from '../../core/models/cliente.model';
+import { Sucursal } from '../../core/models/sucursal.model';
 import { ConfirmService } from '../../core/services/confirm.service';
 
 interface ProductoOpt {
@@ -48,6 +50,7 @@ export class AdminOfertasPage implements OnInit {
   private cuponService = inject(CuponService);
   private productoService = inject(ProductoService);
   private clienteService = inject(ClienteService);
+  private sucursalService = inject(SucursalService);
   private confirm = inject(ConfirmService);
 
   tab: 'ofertas' | 'cupones' = 'ofertas';
@@ -78,6 +81,7 @@ export class AdminOfertasPage implements OnInit {
   private ofertaEditId: number | null = null;
   private productosSel = new Set<number>();
   ofertaClientesSel = new Set<number>();
+  ofertaSedesSel = new Set<number>();
 
   // Imagen oferta
   ofertaImagenArchivo: File | null = null;
@@ -93,6 +97,7 @@ export class AdminOfertasPage implements OnInit {
   readonly formCupon: FormGroup;
   private cuponEditId: number | null = null;
   cuponClientesSel = new Set<number>();
+  cuponSedesSel = new Set<number>();
 
   // Imagen cupon
   cuponImagenArchivo: File | null = null;
@@ -172,6 +177,15 @@ export class AdminOfertasPage implements OnInit {
   busquedaCliente = '';
   ordenCliente: 'gasto' | 'pedidos' | 'nombre' = 'gasto';
 
+  // Picker de sedes especificas (contextual segun oferta/cupon) — donde se
+  // puede CANJEAR cuando alcance_sedes = 'especifica'. La oferta/cupon en si
+  // se sigue viendo/administrando desde cualquier sede del negocio.
+  modalSedesOpen = false;
+  private sedesTarget: 'oferta' | 'cupon' = 'oferta';
+  sedes: Sucursal[] = [];
+  cargandoSedes = false;
+  private sedesCargadas = false;
+
   /** Grupos a mostrar en el modal segun desde donde se abrio (oferta/cupon). */
   get imagenesSistema(): GrupoImagenes[] {
     return this.imagenTarget === 'oferta' ? this.imagenesOferta : this.imagenesCupon;
@@ -187,6 +201,7 @@ export class AdminOfertasPage implements OnInit {
       fecha_fin: [''],
       activa: [true],
       alcance: ['todos' as AlcanceOferta],
+      alcance_sedes: ['todas' as AlcanceSedesOferta],
     });
     this.formCupon = this.fb.group({
       codigo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[A-Za-z0-9]+$/)]],
@@ -198,6 +213,7 @@ export class AdminOfertasPage implements OnInit {
       usos_max: [null],
       activo: [true],
       alcance: ['todos' as AlcanceCupon],
+      alcance_sedes: ['todas' as AlcanceSedesCupon],
     });
   }
 
@@ -205,6 +221,7 @@ export class AdminOfertasPage implements OnInit {
     this.cargarOfertas();
     this.cargarCupones();
     this.cargarProductos();
+    this.cargarSedes();
   }
 
   // ── Carga ─────────────────────────────────────────────────────────
@@ -472,6 +489,55 @@ export class AdminOfertasPage implements OnInit {
     this.ordenCliente = orden;
   }
 
+  // ── Picker de sedes especificas (compartido oferta/cupon) ─────────
+  private cargarSedes(): void {
+    this.cargandoSedes = true;
+    this.sucursalService.listarAdmin().subscribe({
+      next: (data) => {
+        this.sedes = data;
+        this.sedesCargadas = true;
+        this.cargandoSedes = false;
+      },
+      error: () => {
+        this.cargandoSedes = false;
+      },
+    });
+  }
+
+  abrirPickerSedes(target: 'oferta' | 'cupon'): void {
+    this.sedesTarget = target;
+    this.modalSedesOpen = true;
+    if (!this.sedesCargadas) {
+      this.cargarSedes();
+    }
+  }
+
+  cerrarPickerSedes(): void {
+    this.modalSedesOpen = false;
+  }
+
+  /** Set de seleccion activo segun desde donde se abrio el picker (oferta/cupon). */
+  private get sedesSelActivo(): Set<number> {
+    return this.sedesTarget === 'oferta' ? this.ofertaSedesSel : this.cuponSedesSel;
+  }
+
+  isSedeSelected(id: number): boolean {
+    return this.sedesSelActivo.has(id);
+  }
+
+  toggleSede(id: number): void {
+    const sel = this.sedesSelActivo;
+    if (sel.has(id)) {
+      sel.delete(id);
+    } else {
+      sel.add(id);
+    }
+  }
+
+  get cantidadSedesSel(): number {
+    return this.sedesTarget === 'oferta' ? this.ofertaSedesSel.size : this.cuponSedesSel.size;
+  }
+
   // ── Modal oferta ──────────────────────────────────────────────────
   abrirNuevaOferta(): void {
     this.editandoOferta = false;
@@ -479,8 +545,9 @@ export class AdminOfertasPage implements OnInit {
     this.formOfertaError = null;
     this.productosSel.clear();
     this.ofertaClientesSel.clear();
+    this.ofertaSedesSel.clear();
     this.limpiarImagenOferta();
-    this.formOferta.reset({ tipo_descuento: 'porcentaje', activa: true, alcance: 'todos' });
+    this.formOferta.reset({ tipo_descuento: 'porcentaje', activa: true, alcance: 'todos', alcance_sedes: 'todas' });
     this.modalOfertaOpen = true;
   }
 
@@ -490,6 +557,7 @@ export class AdminOfertasPage implements OnInit {
     this.formOfertaError = null;
     this.productosSel = new Set((o.productos ?? []).map((p) => p.id));
     this.ofertaClientesSel = new Set((o.clientes ?? []).map((c) => c.id));
+    this.ofertaSedesSel = new Set((o.sucursales ?? []).map((s) => s.id));
     this.limpiarImagenOferta();
     // Precargar imagen existente
     if (o.imagen_url) {
@@ -505,6 +573,7 @@ export class AdminOfertasPage implements OnInit {
       fecha_fin: o.fecha_fin ?? '',
       activa: o.activa,
       alcance: o.alcance,
+      alcance_sedes: o.alcance_sedes,
     });
     this.modalOfertaOpen = true;
   }
@@ -513,6 +582,7 @@ export class AdminOfertasPage implements OnInit {
     this.modalOfertaOpen = false;
     this.modalImagenOpen = false;
     this.modalClientesOpen = false;
+    this.modalSedesOpen = false;
     this.limpiarImagenOferta();
   }
 
@@ -546,6 +616,8 @@ export class AdminOfertasPage implements OnInit {
       producto_ids: Array.from(this.productosSel),
       alcance: v.alcance,
       cliente_ids: v.alcance === 'especifico' ? Array.from(this.ofertaClientesSel) : [],
+      alcance_sedes: v.alcance_sedes,
+      sucursal_ids: v.alcance_sedes === 'especifica' ? Array.from(this.ofertaSedesSel) : [],
     };
 
     const imagenOpts: OfertaImagenOpts = {
@@ -594,8 +666,9 @@ export class AdminOfertasPage implements OnInit {
     this.cuponEditId = null;
     this.formCuponError = null;
     this.cuponClientesSel.clear();
+    this.cuponSedesSel.clear();
     this.limpiarImagenCupon();
-    this.formCupon.reset({ tipo: 'porcentaje', activo: true, alcance: 'todos' });
+    this.formCupon.reset({ tipo: 'porcentaje', activo: true, alcance: 'todos', alcance_sedes: 'todas' });
     this.modalCuponOpen = true;
   }
 
@@ -604,6 +677,7 @@ export class AdminOfertasPage implements OnInit {
     this.cuponEditId = c.id;
     this.formCuponError = null;
     this.cuponClientesSel = new Set((c.clientes ?? []).map((cl) => cl.id));
+    this.cuponSedesSel = new Set((c.sucursales ?? []).map((s) => s.id));
     this.limpiarImagenCupon();
     // Precargar imagen existente
     if (c.imagen_url) {
@@ -619,6 +693,7 @@ export class AdminOfertasPage implements OnInit {
       usos_max: c.usos_max,
       activo: c.activo,
       alcance: c.alcance,
+      alcance_sedes: c.alcance_sedes,
     });
     this.modalCuponOpen = true;
   }
@@ -627,6 +702,7 @@ export class AdminOfertasPage implements OnInit {
     this.modalCuponOpen = false;
     this.modalImagenOpen = false;
     this.modalClientesOpen = false;
+    this.modalSedesOpen = false;
     this.limpiarImagenCupon();
   }
 
@@ -648,6 +724,8 @@ export class AdminOfertasPage implements OnInit {
       activo: !!v.activo,
       alcance: v.alcance,
       cliente_ids: v.alcance === 'especifico' ? Array.from(this.cuponClientesSel) : [],
+      alcance_sedes: v.alcance_sedes,
+      sucursal_ids: v.alcance_sedes === 'especifica' ? Array.from(this.cuponSedesSel) : [],
     };
 
     const imagenOpts: CuponImagenOpts = {
