@@ -55,7 +55,7 @@ import { Component, Input } from '@angular/core';
       .section-card__title--has-short .section-card__title--short { display: inline; }
       /* Variante inline: la accion se queda junto al titulo (no baja a fila completa). */
       .section-card__head--inline { flex-wrap: nowrap; gap: 8px; }
-      .section-card__head--inline .section-card__action { width: auto; min-width: 0; flex: 1 1 auto; }
+      .section-card__head--inline .section-card__action { width: auto; min-width: 0; flex: 1 1 auto; display: flex; justify-content: flex-end; }
     }
   `],
 })

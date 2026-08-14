@@ -77,7 +77,9 @@ const CLASE_FILA_ABIERTA = 'admin-search-open';
       transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease;
     }
     .asi--open .asi__input {
-      width: min(240px, 74vw);  /* angosto: los filtros de la fila se ocultan aparte (global.scss) */
+      /* --asi-width: override por instancia (custom property, atraviesa la
+         view encapsulation) para cards angostas donde 240px choca con el título. */
+      width: min(var(--asi-width, 240px), 74vw);
       opacity: 1;
       pointer-events: auto;
     }
