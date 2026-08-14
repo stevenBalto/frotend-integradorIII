@@ -43,6 +43,15 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   filtroEstado: FiltroEstado = 'todos';
   busqueda = '';
 
+  /**
+   * Cuántos productos se listan en cada tarjeta del modo extendido.
+   *
+   * Sin tope, un pedido de 6 líneas estira toda su fila de la grilla y las
+   * tarjetas vecinas quedan con un hueco blanco. El resto se resume en
+   * "+N productos más"; el detalle completo está en el modal del pedido.
+   */
+  readonly maxProductosEnCard = 4;
+
   // Filtro por fecha (a la par de "Pedidos recientes"): todos / hoy / semana / una fecha puntual.
   filtroFecha: 'todos' | 'hoy' | 'semana' | 'fecha' = 'todos';
   fechaEspecifica = '';
@@ -167,6 +176,18 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // entra en fullscreen del navegador. Se cierra con Esc, deslizando de izquierda a
   // derecha, o si el usuario sale del fullscreen del navegador.
 
+  /**
+   * El mismo botón entra y sale del modo extendido. En móvil es la única salida
+   * cómoda: no hay tecla Esc y el botón del header queda debajo del overlay.
+   */
+  togglePantallaCompleta(): void {
+    if (this.pantallaCompletaOpen) {
+      this.cerrarPantallaCompleta();
+      return;
+    }
+    this.abrirPantallaCompleta();
+  }
+
   abrirPantallaCompleta(): void {
     if (this.pantallaCompletaOpen) {
       return;
@@ -261,6 +282,26 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Abre el calendario del navegador al tocar el ícono.
+   *
+   * El input[type=date] está superpuesto con opacity:0 para que se vea solo el
+   * ícono, y en ese estado un click no despliega el selector: hay que pedirlo con
+   * showPicker(). Si el navegador no lo soporta, al menos se enfoca el campo.
+   */
+  abrirCalendario(input: HTMLInputElement): void {
+    try {
+      const conPicker = input as HTMLInputElement & { showPicker?: () => void };
+      if (typeof conPicker.showPicker === 'function') {
+        conPicker.showPicker();
+        return;
+      }
+    } catch {
+      /* Algunos navegadores lanzan si no hubo gesto del usuario: seguimos al focus. */
+    }
+    input.focus();
+  }
+
   /** Al elegir una fecha en el calendario, activa el filtro "fecha". */
   onFechaEspecifica(): void {
     this.filtroFecha = this.fechaEspecifica ? 'fecha' : 'todos';
@@ -318,18 +359,16 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
       );
     }
 
-    // Orden: los pedidos NO cerrados (abiertos) van primero y, dentro de ellos, los más
-    // antiguos arriba (el que lleva más tiempo esperando encabeza). Los cerrados después.
+    // Orden: los pedidos NO cerrados (abiertos) van primero y, dentro de cada grupo,
+    // el MÁS RECIENTE arriba — así el pedido que acaba de entrar se ve de una,
+    // sin buscarlo. Los cerrados van después, también del más reciente al más viejo.
     return [...resultado].sort((a, b) => {
       const ca = this.esCerrado(a.estado) ? 1 : 0;
       const cb = this.esCerrado(b.estado) ? 1 : 0;
       if (ca !== cb) {
         return ca - cb;
       }
-      const ta = new Date(a.created_at).getTime();
-      const tb = new Date(b.created_at).getTime();
-      // Abiertos: antiguo → nuevo. Cerrados: nuevo → antiguo (historial reciente arriba).
-      return ca === 0 ? ta - tb : tb - ta;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
   }
 

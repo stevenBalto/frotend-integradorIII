@@ -5,7 +5,7 @@
     <ng-template adminHeaderActions>
       <!-- Solo móvil (<640px): el botón "ver todos en pantalla completa" vive en el
            header, junto al "?". En tablet/PC se muestra en el cuerpo (fila del buscador). -->
-      <button type="button" class="ped-expand-btn--header" (click)="abrirPantallaCompleta()"
+      <button type="button" class="ped-expand-btn--header" (click)="togglePantallaCompleta()"
         aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
         <ion-icon name="scan-outline"></ion-icon>
       </button>
@@ -106,12 +106,13 @@
           <button type="button" class="ped-datechip" [class.ped-datechip--active]="filtroFecha === 'semana'"
             (click)="setFiltroFecha('semana')">Semana</button>
           <label class="ped-datechip ped-datechip--date" [class.ped-datechip--active]="filtroFecha === 'fecha'"
-            title="Filtrar por una fecha">
+            title="Filtrar por una fecha" (click)="abrirCalendario(inputFecha)">
             <ion-icon name="calendar-outline"></ion-icon>
-            <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+            <input #inputFecha type="date" [(ngModel)]="fechaEspecifica"
+              (ngModelChange)="onFechaEspecifica()" />
           </label>
         </div>
-        <button type="button" class="ped-expand-btn" (click)="abrirPantallaCompleta()"
+        <button type="button" class="ped-expand-btn" (click)="togglePantallaCompleta()"
           aria-label="Ver todos los pedidos en pantalla completa" title="Ver todos en pantalla completa">
           <ion-icon name="scan-outline"></ion-icon>
         </button>
@@ -123,7 +124,7 @@
       <p *ngIf="cargando" class="ped-loading">Cargando pedidos...</p>
 
       <div class="admin-table-wrap" *ngIf="!cargando">
-        <table class="admin-table">
+        <table class="admin-table ped-table">
           <thead>
             <tr>
               <th>ID Pedido</th>
@@ -142,19 +143,19 @@
               [class.ped-row--invitado]="p.es_invitado" [class.ped-row--registrado]="!p.es_invitado"
               [class.ped-row--destacado]="destacadoCodigo === p.codigo"
               (click)="abrirDetalle(p)">
-              <td class="admin-table__strong">{{ p.codigo }}</td>
-              <td class="admin-table__muted">{{ formatFecha(p.created_at) }}</td>
-              <td class="admin-table__semi">{{ p.nombre_cliente || p.cliente.nombre }}</td>
-              <td><modality-pill [mode]="p.modalidad === 'comer_aqui' ? 'aqui' : 'llevar'"></modality-pill></td>
-              <td class="admin-table__strong">{{ p.total | crcCurrency }}</td>
-              <td><status-badge [type]="estadoToStatusType(p.estado)"></status-badge></td>
-              <td>
+              <td class="admin-table__strong" data-label="ID Pedido">{{ p.codigo }}</td>
+              <td class="admin-table__muted" data-label="Fecha">{{ formatFecha(p.created_at) }}</td>
+              <td class="admin-table__semi" data-label="Cliente">{{ p.nombre_cliente || p.cliente.nombre }}</td>
+              <td data-label="Modalidad"><modality-pill [mode]="p.modalidad === 'comer_aqui' ? 'aqui' : 'llevar'"></modality-pill></td>
+              <td class="admin-table__strong" data-label="Total">{{ p.total | crcCurrency }}</td>
+              <td data-label="Estado"><status-badge [type]="estadoToStatusType(p.estado)"></status-badge></td>
+              <td data-label="Pago">
                 <span class="pago-badge" [class.pago-badge--si]="p.pagado" [class.pago-badge--no]="!p.pagado">
                   <ion-icon [name]="p.pagado ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                   {{ p.pagado ? 'Pagado' : 'No pagado' }}
                 </span>
               </td>
-              <td>
+              <td class="ped-cell-view">
                 <button type="button" class="ped-row__view" aria-label="Ver detalle del pedido"
                   (click)="abrirDetalle(p); $event.stopPropagation()">
                   <ion-icon name="expand-outline"></ion-icon>
@@ -326,8 +327,11 @@
         </div>
 
         <!-- Productos pedidos (lo que el usuario pidio) -->
+        <!-- Se muestran los primeros productos y el resto se resume: sin el corte,
+             un pedido de 6 líneas estiraba toda su fila de la grilla. El detalle
+             completo está a un clic, en el modal del pedido. -->
         <div class="ped-fs-card__prods">
-          <div class="ped-fs-card__prod" *ngFor="let it of p.items">
+          <div class="ped-fs-card__prod" *ngFor="let it of p.items | slice:0:maxProductosEnCard">
             <div class="ped-fs-card__prod-line">
               <span class="ped-fs-card__prod-name">{{ it.cantidad }}x {{ it.producto_nombre }}<span *ngIf="it.tamano_nombre" class="ped-fs-card__prod-size"> ({{ it.tamano_nombre }})</span></span>
               <span class="ped-fs-card__prod-price">{{ it.subtotal | crcCurrency }}</span>
@@ -336,6 +340,10 @@
               <span *ngFor="let e of it.extras; let last = last">+ {{ e.nombre }}{{ last ? '' : ', ' }}</span>
             </p>
           </div>
+          <p class="ped-fs-card__mas" *ngIf="p.items && p.items.length > maxProductosEnCard">
+            + {{ p.items.length - maxProductosEnCard }}
+            {{ p.items.length - maxProductosEnCard === 1 ? 'producto más' : 'productos más' }}
+          </p>
           <p class="ped-fs-card__note" *ngIf="p.notas">
             <ion-icon name="chatbubble-outline"></ion-icon> "{{ p.notas }}"
           </p>
