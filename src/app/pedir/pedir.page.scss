@@ -1922,7 +1922,10 @@
   justify-content: center;
   animation: rooster-fade var(--rooster-ease-fast) both;
 
-  @media (min-width: 768px) {
+  /* Desde 400px el modal se centra (bottom-sheet solo en telefonos angostos),
+     igual que en Home. Antes centraba recien en 768 -> en tablets chicos salia
+     pegado abajo. */
+  @media (min-width: 400px) {
     align-items: center;
     padding: 16px;
   }
@@ -1944,7 +1947,7 @@
   box-shadow: var(--rooster-shadow-xl);
   animation: rooster-rise var(--rooster-ease-med) both;
 
-  @media (min-width: 768px) {
+  @media (min-width: 400px) {
     border-radius: var(--rooster-radius-lg);
   }
 }
@@ -1985,32 +1988,10 @@
   color: var(--client-text-muted);
   margin: 0 0 16px;
 }
-.buscar-modal__input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: var(--rooster-radius-sm);
-  border: 1.5px solid var(--client-border);
-  background: #fff;
-  font-family: var(--client-font-body);
-  font-size: 16px;
-  color: var(--client-text);
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px;
-  transition: border-color var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
-
-  &::placeholder {
-    text-transform: none;
-    letter-spacing: 0;
-    color: #bbb;
-  }
-  &:focus {
-    outline: none;
-    border-color: var(--client-red);
-    box-shadow: 0 0 0 4px rgba(var(--client-red-rgb), 0.1);
-  }
-}
+/* .buscar-modal__input: se usa el estilo GLOBAL compartido (global.scss). El
+   global resetea el input DENTRO de __inputwrap (margin:0 + padding derecho de
+   100px) para que el chip "Pegar" quede centrado y no se encime — el override
+   local que habia aca lo desalineaba. */
 .buscar-modal__error {
   color: var(--client-red);
   font-family: var(--client-font-body);
