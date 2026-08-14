@@ -7,6 +7,20 @@
   <!-- VISTA: MENU -->
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <ng-container *ngIf="vista === 'menu'">
+    <!-- Header estilo Home (negro + logo Rooster + boton buscar + marco fijo con
+         scroll). Copiado del Home (estilos en global.scss). El contenido actual del
+         menu queda DEBAJO por ahora; se acomodara luego. -->
+    <div class="home-header">
+      <div class="home-header__hero">
+        <div class="home-header__copy">
+          <img class="home-header__logo" src="assets/logo/rooster-home.png" alt="Rooster" />
+        </div>
+        <button type="button" class="home-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
+          <ion-icon name="receipt-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
     <!-- Encabezado del menu. En PC: titulo + buscar platillo + categorias + boton
          de codigo + logo, TODO en una misma fila. En movil se apila (titulo/codigo/logo
          arriba, buscador y categorias debajo). -->

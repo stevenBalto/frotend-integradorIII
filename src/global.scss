@@ -1027,3 +1027,104 @@ ion-toast.notif-toast::part(header) {
     -webkit-backdrop-filter: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HEADER DE CLIENTE compartido (Home y Carrito): negro + logo Rooster + boton
+   buscar, watermark de roosters en mosaico y el "marco" (::after) redondeado con
+   glow rojo. Sticky: viaja fijo arriba mientras el resto scrollea. Se movio a
+   global para reusarlo en /tabs/pedir; el scoped de home.page.scss es identico
+   (unificar cuando se termine de acomodar el Carrito).
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes home-rooster-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 456px; }
+}
+.home-header {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--client-ink);
+  padding: 30px 20px 44px;
+  overflow: hidden;
+  /* En el Carrito el scroll de ion-content es flex column (para centrar
+     carrito/checkout); sin esto el header se comprime para caber en viewports
+     bajos y se ve "cortado". flex-shrink:0 conserva su alto (en Home se ignora). */
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .home-header { padding: 40px 32px 54px; }
+}
+/* Marco: borde blanco redondeado + glow rojo en el filo inferior del header. */
+.home-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22px;
+  background: var(--client-bg);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  box-shadow: 0 -10px 13px -4px rgba(225, 54, 66, 0.6);
+  z-index: 2;
+}
+/* Watermark de roosters en mosaico, con drift vertical lento. */
+.home-header::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  bottom: -200px;
+  left: -120px;
+  right: -120px;
+  background-image: url('/assets/logo/rooster-logo.png');
+  background-repeat: repeat;
+  background-size: 76px 76px;
+  opacity: 0.62;
+  filter: brightness(2.5);
+  transform: rotate(-18deg);
+  animation: home-rooster-drift 100s linear infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-header::before { animation: none; }
+}
+.home-header__hero {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.home-header__copy { min-width: 0; }
+.home-header__logo {
+  display: block;
+  height: 42px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+@media (min-width: 768px) { .home-header__logo { height: 56px; } }
+@media (min-width: 1024px) { .home-header__logo { height: 62px; } }
+.home-header__icon-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--rooster-radius-sm);
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(11, 11, 12, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.home-header__icon-btn:active { transform: scale(0.94); }
+.home-header__icon-btn ion-icon { font-size: 20px; color: var(--client-text); }
+@media (max-width: 425px) {
+  .home-header__icon-btn { width: 36px; height: 36px; }
+  .home-header__icon-btn ion-icon { font-size: 18px; }
+}
