@@ -119,30 +119,28 @@
   &__tools {
     order: 4;
     flex: 0 0 100%;
-    /* min-width:0 clave: sin esto el item flex toma min-width:auto (= min-content =
-       todos los chips de categoria sin envolver) y se estira mas alla del viewport
-       ("ancho infinito"), ademas de romper el scroll horizontal de las categorias. */
     min-width: 0;
     max-width: 100%;
+    /* MOVIL: categorias (segmented, ocupan lo disponible) + lupa colapsable a la
+       derecha, en la MISMA fila. position:relative ancla el input overlay. */
+    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     gap: 10px;
     margin-top: 4px;
 
-    .pedir-search { width: 100%; min-width: 0; box-sizing: border-box; }
-    .pedir-cats {
-      min-width: 0;
-      max-width: 100%;
-      padding-left: 0;
-      padding-right: 0;
-      margin-top: 0;
-      margin-bottom: 0;
-      /* overflow-x: auto viene del bloque base .pedir-cats -> vuelve a scrollear. */
-    }
+    .pedir-cats { flex: 1 1 auto; min-width: 0; }
+    .pedir-search-box { flex-shrink: 0; }
+
+    /* Buscando (movil): se ocultan las categorias y el input tapa la fila. */
+    &--search .pedir-cats { visibility: hidden; }
   }
 
-  /* PC: TODO en una sola fila -> titulo, buscar+categorias, boton codigo, logo. */
-  @media (min-width: 768px) {
+  /* TABLET / PC (>=531): categorias en pills icono+texto. El buscador SIGUE
+     colapsable (solo lupa, se expande a la izquierda) hasta 868px — el modo
+     estatico (campo fijo) recien entra en >=869 (mas abajo). */
+  @media (min-width: 531px) {
     flex-wrap: nowrap;
     gap: 16px;
     padding: 16px 32px 24px;
@@ -156,11 +154,11 @@
       min-width: 0;
       margin-top: 0;
 
-      .pedir-search { flex: 0 0 220px; width: auto; }
       .pedir-cats { flex: 1 1 auto; min-width: 0; padding-bottom: 0; }
+      /* 531-868: search-box = solo la lupa (44px). El ancho estatico y el
+         "des-ocultar categorias" viven en el breakpoint >=869. */
+      .pedir-search-box { flex-shrink: 0; }
     }
-    .pedir-header__icon-btn { order: 3; }
-    .pedir-header__logo { order: 4; }
   }
 }
 
@@ -467,69 +465,187 @@
   .pedir-search__ch { animation: none; }
 }
 
+/* ── Buscador colapsable (MOVIL) / normal (TABLET-PC) ─────────────────────────
+   MOVIL: la lupa (.pedir-search-box__toggle) va a la derecha; al abrir, el input
+   (.pedir-search) se despliega como overlay creciendo hacia la izquierda y tapa
+   las categorias (patron del buscador del admin). TABLET/PC: la lupa se oculta y
+   el input va estatico. */
+.pedir-search-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.pedir-search-box__toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f1ece3;
+  border: 1.5px solid var(--client-border);
+  color: var(--client-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;   /* por encima del input abierto: cierra al tocarla */
+  z-index: 6;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+
+  &:active { transform: scale(0.94); }
+  ion-icon { font-size: 20px; }
+}
+.pedir-menu-head__tools--search .pedir-search-box__toggle {
+  border-color: var(--client-red);
+  background: #fff;
+}
+
+/* MOVIL: el input es un overlay colapsado (ancho 0), anclado a la lupa (derecha),
+   que crece hacia la izquierda. box-sizing:border-box para que el padding no lo
+   desborde al calcular el ancho abierto. */
+.pedir-search {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 0;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+  white-space: nowrap;
+  padding: 13px 48px 13px 18px;   /* aire a la derecha para la lupa que queda encima */
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease;
+}
+.pedir-menu-head__tools--search .pedir-search {
+  width: min(520px, calc(100vw - 40px));
+  opacity: 1;
+  pointer-events: auto;
+}
+/* 531-868: mismo buscador colapsable, pero un poco menos ancho al expandirse. */
+@media (min-width: 531px) and (max-width: 868px) {
+  .pedir-menu-head__tools--search .pedir-search {
+    width: min(460px, calc(100vw - 160px));
+  }
+}
+.pedir-search__icon { display: none; }   /* movil: la lupa es el toggle (derecha) */
+
+/* >=869: el buscador deja de colapsar y pasa a campo fijo (la lupa se oculta,
+   el input queda estatico y las categorias ya no se ocultan al buscar). Entre
+   531 y 868 sigue siendo la lupa colapsable (misma logica que en movil). */
+@media (min-width: 869px) {
+  .pedir-search-box__toggle { display: none; }
+  .pedir-menu-head__tools .pedir-search-box { flex: 0 0 clamp(200px, 26vw, 240px); }
+  .pedir-menu-head__tools--search .pedir-cats { visibility: visible; }
+  .pedir-search,
+  .pedir-menu-head__tools--search .pedir-search {
+    position: static;
+    width: 100%;
+    opacity: 1;
+    pointer-events: auto;
+    overflow: visible;
+    transform: none;
+    white-space: normal;
+    padding: 13px 18px;
+  }
+  .pedir-search__icon { display: block; }
+}
+
 /* ── Tabs de categoria ──────────────────────────────────────────────────────── */
 .pedir-cats {
+  /* MOVIL: contenedor "segmented" (fondo gris, esquinas redondeadas) con chips
+     solo-icono. Scrollea si no caben. */
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 3px;
+  background: #efeae1;
+  border-radius: 14px;
+  padding: 4px;
   overflow-x: auto;
-  padding: 0 20px 16px;
-  /* Separacion de la fila de arriba (sucursal + buscador): sin esto quedaban
-     pegadas, casi tocandose. */
-  margin-top: 12px;
-  margin-bottom: 8px;
   scrollbar-width: none;
+  min-height: 46px;
   &::-webkit-scrollbar { display: none; }
 
-  /* Chromium colapsa la altura de un flex row con overflow-x:auto cuando el
-     contenido excede el ancho disponible (bug de layout, no de contenido) —
-     min-height explicito evita que los chips queden recortados/tapados por
-     el listado de platillos debajo. Valor = alto real de .pedir-cat (padding
-     14px*2 + line-height 13px + borde ~3px). */
-  min-height: 44px;
-
-  @media (min-width: 768px) {
-    padding: 0 32px 20px;
-    margin-bottom: 12px;
+  @media (min-width: 531px) {
+    /* TABLET / PC: fila simple de pills icono+texto (sin fondo segmented). */
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    gap: 10px;
+    min-height: 0;
   }
 }
 
 .pedir-cat {
-  flex-shrink: 0;
+  /* MOVIL (<=530): los chips CRECEN para repartirse el ancho del segmented
+     (flex:1) — antes eran flex-shrink:0 y se apretaban a la izquierda dejando
+     un vacio grande sobrando a la derecha. basis:auto evita que se encojan por
+     debajo de su contenido; si no caben, el segmented scrollea. */
+  flex: 1 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Line-height explicito: sin esto, el centrado vertical del texto dentro
-     de un <button> depende del calculo de linea por defecto del navegador,
-     que en zooms fraccionarios (ej. 137.5% / devicePixelRatio 1.375) puede
-     redondear a un pixel de mas o de menos arriba/abajo del centro real. */
   line-height: 1;
-  background: #ffffff;
-  border: 1.5px solid var(--client-border);
-  border-radius: 24px;
-  /* Mismo alto que el resto de controles de esta pantalla (modalidad ~44px,
-     select ~48px, buscador ~47px) — antes quedaba en ~31px, visiblemente mas
-     bajo y desproporcionado. */
-  padding: 14px 20px;
-  font-family: var(--client-font-body);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--client-text);
+  /* MOVIL: chip solo-icono dentro del segmented. */
+  gap: 0;
+  border: none;
+  background: none;
+  border-radius: 11px;
+  padding: 7px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
 
-  &:active {
-    transform: scale(0.95);
+  /* Badge de marca (icono de Home). Inactivo = gris tenue; activo = a color. */
+  &__ic {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: block;
+    filter: grayscale(1);
+    opacity: 0.5;
+    transition: filter 0.2s, opacity 0.2s;
   }
+  &__lbl { display: none; }
+
+  &:active { transform: scale(0.95); }
 
   &--active {
-    background: var(--client-red);
-    border-color: transparent;
-    color: #ffffff;
-    /* No usar --client-shadow-red aqui: ese valor (0 10px 24px) tiene mucho
-       alcance vertical y, al activarse una categoria, la sombra "invadia"
-       visualmente el espacio hacia las tarjetas de abajo aunque el padding
-       real estuviera bien — se veia como si chocara. Sombra propia, corta. */
-    box-shadow: 0 3px 8px rgba(var(--client-red-rgb), 0.3);
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(11, 11, 12, 0.14);
+
+    .pedir-cat__ic { filter: none; opacity: 1; }
+  }
+
+  /* TABLET / PC (>=531): pill con icono + texto. El badge queda a color siempre
+     (se ve sobre blanco); el activo se marca con borde + texto rojo (no relleno
+     rojo, que taparia el badge). */
+  @media (min-width: 531px) {
+    flex: 0 0 auto;   /* pills a ancho natural (no se estiran como los chips) */
+    gap: 8px;
+    padding: 9px 15px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1.5px solid var(--client-border);
+    font-family: var(--client-font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--client-text);
+
+    .pedir-cat__ic {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      filter: none;
+      opacity: 1;
+    }
+    .pedir-cat__lbl { display: inline; }
+
+    &--active {
+      background: rgba(var(--client-red-rgb), 0.06);
+      border-color: var(--client-red);
+      color: var(--client-red);
+      box-shadow: none;
+    }
   }
 }
 

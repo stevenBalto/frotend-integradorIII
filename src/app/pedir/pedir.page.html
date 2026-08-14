@@ -25,25 +25,39 @@
          de codigo + logo, TODO en una misma fila. En movil se apila (titulo/codigo/logo
          arriba, buscador y categorias debajo). -->
     <div class="pedir-menu-head">
-      <div class="pedir-menu-head__tools">
-        <div class="pedir-search">
-          <ion-icon class="pedir-search__icon" name="search-outline"></ion-icon>
-          <div class="pedir-search__field">
-            <input type="text" placeholder="Buscar platillo..." aria-label="Buscar platillo" [(ngModel)]="busqueda" />
-            <!-- Placeholder animado: onda infinita que salta letra por letra empezando
-                 por el icono. Solo cuando el campo esta vacio; al escribir se oculta. -->
-            <div class="pedir-search__anim" *ngIf="!busqueda" aria-hidden="true">
-              <span class="pedir-search__ch" *ngFor="let ch of buscarChars; let i = index"
-                    [style.animation-delay.ms]="(i + 1) * 60">{{ ch }}</span>
+      <div class="pedir-menu-head__tools" [class.pedir-menu-head__tools--search]="buscadorAbierto">
+        <!-- Categorias. Movil: segmented solo-icono (Todos + categorias, iconos de Home).
+             Tablet/PC: pill con icono + texto. -->
+        <div class="pedir-cats">
+          <button type="button" class="pedir-cat" [class.pedir-cat--active]="activeCat === null"
+            (click)="seleccionarCategoria(null)">
+            <img class="pedir-cat__ic" src="assets/sistema/todos-rojo.svg" alt="" aria-hidden="true" />
+            <span class="pedir-cat__lbl">Todos</span>
+          </button>
+          <button type="button" class="pedir-cat" *ngFor="let c of categorias"
+            [class.pedir-cat--active]="activeCat === c.id" (click)="seleccionarCategoria(c.id)">
+            <img class="pedir-cat__ic" [src]="iconoCategoria(c.nombre)" alt="" aria-hidden="true" />
+            <span class="pedir-cat__lbl">{{ c.nombre }}</span>
+          </button>
+        </div>
+
+        <!-- Buscador. Movil: lupa colapsable a la derecha; al tocarla se expande hacia la
+             izquierda (tapa las categorias). Tablet/PC: input normal. Conserva el placeholder animado. -->
+        <div class="pedir-search-box" #searchBox>
+          <button type="button" class="pedir-search-box__toggle" (click)="toggleBuscador($event)" aria-label="Buscar platillo">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+          <div class="pedir-search">
+            <ion-icon class="pedir-search__icon" name="search-outline"></ion-icon>
+            <div class="pedir-search__field">
+              <input #searchInput type="text" placeholder="Buscar platillo..." aria-label="Buscar platillo" [(ngModel)]="busqueda" />
+              <!-- Placeholder animado: onda infinita que salta letra por letra desde el icono. -->
+              <div class="pedir-search__anim" *ngIf="!busqueda" aria-hidden="true">
+                <span class="pedir-search__ch" *ngFor="let ch of buscarChars; let i = index"
+                      [style.animation-delay.ms]="(i + 1) * 60">{{ ch }}</span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="pedir-cats">
-          <button class="pedir-cat" [class.pedir-cat--active]="activeCat === null"
-            (click)="seleccionarCategoria(null)">Todos</button>
-          <button class="pedir-cat" *ngFor="let c of categorias"
-            [class.pedir-cat--active]="activeCat === c.id"
-            (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
         </div>
       </div>
       <!-- Buscar-pedido y logo se quitaron de aqui: ya viven en el header (.home-header). -->

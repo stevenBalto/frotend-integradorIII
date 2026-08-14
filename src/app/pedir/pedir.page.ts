@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { Observable, Subject } from 'rxjs';
@@ -272,6 +272,50 @@ export class PedirPage implements OnInit, OnDestroy {
 
   seleccionarCategoria(id: number | null): void {
     this.activeCat = id;
+  }
+
+  // ── Buscador colapsable (solo movil; en tablet/PC el input va siempre visible) ──
+  /** Abierto = el input de buscar platillo esta desplegado (y tapa las categorias en movil). */
+  buscadorAbierto = false;
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('searchBox') searchBox?: ElementRef<HTMLElement>;
+
+  toggleBuscador(ev: Event): void {
+    ev.stopPropagation();
+    this.buscadorAbierto = !this.buscadorAbierto;
+    if (this.buscadorAbierto) {
+      setTimeout(() => this.searchInput?.nativeElement.focus(), 0);
+    }
+  }
+
+  /** Cierra el buscador al tocar fuera de su caja (patron del buscador del admin). */
+  @HostListener('document:click', ['$event'])
+  onDocClickBuscador(ev: MouseEvent): void {
+    if (!this.buscadorAbierto) {
+      return;
+    }
+    const box = this.searchBox?.nativeElement;
+    if (box && !box.contains(ev.target as Node)) {
+      this.buscadorAbierto = false;
+    }
+  }
+
+  /** Icono de marca (badges de Home) para cada categoria del selector del menu. */
+  private readonly ICONO_CATEGORIA: Record<string, string> = {
+    pizza: 'assets/sistema/pizza-rojo.svg',
+    parrilla: 'assets/sistema/grill-rojo.svg',
+    grill: 'assets/sistema/grill-rojo.svg',
+    pasta: 'assets/sistema/pastas-rojo.svg',
+    bebida: 'assets/sistema/bebidas-rojo.svg',
+  };
+  iconoCategoria(nombre: string): string {
+    const n = (nombre || '').toLowerCase();
+    for (const clave of Object.keys(this.ICONO_CATEGORIA)) {
+      if (n.includes(clave)) {
+        return this.ICONO_CATEGORIA[clave];
+      }
+    }
+    return 'assets/sistema/cubiertos-rojo.svg';
   }
 
   // ── Modal detalle producto ──
