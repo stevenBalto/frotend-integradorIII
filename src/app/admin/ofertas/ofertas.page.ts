@@ -7,6 +7,7 @@ import { CuponService } from '../../core/services/cupon.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { ClienteService } from '../../core/services/cliente.service';
 import { SucursalService } from '../../core/services/sucursal.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Oferta, OfertaPayload, OfertaImagenOpts, AlcanceOferta, AlcanceSedesOferta } from '../../core/models/oferta.model';
 import { Cupon, CuponPayload, CuponImagenOpts, AlcanceCupon, AlcanceSedesCupon } from '../../core/models/cupon.model';
 import { Cliente } from '../../core/models/cliente.model';
@@ -51,6 +52,7 @@ export class AdminOfertasPage implements OnInit {
   private productoService = inject(ProductoService);
   private clienteService = inject(ClienteService);
   private sucursalService = inject(SucursalService);
+  private authService = inject(AuthService);
   private confirm = inject(ConfirmService);
 
   tab: 'ofertas' | 'cupones' = 'ofertas';
@@ -851,14 +853,35 @@ export class AdminOfertasPage implements OnInit {
     this.canjeCargando = true;
     this.cuponService.validar(codigo).subscribe({
       next: (res) => {
-        this.canjeCupon = res.data;
         this.canjeCargando = false;
+        if (!this.aplicaEnMiSede(res.data.alcance_sedes, res.data.sucursales)) {
+          this.canjeError = 'Este cupón no está disponible en esta sede.';
+          return;
+        }
+        this.canjeCupon = res.data;
       },
       error: (err: HttpErrorResponse) => {
         this.canjeError = this.primerError(err);
         this.canjeCargando = false;
       },
     });
+  }
+
+  /**
+   * Corta el canje ahí mismo, en el modal de escaneo — antes solo se avisaba
+   * más adelante, al armar el pedido de mostrador. Solo aplica si quien
+   * escanea es un admin_sede (sucursal_id propia); el admin general no está
+   * atado a ninguna sede, así que no se le bloquea nada acá.
+   */
+  private aplicaEnMiSede(
+    alcanceSedes: 'todas' | 'especifica',
+    sucursales?: { id: number }[],
+  ): boolean {
+    const miSedeId = this.authService.usuario?.sucursal_id ?? null;
+    if (miSedeId === null || alcanceSedes !== 'especifica') {
+      return true;
+    }
+    return (sucursales ?? []).some((s) => s.id === miSedeId);
   }
 
   /** El codigo corto ("CU-0005") solo identifica el cupon por id — se resuelve a su codigo real y se valida igual. */
@@ -875,10 +898,18 @@ export class AdminOfertasPage implements OnInit {
     this.canjeCargando = true;
     this.ofertaService.listarTodos().subscribe({
       next: (ofertas) => {
-        const oferta = ofertas.find((o) => o.id === id) ?? null;
-        this.canjeOferta = oferta;
-        this.canjeError = oferta ? null : 'Esta oferta ya no existe.';
         this.canjeCargando = false;
+        const oferta = ofertas.find((o) => o.id === id) ?? null;
+        if (!oferta) {
+          this.canjeError = 'Esta oferta ya no existe.';
+          return;
+        }
+        if (!this.aplicaEnMiSede(oferta.alcance_sedes, oferta.sucursales)) {
+          this.canjeError = 'Esta oferta no está disponible en esta sede.';
+          return;
+        }
+        this.canjeOferta = oferta;
+        this.canjeError = null;
       },
       error: () => {
         this.canjeError = 'No se pudo validar la oferta.';
