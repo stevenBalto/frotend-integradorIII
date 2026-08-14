@@ -29,7 +29,7 @@ export class TabsPage implements AfterViewInit, OnDestroy {
   readonly tabs: TabDef[] = [
     { key: 'home', icon: 'home-outline', label: 'Home' },
     { key: 'pedir', icon: 'cart-outline', label: 'Carrito' },
-    { key: 'ofertas', icon: 'pricetag-outline', label: 'Ofertas' },
+    { key: 'ofertas', icon: 'pricetag-outline', label: 'Promociones' },
     { key: 'mi-cuenta', icon: 'person-outline', label: 'Mi cuenta' },
   ];
 
