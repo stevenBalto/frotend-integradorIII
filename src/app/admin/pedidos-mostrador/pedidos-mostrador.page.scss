@@ -3,6 +3,24 @@
    usan tablas que sí aprovechan el ancho completo). Scopeado a esta página. */
 .admin-page { max-width: 1440px; margin: 0 auto; width: 100%; }
 
+/* Card "Productos" angosta: el ancho por defecto del buscador (240px) llegaba
+   a tocar el título al desplegarse. Achicado solo acá. */
+.mostrador-grid__catalogo admin-search-input { --asi-width: 210px; }
+
+.mostrador-cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 80px 20px;
+  color: var(--admin-text-muted);
+  font-size: 13px;
+
+  ion-spinner { width: 28px; height: 28px; color: var(--rooster-red, #e13642); }
+  p { margin: 0; }
+}
+
 .mostrador-hint { font-size: 12px; color: var(--admin-text-muted); margin: 0; }
 .mostrador-error { font-size: 12px; color: var(--rooster-red, #e13642); margin: 0 0 12px; }
 
@@ -60,6 +78,37 @@
 
   @media (min-width: 1024px) {
     grid-template-columns: 3fr 2fr;
+    /* Tope real de alto para las 2 cards (ver [fill] en el html) — sin esto,
+       "stretch" del grid solo iguala el alto entre sí, pero deja que ambas
+       crezcan sin límite con el contenido más largo (ej. agregar 8 líneas al
+       pedido estiraba las 2 cards a >1800px). Con el tope, cada lista interna
+       (.mostrador-productos / .mostrador-lineas-wrap) es la que scrollea. */
+    align-items: stretch;
+
+    .mostrador-grid__catalogo,
+    .mostrador-grid__carrito {
+      max-height: 680px;
+    }
+  }
+
+  /* Oferta canjeada: no hay catálogo (sus productos ya vienen fijos), solo la
+     tarjeta "Pedido" — se centra con un tope, no se estira a todo el ancho.
+     El tope (760px) es fijo en px, no relativo al viewport: en monitores
+     grandes se ve como una card de escritorio real, no una tarjeta angosta de
+     celular perdida en medio de la pantalla. Por debajo de 1024px no hay tope
+     (columna única a todo el ancho) — ahí sí se angosta de forma responsive
+     normal a medida que se reduce hacia tablet/celular. */
+  &--sola {
+    @media (min-width: 1024px) {
+      grid-template-columns: 1fr;
+      /* width:100% explícito es necesario: ".admin-page" es un flex container
+         (column) y "margin:0 auto" en un hijo flex desactiva el stretch por
+         defecto — sin el 100%, el navegador encogía la card a su contenido
+         mínimo (~300px) en vez de usar el ancho completo hasta el tope. */
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
   }
 }
 
@@ -100,21 +149,70 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
      en px se comía la mitad de la pantalla en celulares chicos. */
   max-height: 50vh;
   overflow-y: auto;
+  /* Sin esto, el navegador computa overflow-x en "auto" solo porque overflow-y
+     no es "visible" (regla de la spec CSS) — la lista quedaba arrastrable hacia
+     los lados y descuadraba las filas. Bloqueado: el scroll es solo vertical. */
+  overflow-x: hidden;
 
   @media (min-width: 1024px) {
-    max-height: 480px;
+    /* En 2 columnas, la card ya viene estirada al alto de "Pedido" (grid
+       stretch + [fill] en ambas cards) — la lista ocupa lo que sobre y
+       scrollea ahí, en vez de un tope fijo en px desalineado del vecino. */
+    max-height: none;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 }
 
-.mostrador-producto {
+/* Misma idea para el lado del carrito: solo la lista de líneas agregadas
+   scrollea (a partir de 1024px, cuando las 2 cards quedan lado a lado);
+   totales/form/botón se quedan fijos debajo, siempre visibles. Sin esto,
+   agregar 2-3 productos ya estiraba la card "Pedido" mucho más que
+   "Productos", perdiendo el alto parejo entre ambas. */
+.mostrador-lineas-wrap {
+  /* Base (mobile/tablet, cards apiladas en 1 columna): tope FIJO en px (no vh)
+     — antes esto no tenía ningún límite en esta franja y la lista de líneas
+     crecía sin scroll, empujando todo el formulario de abajo (nombre/sucursal/
+     modalidad/notas/botón) fuera de la vista. Fijo en px (no relativo al alto
+     de la ventana) para que el tope se vea igual sin importar si se prueba en
+     un celular real o angostando una ventana de escritorio alta — con vh, una
+     ventana alta dejaba tanto margen que ni con 5-6 líneas se notaba el corte. */
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  /* ~3 líneas visibles (lo normal para un cupón) antes de scrollear — con un
+     tope más alto (300px) 5-6 líneas cortas entraban igual sin recortarse. */
+  max-height: 190px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @media (min-width: 1024px) {
+    /* 2 columnas: la card ya viene con un alto fijo compartido (ver
+       .mostrador-grid) — acá la lista ocupa lo que sobre y scrollea ahí. */
+    max-height: none;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+/* Grid de 2 columnas fijas (miniatura+info | controles) con un alto mínimo
+   parejo en TODAS las filas — antes era flex-wrap con un ancho fijo de 160px
+   para los controles que, en tarjetas angostas (admin en mobile), no cabía
+   junto al nombre y hacía que miniatura/nombre/precio/botón cayeran cada uno
+   en su propia línea (fila "deshilachada", alto distinto por fila). Con grid
+   la fila SIEMPRE es una sola línea desde el ancho de la tarjeta en adelante;
+   solo en pantallas muy angostas (≤360px) los controles bajan a su propia
+   fila completa, de forma predecible. */
+.mostrador-producto {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px 12px;
+  min-height: 58px;
   padding: 8px 10px;
   border: 1px solid var(--admin-border);
   border-radius: 10px;
   background: #fff;
+  box-sizing: border-box;
   transition: border-color 0.15s, background 0.15s;
 
   &:hover { border-color: var(--admin-neutral3, #d4d4d4); background: var(--admin-neutral1, #fafafa); }
@@ -127,9 +225,9 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
 
   /* Miniatura: mismo tratamiento que la fila de Menú (icono placeholder si no hay foto). */
   &__thumb {
+    grid-column: 1;
     width: 38px;
     height: 38px;
-    flex-shrink: 0;
     border-radius: 8px;
     background: var(--admin-neutral1, #f5f5f4);
     display: flex;
@@ -140,8 +238,19 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
   }
 
-  &__info { flex: 1 1 auto; min-width: 140px; }
-  &__nombre { font-size: 13px; font-weight: 600; margin: 0; color: var(--admin-text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  &__info { grid-column: 2; min-width: 0; }
+  &__nombre {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--admin-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   &__tag {
     font-size: 9px;
     font-weight: 800;
@@ -151,6 +260,7 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     background: var(--rooster-red, #e13642);
     padding: 2px 6px;
     border-radius: 999px;
+    flex-shrink: 0;
   }
   &__precio { font-size: 11px; color: var(--admin-text-muted); margin: 2px 0 0; }
   &__tamano {
@@ -162,19 +272,30 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     color: var(--admin-text);
   }
 
-  /* Bloque tamaño+botón con ancho fijo: sin esto, en filas sin selector de
-     tamaño el botón "+" queda pegado al nombre, y en filas CON selector queda
-     con un salto enorme respecto a las que no lo tienen. Ancho fijo = todas
-     las filas alinean su botón en la misma columna, prolijo como una tabla. */
+  /* Columna de controles con ancho propio (no fijo en px): se acomoda al
+     select de tamaño cuando lo hay, y al botón solo cuando no — siempre en
+     la 3ra columna del grid, nunca empuja ni rompe la fila. */
   &__controles {
-    flex-shrink: 0;
+    grid-column: 3;
     display: flex;
     align-items: center;
     gap: 8px;
-    width: 160px;
     justify-content: flex-end;
   }
-  &__select { flex: 1 1 auto; min-width: 0; }
+  &__select {
+    width: 108px;
+    flex-shrink: 0;
+
+    /* Tocaron "+" sin elegir tamaño: antes no pasaba nada visible, ahora el
+     * selector "tiembla" en rojo un instante para señalar qué falta. */
+    &--error {
+      /* --admin-border es la variable que YA usa el borde interno del
+         disparador (admin-select.component.ts) — al pisarla acá solo afecta
+         a este selector puntual, no se filtra a otros (scope por herencia). */
+      --admin-border: var(--rooster-red, #e13642);
+      animation: mostrador-shake 0.4s;
+    }
+  }
 
   &__add {
     width: 32px;
@@ -194,12 +315,26 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
     ion-icon { font-size: 16px; }
   }
 
-  /* ≤480px: la columna fija de controles ya no cabe junto al nombre. Todo
-     pasa a ancho completo en su propia fila. */
-  @media (max-width: 480px) {
-    &__info { flex-basis: 100%; order: 1; }
-    &__controles { width: 100%; order: 2; justify-content: flex-start; }
+  /* ≤360px: ya ni el select de tamaño angosto cabe en la 3ra columna junto al
+     nombre. Los controles bajan a su propia fila, a todo el ancho — predecible
+     (siempre 2 filas parejas, no una tirada de elementos sueltos). */
+  @media (max-width: 360px) {
+    grid-template-columns: 38px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+
+    &__thumb { grid-row: 1; }
+    &__info { grid-row: 1; }
+    &__controles { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+    &__select { flex: 1 1 auto; width: auto; }
   }
+}
+
+@keyframes mostrador-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
 }
 
 .mostrador-linea {
@@ -231,6 +366,13 @@ textarea.of-form__input { height: auto; padding: 10px 12px; resize: vertical; }
       font-weight: 700;
     }
     span { min-width: 16px; text-align: center; font-size: 13px; font-weight: 600; color: var(--admin-text); }
+  }
+  /* Oferta: cantidad fija, solo texto (sin +/− — no se edita). */
+  &__qty-fija {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--admin-text-muted);
   }
 }
 
