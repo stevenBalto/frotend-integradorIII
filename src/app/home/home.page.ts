@@ -315,6 +315,14 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     this.cargarVitrina();
   }
 
+  /** Ionic cachea las paginas de los tabs, asi que ngOnInit corre una sola vez
+      por sesion: sin esto, una oferta/cupon que el admin extiende o vence no se
+      reflejaba hasta un F5. Se dispara tambien en la primera entrada, por eso
+      cargarPromos() NO va ademas en ngOnInit (serian dos requests). */
+  ionViewWillEnter(): void {
+    this.cargarPromos();
+  }
+
   // ── Buscar mi pedido (modal in-place) ──
 
   get esInvitado(): boolean {
@@ -595,7 +603,14 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
         this.cargando = false;
       },
     });
+  }
 
+  /** Ofertas y cupones, aparte de la vitrina de productos: son lo unico que
+      caduca por FECHA, asi que se refrescan en cada entrada al tab (ver
+      ionViewWillEnter). Van separados del menu a proposito — recargar tambien
+      los productos haria parpadear el skeleton cada vez que volves al Home,
+      y el menu no cambia con la frecuencia que cambian las promos. */
+  private cargarPromos(): void {
     this.ofertaService.listarPublicas().subscribe({
       next: (ofertas) => (this.ofertas = ofertas),
     });

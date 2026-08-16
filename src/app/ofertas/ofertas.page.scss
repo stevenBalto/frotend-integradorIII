@@ -407,3 +407,71 @@
     margin: 0;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Promos bloqueadas para INVITADO (entro con "Iniciar sin registrarme")
+   La card se sigue viendo —el invitado tiene que saber que la promo existe,
+   es el gancho para que se registre— pero apagada y con el icono de persona
+   (el mismo del boton "Iniciar sin registrarme" del login, que es de donde
+   viene este usuario). Tocarla lleva al login. Solo cambia la card: la lista,
+   los tabs y los textos quedan igual.
+   Aplica tanto a .oferta-card como a .cupon-card, por eso el nombre neutro
+   .promo-* en vez de colgar de una u otra.
+   ══════════════════════════════════════════════════════════════════════════ */
+.promo-card--bloqueada {
+  /* La card en gris: el color de marca es la recompensa de registrarse. */
+  filter: grayscale(1);
+  /* Bloquea clicks en TODO lo de adentro (boton "Ver codigo"/"Usar" incluido).
+     El guard en el .ts cubre el acceso por teclado, que esto no frena. */
+  pointer-events: none;
+  user-select: none;
+
+  /* Sin el hover no queda duda de que la card no responde. */
+  &:hover { transform: none; box-shadow: none; }
+
+  /* Position relative ya lo trae .oferta-card; .cupon-card no, y lo necesita
+     para que el candado se posicione contra la card y no contra la pagina. */
+  position: relative;
+
+  /* El contenido se atenua para que el candado sea lo que resalta. */
+  .oferta-card__illus,
+  .oferta-card__body,
+  .cupon-card__illus,
+  .cupon-card__divider,
+  .cupon-card__body {
+    opacity: 0.45;
+  }
+}
+
+.promo-lock {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Velo tenue: apaga la card sin tapar del todo lo que ofrece. */
+  background: rgba(20, 17, 15, 0.28);
+  /* Reset de <button>. */
+  border: none;
+  padding: 0;
+  font: inherit;
+  /* La card padre tiene pointer-events:none para matar el boton de canjear;
+     el overlay lo REACTIVA solo para si mismo, asi que el unico click posible
+     sobre una promo bloqueada es el que lleva al login. */
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background var(--rooster-ease-fast);
+
+  &:hover { background: rgba(20, 17, 15, 0.38); }
+  &:active .promo-lock__icon { transform: scale(0.92); }
+}
+
+.promo-lock__icon {
+  font-size: 30px;
+  color: #ffffff;
+  /* La sombra despega el icono de la ilustracion de fondo, que puede ser
+     clara u oscura segun el color rotativo que le toque a la promo. */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
+  transition: transform var(--rooster-ease-fast);
+}

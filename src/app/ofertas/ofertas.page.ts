@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Oferta } from '../core/models/oferta.model';
 import { Cupon } from '../core/models/cupon.model';
 import { OfertaService } from '../core/services/oferta.service';
 import { CuponService } from '../core/services/cupon.service';
+import { AuthService } from '../core/services/auth.service';
 
 type OfferTab = 'ofertas' | 'cupones';
 
@@ -37,6 +38,23 @@ export class OfertasPage implements OnInit {
   private readonly ofertaService = inject(OfertaService);
   private readonly cuponService = inject(CuponService);
   private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  /** Visitante que entro con "Iniciar sin registrarme": ve las promos, pero
+      bloqueadas (no puede sacar el QR para canjearlas). Se lee como getter y no
+      como propiedad para que refleje el estado actual si la sesion cambia
+      mientras la pagina esta cacheada por el tab. */
+  get esInvitado(): boolean {
+    return !this.auth.estaAutenticado;
+  }
+
+  /** Tocar una promo bloqueada lleva al login: es la unica accion que le queda
+      al invitado sobre esa card, y es justo lo que necesita para desbloquearla.
+      Al volver, ionViewWillEnter recarga y las cards ya salen normales. */
+  irALogin(): void {
+    void this.router.navigateByUrl('/login');
+  }
 
   tab: OfferTab = 'ofertas';
 
@@ -58,9 +76,6 @@ export class OfertasPage implements OnInit {
   qrSubtitulo = '';
 
   ngOnInit(): void {
-    this.cargarOfertas();
-    this.cargarCupones();
-
     // Panel pedido desde el Home (?panel=ofertas|cupones) -> abre esa pestana.
     this.route.queryParamMap.subscribe((pm) => {
       const panel = pm.get('panel');
@@ -68,6 +83,19 @@ export class OfertasPage implements OnInit {
         this.tab = panel;
       }
     });
+  }
+
+  /** La carga va ACA y no en ngOnInit: Ionic CACHEA las paginas de los tabs en
+      vez de destruirlas, asi que ngOnInit corre una sola vez por sesion y la
+      lista quedaba congelada. Concretamente: si un admin vence/extiende una
+      oferta o cupon, el cliente no veia el cambio hasta hacer F5. El filtro por
+      fecha lo hace el backend en cada consulta (OfertaRepository), asi que basta
+      con volver a pedir los datos al entrar. ionViewWillEnter tambien se dispara
+      en la primera entrada, por eso no hace falta dejarlo tambien en ngOnInit
+      (haria dos requests). */
+  ionViewWillEnter(): void {
+    this.cargarOfertas();
+    this.cargarCupones();
   }
 
   cargarOfertas(): void {
@@ -196,6 +224,12 @@ export class OfertasPage implements OnInit {
 
   /** Muestra el QR de una oferta: el staff lo escanea para confirmar su vigencia (informativo, sin canje automático). */
   verQrOferta(o: OfferCard): void {
+    // El invitado no canjea: el bloqueo no puede ser solo visual (la card queda
+    // con pointer-events, pero igual se puede llegar aca por teclado).
+    if (this.esInvitado) {
+      return;
+    }
+
     this.qrCodigoTexto = this.codigoDeOferta(o.id);
     this.qrValor = this.qrCodigoTexto;
     this.qrTitulo = o.name;
@@ -205,6 +239,10 @@ export class OfertasPage implements OnInit {
 
   /** Muestra el QR de un cupón: el staff lo escanea para canjearlo en un pedido real. */
   verQrCupon(c: CouponCard): void {
+    if (this.esInvitado) {
+      return;
+    }
+
     this.qrCodigoTexto = this.codigoDeCupon(c.id);
     this.qrValor = this.qrCodigoTexto;
     this.qrTitulo = c.code;

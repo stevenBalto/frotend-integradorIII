@@ -20,7 +20,18 @@
     </div>
 
     <div class="ofertas-grid">
-      <div class="oferta-card" *ngFor="let oferta of ofertas">
+      <div class="oferta-card" [class.promo-card--bloqueada]="esInvitado" *ngFor="let oferta of ofertas">
+        <!-- Invitado: la card se ve apagada y al tocarla lleva al login. Es un
+             <button> (no un div) para que tambien responda con teclado. -->
+        <button
+          type="button"
+          class="promo-lock"
+          *ngIf="esInvitado"
+          (click)="irALogin()"
+          aria-label="Iniciá sesión para usar esta promoción"
+        >
+          <ion-icon name="person-outline" class="promo-lock__icon"></ion-icon>
+        </button>
         <div class="oferta-card__illus" [style.background]="oferta.color">
           <ion-icon [name]="oferta.icon" class="oferta-card__icon"></ion-icon>
         </div>
@@ -49,7 +60,18 @@
     </div>
 
     <div class="cupones-grid">
-      <div class="cupon-card" *ngFor="let cup of cupones">
+      <div class="cupon-card" [class.promo-card--bloqueada]="esInvitado" *ngFor="let cup of cupones">
+        <!-- Invitado: la card se ve apagada y al tocarla lleva al login. Es un
+             <button> (no un div) para que tambien responda con teclado. -->
+        <button
+          type="button"
+          class="promo-lock"
+          *ngIf="esInvitado"
+          (click)="irALogin()"
+          aria-label="Iniciá sesión para usar esta promoción"
+        >
+          <ion-icon name="person-outline" class="promo-lock__icon"></ion-icon>
+        </button>
         <div class="cupon-card__illus" [style.background]="cup.color">
           <ion-icon [name]="cup.icon" class="cupon-card__icon"></ion-icon>
         </div>
