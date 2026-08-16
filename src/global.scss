@@ -1199,16 +1199,27 @@ ion-toast.notif-toast::part(header) {
    que el wordmark (PNG transparente) se lea limpio. No se ensancha al hueco
    del medio. Bottom bien profundo (-100) para que llegue hasta el marco sin
    dejar rendija de roosters antes de la tarjeta blanca; el marco (::after,
-   z:2) igual pinta encima si el parche se pasa. */
+   z:2) igual pinta encima si el parche se pasa.
+   top/izquierda/abajo quedan fuera de la vista (filo recto sin problema); el
+   UNICO borde visible es el derecho, por donde cruzan los roosters -- ahi se
+   usa una mascara en degrade (no filo duro) para que el que va cruzando se
+   desvanezca en vez de cortarse a la mitad. */
 .home-header__copy::before {
   content: '';
   position: absolute;
   z-index: -1;
   top: -60px;
   left: -60px;
-  right: -34px;
+  /* right ampliado (antes -34): cada columna del mosaico mide ~76px en
+     pantalla; con -34 el nucleo solido + fade no llegaba a cubrir ni 2
+     columnas completas, asi que la 2da columna se colaba a medias por el
+     icono del logo. -140 cubre 2 columnas completas de sobra antes de
+     empezar el fade. */
+  right: -75px;
   bottom: -100px;
   background: var(--client-ink);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 60px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 60px), transparent 100%);
   pointer-events: none;
 }
 .home-header__logo {
