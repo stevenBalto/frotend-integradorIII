@@ -80,6 +80,7 @@
   }
 
   &__icon-btn {
+    position: relative;
     flex-shrink: 0;
     width: 40px;
     height: 40px;
@@ -92,6 +93,22 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.15s;
+
+    /* Parche negro PEGADO solo al icono (mismo criterio que el del logo en
+       __copy): tapa el mosaico justo detras del boton, sin extenderse al
+       hueco entre logo e icono. Bottom profundo (-100) para llegar hasta el
+       marco sin rendija de roosters antes de la tarjeta blanca. */
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      top: -14px;
+      bottom: -100px;
+      left: -14px;
+      right: -14px;
+      background: var(--client-ink);
+      pointer-events: none;
+    }
 
     &:active { transform: scale(0.94); }
     ion-icon { font-size: 20px; color: var(--client-text); }
@@ -114,7 +131,25 @@
   }
 
   &__copy {
+    position: relative;
     min-width: 0;
+
+    /* Parche negro SOLO detras del logo (esquina sup-izq): tapa el mosaico
+       para que el wordmark (PNG transparente) se lea limpio. No se ensancha
+       al hueco del medio. Bottom bien profundo (-100) para que llegue hasta
+       el marco sin dejar rendija de roosters antes de la tarjeta blanca; el
+       marco (::after, z:2) igual pinta encima si el parche se pasa. */
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      top: -60px;
+      left: -60px;
+      right: -22px;
+      bottom: -100px;
+      background: var(--client-ink);
+      pointer-events: none;
+    }
   }
 
   &__eyebrow {
