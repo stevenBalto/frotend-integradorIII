@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
+import { PushNotificationService } from '../../core/services/push-notification.service';
 import { SuperAdminAuthService } from '../../core/services/superadmin-auth.service';
 import { LoginResultado, PasswordExpiradaResponse } from '../../core/models/usuario.model';
 
@@ -17,6 +18,7 @@ export class LoginPage implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private superAuth = inject(SuperAdminAuthService);
+  private push = inject(PushNotificationService);
   private router = inject(Router);
   private toast = inject(ToastController);
 
@@ -82,6 +84,7 @@ export class LoginPage implements OnInit {
         this.cargando = false;
         // Google es puerta de CLIENTES (el backend rechaza cuentas admin), asi
         // que el destino es siempre la app del cliente.
+        this.activarPushCliente();
         void this.router.navigateByUrl('/tabs/home');
         void this.notificarExito(`Hola, ${res.data.nombre.split(' ')[0]}.`);
       },
@@ -138,6 +141,9 @@ export class LoginPage implements OnInit {
         }
 
         const esAdmin = loginRes.data.rol === 'super_admin' || loginRes.data.rol === 'admin_sede';
+        if (!esAdmin) {
+          this.activarPushCliente();
+        }
         void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
       },
       error: (err: HttpErrorResponse) => {
@@ -209,6 +215,9 @@ export class LoginPage implements OnInit {
 
         this.auth.adoptarSesion({ data: res.data, token: res.token });
         const esAdmin = res.data.rol === 'super_admin' || res.data.rol === 'admin_sede';
+        if (!esAdmin) {
+          this.activarPushCliente();
+        }
         void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
         void this.notificarExito('Contrasena actualizada. Bienvenido.');
       },
@@ -218,6 +227,17 @@ export class LoginPage implements OnInit {
         void this.notificar(mensaje);
       },
     });
+  }
+
+  /**
+   * Engancha las notificaciones push del telefono a la sesion recien abierta.
+   * Solo para CLIENTES (admin y superadmin no reciben push).
+   *
+   * No se espera el resultado a proposito: pedir el permiso del sistema no debe
+   * demorar la navegacion al home, y en navegador el servicio sale enseguida solo.
+   */
+  private activarPushCliente(): void {
+    void this.push.inicializar();
   }
 
   irRegistro(): void {

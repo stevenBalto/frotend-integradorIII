@@ -4,6 +4,7 @@ import { ToastController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { PedidoService } from '../core/services/pedido.service';
+import { PushNotificationService } from '../core/services/push-notification.service';
 import { Pedido } from '../core/models/pedido.model';
 import { Usuario } from '../core/models/usuario.model';
 import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
@@ -19,6 +20,7 @@ export class MiCuentaPage {
   private auth = inject(AuthService);
   private router = inject(Router);
   private pedidoService = inject(PedidoService);
+  private push = inject(PushNotificationService);
   private toast = inject(ToastController);
 
   /** Usuario logueado (o null = invitado). El template muestra login o el menu segun esto. */
@@ -68,9 +70,14 @@ export class MiCuentaPage {
 
   /** Cierra sesion en backend + local y vuelve a la vitrina. */
   cerrarSesion(): void {
-    this.auth.logout().subscribe({
-      next: () => this.irAVitrina(),
-      error: () => this.irAVitrina(),
+    // Primero se da de baja el push token: el endpoint es privado y necesita el
+    // Bearer todavia vivo, asi que tiene que pasar ANTES del logout. Si falla igual
+    // se cierra la sesion (desregistrar() nunca lanza).
+    void this.push.desregistrar().finally(() => {
+      this.auth.logout().subscribe({
+        next: () => this.irAVitrina(),
+        error: () => this.irAVitrina(),
+      });
     });
   }
 

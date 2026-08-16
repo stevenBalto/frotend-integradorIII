@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
+import { PushNotificationService } from '../../core/services/push-notification.service';
 
 const PASSWORD_FUERTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
 
@@ -21,6 +22,7 @@ function passwordFuerte(control: AbstractControl): ValidationErrors | null {
 export class RegisterPage {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
+  private push = inject(PushNotificationService);
   private router = inject(Router);
   private toast = inject(ToastController);
 
@@ -56,6 +58,7 @@ export class RegisterPage {
       .subscribe({
         next: () => {
           this.cargando = false;
+          void this.push.inicializar();
           void this.router.navigateByUrl('/tabs/home');
         },
         error: (err: HttpErrorResponse) => {

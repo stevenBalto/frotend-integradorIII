@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ToastController } from '@ionic/angular';
@@ -15,9 +16,16 @@ import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 })
 export class MisPedidosPage implements OnInit, OnDestroy {
   private pedidoService = inject(PedidoService);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastController);
 
   private destroy$ = new Subject<void>();
+
+  /**
+   * Pedido a abrir apenas carga la lista. Llega por `?pedido=N` cuando se entra
+   * tocando una notificacion push.
+   */
+  private pedidoDestacado: number | null = null;
 
   pedidos: Pedido[] = [];
   cargando = false;
@@ -29,6 +37,8 @@ export class MisPedidosPage implements OnInit, OnDestroy {
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   ngOnInit(): void {
+    const crudo = Number(this.route.snapshot.queryParamMap.get('pedido'));
+    this.pedidoDestacado = Number.isInteger(crudo) && crudo > 0 ? crudo : null;
     this.cargarPedidos();
   }
 
@@ -47,6 +57,12 @@ export class MisPedidosPage implements OnInit, OnDestroy {
           // Los pedidos ya pagados salen de aqui y viven en "Historial de compras".
           this.pedidos = pedidos.filter((p) => !p.pagado);
           this.cargando = false;
+
+          // Si venimos de una notificacion, se abre ese pedido (si sigue en la lista).
+          if (this.pedidoDestacado !== null && this.pedidos.some((p) => p.id === this.pedidoDestacado)) {
+            this.pedidoExpandido = this.pedidoDestacado;
+          }
+          this.pedidoDestacado = null;
         },
         error: () => {
           this.error = 'No se pudieron cargar tus pedidos. Intenta de nuevo.';

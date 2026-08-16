@@ -71,3 +71,15 @@ Thumbs.db
 
 # Fotos de prueba solo-local para ver el diseño con imagenes reales (no se comparten con el equipo)
 /src/assets/productos-demo/
+
+# Android nativo (Capacitor) — el codigo del proyecto SI se sube, pero esto no:
+# config de Firebase (se comparte aparte con el equipo, no por git) y artefactos
+# de build / rutas locales de cada maquina.
+android/app/google-services.json
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/*.iml
+android/app/*.iml

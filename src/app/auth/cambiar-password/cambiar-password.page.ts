@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { CuentaService } from '../../core/services/cuenta.service';
+import { PushNotificationService } from '../../core/services/push-notification.service';
 
 @Component({
   selector: 'app-cambiar-password',
@@ -16,6 +17,7 @@ export class CambiarPasswordPage {
   private fb = inject(FormBuilder);
   private cuenta = inject(CuentaService);
   private auth = inject(AuthService);
+  private push = inject(PushNotificationService);
   private router = inject(Router);
   private toast = inject(ToastController);
 
@@ -68,6 +70,9 @@ export class CambiarPasswordPage {
   private irAPanel(): void {
     const rol = this.auth.usuario?.rol;
     const esAdmin = rol === 'super_admin' || rol === 'admin_sede';
+    if (!esAdmin) {
+      void this.push.inicializar();
+    }
     void this.router.navigateByUrl(esAdmin ? '/admin' : '/tabs/home');
   }
 
