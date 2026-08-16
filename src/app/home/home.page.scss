@@ -488,16 +488,14 @@
      derecha. */
   @media (min-width: 768px) {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    /* Piso de 300 (antes 240/260): a mayor ancho de pantalla auto-fit sigue
+       agregando columnas (llena todo el ancho, igual que las categorias de
+       arriba), pero cada carta no baja de un tamano comodo. Sin tope de
+       ancho -- un tope dejaba las cartas centradas con espacio muerto a los
+       lados, algo que no pasa en el resto de la fila. */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 16px;
     overflow: visible;
-    /* Tope propio (independiente del ancho de la seccion, que ya no tiene
-       limite): sin esto, en pantallas grandes auto-fit mete mas y mas
-       columnas y las cartas de oferta/cupon quedan chiquitas. Con el tope
-       se quedan en ~4 columnas de buen tamano y el resto queda centrado. */
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
   }
 }
 
