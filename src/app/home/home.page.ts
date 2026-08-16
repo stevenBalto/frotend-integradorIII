@@ -496,6 +496,10 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // El nombre se captura ANTES de cerrar: cerrarDetalle() pone productoDetalle
+    // en null, y el toast (mas abajo) lo leia despues -> "Cannot read 'nombre'".
+    const nombre = this.productoDetalle.nombre;
+
     const linea: LineaCarrito = {
       producto: this.productoDetalle,
       tamano: this.tamanoSeleccionado,
@@ -507,7 +511,7 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     this.cerrarDetalle();
 
     const t = await this.toast.create({
-      message: `${this.productoDetalle.nombre} agregado al carrito`,
+      message: `${nombre} agregado al carrito`,
       duration: 2000,
       position: 'bottom',
       color: 'success',
