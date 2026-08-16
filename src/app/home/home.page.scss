@@ -781,33 +781,51 @@
 .dish-modal {
   position: fixed;
   inset: 0;
+  bottom: auto;
+  height: 100vh;
+  height: 100dvh;            /* cubre TODO el viewport, tambien detras del tab bar */
   z-index: 200;
   display: flex;
-  align-items: flex-end;
+  /* Modal CENTRADO en todos los tamanos (tambien movil), NO bottom-sheet. */
+  align-items: center;
   justify-content: center;
+  padding: 16px;
+  /* Reserva el alto del tab bar flotante (abajo) para que la tarjeta centrada
+     quede por encima de la barra. El backdrop (fixed, 100dvh) oscurece todo. */
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 
   @media (min-width: 768px) {
-    align-items: center;
-    padding: 16px;
+    padding-bottom: 24px;
   }
 }
 .dish-modal__backdrop {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100dvh;
   background: rgba(11, 11, 12, 0.6);
 }
 .dish-modal__panel {
   position: relative;
   width: 100%;
   max-width: 420px;
-  max-height: 88vh;
-  overflow-y: auto;
-  border-radius: var(--rooster-radius-lg) var(--rooster-radius-lg) 0 0;
+  max-height: calc(100dvh - 120px);
+  /* Flex column: imagen+cuerpo scrollean en un wrapper interno y el footer
+     queda FIJO al pie por layout (no sticky) -> sin huecos blancos. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--rooster-radius-lg);
   background: #fff;
-
-  @media (min-width: 768px) {
-    border-radius: var(--rooster-radius-lg);
-  }
+}
+.dish-modal__scroll {
+  flex: 1 1 auto;
+  min-height: 0;                  /* imprescindible para que el flex item scrollee */
+  overflow-y: auto;
+  overscroll-behavior: contain;   /* corta el rubber-band que mostraba el blanco */
+  -webkit-overflow-scrolling: touch;
 }
 .dish-modal__close {
   position: absolute;
@@ -833,11 +851,15 @@
   align-items: center;
   justify-content: center;
   background: var(--client-surface);
+  /* Redondea+recorta esquinas superiores para que la foto no se salga del marco
+     redondeado del panel (antes asomaban esquinas cuadradas en telefono). */
+  border-radius: var(--rooster-radius-lg) var(--rooster-radius-lg) 0 0;
+  overflow: hidden;
 
   img { width: 100%; height: 100%; object-fit: cover; }
   ion-icon { font-size: 48px; color: var(--client-text-muted); }
 }
-.dish-modal__body { padding: 20px; }
+.dish-modal__body { padding: 20px 20px 16px; }
 .dish-modal__cat {
   display: inline-block;
   border-radius: var(--rooster-radius-pill);
@@ -957,28 +979,71 @@
   &--active &__check ion-icon { color: var(--client-red); }
 }
 
+/* Footer flotante del modal: barra sticky al pie del panel con el boton de
+   agregar. Siempre visible (sin scroll) y flota sobre el tab bar como el FAB.
+   El degradado deja ver el contenido difuminado por detras (look flotante). */
+.dish-modal__foot {
+  /* Boton FLOTANDO en la esquina inferior derecha, superpuesto al contenido
+     (position:absolute -> NO ocupa flujo, asi el scroll termina justo en el
+     contenido y "no baja de mas"). El area vacia deja pasar el toque al
+     contenido de atras (pointer-events:none; el boton lo reactiva). */
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  padding: 8px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+}
 .dish-modal__cta {
-  width: 100%;
+  pointer-events: auto;
+  width: auto;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px 13px 14px;
+  border: none;
+  border-radius: var(--rooster-radius-pill);
+  background: var(--client-red);
+  color: #fff;
+  font-family: var(--client-font-body);
+  cursor: pointer;
+  box-shadow: var(--client-shadow-red), var(--rooster-shadow-lg);
+  transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
+
+  &:not(:disabled):hover { filter: brightness(1.06); }
+  &:not(:disabled):active { transform: scale(0.98); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+}
+.dish-modal__cta-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 15px;
-  border: none;
-  border-radius: var(--rooster-radius-md);
-  background: var(--client-red);
-  color: #fff;
-  font-weight: 800;
-  font-size: 15px;
-  font-family: var(--client-font-body);
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
 
   ion-icon { font-size: 18px; }
-
-  &:hover { background: var(--client-red-dark); }
-  &:active { transform: scale(0.97); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+}
+.dish-modal__cta-label {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.dish-modal__cta-price {
+  font-size: 15px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--rooster-radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
 }
 
 /* ── Reseñas: rating en card + resumen y opiniones en el modal ──────────────── */

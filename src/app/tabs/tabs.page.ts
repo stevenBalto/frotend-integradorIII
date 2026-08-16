@@ -9,6 +9,7 @@ import {
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { CarritoService } from '../core/services/carrito.service';
 
 interface TabDef {
   key: string;
@@ -37,6 +38,9 @@ export class TabsPage implements AfterViewInit, OnDestroy {
   /** Índice cuyo ícono/label muestra la cápsula (cambia en vivo mientras se arrastra). */
   displayIndex = 0;
   dragging = false;
+  /** Cantidad de productos en el carrito (badge del tab Carrito). Vale para todo
+   *  usuario: depende solo de lo que haya en el carrito (persistido en storage). */
+  cartCount = 0;
 
   // Geometría medida del tab bar real (px, coords de viewport).
   barLeft = 0;
@@ -59,7 +63,11 @@ export class TabsPage implements AfterViewInit, OnDestroy {
   private readonly onUpBound = (e: PointerEvent) => this.onUp(e);
   private readonly onResize = () => this.measure();
 
-  constructor(private readonly router: Router, private readonly cdr: ChangeDetectorRef) {}
+  constructor(
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly carrito: CarritoService,
+  ) {}
 
   ngAfterViewInit(): void {
     this.setActiveFromUrl(this.router.url);
@@ -67,6 +75,13 @@ export class TabsPage implements AfterViewInit, OnDestroy {
       this.router.events
         .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
         .subscribe((e) => this.setActiveFromUrl(e.urlAfterRedirects)),
+    );
+    // Badge del carrito: se actualiza en vivo al agregar/quitar/vaciar.
+    this.sub.add(
+      this.carrito.cantidadItems$.subscribe((n) => {
+        this.cartCount = n;
+        this.cdr.detectChanges();
+      }),
     );
 
     this.scheduleMeasure();

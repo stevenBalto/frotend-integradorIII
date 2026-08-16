@@ -24,6 +24,7 @@ ion-tab-bar {
 }
 
 ion-tab-button {
+  position: relative;   /* contexto para el badge del carrito */
   --background: transparent;
   --background-focused: transparent;
   --color: #9a9a9d;
@@ -47,6 +48,31 @@ ion-tab-button {
       font-size: 22px;
     }
   }
+}
+
+/* Badge del carrito: circulito rojo con la cantidad, arriba-derecha del icono.
+   Cuando Carrito es la pestana activa, el ion-tab-button queda opacity:0 (lo tapa
+   la capsula) y el badge se oculta con el -> "anuncia" solo desde las otras tabs. */
+.tab-cart-badge {
+  position: absolute;
+  top: 6px;
+  left: 54%;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: var(--client-red, #e4002b);
+  color: #fff;
+  font-family: var(--client-font-body);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(11, 11, 12, 0.28);
+  pointer-events: none;
+  z-index: 3;
+  animation: rooster-pop var(--rooster-ease-med, 0.32s) both;
 }
 
 /* ── Cápsula neumórfica arrastrable (overlay alineado al tab bar por JS) ──────

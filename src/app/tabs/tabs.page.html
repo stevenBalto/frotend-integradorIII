@@ -13,6 +13,7 @@
     <ion-tab-button tab="pedir" href="/tabs/pedir">
       <ion-icon aria-hidden="true" name="cart-outline"></ion-icon>
       <ion-label>Carrito</ion-label>
+      <span class="tab-cart-badge" *ngIf="cartCount > 0" aria-label="productos en el carrito">{{ cartCount > 9 ? '9+' : cartCount }}</span>
     </ion-tab-button>
 
     <ion-tab-button tab="ofertas" href="/tabs/ofertas">

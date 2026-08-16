@@ -359,11 +359,14 @@
       <ion-icon name="close-outline"></ion-icon>
     </button>
 
-    <div class="dish-modal__img">
-      <img [src]="productoDetalle.imagen_url || demoImagen(productoDetalle.id)" [alt]="productoDetalle.nombre" />
-    </div>
+    <!-- Scroll interno: SOLO imagen + cuerpo scrollean; el footer queda fijo al
+         pie por layout flex (no sticky) -> sin huecos blancos arriba/abajo. -->
+    <div class="dish-modal__scroll">
+      <div class="dish-modal__img">
+        <img [src]="productoDetalle.imagen_url || demoImagen(productoDetalle.id)" [alt]="productoDetalle.nombre" />
+      </div>
 
-    <div class="dish-modal__body">
+      <div class="dish-modal__body">
       <span class="dish-modal__cat">{{ productoDetalle.categoria }}</span>
       <h3 class="dish-modal__name">{{ productoDetalle.nombre }}</h3>
       <div class="dish-modal__rating" *ngIf="resumenProducto && resumenProducto.total > 0">
@@ -412,12 +415,6 @@
         </div>
       </div>
 
-      <span class="dish-modal__price">{{ precioCalculado | crcCurrency }}</span>
-
-      <button type="button" class="dish-modal__cta" [disabled]="!puedeAgregar" (click)="agregarAlCarrito()">
-        <ion-icon name="cart-outline"></ion-icon> Anadir al carrito
-      </button>
-
       <!-- Opiniones de otros clientes -->
       <div class="dish-modal__section dish-reviews" *ngIf="opinionesProducto.length > 0">
         <h4 class="dish-modal__section-title">Opiniones de otros clientes</h4>
@@ -432,6 +429,17 @@
           <p class="dish-review__text" *ngIf="op.comentario">{{ op.comentario }}</p>
         </div>
       </div>
+    </div>
+    </div>
+
+    <!-- Footer fijo al pie del panel (layout flex, no sticky): boton "Anadir al
+         carrito" en la esquina inferior derecha, siempre visible. -->
+    <div class="dish-modal__foot">
+      <button type="button" class="dish-modal__cta" [disabled]="!puedeAgregar" (click)="agregarAlCarrito()">
+        <span class="dish-modal__cta-icon"><ion-icon name="cart"></ion-icon></span>
+        <span class="dish-modal__cta-label">Anadir al carrito</span>
+        <span class="dish-modal__cta-price">{{ precioCalculado | crcCurrency }}</span>
+      </button>
     </div>
   </div>
 </div>
