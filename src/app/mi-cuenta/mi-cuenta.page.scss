@@ -1,5 +1,14 @@
 .cuenta-content {
   --background: var(--client-bg);
+
+  /* Scroll como flex column: permite que la pantalla de invitado (mas abajo)
+     se centre verticalmente con flex:1 + min-height:100%, sin afectar el
+     flujo normal de la lista cuando hay sesion (sus filas no usan flex:1,
+     siguen apiladas igual que antes). */
+  &::part(scroll) {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 /* ── Perfil (sin header arriba — "Mi cuenta" era redundante con el tab activo) ── */
@@ -242,34 +251,51 @@
   &__arrow { position: relative; z-index: 1; font-size: 18px; color: rgba(255, 255, 255, 0.8); flex-shrink: 0; }
 }
 
-/* ── Invitado (sin sesion) ──────────────────────────────────────────────────── */
+/* ── Invitado (sin sesion) ─────────────────────────────────────────────────────
+   Fondo full-bleed de roosters (.pedir-rooster-bg, global.scss) + card blanca
+   centrada vertical y horizontalmente en toda la pantalla. */
+.cuenta-invitado-shell {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
 .cuenta-invitado {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 32px 28px 40px;
-  max-width: 420px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 380px;
+  padding: 36px 28px 32px;
+  background: #fff;
+  border-radius: var(--rooster-radius-xl);
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5);
   animation: rooster-rise var(--rooster-ease-med) both;
 
   &__icon {
-    width: 92px;
-    height: 92px;
+    width: 88px;
+    height: 88px;
     border-radius: var(--rooster-radius-xl);
     background: linear-gradient(135deg, #fff1f2, #ffe4e6);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     box-shadow: var(--rooster-shadow-sm);
 
-    ion-icon { font-size: 48px; color: var(--client-red); }
+    ion-icon { font-size: 46px; color: var(--client-red); }
   }
 
   &__title {
     font-family: var(--client-font-display);
-    font-size: 23px;
+    font-size: 22px;
     font-weight: 700;
     color: var(--client-ink);
     margin: 0 0 10px;
@@ -283,32 +309,106 @@
     margin: 0 0 26px;
   }
 
+  /* Botones "Ink sleek" (misma familia visual que el CTA de Anadir al
+     carrito): pill + badge circular con icono, en vez del rectangulo plano
+     generico de antes. */
   &__btn {
     width: 100%;
-    padding: 16px;
-    border-radius: var(--rooster-radius-md);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px 10px 10px;
+    border-radius: var(--rooster-radius-pill);
     font-family: var(--client-font-body);
-    font-size: 15px;
-    font-weight: 700;
     cursor: pointer;
     margin-bottom: 12px;
     transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
 
-    &:hover { filter: brightness(1.04); }
+    &:last-child { margin-bottom: 0; }
+    &:hover { filter: brightness(1.08); }
     &:active { transform: scale(0.97); }
 
     &--primary {
       border: none;
-      background: var(--client-red);
+      background: var(--client-ink);
       color: #fff;
-      box-shadow: var(--client-shadow-red);
+      box-shadow: 0 14px 28px -12px rgba(11, 11, 12, 0.6);
     }
 
     &--ghost {
       background: #fff;
-      color: var(--client-red);
-      border: 1.5px solid rgba(var(--client-red-rgb), 0.3);
+      color: var(--client-ink);
+      border: 1.5px solid var(--client-border);
+      box-shadow: none;
     }
+  }
+
+  &__btn-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--client-red);
+    box-shadow: 0 4px 12px -2px rgba(var(--client-red-rgb), 0.7);
+
+    ion-icon { font-size: 19px; color: #fff; }
+
+    &--ghost {
+      background: rgba(var(--client-red-rgb), 0.08);
+      box-shadow: none;
+      ion-icon { color: var(--client-red); }
+    }
+  }
+
+  &__btn-label {
+    flex: 1;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  /* Secuencia al tocar Iniciar sesion / Crear cuenta (dura 650ms total, ver
+     irAAuth() en el .ts que navega despues de ese tiempo):
+     1) el icono "pop" (crece y vuelve a su tamano),
+     2) el texto se esconde,
+     3) el icono sale corriendo hacia la derecha y se pierde tras el filo del
+        pill (overflow:hidden) -- ahi recien navega. */
+  &__btn--launching {
+    pointer-events: none;
+    overflow: hidden;
+
+    /* UNA sola animacion (no dos separadas): dos "animation" distintas que
+       tocan "transform" en el mismo elemento se pisan entre si (la ultima
+       gana en cada instante, no se combinan) y el icono queda invisible a
+       medio camino. Con una sola secuencia de keyframes no hay conflicto. */
+    .cuenta-invitado__btn-icon {
+      animation: cuenta-btn-icon-launch 0.6s ease-in-out both;
+    }
+    .cuenta-invitado__btn-label {
+      animation: cuenta-btn-label-vanish 0.2s ease-out both;
+    }
+  }
+}
+
+@keyframes cuenta-btn-icon-launch {
+  0%   { transform: scale(1) translateX(0); opacity: 1; }
+  22%  { transform: scale(1.45) translateX(0); }
+  40%  { transform: scale(0.82) translateX(0); }
+  55%  { transform: scale(1) translateX(0); opacity: 1; }
+  100% { transform: scale(1) translateX(220px); opacity: 0; }
+}
+@keyframes cuenta-btn-label-vanish {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cuenta-invitado__btn--launching {
+    .cuenta-invitado__btn-icon,
+    .cuenta-invitado__btn-label { animation: none; }
   }
 }
 

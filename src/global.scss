@@ -83,6 +83,38 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
   .rooster-skeleton { animation: none; }
 }
 
+/* ── Fondo full-bleed de roosters en mosaico (vistas inmersivas oscuras) ─────
+   Usado en Carrito (checkout/confirmacion) y en Mi cuenta (pantalla de
+   invitado). Movimiento minimo, roosters brillantes sobre #0E0E0E. */
+.pedir-rooster-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #0E0E0E;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    background-image: url('/assets/logo/rooster-logo.png');
+    background-repeat: repeat;
+    background-size: 84px 84px;
+    opacity: 0.38;
+    filter: brightness(2);
+    transform: rotate(-18deg);
+    animation: roosterDrift 70s linear infinite;
+  }
+}
+@keyframes roosterDrift {
+  from { background-position: 0 0; }
+  to   { background-position: 336px 336px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pedir-rooster-bg::before { animation: none; }
+}
+
 /* ── Marquee de overflow (saludo del header cuando es muy largo) ────────────── */
 .admin-greeting { overflow: hidden; max-width: 100%; }
 .admin-greeting > * { white-space: nowrap; display: inline-block; will-change: transform; }

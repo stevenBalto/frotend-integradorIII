@@ -36,10 +36,23 @@ export class MiCuentaPage {
   // Modal metodos de pago (informativo: aun se paga todo en caja)
   metodosPagoAbierto = false;
 
+  /** Boton de login/registro en animacion de salida (null = ninguno). Ver
+      irAAuth(): la navegacion se retrasa hasta que termina la secuencia CSS
+      (pop del icono -> se esconde el texto -> el icono sale corriendo). */
+  authBtnLaunching: 'login' | 'register' | null = null;
+
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   constructor() {
     this.usuario$ = this.auth.usuarioActual$;
+  }
+
+  /** Red de seguridad: el reset real vive en irAAuth() (ver comentario ahi).
+      Este hook no siempre se dispara al volver de login/register (Ionic
+      cachea el tab shell y ese cruce no lo retrigger), pero se deja por si
+      el usuario entra a Mi cuenta por otro camino con el flag pegado. */
+  ionViewWillEnter(): void {
+    this.authBtnLaunching = null;
   }
 
   get estaAutenticado(): boolean {
@@ -64,6 +77,26 @@ export class MiCuentaPage {
 
   cerrarMetodosPago(): void {
     this.metodosPagoAbierto = false;
+  }
+
+  // ── Bienvenida (invitado): animacion de salida antes de ir a login/registro ──
+
+  /** Dispara la animacion del boton (pop -> texto se esconde -> icono corre a
+      la derecha) y navega cuando termina. 650ms = duracion total de la
+      secuencia en el SCSS; si se cambia una hay que cambiar la otra.
+      El reset de authBtnLaunching va ACA (no en ionViewWillEnter): login y
+      register son rutas fuera de /tabs, e Ionic cachea (no destruye) el tab
+      shell al volver -- probado que ionViewWillEnter NO se vuelve a disparar
+      en ese cruce, asi que el boton quedaba "congelado" a medio-animar. */
+  irAAuth(destino: 'login' | 'register'): void {
+    if (this.authBtnLaunching) {
+      return;
+    }
+    this.authBtnLaunching = destino;
+    setTimeout(() => {
+      this.authBtnLaunching = null;
+      void this.router.navigateByUrl(destino === 'login' ? '/login' : '/register');
+    }, 650);
   }
 
   // ── Sesion ──

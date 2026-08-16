@@ -97,6 +97,16 @@ export class TabsPage implements AfterViewInit, OnDestroy {
     window.addEventListener('resize', this.onResize);
   }
 
+  /** Se dispara cuando la transicion de entrada YA termino (a diferencia de
+      los setTimeout de ngAfterViewInit, que son un tiempo adivinado): vuelve
+      a medir para que la capsula quede en el slot correcto si el shell se
+      recreo al volver de una ruta fuera de /tabs (ej. login/register) y el
+      layout tardo mas de lo esperado en asentar (movil mas lento, o el
+      viewport todavia se estaba acomodando por el teclado que se cerro). */
+  ionViewDidEnter(): void {
+    this.scheduleMeasure();
+  }
+
   ngOnDestroy(): void {
     this.sub.unsubscribe();
     this.ro?.disconnect();

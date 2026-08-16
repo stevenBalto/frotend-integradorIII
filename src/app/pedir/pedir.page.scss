@@ -2434,39 +2434,8 @@
   --background: #0E0E0E;
 }
 
-.pedir-rooster-bg {
-  /* Full bleed: en carrito/checkout/confirmacion el tab bar se oculta (modo
-     inmersivo, ver body.tabbar-oculto), asi que el fondo cubre toda la pantalla. */
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-color: #0E0E0E;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -60%;
-    background-image: url('/assets/logo/rooster-logo.png');
-    background-repeat: repeat;
-    background-size: 84px 84px;
-    /* Roosters mas brillantes sobre el negro: mas opacidad + brillo para que
-       "prendan" fuerte en vez de verse apagados. */
-    opacity: 0.38;
-    filter: brightness(2);
-    transform: rotate(-18deg);
-    animation: roosterDrift 70s linear infinite;
-  }
-}
-
-@keyframes roosterDrift {
-  from { background-position: 0 0; }
-  to   { background-position: 336px 336px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pedir-rooster-bg::before { animation: none; }
-}
+/* .pedir-rooster-bg y su keyframe se movieron a global.scss (se reutiliza
+   tambien en Mi cuenta, pantalla de invitado). */
 
 /* El contenido va por encima del fondo. */
 .pedir-content--dark {

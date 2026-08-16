@@ -139,19 +139,27 @@
 
   <!-- ===== INVITADO (sin sesion) ===== -->
   <ng-template #invitado>
-    <div class="cuenta-invitado">
-      <div class="cuenta-invitado__icon"><ion-icon name="person-circle-outline"></ion-icon></div>
-      <h3 class="cuenta-invitado__title">Bienvenido a Rooster</h3>
-      <p class="cuenta-invitado__text">
-        Iniciá sesión para acumular Roosters en cada compra, ver tu historial y seguir tus pedidos.
-        También podés seguir explorando el menú y pedir como invitado.
-      </p>
-      <button class="cuenta-invitado__btn cuenta-invitado__btn--primary" routerLink="/login">
-        Iniciar sesión
-      </button>
-      <button class="cuenta-invitado__btn cuenta-invitado__btn--ghost" routerLink="/register">
-        Crear cuenta
-      </button>
+    <div class="pedir-rooster-bg" aria-hidden="true"></div>
+    <div class="cuenta-invitado-shell">
+      <div class="cuenta-invitado">
+        <div class="cuenta-invitado__icon"><ion-icon name="person-circle-outline"></ion-icon></div>
+        <h3 class="cuenta-invitado__title">Bienvenido a Rooster</h3>
+        <p class="cuenta-invitado__text">
+          Iniciá sesión y accedé a ofertas, cupones y Roosters en cada compra.
+        </p>
+        <button type="button" class="cuenta-invitado__btn cuenta-invitado__btn--primary"
+          [class.cuenta-invitado__btn--launching]="authBtnLaunching === 'login'"
+          (click)="irAAuth('login')">
+          <span class="cuenta-invitado__btn-icon"><ion-icon name="log-in-outline"></ion-icon></span>
+          <span class="cuenta-invitado__btn-label">Iniciar sesión</span>
+        </button>
+        <button type="button" class="cuenta-invitado__btn cuenta-invitado__btn--ghost"
+          [class.cuenta-invitado__btn--launching]="authBtnLaunching === 'register'"
+          (click)="irAAuth('register')">
+          <span class="cuenta-invitado__btn-icon cuenta-invitado__btn-icon--ghost"><ion-icon name="person-add-outline"></ion-icon></span>
+          <span class="cuenta-invitado__btn-label">Crear cuenta</span>
+        </button>
+      </div>
     </div>
   </ng-template>
 
