@@ -541,6 +541,20 @@
   .pedir-search__icon { display: block; }
 }
 
+/* ≥1024 (PC): mismo alto que las pills de categoria (que crecieron en este
+   breakpoint) -- antes el buscador se quedaba mas bajo y desparejo en la fila. */
+@media (min-width: 1024px) {
+  .pedir-search {
+    padding: 14px 22px;
+
+    ion-icon { font-size: 22px; }
+  }
+  .pedir-search input,
+  .pedir-search__ch {
+    font-size: 16px;
+  }
+}
+
 /* ── Tabs de categoria ──────────────────────────────────────────────────────── */
 .pedir-cats {
   /* MOVIL: contenedor "segmented" (fondo gris, esquinas redondeadas) con chips
@@ -635,6 +649,18 @@
       border-color: var(--client-red);
       color: var(--client-red);
       box-shadow: none;
+    }
+  }
+
+  /* ≥1024 (PC): pill mas grande, ya no hace falta comprimirla tanto. */
+  @media (min-width: 1024px) {
+    gap: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+
+    .pedir-cat__ic {
+      width: 26px;
+      height: 26px;
     }
   }
 }

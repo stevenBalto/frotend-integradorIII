@@ -107,8 +107,11 @@
   }
 
   &__hero {
-    max-width: 1400px;
-    margin: 0 auto;
+    /* Sin tope de ancho: con el max-width de 1400 antes de aca, pasado ese
+       punto el logo/icono se centraban con un margen extra y "saltaban" hacia
+       la derecha respecto al resto del contenido (que no tiene ese tope). Se
+       quita para que quede alineado siempre con el padding del header, igual
+       que en Carrito (que nunca tuvo este tope y no tenia el problema). */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -242,6 +245,14 @@
       gap: 7px;
       padding: 6px 10px 6px 6px;
     }
+
+    /* ≥1024 (PC): ya sobra ancho de sobra para las 6 en una fila -- se
+       agranda el chip (antes se quedaba con el tamano compacto de tablet
+       y se veia chico en pantallas grandes). */
+    @media (min-width: 1024px) {
+      gap: 10px;
+      padding: 9px 18px 9px 9px;
+    }
   }
 
   /* Badge circular rojo (con su icono blanco) = el contraste de marca sobre el
@@ -272,6 +283,12 @@
       width: 36px;
       height: 36px;
     }
+
+    /* ≥1024 (PC): badge mas grande, ya no hace falta comprimirlo tanto. */
+    @media (min-width: 1024px) {
+      width: 44px;
+      height: 44px;
+    }
   }
 
   &__label {
@@ -293,6 +310,12 @@
 
     @media (min-width: 727px) {
       font-size: 12px;
+    }
+
+    /* ≥1024 (PC): texto mas grande -- el compacto de tablet se veia
+       chico en pantallas grandes, aca sobra ancho para leerlo comodo. */
+    @media (min-width: 1024px) {
+      font-size: 15px;
     }
   }
 
@@ -361,9 +384,11 @@
 /* ── Seccion generica ────────────────────────────────────────────────────────── */
 .home-section {
   padding: 22px 20px 0;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
+  /* Sin tope de ancho (antes 1400): pasado ese punto el contenido (incluidas
+     las categorias) se centraba con un margen extra y quedaba "corrido" /
+     descuadrado respecto al header, que tiene su propio padding sin ese tope.
+     Las grillas que si necesitan un techo (ofertas/cupones, para que las
+     cartas no se achiquen de mas) lo controlan ellas mismas (.promo-scroll). */
   box-sizing: content-box;
 
   /* Prototipo 7: la primera seccion (Categorias) "sube" curvada hacia el header.
@@ -463,9 +488,16 @@
      derecha. */
   @media (min-width: 768px) {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
     overflow: visible;
+    /* Tope propio (independiente del ancho de la seccion, que ya no tiene
+       limite): sin esto, en pantallas grandes auto-fit mete mas y mas
+       columnas y las cartas de oferta/cupon quedan chiquitas. Con el tope
+       se quedan en ~4 columnas de buen tamano y el resto queda centrado. */
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 

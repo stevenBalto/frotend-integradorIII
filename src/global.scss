@@ -1179,8 +1179,9 @@ ion-toast.notif-toast::part(header) {
 .home-header__hero {
   position: relative;
   z-index: 1;
-  max-width: 1400px;
-  margin: 0 auto;
+  /* Sin tope de ancho: con max-width:1400 antes de aca, pasado ese punto el
+     logo/icono se centraban con un margen extra y "saltaban" hacia la derecha
+     respecto al resto del contenido (que no tiene ese tope). */
   display: flex;
   align-items: center;
   justify-content: space-between;
