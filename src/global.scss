@@ -907,8 +907,10 @@ body.buscar-modal-open ion-tab-bar { pointer-events: none; }
 
 /* Modo inmersivo del carrito: la pagina "pedir" agrega esta clase al body cuando
    esta en carrito/checkout/confirmacion para ocultar el tab bar. La quita al volver
-   al menu o al salir de la pestana. */
-body.tabbar-oculto ion-tab-bar { display: none; }
+   al menu o al salir de la pestana. Tambien se oculta la capsula-overlay (.tabfx),
+   si no quedaba flotando "Carrito" en medio del carrito con coords viejas. */
+body.tabbar-oculto ion-tab-bar,
+body.tabbar-oculto .tabfx { display: none; }
 
 /* Modo inmersivo del panel admin: la pagina Pedidos agrega esta clase al body al
    abrir la vista "expandir todos" para ocultar el sidebar y dar todo el ancho a los
