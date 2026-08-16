@@ -184,29 +184,19 @@
   }
 }
 
-/* Checkout (Confirmar pedido) en PC: NO centrar vertical (eso hacia que el form se
-   "flotara" y el aviso de invitado apareciera como un badge en el centro). En su
-   lugar, alto fijo + top-align: los componentes se acomodan en un panel estable y
-   el aviso de invitado se ve como bloque normal en su seccion. */
-@media (min-width: 768px) {
-  .pedir-narrow--checkout {
-    justify-content: flex-start;
-    padding: 12px 0 32px;
+/* Checkout (Confirmar pedido): SIEMPRE card centrada tipo modal (movil y PC). El
+   header queda arriba y la card —con scroll interno— debajo, centrada. */
+.pedir-narrow--checkout {
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 12px 20px;
 
-    > * { max-width: 560px; width: 100%; }
-  }
-
-  .pedir-narrow--checkout .checkout-form {
-    max-width: 560px;
-    height: 62vh;
-    min-height: 440px;
-    overflow-y: auto;
-    background: #fff;
-    border: 1px solid var(--client-border);
-    border-radius: 18px;
-    padding: 22px 22px 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  }
+  > * { width: 100%; max-width: 520px; }
+}
+.checkout-cardwrap {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
 }
 
 /* ── Fila superior: sucursal + busqueda ──────────────────────────────────────── */
@@ -1401,12 +1391,56 @@
 
 /* ── Vista Checkout ─────────────────────────────────────────────────────────── */
 .checkout-form {
-  padding: 0 20px 40px;
+  /* Card tipo modal (misma en movil y PC): fondo blanco, radio, sombra y scroll
+     interno. El alto se limita para que el boton de pagar quede al final y haya
+     que deslizar para llegar (ver .checkout-scrollhint). */
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--client-border);
+  border-radius: 20px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+  padding: 20px 18px 22px;
+  max-height: calc(100dvh - 150px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   @media (min-width: 768px) {
-    padding: 0 32px 40px;
-    max-width: 500px;
+    padding: 24px 24px 26px;
+    max-height: min(70vh, 620px);
   }
+}
+
+/* Hint flotante al pie de la card: indica que hay que deslizar hasta el boton de
+   pagar. Se oculta (via *ngIf checkoutAlFinal) cuando el scroll llega al final. */
+.checkout-scrollhint {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--client-ink);
+  color: #fff;
+  font-family: var(--client-font-body);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 3;
+  animation: checkout-hint-bounce 1.5s ease-in-out infinite;
+}
+.checkout-scrollhint ion-icon { font-size: 15px; }
+@keyframes checkout-hint-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkout-scrollhint { animation: none; }
 }
 
 .checkout-section {
@@ -1643,23 +1677,25 @@
 
 /* ── Vista Confirmacion ─────────────────────────────────────────────────────── */
 .confirm-page {
-  padding: 40px 20px;
+  /* SIEMPRE card blanca centrada (movil y PC): antes en movil el "Pedido
+     confirmado" salia como texto suelto sobre el fondo oscuro. Si el contenido no
+     cabe, scrollea dentro de la card. */
+  width: calc(100% - 24px);
+  max-width: 480px;
+  margin: 20px auto;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 32px 24px;
   text-align: center;
+  background: var(--client-white);
+  border: 1px solid rgba(20, 17, 15, 0.05);
+  border-radius: var(--rooster-radius-lg);
+  box-shadow: var(--rooster-shadow-xl);
   animation: rooster-rise var(--rooster-ease-med) both;
 
-  /* PC: card blanca centrada, con TOPE de alto para que no se salga del viewport
-     (antes con min-height:62vh + contenido largo la carta se desbordaba). Si el
-     contenido no cabe, scrollea dentro de la card. */
   @media (min-width: 768px) {
-    max-width: 480px;
-    margin: 20px auto;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
     padding: 36px 32px;
-    background: var(--client-white);
-    border: 1px solid rgba(20, 17, 15, 0.05);
-    border-radius: var(--rooster-radius-lg);
-    box-shadow: var(--rooster-shadow-xl);
   }
 }
 
@@ -1740,11 +1776,92 @@
     &:hover { background: rgba(255, 255, 255, 0.2); }
     &:active { transform: scale(0.92); }
 
+    /* Copiado OK: se pone verde con checkmark y da un "pop" para que se entienda
+       que el código quedó en el portapapeles. */
+    &--done {
+      background: #16a34a;
+      animation: confirm-copy-pop 0.42s var(--rooster-ease, ease-out);
+    }
+
     ion-icon {
       font-size: 17px;
       color: #fff;
     }
   }
+}
+@keyframes confirm-copy-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* Botón "volver al inicio" (solo ícono) en la esquina superior izquierda del card
+   de Pedido confirmado. */
+.confirm-back {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--client-red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(var(--client-red-rgb), 0.4);
+  animation: confirm-home-hint 2.4s ease-in-out infinite;
+  transition: transform var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
+
+  /* aro pulsante que insinúa "tocá para volver al inicio" */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--client-red);
+    animation: confirm-home-ring 2.4s ease-out infinite;
+  }
+
+  &:hover {
+    box-shadow: 0 8px 22px rgba(var(--client-red-rgb), 0.5);
+  }
+  &:active {
+    transform: scale(0.9);
+    animation: none;
+  }
+
+  ion-icon {
+    font-size: 20px;
+    color: #fff;
+    animation: confirm-home-bob 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes confirm-home-hint {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+@keyframes confirm-home-bob {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+
+@keyframes confirm-home-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  70%  { transform: scale(1.7); opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-back,
+  .confirm-back ion-icon { animation: none; }
+  .confirm-back::before { display: none; }
 }
 
 .confirm-info {
@@ -1770,24 +1887,6 @@
       color: var(--client-text-muted);
     }
   }
-}
-
-.confirm-btn {
-  width: 100%;
-  padding: 17px;
-  border: none;
-  border-radius: var(--rooster-radius-md);
-  background: var(--client-red);
-  color: #fff;
-  font-weight: 800;
-  font-size: 15px;
-  font-family: var(--client-font-body);
-  cursor: pointer;
-  box-shadow: var(--client-shadow-red);
-  transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
-
-  &:hover { filter: brightness(1.05); }
-  &:active { transform: scale(0.97); }
 }
 
 /* ── Extras como cards con foto (upsell) ────────────────────────────────────── */
@@ -2148,21 +2247,144 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 2px 12px;
+  width: 100%;
+  padding: 13px 14px;
   border-radius: 12px;
   border: 1.5px solid var(--client-border);
   background: #fff;
+  cursor: pointer;
+  font-family: var(--client-font-body);
+  text-align: left;
+  transition: border-color var(--rooster-ease-fast), transform var(--rooster-ease-fast);
 
+  &:not(:disabled):hover { border-color: var(--client-red); }
+  &:not(:disabled):active { transform: scale(0.99); }
+  &:disabled { cursor: not-allowed; }
   &--empty { opacity: 0.6; }
 
   &__icon { font-size: 20px; color: var(--client-red); flex-shrink: 0; }
-  &__ion {
+  &__text {
     flex: 1;
-    min-height: 46px;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--client-text);
-    --padding-start: 0;
-    --padding-end: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--ph { color: #bbb; font-weight: 500; }
   }
+  &__chev { font-size: 18px; color: var(--client-text-muted); flex-shrink: 0; }
+}
+
+/* ── Modal: elegir sucursal ─────────────────────────────────────────────────── */
+.sucursal-modal {
+  position: fixed;
+  inset: 0;
+  bottom: auto;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: rooster-fade var(--rooster-ease-fast) both;
+}
+.sucursal-modal__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100dvh;
+  background: rgba(11, 11, 12, 0.6);
+  backdrop-filter: blur(2px);
+}
+.sucursal-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--client-white);
+  border-radius: var(--rooster-radius-lg);
+  box-shadow: var(--rooster-shadow-xl);
+  animation: rooster-rise var(--rooster-ease-med) both;
+}
+.sucursal-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--client-border);
+  flex-shrink: 0;
+}
+.sucursal-modal__title {
+  font-family: var(--client-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--client-ink);
+  margin: 0;
+}
+.sucursal-modal__close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--client-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon { font-size: 18px; color: var(--client-text); }
+}
+.sucursal-modal__list {
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sucursal-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--client-border);
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--client-font-body);
+  transition: border-color var(--rooster-ease-fast), background var(--rooster-ease-fast), transform var(--rooster-ease-fast);
+
+  &:hover { border-color: rgba(var(--client-red-rgb), 0.4); }
+  &:active { transform: scale(0.99); }
+  &--active { border-color: var(--client-red); background: rgba(var(--client-red-rgb), 0.05); }
+
+  &__ic {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    flex-shrink: 0;
+    background: rgba(var(--client-red-rgb), 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon { font-size: 20px; color: var(--client-red); }
+  }
+  &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  &__name { font-size: 14px; font-weight: 700; color: var(--client-text); }
+  &__addr { font-size: 12px; color: var(--client-text-muted); line-height: 1.35; }
+  &__check { font-size: 22px; color: var(--client-border); flex-shrink: 0; }
+  &--active &__check { color: var(--client-red); }
 }
 .checkout-hint {
   font-size: 12px;
@@ -2225,33 +2447,11 @@
   .pedir-narrow,
   .confirm-page { position: relative; z-index: 1; }
 
-  /* Texto directo sobre el fondo oscuro -> claro (las cards blancas no se tocan). */
+  /* Solo el texto que va DIRECTO sobre el fondo oscuro va claro: el header del
+     checkout/carrito y el "carrito vacio". El checkout y la confirmacion ahora son
+     cards BLANCAS en TODOS los tamanos, asi que su texto queda oscuro por defecto
+     (antes se aclaraba y, al volverse card en movil, quedaba invisible). */
   .pedir-header__title { color: #fff; }
   .pedir-header__sub { color: rgba(255, 255, 255, 0.6); }
-  .checkout-label { color: rgba(255, 255, 255, 0.75); }
-  .checkout-hint { color: rgba(255, 255, 255, 0.7); }
   .cart-empty { color: rgba(255, 255, 255, 0.75); }
-  .confirm-title { color: #fff; }
-  .confirm-sub { color: rgba(255, 255, 255, 0.65); }
-
-  .confirm-info__row {
-    color: rgba(255, 255, 255, 0.9);
-    border-bottom-color: rgba(255, 255, 255, 0.12);
-
-    ion-icon { color: rgba(255, 255, 255, 0.6); }
-  }
-}
-
-/* PC: checkout y confirmacion son cards BLANCAS. El texto que en movil va claro
-   (sobre el fondo oscuro) debe volver a oscuro dentro de la card, si no queda
-   invisible (blanco sobre blanco). Va al final para ganar por orden de fuente. */
-@media (min-width: 768px) {
-  .pedir-content--dark .pedir-narrow--checkout .checkout-label { color: var(--client-text-muted); }
-  .pedir-content--dark .confirm-title { color: var(--client-text); }
-  .pedir-content--dark .confirm-sub { color: var(--client-text-muted); }
-  .pedir-content--dark .confirm-info__row {
-    color: var(--client-text);
-    border-bottom-color: var(--client-border);
-  }
-  .pedir-content--dark .confirm-info__row ion-icon { color: var(--client-text-muted); }
 }

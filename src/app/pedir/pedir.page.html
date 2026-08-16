@@ -190,21 +190,18 @@
       </div>
     </div>
 
-    <div class="checkout-form">
+    <div class="checkout-cardwrap">
+    <div class="checkout-form" #checkoutForm (scroll)="onCheckoutScroll($event)">
       <div class="checkout-section">
         <label class="checkout-label">Sucursal</label>
-        <div class="checkout-select" [class.checkout-select--empty]="sucursales.length === 0">
+        <button type="button" class="checkout-select" [class.checkout-select--empty]="sucursales.length === 0"
+          [disabled]="sucursales.length === 0" (click)="abrirSucursalModal()">
           <ion-icon name="storefront-outline" class="checkout-select__icon"></ion-icon>
-          <ion-select class="checkout-select__ion"
-            interface="action-sheet"
-            [interfaceOptions]="sucursalSelectOptions"
-            placeholder="Elegí tu sucursal"
-            [disabled]="sucursales.length === 0"
-            [ngModel]="carritoService.datos.sucursalId"
-            (ngModelChange)="seleccionarSucursal($event)">
-            <ion-select-option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</ion-select-option>
-          </ion-select>
-        </div>
+          <span class="checkout-select__text" [class.checkout-select__text--ph]="!sucursalSeleccionada">
+            {{ sucursalSeleccionada?.nombre || 'Elegí tu sucursal' }}
+          </span>
+          <ion-icon name="chevron-down" class="checkout-select__chev"></ion-icon>
+        </button>
         <p class="checkout-hint" *ngIf="sucursales.length === 0 && !cargandoSucursales">
           No hay sucursales disponibles por ahora.
         </p>
@@ -289,6 +286,14 @@
         {{ enviandoPedido ? 'Enviando...' : 'Confirmar pedido' }}
       </button>
     </div>
+
+    <!-- Hint: deja claro que hay que deslizar hasta el boton de pagar. Se
+         oculta al llegar al final del formulario. -->
+    <div class="checkout-scrollhint" *ngIf="!checkoutAlFinal" aria-hidden="true">
+      <span>Deslizá para completar el pago</span>
+      <ion-icon name="chevron-down"></ion-icon>
+    </div>
+    </div>
    </div>
   </ng-container>
 
@@ -297,6 +302,9 @@
   <!-- ════════════════════════════════════════════════════════════════════════ -->
   <ng-container *ngIf="vista === 'confirmacion' && pedidoConfirmado">
     <div class="confirm-page">
+      <button type="button" class="confirm-back" (click)="volverAlInicio()" aria-label="Volver al inicio">
+        <ion-icon name="home"></ion-icon>
+      </button>
       <div class="confirm-icon">
         <ion-icon name="checkmark-circle"></ion-icon>
       </div>
@@ -307,8 +315,10 @@
         <span class="confirm-code__label">Código de pedido</span>
         <div class="confirm-code__row">
           <span class="confirm-code__value">{{ pedidoConfirmado.codigo }}</span>
-          <button type="button" class="confirm-code__copy" (click)="copiarCodigo(pedidoConfirmado.codigo)" aria-label="Copiar código">
-            <ion-icon name="copy-outline"></ion-icon>
+          <button type="button" class="confirm-code__copy" [class.confirm-code__copy--done]="codigoCopiado"
+            (click)="copiarCodigo(pedidoConfirmado.codigo)"
+            [attr.aria-label]="codigoCopiado ? 'Copiado' : 'Copiar código'">
+            <ion-icon [name]="codigoCopiado ? 'checkmark-outline' : 'copy-outline'"></ion-icon>
           </button>
         </div>
       </div>
@@ -345,9 +355,6 @@
         para consultar tu pedido con "Buscar mi pedido".
       </p>
 
-      <button type="button" class="confirm-btn" (click)="volverAlInicio()">
-        Volver al inicio
-      </button>
     </div>
   </ng-container>
 
@@ -562,6 +569,32 @@
           Pediste como invitado. Guardá tu código para seguir el estado de tu pedido.
         </p>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: elegir sucursal (reemplaza al ion-select) ─────────────────────── -->
+<div class="sucursal-modal" *ngIf="sucursalModalAbierto">
+  <div class="sucursal-modal__backdrop" (click)="cerrarSucursalModal()"></div>
+  <div class="sucursal-modal__panel">
+    <div class="sucursal-modal__header">
+      <h3 class="sucursal-modal__title">Elegí tu sucursal</h3>
+      <button type="button" class="sucursal-modal__close" (click)="cerrarSucursalModal()" aria-label="Cerrar">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <div class="sucursal-modal__list">
+      <button type="button" class="sucursal-opt" *ngFor="let s of sucursales"
+        [class.sucursal-opt--active]="carritoService.datos.sucursalId === s.id"
+        (click)="seleccionarSucursal(s.id)">
+        <span class="sucursal-opt__ic"><ion-icon name="storefront-outline"></ion-icon></span>
+        <span class="sucursal-opt__info">
+          <span class="sucursal-opt__name">{{ s.nombre }}</span>
+          <span class="sucursal-opt__addr" *ngIf="s.direccion">{{ s.direccion }}</span>
+        </span>
+        <ion-icon class="sucursal-opt__check"
+          [name]="carritoService.datos.sucursalId === s.id ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+      </button>
     </div>
   </div>
 </div>

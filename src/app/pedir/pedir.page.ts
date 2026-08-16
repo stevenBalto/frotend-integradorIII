@@ -194,6 +194,27 @@ export class PedirPage implements OnInit, OnDestroy {
 
   seleccionarSucursal(id: number): void {
     this.carritoService.setSucursal(id);
+    this.cerrarSucursalModal();
+  }
+
+  // ── Modal de selección de sucursal (reemplaza al ion-select) ──
+  sucursalModalAbierto = false;
+  abrirSucursalModal(): void {
+    if (this.sucursales.length === 0) { return; }
+    this.sucursalModalAbierto = true;
+  }
+  cerrarSucursalModal(): void {
+    this.sucursalModalAbierto = false;
+  }
+
+  // ── Hint de scroll del checkout ──
+  // Se muestra mientras el formulario (card) tenga contenido por debajo; se
+  // oculta al llegar al final, para que se entienda que hay que deslizar hasta
+  // el botón de pagar.
+  checkoutAlFinal = false;
+  onCheckoutScroll(ev: Event): void {
+    const el = ev.target as HTMLElement;
+    this.checkoutAlFinal = el.scrollTop + el.clientHeight >= el.scrollHeight - 8;
   }
 
   get modalidad(): 'para_llevar' | 'comer_aqui' {
@@ -657,18 +678,54 @@ export class PedirPage implements OnInit, OnDestroy {
 
   // ── Helpers ──
 
-  async copiarCodigo(codigo: string): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(codigo);
-      const t = await this.toast.create({
-        message: 'Código copiado',
-        duration: 1500,
-        position: 'bottom',
-        color: 'success',
-      });
-      await t.present();
-    } catch {
-      // Clipboard API no disponible en este contexto (ej. http sin TLS); no interrumpe el flujo.
+  /** Feedback visual del botón copiar del código (checkmark + animación). */
+  codigoCopiado = false;
+
+  /**
+   * Copia al portapapeles con fallback. navigator.clipboard SOLO existe en
+   * contexto seguro (https/localhost); en el teléfono por LAN (http://IP) no
+   * está, así que caemos a textarea + execCommand('copy'), que sí funciona.
+   */
+  private escribirPortapapeles(texto: string): boolean {
+    if (navigator.clipboard && window.isSecureContext) {
+      // Async, pero no bloqueamos: si falla, ya intentamos el fallback abajo.
+      navigator.clipboard.writeText(texto).catch(() => this.copiarLegacy(texto));
+      return true;
     }
+    return this.copiarLegacy(texto);
+  }
+
+  private copiarLegacy(texto: string): boolean {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, texto.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async copiarCodigo(codigo: string): Promise<void> {
+    const ok = this.escribirPortapapeles(codigo);
+    if (ok) {
+      this.codigoCopiado = true;
+      setTimeout(() => { this.codigoCopiado = false; }, 1600);
+    }
+    const t = await this.toast.create({
+      message: ok ? 'Código copiado' : 'No se pudo copiar',
+      duration: 1300,
+      position: 'bottom',
+      color: ok ? 'success' : 'medium',
+    });
+    await t.present();
   }
 }
