@@ -1118,8 +1118,10 @@ ion-toast.notif-toast::part(header) {
    (unificar cuando se termine de acomodar el Carrito).
    ══════════════════════════════════════════════════════════════════════════ */
 @keyframes home-rooster-drift {
-  from { background-position: 0 0; }
-  to   { background-position: 0 456px; }
+  /* X fijo en 48px (corrido a la derecha para que el primer rooster, pegado
+     al logo, no se vea cortado por el parche negro); solo Y anima. */
+  from { background-position: 48px 0; }
+  to   { background-position: 48px 456px; }
 }
 .home-header {
   position: sticky;
@@ -1134,7 +1136,7 @@ ion-toast.notif-toast::part(header) {
   flex-shrink: 0;
 }
 @media (min-width: 768px) {
-  .home-header { padding: 40px 32px 54px; }
+  .home-header { padding: 26px 32px 40px; }
 }
 /* Marco: borde blanco redondeado + glow rojo en el filo inferior del header. */
 .home-header::after {
@@ -1184,7 +1186,26 @@ ion-toast.notif-toast::part(header) {
   justify-content: space-between;
   gap: 16px;
 }
-.home-header__copy { min-width: 0; }
+.home-header__copy {
+  position: relative;
+  min-width: 0;
+}
+/* Parche negro SOLO detras del logo (esquina sup-izq): tapa el mosaico para
+   que el wordmark (PNG transparente) se lea limpio. No se ensancha al hueco
+   del medio. Bottom bien profundo (-100) para que llegue hasta el marco sin
+   dejar rendija de roosters antes de la tarjeta blanca; el marco (::after,
+   z:2) igual pinta encima si el parche se pasa. */
+.home-header__copy::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -60px;
+  left: -60px;
+  right: -34px;
+  bottom: -100px;
+  background: var(--client-ink);
+  pointer-events: none;
+}
 .home-header__logo {
   display: block;
   height: 42px;
