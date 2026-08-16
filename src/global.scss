@@ -1062,8 +1062,12 @@ ion-toast.notif-toast::part(header) {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 22px;
+  /* bottom -1px: el marco (color del fondo) se solapa 1px con el contenido de
+     abajo para tapar la "hairline" que el emulador responsive de Chrome dibuja a
+     DPR fraccionario entre el header y el contenido (no aparece en dispositivos
+     reales). Como el solape es del mismo color del fondo, es invisible. */
+  bottom: -1px;
+  height: 23px;
   background: var(--client-bg);
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
