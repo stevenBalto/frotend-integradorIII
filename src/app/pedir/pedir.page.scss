@@ -103,10 +103,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 10px;
-  /* Padding-top chico (compacta la fila hacia arriba, no "roba" espacio de
-     las tarjetas) + padding-bottom suficiente para separarla de las cartas
-     de producto sin empujar todo el listado hacia abajo. */
-  padding: 10px 20px 18px;
+  /* La fila queda centrada verticalmente entre el marco (borde redondeado del
+     header) y la primera carta. Se le da poco aire arriba y mas abajo: asi sube
+     ~10px (antes quedaba pegada a las cartas) sin mover el listado. */
+  padding: 4px 20px 26px;
 
   /* MOVIL (base): fila 1 = logo a la izquierda, boton de buscar pedido a la
      derecha (antes ambos quedaban pegados a la derecha con un vacio enorme
@@ -128,7 +128,7 @@
     flex-direction: row;
     align-items: center;
     gap: 10px;
-    margin-top: 4px;
+    margin-top: 0;
 
     .pedir-cats { flex: 1 1 auto; min-width: 0; }
     .pedir-search-box { flex-shrink: 0; }
