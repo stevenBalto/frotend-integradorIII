@@ -50,11 +50,15 @@
     content: '';
     /* Inset en px (no %): el header es angosto de alto, un inset en % relativo
        a su propia caja no deja suficiente margen para que la rotación -18deg
-       siga cubriendo las esquinas en pantallas anchas. Con px fijos el mosaico
-       queda completo de punta a punta sin importar el ancho/alto del header. */
+       siga cubriendo las esquinas en pantallas anchas. El margen vertical
+       (top/bottom) tiene que crecer con el ANCHO: al rotar -18deg, la esquina
+       de una caja muy ancha y baja se sale del overscan fijo mucho antes que
+       el horizontal (matematicamente, ancho * sin(18deg) crece rapido) -- por
+       eso a partir de ~1700px de ancho se veian roosters "cortados" en las
+       puntas con -200px. -700px cubre comodo hasta 4K. */
     position: absolute;
-    top: -200px;
-    bottom: -200px;
+    top: -700px;
+    bottom: -700px;
     left: -120px;
     right: -120px;
     /* Watermark en mosaico: rooster-logo.png (903x922) en vez del favicon porque
