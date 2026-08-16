@@ -1,4 +1,5 @@
-<ion-content class="auth-content">
+<ion-content class="auth-content auth-content--dark">
+  <div class="pedir-rooster-bg" aria-hidden="true"></div>
   <div class="auth-center">
   <div class="auth-wrap">
     <img src="assets/logo/rooster-logo.png" alt="Rooster logo" class="logo logo--lg" />
@@ -60,7 +61,10 @@
       Continuar con Google
     </button>
 
-    <button class="btn btn--dark" (click)="entrarInvitado()">Iniciar sin registrarme</button>
+    <button class="btn btn--dark" (click)="entrarInvitado()">
+      <ion-icon name="person-outline"></ion-icon>
+      Iniciar sin registrarme
+    </button>
   </div>
   </div>
 </ion-content>

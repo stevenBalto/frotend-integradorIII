@@ -215,7 +215,22 @@
   color: #3c4043;
   border: 1px solid #dadce0;
   font-weight: 600;
+  /* Google e "invitado" son dos caminos DISTINTOS de entrada. Sin esta
+     separacion quedan pegados y se leen como un solo bloque de dos pisos. */
+  margin-bottom: 12px;
 }
 .btn--google:hover { background: #f8f9fa; }
 .btn--google:disabled { opacity: 0.6; }
 .btn__google-logo { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* Entrar como invitado: es la opcion terciaria (despues de cuenta y Google),
+   asi que pesa menos que el rojo primario — mismo alto, pero sombra neutra
+   suave en vez del glow rojo, para que la jerarquia se lea sola. */
+.btn--dark {
+  box-shadow: 0 6px 18px rgba(20, 17, 15, 0.18);
+}
+.btn--dark ion-icon {
+  font-size: 18px;
+  /* El icono acompana al texto, no compite con el. */
+  opacity: 0.85;
+}

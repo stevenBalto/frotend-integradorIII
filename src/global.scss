@@ -483,6 +483,18 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
     radial-gradient(ellipse 700px 500px at 100% 0%, rgba(var(--client-red-rgb), 0.06), transparent 55%),
     var(--client-bg);
 }
+/* Variante oscura: solo Login y Crear cuenta, las dos puertas de entrada. El
+   mosaico de roosters es el .pedir-rooster-bg global (mismo que Carrito y Mi
+   cuenta), aca solo se apaga el fondo claro de .auth-content. Las otras
+   pantallas de auth (recuperar/resetear/cambiar contrasena) siguen claras: se
+   llega a ellas desde adentro del flujo, no son la portada de la app. */
+.auth-content--dark {
+  --background: #0E0E0E;
+  /* Pisa los radial-gradient de arriba (misma especificidad, gana el orden). */
+  background: #0E0E0E;
+}
+/* La card por encima del fondo, que es position:fixed. */
+.auth-content--dark .auth-center { position: relative; z-index: 1; }
 /* Centrado robusto: el scroll de ion-content es flex column; .auth-center llena el
    alto disponible (flex:1 + min-height:100%) y .auth-wrap usa margin:auto para
    centrarse. Si el contenido excede el alto, hace scroll con padding simetrico. */
