@@ -102,9 +102,11 @@
     </div>
 
     <!-- Boton flotante del carrito -->
-    <button type="button" class="pedir-fab" *ngIf="(cantidadItems$ | async) as qty" (click)="irACarrito()">
-      <ion-icon name="cart"></ion-icon>
-      <span class="pedir-fab__badge">{{ qty }}</span>
+    <button type="button" class="pedir-fab" *ngIf="(cantidadItems$ | async) as qty" (click)="irACarrito()" aria-label="Ver carrito">
+      <span class="pedir-fab__ic">
+        <ion-icon name="cart"></ion-icon>
+        <span class="pedir-fab__badge">{{ qty }}</span>
+      </span>
       <span class="pedir-fab__total">{{ total$ | async | crcCurrency }}</span>
     </button>
   </ng-container>

@@ -848,32 +848,23 @@
 
 /* ── FAB del carrito ────────────────────────────────────────────────────────── */
 .pedir-fab {
-  /* Pill compacto anclado abajo-derecha, por ENCIMA del tab bar (con safe-area),
-     para que no estorbe sobre el listado de platillos (antes era una barra full-width
-     flotando a 80px que tapaba las ultimas cards). */
+  /* FAB "Ink sleek" SIN LABEL: pill negro con circulo rojo del carrito (con badge
+     de cantidad) + el TOTAL en rojo. Anclado abajo-derecha, por ENCIMA del tab
+     bar (el offset se mide desde el borde del ion-content, que ya queda sobre la
+     barra). */
   position: fixed;
   left: auto;
   right: 16px;
-  /* El FAB es position:fixed pero su bloque contenedor es el <ion-content>, cuyo
-     borde inferior YA queda justo sobre el tab bar. Por eso el offset se mide desde
-     ahi (no desde el fondo del viewport): 16px lo deja pegadito arriba del tab bar.
-     Antes usaba 72px (+safe-area) y quedaba flotando muy alto. */
   bottom: 16px;
-  width: auto;
-  max-width: calc(100vw - 32px);
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 15px 22px;
+  gap: 11px;
+  padding: 6px 18px 6px 6px;
   border-radius: var(--rooster-radius-pill);
-  background: var(--client-red);
+  background: var(--client-ink);
   border: none;
-  color: #fff;
-  font-family: var(--client-font-body);
-  font-size: 15px;
-  font-weight: 800;
   cursor: pointer;
-  box-shadow: var(--client-shadow-red), var(--rooster-shadow-lg);
+  box-shadow: 0 14px 28px -10px rgba(11, 11, 12, 0.6);
   z-index: 100;
   transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
   animation: rooster-pop var(--rooster-ease-med) both;
@@ -883,25 +874,51 @@
     bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
 
-  &:hover { filter: brightness(1.05); }
-  &:active {
-    transform: scale(0.96);
-  }
+  &:hover { filter: brightness(1.12); }
+  &:active { transform: scale(0.96); }
 
-  ion-icon {
-    font-size: 20px;
+  /* Circulo rojo con el carrito (blanco) + badge de cantidad en la esquina. */
+  &__ic {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--client-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -2px rgba(var(--client-red-rgb), 0.7);
+
+    ion-icon { font-size: 21px; color: #fff; }
   }
 
   &__badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #fff;
-    color: var(--client-red);
-    font-size: 12px;
+    color: var(--client-ink);
+    font-family: var(--client-font-body);
+    font-size: 11px;
     font-weight: 800;
-    padding: 2px 8px;
-    border-radius: var(--rooster-radius-pill);
+    line-height: 1;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(11, 11, 12, 0.3);
   }
 
   &__total {
+    color: #ff5c74;
+    font-family: var(--client-font-body);
+    font-size: 15px;
+    font-weight: 800;
     white-space: nowrap;
   }
 }
@@ -1125,14 +1142,15 @@
   padding: 13px 16px 13px 14px;
   border: none;
   border-radius: var(--rooster-radius-pill);
-  background: var(--client-red);
+  /* Estilo "Ink sleek": pill negro, badge rojo del carrito, precio en rojo. */
+  background: var(--client-ink);
   color: #fff;
   font-family: var(--client-font-body);
   cursor: pointer;
-  box-shadow: var(--client-shadow-red), var(--rooster-shadow-lg);
+  box-shadow: 0 14px 28px -12px rgba(11, 11, 12, 0.6);
   transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
 
-  &:not(:disabled):hover { filter: brightness(1.06); }
+  &:not(:disabled):hover { filter: brightness(1.12); }
   &:not(:disabled):active { transform: scale(0.98); }
   &:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 }
@@ -1140,10 +1158,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--client-red);
+  box-shadow: 0 4px 12px -2px rgba(var(--client-red-rgb), 0.7);
   flex-shrink: 0;
 
   ion-icon { font-size: 18px; }
@@ -1158,10 +1177,9 @@
 .dish-modal__cta-price {
   font-size: 15px;
   font-weight: 800;
-  padding: 4px 12px;
-  border-radius: var(--rooster-radius-pill);
-  background: rgba(255, 255, 255, 0.18);
+  color: #ff5c74;
   white-space: nowrap;
+  padding-right: 4px;
 }
 
 /* ── Vista Carrito ──────────────────────────────────────────────────────────── */
