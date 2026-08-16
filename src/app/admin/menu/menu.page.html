@@ -98,7 +98,7 @@
       <p *ngIf="cargando" class="menu-loading">Cargando catálogo...</p>
 
       <div class="admin-table-wrap" *ngIf="!cargando && vistaTabla === 'productos'">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards menu-table">
           <thead>
             <tr>
               <th></th><th>Producto</th><th>Categoría</th><th>Precio base</th>
@@ -108,24 +108,24 @@
           <tbody>
             <tr *ngFor="let p of productosFiltrados" [class.menu-row--off]="!p.disponible"
               class="menu-row--clickable" (click)="abrirDetalle(p)">
-              <td>
+              <td class="menu-cell-thumb">
                 <div class="menu-thumb">
                   <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre" />
                   <ion-icon *ngIf="!p.imagen_url" name="restaurant-outline"></ion-icon>
                 </div>
               </td>
-              <td class="admin-table__strong" style="font-size: 12px;">
+              <td class="admin-table__strong menu-cell-nombre" style="font-size: 12px;" data-label="Producto">
                 {{ p.nombre }}
                 <span class="menu-rating" *ngIf="p.resenas_count > 0">
                   ★ {{ p.calificacion_promedio }} · {{ p.resenas_count }}
                 </span>
               </td>
-              <td><span class="menu-cat">{{ p.categoria }}</span></td>
-              <td class="admin-table__semi" style="font-size: 12px;">{{ p.precio_base | crcCurrency }}</td>
-              <td>
+              <td data-label="Categoría"><span class="menu-cat">{{ p.categoria }}</span></td>
+              <td class="admin-table__semi" style="font-size: 12px;" data-label="Precio base">{{ p.precio_base | crcCurrency }}</td>
+              <td data-label="Destacado">
                 <span class="menu-star" [class.menu-star--on]="p.destacado">{{ p.destacado ? '★' : '☆' }}</span>
               </td>
-              <td>
+              <td data-label="Disponible">
                 <div class="menu-avail">
                   <span class="menu-switch" [class.menu-switch--on]="p.disponible">
                     <span class="menu-switch__knob"></span>
@@ -133,7 +133,7 @@
                   <span class="menu-avail__label" *ngIf="!p.disponible">Agotado</span>
                 </div>
               </td>
-              <td>
+              <td class="menu-cell-actions" data-label="Acciones">
                 <div class="menu-actions">
                   <button type="button" class="menu-action menu-action--extras" *ngIf="(p.extras?.length ?? 0) > 0"
                     (click)="abrirElegirExtras(p); $event.stopPropagation()" title="Extras del producto">
@@ -157,7 +157,7 @@
       </div>
 
       <div class="admin-table-wrap" *ngIf="vistaTabla === 'extras'">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards menu-table">
           <thead>
             <tr>
               <th></th><th>Extra</th><th>Categoría</th><th>Precio</th>
@@ -166,16 +166,16 @@
           </thead>
           <tbody>
             <tr *ngFor="let e of extrasFiltradosTabla" [class.menu-row--off]="!e.disponible">
-              <td>
+              <td class="menu-cell-thumb">
                 <div class="menu-thumb">
                   <img *ngIf="e.imagen_url" [src]="e.imagen_url" [alt]="e.nombre" />
                   <ion-icon *ngIf="!e.imagen_url" name="fast-food-outline"></ion-icon>
                 </div>
               </td>
-              <td class="admin-table__strong" style="font-size: 12px;">{{ e.nombre }}</td>
-              <td><span class="menu-cat">{{ nombreCategoriaExtra(e) }}</span></td>
-              <td class="admin-table__semi" style="font-size: 12px;">{{ e.precio | crcCurrency }}</td>
-              <td>
+              <td class="admin-table__strong menu-cell-nombre" style="font-size: 12px;" data-label="Extra">{{ e.nombre }}</td>
+              <td data-label="Categoría"><span class="menu-cat">{{ nombreCategoriaExtra(e) }}</span></td>
+              <td class="admin-table__semi" style="font-size: 12px;" data-label="Precio">{{ e.precio | crcCurrency }}</td>
+              <td data-label="Disponible">
                 <div class="menu-avail">
                   <span class="menu-switch" [class.menu-switch--on]="e.disponible">
                     <span class="menu-switch__knob"></span>
@@ -183,7 +183,7 @@
                   <span class="menu-avail__label" *ngIf="!e.disponible">Inactivo</span>
                 </div>
               </td>
-              <td>
+              <td class="menu-cell-actions" data-label="Acciones">
                 <div class="menu-actions">
                   <button type="button" class="menu-action" (click)="abrirEditarExtra(e)">
                     <ion-icon name="create-outline"></ion-icon>

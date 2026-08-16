@@ -42,16 +42,31 @@
    wrap, no en la tabla). Se revierte a un patrón estándar: UN solo contenedor de scroll 2D
    (el wrap) + tabla normal (`display:table`) que desborda para el scroll horizontal. Así el
    thead sticky se ancla al wrap y queda fijo, y la tabla ancha scrollea en horizontal. */
+/* `:not(.admin-table--cards)`: las tablas que se vuelven TARJETAS en móvil no
+   entran acá. Ahí no hay thead que fijar ni scroll horizontal, y este
+   `width: max-content` las haría más anchas que su contenedor. */
 @media (max-width: 767px) {
-  .admin-table-wrap {
+  .admin-table-wrap:not(:has(.admin-table--cards)) {
     max-height: 60vh;
     overflow: auto;
   }
-  .admin-table {
+  .admin-table:not(.admin-table--cards) {
     display: table;
     width: max-content;
     min-width: 100%;
     max-width: none;
     overflow: visible;
+  }
+}
+
+
+/* ── Retoques propios de las tablas de Inicio en modo tarjeta ─────────────────
+   El patrón general (tarjetas + data-label) vive en global.scss como
+   `.admin-table--cards`. Acá: los toggles de secciones del Home. */
+@media (max-width: 1199px) {
+  .inicio-table tbody {
+    /* El toggle se pega a la derecha, frente a su etiqueta, para poder marcar
+       Destacado/Popular/Nuevo de un vistazo sin buscar el control. */
+    td ion-toggle { margin-left: auto; }
   }
 }

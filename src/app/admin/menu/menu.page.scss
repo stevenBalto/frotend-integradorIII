@@ -20,15 +20,15 @@
   border-right: 1px solid var(--admin-border);
 }
 
-/* ≤767: TODO en una sola fila hasta donde se pueda. Modos (Productos/Extras) + categorías
-   (que scrollean en horizontal si no caben, sin bajar a otra fila) y el buscador pegado a
-   la DERECHA. Reemplaza el apilado en columnas que dejaba 3 filas. */
+/* ≤767: modos (Productos/Extras) y buscador arriba; las categorías se acomodan a
+   continuación y las que no caben BAJAN a la línea siguiente.
+   Antes iban en una sola fila con scroll horizontal, así que las últimas quedaban
+   cortadas contra el borde y había que arrastrarlas para verlas. */
 @media (max-width: 767px) {
-  .menu-toolbar { flex-wrap: nowrap; align-items: center; gap: 10px; }
-  .menu-toolbar__left { flex-wrap: nowrap; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }
+  .menu-toolbar { flex-wrap: wrap; align-items: center; gap: 10px; }
+  .menu-toolbar__left { flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }
   .menu-toolbar__modes { padding-right: 0; border-right: none; flex-shrink: 0; }
-  .menu-toolbar__tabs { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
-  .menu-toolbar__tabs > * { flex-shrink: 0; }
+  .menu-toolbar__tabs { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; overflow: visible; }
   .menu-toolbar > admin-search-input { flex-shrink: 0; margin-left: auto; }
 }
 
@@ -37,12 +37,16 @@
    sticky del thead. Se revierte a un patrón estándar: UN contenedor de scroll 2D (el wrap)
    + tabla normal (display:table) que desborda para el scroll horizontal. Aplica a las dos
    tablas de Menú (productos y extras). */
+/* `:not(.admin-table--cards)`: las tablas que se vuelven TARJETAS en móvil no
+   entran acá. Ahí no hay thead que fijar ni scroll horizontal que habilitar, y
+   este `width: max-content` las hacía más anchas que su contenedor — la tarjeta
+   quedaba cortada por la derecha. */
 @media (max-width: 767px) {
-  .admin-table-wrap {
+  .admin-table-wrap:not(:has(.admin-table--cards)) {
     max-height: 60vh;
     overflow: auto;
   }
-  .admin-table {
+  .admin-table:not(.admin-table--cards) {
     display: table;
     width: max-content;
     min-width: 100%;
@@ -707,4 +711,39 @@ select.menu-form__input--full {
   --admin-select-font-size: 13px;
   --admin-select-font-weight: 500;
   --admin-select-padding: 9px 12px;
+}
+
+/* ── Retoques propios de las tablas del Menú en modo tarjeta ──────────────────
+   El patrón general (tarjetas + data-label) vive en global.scss como
+   `.admin-table--cards`. Acá se resuelve el caso particular de estas tablas:
+   la primera celda no es un dato sino la miniatura del producto/extra. */
+@media (max-width: 1199px) {
+  .menu-table tbody {
+    /* La miniatura encabeza la tarjeta, alineada a la izquierda y sin etiqueta.
+       El patrón general le pone el borde inferior a la primera celda; acá ese
+       borde pasa al nombre, que es el verdadero título de la tarjeta. */
+    td.menu-cell-thumb {
+      justify-content: flex-start;
+      padding: 0 0 8px;
+      margin: 0;
+      border-bottom: none;
+    }
+
+    td.menu-cell-nombre {
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--admin-panel);
+      font-size: 14px;
+    }
+
+    /* Los botones de acción van en su propia línea, alineados a la derecha. */
+    td.menu-cell-actions {
+      padding-top: 10px;
+
+      .menu-actions { justify-content: flex-end; }
+    }
+
+    /* Producto agotado/inactivo: franja lateral en vez del tinte de fila. */
+    tr.menu-row--off { border-left: 4px solid var(--admin-text-muted); }
+  }
 }

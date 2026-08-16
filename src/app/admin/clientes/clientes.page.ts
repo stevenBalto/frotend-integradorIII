@@ -94,6 +94,27 @@ export class AdminClientesPage implements OnInit {
     }
   }
 
+  /**
+   * Abre el calendario del navegador al tocar el chip de fecha.
+   *
+   * En móvil el input está superpuesto e invisible sobre el chip, y su indicador
+   * nativo ocupa todo el botón: tocar en cualquier parte abre el calendario. En
+   * escritorio el input se ve normal y solo responde si se acierta en su iconito,
+   * así que parecía que "no salía". showPicker() lo abre desde cualquier punto.
+   */
+  abrirCalendario(input: HTMLInputElement): void {
+    try {
+      const conPicker = input as HTMLInputElement & { showPicker?: () => void };
+      if (typeof conPicker.showPicker === 'function') {
+        conPicker.showPicker();
+        return;
+      }
+    } catch {
+      /* Algunos navegadores lanzan si no hubo gesto del usuario: seguimos al focus. */
+    }
+    input.focus();
+  }
+
   onFechaEspecifica(): void {
     if (this.fechaEspecifica) {
       this.filtroFecha = 'fecha';

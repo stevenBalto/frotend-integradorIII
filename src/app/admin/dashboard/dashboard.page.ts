@@ -132,6 +132,26 @@ export class AdminDashboardPage implements ViewWillEnter, ViewWillLeave, OnDestr
     this.cargar();
   }
 
+  /**
+   * Abre el calendario del navegador al tocar el campo de fecha.
+   *
+   * Por defecto, un input[type=date] solo despliega el calendario si se acierta
+   * en su iconito; tocando el resto del campo no pasa nada. showPicker() lo abre
+   * desde cualquier punto. Si el navegador no lo soporta, queda el foco.
+   */
+  abrirCalendario(input: HTMLInputElement): void {
+    try {
+      const conPicker = input as HTMLInputElement & { showPicker?: () => void };
+      if (typeof conPicker.showPicker === 'function') {
+        conPicker.showPicker();
+        return;
+      }
+    } catch {
+      /* Algunos navegadores lanzan si no hubo gesto del usuario: seguimos al focus. */
+    }
+    input.focus();
+  }
+
   /** Cambia el rango de fechas de "Últimos pedidos" y re-consulta (independiente del gráfico). */
   cambiarRangoUltimos(): void {
     this.cargar();

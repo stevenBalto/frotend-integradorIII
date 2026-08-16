@@ -336,6 +336,86 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
 .admin-table__semi { font-weight: 600; }
 .admin-table__muted { font-size: 9px; color: #6b6b6b; }
 
+/* ── Tabla que se vuelve TARJETAS en móvil ─────────────────────────────────────
+   Se agrega `.admin-table--cards` a la tabla y `data-label="..."` a cada <td>.
+   Con muchas columnas, el scroll horizontal de arriba deja campos fuera de
+   pantalla (estado, pago, acciones) y hay que arrastrar la tabla para verlos;
+   así cada fila pasa a ser una tarjeta con sus campos apilados y la etiqueta la
+   pone el CSS desde `data-label`.
+
+   El corte va en 1199px y no en 767: una tabla de 7-8 columnas necesita ~900px
+   de ancho útil, y desde 1024 aparece además el sidebar del panel (~250px). Con
+   el corte en 767 la tabla volvía a los 795px y seguía cortando campos ("NO PA"
+   en vez de "NO PAGADO"). Desde 1200px ya entra completa. */
+@media (max-width: 1199px) {
+  /* `.of-table-wrap` es el contenedor equivalente de Ofertas/Cupones. */
+  .admin-table-wrap:has(.admin-table--cards),
+  .of-table-wrap:has(.admin-table--cards) {
+    overflow-x: hidden;
+    border: none;
+    border-radius: 0;
+  }
+
+  .admin-table--cards {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+    border-collapse: separate;
+  }
+  .admin-table--cards thead { display: none; }
+  .admin-table--cards tbody { display: block; }
+
+  .admin-table--cards tbody tr {
+    display: block;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: var(--admin-card, #fff);
+  }
+
+  .admin-table--cards tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border: none;
+    text-align: right;
+    text-transform: none;
+    /* Un valor largo sin espacios (nombres pegados, códigos) desbordaba la
+       tarjeta; con esto corta la palabra en vez de empujar el ancho. */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .admin-table--cards tbody td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--admin-text-muted);
+  }
+
+  /* La primera celda encabeza la tarjeta, separada del resto. */
+  .admin-table--cards tbody td:first-child {
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--admin-panel);
+    font-size: 14px;
+  }
+
+  /* Fila de "no hay datos": ocupa la tarjeta entera, sin etiqueta. */
+  .admin-table--cards tbody td[colspan] {
+    display: block;
+    text-align: center;
+  }
+  .admin-table--cards tbody td[colspan]::before { content: none; }
+}
+
 /* ── Panel admin: paginación reutilizable ──────────────────────────────────── */
 .admin-pagination {
   display: flex;

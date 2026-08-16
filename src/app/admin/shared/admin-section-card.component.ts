@@ -53,8 +53,14 @@ import { Component, Input } from '@angular/core';
       .section-card__action { width: 100%; }
       .section-card__title--has-short .section-card__title--full { display: none; }
       .section-card__title--has-short .section-card__title--short { display: inline; }
-      /* Variante inline: la accion se queda junto al titulo (no baja a fila completa). */
-      .section-card__head--inline { flex-wrap: nowrap; gap: 8px; }
+      /* Variante inline: la accion se queda junto al titulo (no baja a fila completa).
+         align-items:flex-start (en vez de center): cuando los filtros ocupan varias
+         filas, el titulo quedaba centrado contra TODO el bloque, "flotando" a media
+         altura. Con flex-start se queda arriba, a la par de la primera fila de chips;
+         el padding-top lo centra con el chip (mismo resultado que antes cuando la
+         accion es de una sola fila). */
+      .section-card__head--inline { flex-wrap: nowrap; gap: 8px; align-items: flex-start; }
+      .section-card__head--inline .section-card__title { padding-top: 7px; }
       .section-card__head--inline .section-card__action { width: auto; min-width: 0; flex: 1 1 auto; display: flex; justify-content: flex-end; }
     }
   `],

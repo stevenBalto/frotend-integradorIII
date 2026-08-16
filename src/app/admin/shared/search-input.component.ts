@@ -121,9 +121,17 @@ export class SearchInputComponent {
     this.setAbierto(false);
   }
 
-  /** Cierra al clickear fuera del componente. */
-  @HostListener('document:click', ['$event'])
-  onDocClick(ev: MouseEvent): void {
+  /**
+   * Cierra al tocar fuera del componente.
+   *
+   * Escucha `pointerdown` y no `click` a propósito: al seleccionar texto
+   * arrastrando (o tras un Ctrl+A), el gesto empieza dentro del input y termina
+   * fuera, y el navegador dispara el `click` en el ANCESTRO COMÚN. Con `click`,
+   * `host.contains(target)` daba verdadero y el buscador se quedaba abierto.
+   * `pointerdown` se evalúa donde empieza el gesto, que es lo que interesa.
+   */
+  @HostListener('document:pointerdown', ['$event'])
+  onDocPointerDown(ev: PointerEvent): void {
     if (!this.abierto) return;
     const host = this.box?.nativeElement;
     if (host && !host.contains(ev.target as Node)) {
@@ -137,5 +145,27 @@ export class SearchInputComponent {
     this.abierto = v;
     this.el.nativeElement.parentElement?.classList.toggle(CLASE_FILA_ABIERTA, v);
     this.openChange.emit(v);
+
+    if (!v) {
+      this.limpiarFocoYSeleccion();
+    }
+  }
+
+  /**
+   * Al cerrar hay que soltar el input, no solo animar su ancho a 0.
+   *
+   * Con un texto largo el input queda desplazado por dentro (scrollLeft > 0) y,
+   * si además está TODO seleccionado (Ctrl+A), el navegador sigue pintando esa
+   * selección fuera del control aunque el contenedor tenga overflow:hidden — se
+   * ve el texto "escapado" del buscador. Quitando foco, selección y scroll el
+   * input queda realmente vacío a la vista.
+   */
+  private limpiarFocoYSeleccion(): void {
+    const input = this.inp?.nativeElement;
+    if (!input) return;
+
+    input.blur();
+    input.setSelectionRange(0, 0);
+    input.scrollLeft = 0;
   }
 }

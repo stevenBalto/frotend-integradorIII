@@ -44,8 +44,11 @@
 }
 .notif-filtros__chips { display: flex; align-items: center; gap: 6px; }
 
-/* En el header: una sola fila; si no cabe se desplaza horizontal (sin barra visible),
-   igual que el carril de KPIs. Cada elemento no se encoge. */
+/* En el header: una sola fila, solo desde 1024px — antes del corte no caben y
+   quedaban cortados, así que ahí se muestran los del cuerpo (que sí envuelven). */
+@media (max-width: 1023px) {
+  .notif-filtros--head { display: none; }
+}
 .notif-filtros--head {
   flex: 1 1 auto;
   min-width: 0;
@@ -60,21 +63,17 @@
   .notif-chip { flex-shrink: 0; }
 }
 
-/* En el cuerpo (solo móvil <640): TODOS los filtros en una sola fila con scroll
-   horizontal (no se apilan). En tablet+ se oculta (viven en el header). */
+/* En el cuerpo (hasta 1023px): los filtros ENVUELVEN en varias líneas.
+   Antes iban en una sola fila con scroll horizontal y los últimos chips quedaban
+   cortados contra el borde, obligando a arrastrarlos para verlos. Desde 1024px se
+   ocultan porque ahí sí caben en el header. */
 .notif-filtros--body {
   margin-bottom: 12px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
-  .notif-filtros__grupo,
-  .notif-filtros__chips,
-  .notif-filtros__count,
-  .notif-filtros__sep,
-  .notif-chip { flex-shrink: 0; }
+  flex-wrap: wrap;
+  row-gap: 8px;
+  overflow: visible;
 }
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .notif-filtros--body { display: none; }
 }
 

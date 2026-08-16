@@ -80,7 +80,7 @@
       <p *ngIf="cargando" class="inv-loading">Cargando inventario...</p>
 
       <div class="admin-table-wrap" *ngIf="!cargando">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards inv-table">
           <thead>
             <tr>
               <th>Insumo</th><th>Cantidad actual</th><th>Stock mínimo</th>
@@ -89,11 +89,11 @@
           </thead>
           <tbody>
             <tr *ngFor="let i of insumosFiltrados" [class.inv-row--low]="i.bajo_stock">
-              <td class="admin-table__strong" style="font-size: 12px;">{{ i.nombre }}</td>
-              <td class="admin-table__semi" style="font-size: 12px;">{{ formatCantidad(i) }}</td>
-              <td class="inv-muted">{{ formatStockMinimo(i) }}</td>
-              <td><status-badge [type]="getBadgeType(i)"></status-badge></td>
-              <td>
+              <td class="admin-table__strong" style="font-size: 12px;" data-label="Insumo">{{ i.nombre }}</td>
+              <td class="admin-table__semi" style="font-size: 12px;" data-label="Cantidad actual">{{ formatCantidad(i) }}</td>
+              <td class="inv-muted" data-label="Stock mínimo">{{ formatStockMinimo(i) }}</td>
+              <td data-label="Estado"><status-badge [type]="getBadgeType(i)"></status-badge></td>
+              <td class="inv-cell-actions" data-label="Acciones">
                 <div class="inv-actions">
                   <button type="button" class="inv-action inv-action--edit" title="Editar"
                     (click)="abrirEditar(i)">

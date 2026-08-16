@@ -77,18 +77,18 @@
       <p *ngIf="cargando" class="inicio-loading">Cargando catálogo...</p>
 
       <div class="admin-table-wrap" *ngIf="!cargando">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards inicio-table">
           <thead>
             <tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Destacado</th><th>Popular</th><th>Nuevo</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of productosFiltradosInicio">
-              <td class="admin-table__strong" style="font-size: 12px;">{{ p.nombre }}</td>
-              <td class="inicio-muted">{{ p.categoria }}</td>
-              <td class="inicio-muted">{{ p.precio_base | crcCurrency }}</td>
-              <td><ion-toggle [checked]="p.destacado" (ionChange)="toggleSeccion(p, 'destacado')"></ion-toggle></td>
-              <td><ion-toggle [checked]="p.popular" (ionChange)="toggleSeccion(p, 'popular')"></ion-toggle></td>
-              <td><ion-toggle [checked]="p.nuevo" (ionChange)="toggleSeccion(p, 'nuevo')"></ion-toggle></td>
+              <td class="admin-table__strong" style="font-size: 12px;" data-label="Producto">{{ p.nombre }}</td>
+              <td class="inicio-muted" data-label="Categoría">{{ p.categoria }}</td>
+              <td class="inicio-muted" data-label="Precio">{{ p.precio_base | crcCurrency }}</td>
+              <td data-label="Destacado"><ion-toggle [checked]="p.destacado" (ionChange)="toggleSeccion(p, 'destacado')"></ion-toggle></td>
+              <td data-label="Popular"><ion-toggle [checked]="p.popular" (ionChange)="toggleSeccion(p, 'popular')"></ion-toggle></td>
+              <td data-label="Nuevo"><ion-toggle [checked]="p.nuevo" (ionChange)="toggleSeccion(p, 'nuevo')"></ion-toggle></td>
             </tr>
             <tr *ngIf="productosFiltradosInicio.length === 0">
               <td colspan="6" class="inicio-muted">No hay productos con este filtro.</td>
@@ -106,17 +106,17 @@
       </p>
 
       <div class="admin-table-wrap">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards inicio-table">
           <thead>
             <tr><th>Oferta</th><th>Descuento</th><th>Vigencia</th><th>Estado</th><th>Activa</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let o of ofertas">
-              <td class="admin-table__strong" style="font-size: 12px;">{{ o.nombre }}</td>
-              <td><span class="inicio-tag">{{ descuentoOferta(o) }}</span></td>
-              <td class="inicio-muted">{{ o.fecha_inicio || '—' }} a {{ o.fecha_fin || '—' }}</td>
-              <td><status-badge [type]="estadoOferta(o)"></status-badge></td>
-              <td><ion-toggle [checked]="o.activa" (ionChange)="toggleOferta(o)"></ion-toggle></td>
+              <td class="admin-table__strong" style="font-size: 12px;" data-label="Oferta">{{ o.nombre }}</td>
+              <td data-label="Descuento"><span class="inicio-tag">{{ descuentoOferta(o) }}</span></td>
+              <td class="inicio-muted" data-label="Vigencia">{{ o.fecha_inicio || '—' }} a {{ o.fecha_fin || '—' }}</td>
+              <td data-label="Estado"><status-badge [type]="estadoOferta(o)"></status-badge></td>
+              <td data-label="Activa"><ion-toggle [checked]="o.activa" (ionChange)="toggleOferta(o)"></ion-toggle></td>
             </tr>
             <tr *ngIf="ofertas.length === 0">
               <td colspan="5" class="inicio-muted">No hay ofertas registradas.</td>
@@ -133,17 +133,17 @@
         aparezca (o no) en el Home del cliente.
       </p>
       <div class="admin-table-wrap">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards inicio-table">
           <thead>
             <tr><th>Código</th><th>Descuento</th><th>Vigencia</th><th>Estado</th><th>Activo</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let c of cupones">
-              <td class="admin-table__strong" style="font-size: 12px;">{{ c.codigo }}</td>
-              <td><span class="inicio-tag">{{ descuentoCupon(c) }}</span></td>
-              <td class="inicio-muted">{{ c.fecha_inicio || '—' }} a {{ c.fecha_fin || '—' }}</td>
-              <td><status-badge [type]="estadoCupon(c)"></status-badge></td>
-              <td><ion-toggle [checked]="c.activo" (ionChange)="toggleCupon(c)"></ion-toggle></td>
+              <td class="admin-table__strong" style="font-size: 12px;" data-label="Código">{{ c.codigo }}</td>
+              <td data-label="Descuento"><span class="inicio-tag">{{ descuentoCupon(c) }}</span></td>
+              <td class="inicio-muted" data-label="Vigencia">{{ c.fecha_inicio || '—' }} a {{ c.fecha_fin || '—' }}</td>
+              <td data-label="Estado"><status-badge [type]="estadoCupon(c)"></status-badge></td>
+              <td data-label="Activo"><ion-toggle [checked]="c.activo" (ionChange)="toggleCupon(c)"></ion-toggle></td>
             </tr>
             <tr *ngIf="cupones.length === 0">
               <td colspan="5" class="inicio-muted">No hay cupones registrados.</td>

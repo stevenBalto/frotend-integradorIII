@@ -147,10 +147,14 @@
           <ion-icon name="calendar-outline"></ion-icon>
           <span class="hide-on-mobile">Fechas</span>
         </button>
+        <!-- (click)="abrirCalendario(...)": tocar el campo despliega el calendario del
+             navegador, sin tener que apuntarle al iconito del propio input. -->
         <div class="dash-daterange" *ngIf="rangoAbierto">
-          <input type="date" class="dash-date" [(ngModel)]="ultimosDesde" (ngModelChange)="cambiarRangoUltimos()" aria-label="Desde" />
+          <input #desde type="date" class="dash-date" [(ngModel)]="ultimosDesde"
+            (ngModelChange)="cambiarRangoUltimos()" (click)="abrirCalendario(desde)" aria-label="Desde" />
           <span class="dash-daterange__sep">–</span>
-          <input type="date" class="dash-date" [(ngModel)]="ultimosHasta" (ngModelChange)="cambiarRangoUltimos()" aria-label="Hasta" />
+          <input #hasta type="date" class="dash-date" [(ngModel)]="ultimosHasta"
+            (ngModelChange)="cambiarRangoUltimos()" (click)="abrirCalendario(hasta)" aria-label="Hasta" />
         </div>
         <admin-select [(ngModel)]="filtroUltimos"
           (ngModelChange)="kpiSel = null" ariaLabel="Filtrar últimos pedidos">
@@ -162,7 +166,7 @@
           [(value)]="busquedaUltimos"></admin-search-input>
       </div>
       <div class="admin-table-wrap">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards">
           <thead>
             <tr>
               <th>ID Pedido</th><th>Fecha</th><th>Cliente</th>
@@ -171,13 +175,13 @@
           </thead>
           <tbody>
             <tr *ngFor="let o of ultimosPedidosFiltrados">
-              <td class="admin-table__strong">{{ o.codigo }}</td>
-              <td class="admin-table__muted">{{ formatFecha(o.created_at) }}</td>
-              <td class="admin-table__semi">{{ o.cliente }}</td>
-              <td><modality-pill [mode]="modoModalidad(o.modalidad)"></modality-pill></td>
-              <td class="admin-table__strong">{{ o.total | crcCurrency }}</td>
-              <td><status-badge [type]="estadoToStatusType(o.estado)"></status-badge></td>
-              <td>
+              <td class="admin-table__strong" data-label="ID Pedido">{{ o.codigo }}</td>
+              <td class="admin-table__muted" data-label="Fecha">{{ formatFecha(o.created_at) }}</td>
+              <td class="admin-table__semi" data-label="Cliente">{{ o.cliente }}</td>
+              <td data-label="Modalidad"><modality-pill [mode]="modoModalidad(o.modalidad)"></modality-pill></td>
+              <td class="admin-table__strong" data-label="Total">{{ o.total | crcCurrency }}</td>
+              <td data-label="Estado"><status-badge [type]="estadoToStatusType(o.estado)"></status-badge></td>
+              <td data-label="Pago">
                 <span class="pago-badge" [class.pago-badge--si]="o.pagado" [class.pago-badge--no]="!o.pagado">
                   <ion-icon [name]="o.pagado ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                   {{ o.pagado ? 'Pagado' : 'No pagado' }}

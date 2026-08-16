@@ -36,9 +36,17 @@ const COLOR_NEUTRAL = '#2E2E2C'; // Negro-gris, igual al resto de graficos del m
 const TOOLTIP_BG = '#2D3748';
 const TOOLTIP_TEXT = '#FFFFFF';
 
-// Labels del eje X
-const LABEL_COLOR_NORMAL = '#A0AEC0';
+// Labels del eje X. El gris de antes (#A0AEC0) casi no se leía sobre el fondo
+// claro del panel; ahora usa el gris de texto del sistema (--admin-text-muted),
+// que tiene bastante más contraste. Chart.js pinta en canvas y no resuelve
+// variables CSS, por eso van los valores literales.
+const LABEL_COLOR_NORMAL = '#6B7280';
 const LABEL_COLOR_ACTIVE = '#1A1A1A';
+
+// Peso de las labels: la hora pico se sigue distinguiendo del resto, pero el
+// resto ya no queda en peso fino (400), que era parte del problema de lectura.
+const LABEL_WEIGHT_NORMAL = 600;
+const LABEL_WEIGHT_ACTIVE = 800;
 
 /**
  * Plugin de Chart.js que dibuja un tooltip fijo sobre la barra lider.
@@ -285,6 +293,7 @@ export class PeakHoursChartComponent implements AfterViewInit, OnChanges, OnDest
             color: LABEL_COLOR_NORMAL,
             font: {
               size: 11,
+              weight: LABEL_WEIGHT_NORMAL,
               family: 'var(--rooster-font-sans), Nunito, sans-serif',
             },
             precision: 0,
@@ -311,7 +320,7 @@ export class PeakHoursChartComponent implements AfterViewInit, OnChanges, OnDest
             font: (context) => {
               return {
                 size: 12,
-                weight: context.index === leaderIdx ? 700 : 400,
+                weight: context.index === leaderIdx ? LABEL_WEIGHT_ACTIVE : LABEL_WEIGHT_NORMAL,
                 family: 'var(--rooster-font-sans), Nunito, sans-serif',
               };
             },

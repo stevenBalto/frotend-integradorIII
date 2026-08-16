@@ -203,17 +203,52 @@
 /* <=531px: los filtros ya no caben -> el carril entra en scroll horizontal (los chips no
    se comprimen ni se cortan); el buscador (lupa) queda pegado a la derecha, fuera del
    carril que scrollea. */
+/* Los chips que no caben BAJAN a la línea siguiente, en vez de irse a un scroll
+   horizontal donde el último quedaba cortado contra el borde y había que
+   arrastrarlo para verlo. */
 @media (max-width: 531px) {
+  /* row-gap chico: la lupa va en su propia línea y con el gap normal quedaba un
+     hueco grande entre los chips y ella. */
+  .cli-toolbar { flex-wrap: wrap; justify-content: flex-start; column-gap: 8px; row-gap: 2px; }
+
+  /* Los chips toman la fila completa y envuelven entre ellos, alineados a la
+     izquierda (mismo acomodo que la barra de Menú). */
   .cli-toolbar__filters {
-    flex: 1 1 auto;
+    flex: 1 1 100%;
     min-width: 0;
     gap: 6px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;              /* Firefox */
+    flex-wrap: wrap;
+    overflow: visible;
   }
-  .cli-toolbar__filters::-webkit-scrollbar { display: none; } /* WebKit */
-  .cli-toolbar__filters > *,
-  .cli-toolbar__filters .cli-datechip { flex-shrink: 0; }
+  .cli-toolbar__quick,
+  .cli-toolbar__range { flex-wrap: wrap; gap: 6px; }
+
+  /* La lupa cierra el bloque pegada a la derecha, no suelta a la izquierda. */
+  .cli-toolbar > admin-search-input { margin-left: auto; }
+}
+
+/* ── Retoques propios de la tabla de clientes en modo tarjeta ─────────────────
+   El patrón general (tarjetas + data-label) vive en global.scss como
+   `.admin-table--cards`. */
+@media (max-width: 1199px) {
+  .cli-table tbody {
+    /* Nombre + correo encabezan la tarjeta: se apilan bajo su etiqueta para que
+       el correo (largo) no compita por el ancho con el nombre. */
+    td.cli-cell-nombre {
+      display: block;
+      text-align: left;
+
+      &::before { display: block; margin-bottom: 4px; }
+    }
+
+    /* Los registros van en mayúscula por regla del panel; el correo no, que se
+       vuelve ilegible. */
+    td.cli-cell-nombre .cli-muted { text-transform: none; }
+
+    td.cli-cell-actions {
+      padding-top: 10px;
+
+      .cli-actions { justify-content: flex-end; }
+    }
+  }
 }

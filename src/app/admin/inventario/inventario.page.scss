@@ -168,3 +168,21 @@
 }
 .order-modal__cta:active { transform: scale(0.95); }
 .order-modal__cta:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Retoques propios de la tabla de inventario en modo tarjeta ───────────────
+   El patrón general (tarjetas + data-label) vive en global.scss como
+   `.admin-table--cards`. */
+@media (max-width: 1199px) {
+  .inv-table tbody {
+    /* El tinte de "bajo stock" pasa de la fila a la tarjeta completa. */
+    tr.inv-row--low { border-left: 4px solid #DC2626; }
+
+    /* Los botones de acción van en su propia línea, alineados a la derecha,
+       para que no compriman la etiqueta del campo. */
+    .inv-cell-actions {
+      padding-top: 10px;
+
+      .inv-actions { justify-content: flex-end; }
+    }
+  }
+}

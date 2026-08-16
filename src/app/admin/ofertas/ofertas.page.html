@@ -150,7 +150,7 @@
       <p *ngIf="cargandoOfertas" class="of-loading">Cargando ofertas...</p>
 
       <div class="of-table-wrap" *ngIf="!cargandoOfertas">
-        <table class="of-table">
+        <table class="of-table admin-table--cards">
           <thead>
             <tr>
               <th></th><th>Oferta</th><th>Productos</th><th>Tipo desc.</th>
@@ -160,21 +160,21 @@
           <tbody>
             <tr *ngFor="let o of ofertasFiltradas" [class.of-row--off]="!o.activa"
               class="of-row--clickable" (click)="abrirDetalleOferta(o)">
-              <td>
+              <td class="of-cell-icon">
                 <div class="of-combo-icon">
                   <img *ngIf="o.imagen_url" [src]="o.imagen_url" [alt]="o.nombre" class="of-combo-icon__img" />
                   <ion-icon *ngIf="!o.imagen_url" name="restaurant-outline"></ion-icon>
                 </div>
               </td>
-              <td>
+              <td class="of-cell-nombre" data-label="Oferta">
                 <p class="of-combo__name">{{ o.nombre }}</p>
                 <p class="of-combo__price">{{ formatValorOferta(o) }}</p>
               </td>
-              <td class="of-muted">{{ o.productos_count }} producto{{ o.productos_count !== 1 ? 's' : '' }}</td>
-              <td class="of-muted">{{ formatTipoDescuento(o.tipo_descuento) }}</td>
-              <td [class.of-urgent]="isOfertaUrgent(o)" class="of-muted">{{ formatVigencia(o.fecha_fin) }}</td>
-              <td><status-badge [type]="getOfertaBadgeType(o)"></status-badge></td>
-              <td>
+              <td class="of-muted" data-label="Productos">{{ o.productos_count }} producto{{ o.productos_count !== 1 ? 's' : '' }}</td>
+              <td class="of-muted" data-label="Tipo desc.">{{ formatTipoDescuento(o.tipo_descuento) }}</td>
+              <td [class.of-urgent]="isOfertaUrgent(o)" class="of-muted" data-label="Vigencia">{{ formatVigencia(o.fecha_fin) }}</td>
+              <td data-label="Estado"><status-badge [type]="getOfertaBadgeType(o)"></status-badge></td>
+              <td class="of-cell-actions" data-label="Acciones">
                 <div class="of-actions">
                   <button type="button" class="of-action of-action--edit" (click)="abrirEditarOferta(o); $event.stopPropagation()">
                     <ion-icon name="create-outline"></ion-icon>
@@ -200,7 +200,7 @@
       <p *ngIf="cargandoCupones" class="of-loading">Cargando cupones...</p>
 
       <div class="of-table-wrap" *ngIf="!cargandoCupones">
-        <table class="of-table">
+        <table class="of-table admin-table--cards">
           <thead>
             <tr>
               <th></th><th>Codigo</th><th>Tipo</th><th>Valor</th><th>Min. compra</th>
@@ -210,26 +210,26 @@
           <tbody>
             <tr *ngFor="let c of cuponesFiltrados" [class.of-row--off]="!c.activo"
               class="of-row--clickable" (click)="abrirDetalleCupon(c)">
-              <td>
+              <td class="of-cell-icon">
                 <div class="of-combo-icon">
                   <img *ngIf="c.imagen_url" [src]="c.imagen_url" [alt]="c.codigo" class="of-combo-icon__img" />
                   <ion-icon *ngIf="!c.imagen_url" name="pricetag-outline"></ion-icon>
                 </div>
               </td>
-              <td class="of-code">{{ c.codigo }}</td>
-              <td class="of-muted">{{ formatTipoCupon(c.tipo) }}</td>
-              <td class="of-value">{{ formatValorCupon(c) }}</td>
-              <td class="of-muted">{{ formatMontoMinimo(c.monto_minimo) }}</td>
-              <td class="of-muted">{{ formatVigencia(c.fecha_fin) }}</td>
-              <td>
+              <td class="of-code of-cell-nombre" data-label="Código">{{ c.codigo }}</td>
+              <td class="of-muted" data-label="Tipo">{{ formatTipoCupon(c.tipo) }}</td>
+              <td class="of-value" data-label="Valor">{{ formatValorCupon(c) }}</td>
+              <td class="of-muted" data-label="Mín. compra">{{ formatMontoMinimo(c.monto_minimo) }}</td>
+              <td class="of-muted" data-label="Vigencia">{{ formatVigencia(c.fecha_fin) }}</td>
+              <td class="of-cell-usos" data-label="Usos">
                 <p class="of-uses" [class.of-uses--red]="isUsosBarFull(c)">{{ formatUsosLabel(c) }}</p>
                 <div class="of-usebar" *ngIf="c.usos_max !== null">
                   <div class="of-usebar__fill" [style.width.%]="getUsosBarPct(c)"
                     [style.background]="isUsosBarFull(c) ? '#E13642' : '#F58220'"></div>
                 </div>
               </td>
-              <td><status-badge [type]="getCuponBadgeType(c)"></status-badge></td>
-              <td>
+              <td data-label="Estado"><status-badge [type]="getCuponBadgeType(c)"></status-badge></td>
+              <td class="of-cell-actions" data-label="Acciones">
                 <div class="of-actions">
                   <button type="button" class="of-action of-action--edit" (click)="abrirEditarCupon(c); $event.stopPropagation()">
                     <ion-icon name="create-outline"></ion-icon>

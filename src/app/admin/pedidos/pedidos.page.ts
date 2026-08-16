@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, NgZone, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Gesture, GestureController } from '@ionic/angular';
+import { Gesture, GestureController, ToastController } from '@ionic/angular';
 import { Subject, interval } from 'rxjs';
 import { takeUntil, switchMap, filter } from 'rxjs/operators';
 import { PedidoService } from '../../core/services/pedido.service';
@@ -30,6 +30,7 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private gestureCtrl = inject(GestureController);
   private confirm = inject(ConfirmService);
+  private toast = inject(ToastController);
 
   private destroy$ = new Subject<void>();
   private pausarPolling = false;
@@ -63,6 +64,8 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
   // Modal "pantalla completa": lista todos los pedidos del filtro actual en grande
   // (util cuando entran muchos pendientes y hay que verlos de un vistazo).
   pantallaCompletaOpen = false;
+  /** Toast de "cómo salir" del modo extendido (reemplaza al cartel del navegador). */
+  private toastSalida?: HTMLIonToastElement;
 
   // Gesto de cierre de la pantalla completa (deslizar de izquierda a derecha).
   private gestoCierre?: Gesture;
@@ -126,9 +129,9 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     // Limpieza defensiva del modo inmersivo (EF-13: IonicRouteStrategy cachea la
     // pagina; no dejamos clase, listener ni gesto colgando).
     document.body.classList.remove('admin-inmersivo');
-    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
     this.gestoCierre?.destroy();
     this.gestoCierre = undefined;
+    void this.limpiarHintSalida();
   }
 
   /**
@@ -195,16 +198,14 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     this.pantallaCompletaOpen = true;
     // Oculta el sidebar del shell admin (solo PC; en movil ya es off-canvas).
     document.body.classList.add('admin-inmersivo');
-    // Sincroniza el estado si el usuario sale del fullscreen del navegador (Esc/F11).
-    document.addEventListener('fullscreenchange', this.onFullscreenChange);
-    // Fullscreen del navegador (best-effort: el gesto del click lo permite; si el
-    // navegador lo bloquea, no rompe nada).
-    try {
-      const docEl = document.documentElement;
-      if (docEl.requestFullscreen && !document.fullscreenElement) {
-        void docEl.requestFullscreen().catch(() => { /* bloqueado: seguimos igual */ });
-      }
-    } catch { /* noop */ }
+
+    // NO se pide fullscreen del navegador a proposito: Chrome dibuja encima su
+    // propio cartel ("...press Esc to exit full screen"), que es UI del navegador
+    // y no se puede estilizar ni ocultar desde la pagina. El overlay ya tapa todo
+    // el panel, asi que el modo se siente igual de inmersivo y el aviso de como
+    // salir lo damos nosotros, con el estilo del sistema (.ped-fs__hint).
+    void this.mostrarHintSalida();
+
     // El overlay .ped-fs se renderiza en el proximo ciclo: montamos el gesto luego.
     setTimeout(() => this.setupSwipeCierre(), 0);
   }
@@ -215,13 +216,30 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     }
     this.pantallaCompletaOpen = false;
     document.body.classList.remove('admin-inmersivo');
-    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
     this.gestoCierre?.destroy();
     this.gestoCierre = undefined;
-    // Salir del fullscreen del navegador si seguimos dentro.
-    if (document.fullscreenElement) {
-      void document.exitFullscreen().catch(() => { /* noop */ });
-    }
+    void this.limpiarHintSalida();
+  }
+
+  /**
+   * Aviso de cómo salir del modo extendido, con el toast del sistema (mismo
+   * estilo que el resto de avisos del panel: ver `ion-toast` en global.scss).
+   */
+  private async mostrarHintSalida(): Promise<void> {
+    await this.limpiarHintSalida();
+    this.toastSalida = await this.toast.create({
+      message: 'Modo extendido. Tocá el botón o presioná Esc para salir.',
+      duration: 4000,
+      position: 'top',
+      icon: 'scan-outline',
+    });
+    await this.toastSalida.present();
+  }
+
+  /** Cierra el aviso si el modo se sale antes de que se desvanezca solo. */
+  private async limpiarHintSalida(): Promise<void> {
+    await this.toastSalida?.dismiss().catch(() => { /* ya cerrado */ });
+    this.toastSalida = undefined;
   }
 
   /** Esc cierra la pantalla completa (PC/tablet). */
@@ -232,16 +250,6 @@ export class AdminPedidosPage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Si el usuario sale del fullscreen del navegador (Esc/F11) con el modo aun
-   * abierto, cerramos tambien la expansion para no quedar desincronizados.
-   * Arrow-property: referencia estable para add/removeEventListener.
-   */
-  private onFullscreenChange = (): void => {
-    if (!document.fullscreenElement && this.pantallaCompletaOpen) {
-      this.zone.run(() => this.cerrarPantallaCompleta());
-    }
-  };
 
   /** Monta el gesto "deslizar de izquierda a derecha" sobre el overlay para cerrarlo. */
   private setupSwipeCierre(): void {

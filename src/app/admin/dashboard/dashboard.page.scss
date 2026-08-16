@@ -138,7 +138,7 @@
      width:max-content la deja del ancho de los encabezados (446px) y la barra del
      thead se ve "cortada". En ese caso vuelve a table normal al 100% para llenar el
      div. Con datos NO aplica (:has), así se conserva el scroll horizontal 1D. */
-  #dash-ultimos .admin-table:has(.dash-empty) {
+  #dash-ultimos .admin-table:not(.admin-table--cards):has(.dash-empty) {
     display: table;
     width: 100%;
     min-width: 0;

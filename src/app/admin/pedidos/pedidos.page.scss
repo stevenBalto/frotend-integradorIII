@@ -431,7 +431,7 @@
   /* Tabla VACÍA (ej. "Hoy" sin pedidos): el truco global display:block + width:max-content
      la deja del ancho de los encabezados y se ve "cortada". Con :has vuelve a table 100%
      para llenar el div; con datos conserva el scroll horizontal 1D. */
-  .admin-table:has(.ped-empty) {
+  .admin-table:not(.admin-table--cards):has(.ped-empty) {
     display: table;
     width: 100%;
     min-width: 0;
@@ -732,105 +732,33 @@
 .ped-help-swatch--reg { background: #16A34A; }
 .ped-help-swatch--inv { background: #F59E0B; }
 
-/* ── Móvil: la tabla de pedidos se vuelve tarjetas ────────────────────────────
-   Con 8 columnas, la regla global (.admin-table como bloque con scroll horizontal)
-   dejaba Estado, Pago y el botón de detalle fuera de pantalla: había que arrastrar
-   la tabla para verlos. Acá cada fila pasa a ser una tarjeta con sus datos
-   apilados y la etiqueta de cada campo la pone el CSS desde `data-label`, así no
-   se pierde nada y no hay scroll lateral. Solo aplica a esta página. */
-@media (max-width: 767px) {
-  .admin-table-wrap:has(.ped-table) {
-    overflow-x: hidden;
-    border: none;
-    border-radius: 0;
-  }
+/* ── Móvil: retoques propios de la tabla de pedidos en modo tarjeta ──────────
+   El patrón general (tarjetas + data-label) vive en global.scss como
+   `.admin-table--cards`; acá solo va lo específico de Pedidos.
+   Mismo corte que el patrón general (1199px). */
+@media (max-width: 1199px) {
+  .ped-table tbody {
+    /* Borde de color por tipo de cliente, como guía visual de la tarjeta. */
+    tr { border-left-width: 4px; }
+    tr.ped-row--registrado { border-left-color: #16A34A; background: rgba(22, 163, 74, 0.05); }
+    tr.ped-row--invitado { border-left-color: #F59E0B; background: rgba(245, 158, 11, 0.07); }
 
-  .ped-table {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    overflow: visible;
-    border-collapse: separate;
-
-    thead { display: none; }
-    tbody { display: block; }
-
-    tr {
-      display: block;
-      margin-bottom: 10px;
-      padding: 12px 14px;
-      border: 1px solid var(--admin-border);
-      border-radius: 12px;
-      background: var(--admin-card, #fff);
-      /* El borde de color (registrado/invitado) sigue funcionando como guía. */
-      border-left-width: 4px;
-
-      &.ped-row--registrado { border-left-color: #16A34A; }
-      &.ped-row--invitado { border-left-color: #F59E0B; }
-    }
-
-    td {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 5px 0;
-      border: none;
-      text-align: right;
-      text-transform: none;
-
-      &::before {
-        content: attr(data-label);
-        flex-shrink: 0;
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: var(--admin-text-muted);
-      }
-    }
-
-    /* En tabla, el color registrado/invitado es un box-shadow inset en la primera
-       celda; en tarjeta esa sombra cae ENCIMA del texto y se comía la "I" de
-       "ID PEDIDO". Se apaga y el color pasa al borde izquierdo de la tarjeta.
-       El tinte de fondo también sube de las celdas a la tarjeta: si se queda en
-       las celdas, el padding del borde se ve como una franja blanca. */
-    .ped-row--registrado > td:first-child,
-    .ped-row--invitado > td:first-child {
-      box-shadow: none;
-    }
-
+    /* En tabla el color va como box-shadow inset en la primera celda; en tarjeta
+       esa sombra cae ENCIMA del texto y se comía la "I" de "ID PEDIDO". El tinte
+       también sube a la tarjeta: en las celdas dejaba una franja blanca. */
     .ped-row--registrado > td,
     .ped-row--invitado > td {
       background: transparent;
+      box-shadow: none;
     }
 
-    tr.ped-row--registrado { background: rgba(22, 163, 74, 0.05); }
-    tr.ped-row--invitado { background: rgba(245, 158, 11, 0.07); }
-
-    /* El código encabeza la tarjeta, más grande y sin etiqueta repetida. */
-    td[data-label="ID Pedido"] {
-      padding-bottom: 8px;
-      margin-bottom: 4px;
-      border-bottom: 1px solid var(--admin-panel);
-      font-size: 14px;
-    }
-
-    /* El botón de detalle no necesita etiqueta: ocupa su propia fila, centrado. */
+    /* El botón de detalle no lleva etiqueta: ocupa su propia fila, a lo ancho. */
     .ped-cell-view {
       justify-content: center;
       padding-top: 10px;
 
       &::before { content: none; }
       .ped-row__view { width: 100%; border-radius: 8px; }
-    }
-
-    /* Fila de "no hay pedidos": sin formato de tarjeta. */
-    .ped-empty {
-      display: block;
-      text-align: center;
-
-      &::before { content: none; }
     }
   }
 }

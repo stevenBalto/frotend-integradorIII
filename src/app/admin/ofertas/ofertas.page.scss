@@ -43,17 +43,22 @@
 .of-table-wrap { overflow: auto; }
 .of-table {
   width: 100%;
-  min-width: max-content;   /* columnas no se comprimen: fuerza scroll horizontal */
   border-collapse: collapse;
   font-family: var(--rooster-font-sans);
+}
+/* Solo el min-width se excluye de las tablas en modo tarjeta: en tarjeta las haría
+   más anchas que su contenedor y se verían cortadas por la derecha. El `width:100%`
+   de arriba sí las alcanza, o en escritorio la tabla dejaría de llenar la card. */
+.of-table:not(.admin-table--cards) {
+  min-width: max-content;   /* columnas no se comprimen: fuerza scroll horizontal */
 }
 /* Movil: encabezados fijos (sticky) tambien en movil, igual que la tabla de productos
    (Menu, ver EF-27). El patron display:block volvia la tabla su propio scroller y rompia el
    sticky del thead (que ya declara global.scss para .of-table thead th). Se usa UN contenedor
    de scroll 2D (el wrap) + tabla normal (display:table) que desborda para el scroll horizontal. */
 @media (max-width: 767px) {
-  .of-table-wrap { max-height: 60vh; overflow: auto; }
-  .of-table {
+  .of-table-wrap:not(:has(.admin-table--cards)) { max-height: 60vh; overflow: auto; }
+  .of-table:not(.admin-table--cards) {
     display: table;
     width: max-content;
     min-width: 100%;
@@ -610,4 +615,44 @@ select.of-form__input {
   --admin-select-font-weight: 500;
   --admin-select-bg: #fdfcfb;
   --admin-select-padding: 0 12px;
+}
+
+/* ── Retoques propios de Ofertas/Cupones en modo tarjeta ──────────────────────
+   El patrón general (tarjetas + data-label) vive en global.scss como
+   `.admin-table--cards`. Acá va lo particular: la primera celda es la imagen. */
+@media (max-width: 1199px) {
+  .of-table.admin-table--cards tbody {
+    /* La imagen encabeza la tarjeta, sin etiqueta; el título pasa al nombre/código. */
+    td.of-cell-icon {
+      justify-content: flex-start;
+      padding: 0 0 8px;
+      margin: 0;
+      border-bottom: none;
+    }
+
+    td.of-cell-nombre {
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--admin-panel);
+      font-size: 14px;
+    }
+
+    /* La barra de usos necesita ancho propio: se apila bajo su etiqueta. */
+    td.of-cell-usos {
+      display: block;
+      text-align: right;
+
+      &::before { display: block; text-align: left; margin-bottom: 4px; }
+      .of-usebar { width: 100%; }
+    }
+
+    td.of-cell-actions {
+      padding-top: 10px;
+
+      .of-actions { justify-content: flex-end; }
+    }
+
+    /* Oferta/cupón inactivo: franja lateral en vez del tinte de fila. */
+    tr.of-row--off { border-left: 4px solid var(--admin-text-muted); }
+  }
 }

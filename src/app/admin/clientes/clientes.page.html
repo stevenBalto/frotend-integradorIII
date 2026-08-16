@@ -98,9 +98,9 @@
           <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'anio'"
             (click)="setFiltroFecha('anio')">Año</button>
           <label class="cli-datechip cli-datechip--date" [class.cli-datechip--active]="filtroFecha === 'fecha'"
-            title="Filtrar por una fecha puntual">
+            title="Filtrar por una fecha puntual" (click)="abrirCalendario(fechaEscritorio)">
             <ion-icon name="calendar-outline"></ion-icon>
-            <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+            <input #fechaEscritorio type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
           </label>
         </div>
         </div>
@@ -117,9 +117,9 @@
         <button type="button" class="cli-datechip" [class.cli-datechip--active]="filtroFecha === 'anio'"
           (click)="setFiltroFecha('anio')">Año</button>
         <label class="cli-datechip cli-datechip--date" [class.cli-datechip--active]="filtroFecha === 'fecha'"
-          title="Filtrar por una fecha puntual">
+          title="Filtrar por una fecha puntual" (click)="abrirCalendario(fechaMovil)">
           <ion-icon name="calendar-outline"></ion-icon>
-          <input type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
+          <input #fechaMovil type="date" [(ngModel)]="fechaEspecifica" (ngModelChange)="onFechaEspecifica()" />
         </label>
       </div>
 
@@ -127,7 +127,7 @@
       <p *ngIf="cargando" class="cli-loading">Cargando clientes...</p>
 
       <div class="admin-table-wrap" *ngIf="!cargando">
-        <table class="admin-table">
+        <table class="admin-table admin-table--cards cli-table">
           <thead>
             <tr>
               <th>Cliente</th><th>Pedidos</th><th>Gasto total</th><th>Ticket prom.</th>
@@ -136,17 +136,17 @@
           </thead>
           <tbody>
             <tr *ngFor="let c of clientesFiltrados">
-              <td>
+              <td class="cli-cell-nombre" data-label="Cliente">
                 <p class="admin-table__strong" style="font-size: 12px;">{{ c.nombre }}</p>
                 <p class="cli-muted">{{ c.email }}</p>
               </td>
-              <td class="admin-table__semi" style="font-size: 12px;">{{ c.cantidad_pedidos }}</td>
-              <td class="admin-table__semi" style="font-size: 12px;">{{ formatMonto(c.total_gastado) }}</td>
-              <td class="cli-muted">{{ formatMonto(c.ticket_promedio) }}</td>
-              <td class="cli-muted">{{ c.puntos_balance }}</td>
-              <td class="cli-muted">{{ formatUltimoPedido(c) }}</td>
-              <td><status-badge [type]="getBadgeType(c)"></status-badge></td>
-              <td>
+              <td class="admin-table__semi" style="font-size: 12px;" data-label="Pedidos">{{ c.cantidad_pedidos }}</td>
+              <td class="admin-table__semi" style="font-size: 12px;" data-label="Gasto total">{{ formatMonto(c.total_gastado) }}</td>
+              <td class="cli-muted" data-label="Ticket prom.">{{ formatMonto(c.ticket_promedio) }}</td>
+              <td class="cli-muted" data-label="Puntos">{{ c.puntos_balance }}</td>
+              <td class="cli-muted" data-label="Último pedido">{{ formatUltimoPedido(c) }}</td>
+              <td data-label="Estado"><status-badge [type]="getBadgeType(c)"></status-badge></td>
+              <td class="cli-cell-actions" data-label="Acciones">
                 <div class="cli-actions">
                   <button type="button" class="cli-action cli-action--history" title="Historial de pedidos"
                     (click)="abrirHistorial(c)">
