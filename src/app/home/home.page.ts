@@ -426,8 +426,10 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
 
   abrirDetalle(producto: Producto): void {
     this.productoDetalle = producto;
-    // Resetear selecciones
-    this.tamanoSeleccionado = null;
+    // Resetear selecciones. Si el producto tiene tamanos, se preselecciona el
+    // primero (ya viene ordenado por "orden" desde el backend) para que el
+    // boton de agregar arranque habilitado en vez de mostrarse bloqueado.
+    this.tamanoSeleccionado = producto.tamanos && producto.tamanos.length > 0 ? producto.tamanos[0] : null;
     this.extrasSeleccionados = [];
     this.cantidadDetalle = 1;
     this.detalleAbierto = true;
