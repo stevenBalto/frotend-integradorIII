@@ -6,8 +6,10 @@
    en 100s -> loop sin salto. Al llegar al pie, el "doblez" (::after) los
    curva/oscurece como borde waterfall y parecen salirse por abajo. */
 @keyframes home-rooster-drift {
-  from { background-position: 0 0; }
-  to   { background-position: 0 456px; }
+  /* X fijo en 48px (corrido a la derecha para que el primer rooster, pegado
+     al logo, no se vea cortado por el parche negro); solo Y anima. */
+  from { background-position: 48px 0; }
+  to   { background-position: 48px 456px; }
 }
 
 /* ── Encabezado ─────────────────────────────────────────────────────────────── */
@@ -24,7 +26,7 @@
   overflow: hidden;
 
   @media (min-width: 768px) {
-    padding: 40px 32px 54px;
+    padding: 26px 32px 40px;
   }
 
   /* Marco = el mismo borde blanco redondeado + glow rojo de antes, ahora en el
@@ -80,7 +82,6 @@
   }
 
   &__icon-btn {
-    position: relative;
     flex-shrink: 0;
     width: 40px;
     height: 40px;
@@ -93,22 +94,6 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.15s;
-
-    /* Parche negro PEGADO solo al icono (mismo criterio que el del logo en
-       __copy): tapa el mosaico justo detras del boton, sin extenderse al
-       hueco entre logo e icono. Bottom profundo (-100) para llegar hasta el
-       marco sin rendija de roosters antes de la tarjeta blanca. */
-    &::before {
-      content: '';
-      position: absolute;
-      z-index: -1;
-      top: -14px;
-      bottom: -100px;
-      left: -14px;
-      right: -14px;
-      background: var(--client-ink);
-      pointer-events: none;
-    }
 
     &:active { transform: scale(0.94); }
     ion-icon { font-size: 20px; color: var(--client-text); }
