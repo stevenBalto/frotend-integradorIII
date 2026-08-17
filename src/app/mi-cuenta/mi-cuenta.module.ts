@@ -13,6 +13,7 @@ import { RoostersPage } from './pages/roosters.page';
 import { PerfilPage } from './pages/perfil.page';
 import { HistorialPage } from './pages/historial.page';
 import { RestaurantesPage } from './pages/restaurantes.page';
+import { BuscarPedidoModalComponent } from '../shared/components/buscar-pedido-modal.component';
 
 @NgModule({
   imports: [
@@ -22,6 +23,7 @@ import { RestaurantesPage } from './pages/restaurantes.page';
     RouterModule,
     MiCuentaPageRoutingModule,
     CrcCurrencyPipe,
+    BuscarPedidoModalComponent,
   ],
   declarations: [
     MiCuentaPage,

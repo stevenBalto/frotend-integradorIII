@@ -6,6 +6,7 @@ import { HomePage } from './home.page';
 import { HomePageRoutingModule } from './home-routing.module';
 import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
 import { QrCodeComponent } from '../shared/components/qr-code.component';
+import { BuscarPedidoModalComponent } from '../shared/components/buscar-pedido-modal.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { QrCodeComponent } from '../shared/components/qr-code.component';
     HomePageRoutingModule,
     CrcCurrencyPipe,
     QrCodeComponent,
+    BuscarPedidoModalComponent,
   ],
   declarations: [HomePage]
 })

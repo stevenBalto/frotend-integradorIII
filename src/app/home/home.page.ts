@@ -9,12 +9,8 @@ import { ResenaPublica, ResumenProducto } from '../core/models/resena.model';
 import { OfertaService } from '../core/services/oferta.service';
 import { CuponService } from '../core/services/cupon.service';
 import { CarritoService, LineaCarrito } from '../core/services/carrito.service';
-import { PedidoService } from '../core/services/pedido.service';
 import { Usuario } from '../core/models/usuario.model';
 import { Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
-import { Pedido, PedidoPublico } from '../core/models/pedido.model';
-import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
-import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 import { Oferta } from '../core/models/oferta.model';
 import { Cupon } from '../core/models/cupon.model';
 
@@ -32,7 +28,6 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   private cuponService = inject(CuponService);
   private carritoService = inject(CarritoService);
   private resenaService = inject(ResenaService);
-  private pedidoService = inject(PedidoService);
   private toast = inject(ToastController);
   private zone = inject(NgZone);
   private router = inject(Router);
@@ -238,16 +233,6 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   qrTitulo = '';
   qrSubtitulo = '';
 
-  /** Modal "Buscar mi pedido" (igual que en Carrito). Logueado -> detalle completo;
-      invitado -> endpoint publico (estado/sucursal/fecha). */
-  buscarModalAbierto = false;
-  codigoBusqueda = '';
-  buscandoPedido = false;
-  buscarError: string | null = null;
-  pedidoBuscado: Pedido | null = null;
-  pedidoBuscadoPublico: PedidoPublico | null = null;
-  readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
-
   private readonly colores = ['#E13642', '#F58220', '#A8895E', '#F2B134'];
 
   /** Rail de categorias de marca (decorativo, enlaza al menu). Iconos reales
@@ -329,115 +314,6 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
       cargarPromos() NO va ademas en ngOnInit (serian dos requests). */
   ionViewWillEnter(): void {
     this.cargarPromos();
-  }
-
-  // ── Buscar mi pedido (modal in-place) ──
-
-  get esInvitado(): boolean {
-    return !this.auth.estaAutenticado;
-  }
-
-  get nombreClientePlaceholder(): string {
-    return this.auth.usuario?.nombre ?? 'Vos';
-  }
-
-  abrirBuscarPedido(): void {
-    this.buscarModalAbierto = true;
-    this.codigoBusqueda = '';
-    this.buscarError = null;
-    this.pedidoBuscado = null;
-    this.pedidoBuscadoPublico = null;
-    document.body.classList.add('buscar-modal-open');
-  }
-
-  cerrarBuscarPedido(): void {
-    this.buscarModalAbierto = false;
-    document.body.classList.remove('buscar-modal-open');
-  }
-
-  /** Pega el codigo desde el portapapeles al input (un toque, sin escribir). */
-  async pegarCodigo(): Promise<void> {
-    try {
-      const texto = (await navigator.clipboard.readText()).trim();
-      if (!texto) {
-        const t = await this.toast.create({ message: 'El portapapeles está vacío', duration: 1500, position: 'bottom', color: 'medium' });
-        await t.present();
-        return;
-      }
-      this.codigoBusqueda = texto;
-    } catch {
-      const t = await this.toast.create({ message: 'No pudimos leer el portapapeles', duration: 1800, position: 'bottom', color: 'medium' });
-      await t.present();
-    }
-  }
-
-  buscarMiPedido(): void {
-    const codigo = this.codigoBusqueda.trim();
-    if (!codigo) {
-      return;
-    }
-
-    this.buscandoPedido = true;
-    this.buscarError = null;
-    this.pedidoBuscado = null;
-    this.pedidoBuscadoPublico = null;
-
-    if (this.esInvitado) {
-      this.pedidoService.buscarPorCodigo(codigo).subscribe({
-        next: (pedido) => {
-          this.pedidoBuscadoPublico = pedido;
-          this.buscandoPedido = false;
-        },
-        error: (err) => {
-          this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código.';
-          this.buscandoPedido = false;
-        },
-      });
-      return;
-    }
-
-    this.pedidoService.buscarPropioPorCodigo(codigo).subscribe({
-      next: (pedido) => {
-        this.pedidoBuscado = pedido;
-        this.buscandoPedido = false;
-      },
-      error: (err) => {
-        this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código a tu nombre.';
-        this.buscandoPedido = false;
-      },
-    });
-  }
-
-  getEstadoLabel(estado: PedidoEstado): string {
-    return PEDIDO_ESTADO_LABEL[estado] || estado;
-  }
-
-  getEstadoClass(estado: PedidoEstado): string {
-    const clases: Record<PedidoEstado, string> = {
-      pendiente: 'estado--pendiente',
-      en_proceso: 'estado--proceso',
-      listo: 'estado--listo',
-      entregado: 'estado--entregado',
-      cancelado: 'estado--cancelado',
-    };
-    return clases[estado] || '';
-  }
-
-  formatFecha(fecha: string): string {
-    const d = new Date(fecha);
-    return d.toLocaleDateString('es-CR', {
-      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    });
-  }
-
-  async copiarCodigo(codigo: string): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(codigo);
-      const t = await this.toast.create({ message: 'Código copiado', duration: 1500, position: 'bottom', color: 'success' });
-      await t.present();
-    } catch {
-      // Clipboard no disponible (http sin TLS): no interrumpe el flujo.
-    }
   }
 
   abrirDetalle(producto: Producto): void {

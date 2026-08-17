@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PedirPage } from './pedir.page';
 import { PedirPageRoutingModule } from './pedir-routing.module';
 import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
+import { BuscarPedidoModalComponent } from '../shared/components/buscar-pedido-modal.component';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { CrcCurrencyPipe } from '../shared/pipes/crc-currency.pipe';
     ReactiveFormsModule,
     PedirPageRoutingModule,
     CrcCurrencyPipe,
+    BuscarPedidoModalComponent,
   ],
   declarations: [PedirPage]
 })

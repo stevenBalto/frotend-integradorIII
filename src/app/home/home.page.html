@@ -6,7 +6,7 @@
       <div class="home-header__copy">
         <img class="home-header__logo" src="assets/logo/rooster-home.png" alt="Rooster" />
       </div>
-      <button type="button" class="home-header__icon-btn" (click)="abrirBuscarPedido()" aria-label="Buscar mi pedido">
+      <button type="button" class="home-header__icon-btn" (click)="buscarPedido.abrir()" aria-label="Buscar mi pedido">
         <ion-icon name="receipt-outline"></ion-icon>
       </button>
     </div>
@@ -282,120 +282,5 @@
   </div>
 </div>
 
-<!-- ── Modal Buscar mi pedido (mismo del Carrito, estilos globales) ─────────── -->
-<div class="buscar-modal" *ngIf="buscarModalAbierto">
-  <div class="buscar-modal__backdrop" (click)="cerrarBuscarPedido()"></div>
-  <div class="buscar-modal__panel">
-    <div class="buscar-modal__header">
-      <h3 class="buscar-modal__title">Buscar mi pedido</h3>
-      <button type="button" class="buscar-modal__close" (click)="cerrarBuscarPedido()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-
-    <div class="buscar-modal__body">
-      <p class="buscar-modal__desc">Ingresá el código de tu pedido para ver su detalle.</p>
-
-      <div class="buscar-modal__inputrow">
-        <div class="buscar-modal__inputwrap">
-          <input type="text" class="buscar-modal__input"
-            placeholder="Ej. ABCD-1234"
-            [(ngModel)]="codigoBusqueda"
-            (keyup.enter)="buscarMiPedido()" />
-          <button type="button" class="buscar-modal__paste" (click)="pegarCodigo()" aria-label="Pegar código">
-            <ion-icon name="clipboard-outline"></ion-icon><span>Pegar</span>
-          </button>
-        </div>
-        <button type="button" class="buscar-modal__go"
-          *ngIf="codigoBusqueda.trim()"
-          [disabled]="buscandoPedido"
-          (click)="buscarMiPedido()" aria-label="Buscar pedido">
-          <ion-icon name="arrow-forward-circle"></ion-icon>
-        </button>
-      </div>
-
-      <p *ngIf="buscarError" class="buscar-modal__error">{{ buscarError }}</p>
-
-      <!-- Resultado completo (usuario logueado) -->
-      <div class="buscar-resultado" *ngIf="pedidoBuscado">
-        <div class="buscar-resultado__head">
-          <div class="buscar-resultado__codigo-row">
-            <span class="buscar-resultado__codigo">{{ pedidoBuscado.codigo }}</span>
-            <button type="button" class="buscar-resultado__copy" (click)="copiarCodigo(pedidoBuscado.codigo)" aria-label="Copiar código">
-              <ion-icon name="copy-outline"></ion-icon>
-            </button>
-          </div>
-          <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoBuscado.estado)">
-            {{ getEstadoLabel(pedidoBuscado.estado) }}
-          </span>
-        </div>
-
-        <div class="buscar-resultado__meta">
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="person-outline"></ion-icon>
-            <span>{{ pedidoBuscado.nombre_cliente || nombreClientePlaceholder }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="time-outline"></ion-icon>
-            <span>{{ formatFecha(pedidoBuscado.created_at) }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="storefront-outline"></ion-icon>
-            <span>{{ pedidoBuscado.sucursal.nombre }} · {{ MODALIDAD_LABEL[pedidoBuscado.modalidad] }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row" *ngIf="pedidoBuscado.notas">
-            <ion-icon name="chatbubble-outline"></ion-icon>
-            <span>"{{ pedidoBuscado.notas }}"</span>
-          </div>
-        </div>
-
-        <div class="buscar-resultado__items">
-          <div class="buscar-resultado__item" *ngFor="let item of pedidoBuscado.items">
-            <div class="buscar-resultado__item-main">
-              <span class="buscar-resultado__item-name">
-                {{ item.cantidad }}x {{ item.producto_nombre }}<span *ngIf="item.tamano_nombre"> ({{ item.tamano_nombre }})</span>
-              </span>
-              <span class="buscar-resultado__item-price">{{ item.subtotal | crcCurrency }}</span>
-            </div>
-            <div class="buscar-resultado__item-extras" *ngIf="item.extras && item.extras.length > 0">
-              <span *ngFor="let e of item.extras; let last = last">+ {{ e.nombre }}{{ last ? '' : ', ' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="buscar-resultado__total">
-          <span>Total</span>
-          <span>{{ pedidoBuscado.total | crcCurrency }}</span>
-        </div>
-      </div>
-
-      <!-- Resultado publico (invitado): estado + sucursal + fecha -->
-      <div class="buscar-resultado" *ngIf="pedidoBuscadoPublico">
-        <div class="buscar-resultado__head">
-          <div class="buscar-resultado__codigo-row">
-            <span class="buscar-resultado__codigo">{{ pedidoBuscadoPublico.codigo }}</span>
-            <button type="button" class="buscar-resultado__copy" (click)="copiarCodigo(pedidoBuscadoPublico.codigo)" aria-label="Copiar código">
-              <ion-icon name="copy-outline"></ion-icon>
-            </button>
-          </div>
-          <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoBuscadoPublico.estado)">
-            {{ getEstadoLabel(pedidoBuscadoPublico.estado) }}
-          </span>
-        </div>
-        <div class="buscar-resultado__meta">
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="time-outline"></ion-icon>
-            <span>{{ formatFecha(pedidoBuscadoPublico.creado_en) }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="storefront-outline"></ion-icon>
-            <span>{{ pedidoBuscadoPublico.sucursal }} · {{ MODALIDAD_LABEL[pedidoBuscadoPublico.modalidad] }}</span>
-          </div>
-        </div>
-        <p class="buscar-resultado__nota">
-          Pediste como invitado. Guardá tu código para seguir el estado de tu pedido.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal "Buscar mi pedido": componente compartido (ver BuscarPedidoModalComponent). -->
+<app-buscar-pedido-modal #buscarPedido></app-buscar-pedido-modal>

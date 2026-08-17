@@ -53,7 +53,7 @@
           <ion-icon name="chevron-forward-outline" class="cuenta-row__arrow"></ion-icon>
         </button>
 
-        <button class="cuenta-row cuenta-row--last" (click)="abrirBuscarPedido()">
+        <button class="cuenta-row cuenta-row--last" (click)="buscarPedido.abrir()">
           <div class="cuenta-row__icon-wrap"><ion-icon name="search-outline"></ion-icon></div>
           <span class="cuenta-row__label">Buscar mi pedido</span>
           <ion-icon name="chevron-forward-outline" class="cuenta-row__arrow"></ion-icon>
@@ -200,87 +200,5 @@
   </div>
 </div>
 
-<!-- ── Modal Buscar mi pedido ───────────────────────────────────────────────── -->
-<div class="buscar-modal" *ngIf="buscarModalAbierto">
-  <div class="buscar-modal__backdrop" (click)="cerrarBuscarPedido()"></div>
-  <div class="buscar-modal__panel">
-    <div class="buscar-modal__header">
-      <h3 class="buscar-modal__title">Buscar mi pedido</h3>
-      <button type="button" class="buscar-modal__close" (click)="cerrarBuscarPedido()">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-
-    <div class="buscar-modal__body">
-      <p class="buscar-modal__desc">Ingresa el código de tu pedido para ver su estado.</p>
-
-      <div class="buscar-modal__inputrow">
-        <div class="buscar-modal__inputwrap">
-          <input type="text" class="buscar-modal__input"
-            placeholder="Ej. ABCD-1234"
-            [(ngModel)]="codigoBusqueda"
-            (keyup.enter)="buscarPedido()" />
-          <button type="button" class="buscar-modal__paste" (click)="pegarCodigo()" aria-label="Pegar código">
-            <ion-icon name="clipboard-outline"></ion-icon><span>Pegar</span>
-          </button>
-        </div>
-        <button type="button" class="buscar-modal__go"
-          *ngIf="codigoBusqueda.trim()"
-          [disabled]="buscandoPedido"
-          (click)="buscarPedido()" aria-label="Buscar pedido">
-          <ion-icon name="arrow-forward-circle"></ion-icon>
-        </button>
-      </div>
-
-      <p *ngIf="buscarError" class="buscar-modal__error">{{ buscarError }}</p>
-
-      <!-- Resultado detallado -->
-      <div class="buscar-resultado" *ngIf="pedidoEncontrado">
-        <div class="buscar-resultado__head">
-          <span class="buscar-resultado__codigo">{{ pedidoEncontrado.codigo }}</span>
-          <span class="buscar-resultado__estado" [ngClass]="getEstadoClass(pedidoEncontrado.estado)">
-            {{ getEstadoLabel(pedidoEncontrado.estado) }}
-          </span>
-        </div>
-
-        <div class="buscar-resultado__meta">
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="person-outline"></ion-icon>
-            <span>{{ pedidoEncontrado.nombre_cliente || nombreUsuario }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="time-outline"></ion-icon>
-            <span>{{ formatFecha(pedidoEncontrado.created_at) }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row">
-            <ion-icon name="storefront-outline"></ion-icon>
-            <span>{{ pedidoEncontrado.sucursal.nombre }} · {{ MODALIDAD_LABEL[pedidoEncontrado.modalidad] }}</span>
-          </div>
-          <div class="buscar-resultado__meta-row" *ngIf="pedidoEncontrado.notas">
-            <ion-icon name="chatbubble-outline"></ion-icon>
-            <span>"{{ pedidoEncontrado.notas }}"</span>
-          </div>
-        </div>
-
-        <div class="buscar-resultado__items">
-          <div class="buscar-resultado__item" *ngFor="let item of pedidoEncontrado.items">
-            <div class="buscar-resultado__item-main">
-              <span class="buscar-resultado__item-name">
-                {{ item.cantidad }}x {{ item.producto_nombre }}<span *ngIf="item.tamano_nombre"> ({{ item.tamano_nombre }})</span>
-              </span>
-              <span class="buscar-resultado__item-price">{{ item.subtotal | crcCurrency }}</span>
-            </div>
-            <div class="buscar-resultado__item-extras" *ngIf="item.extras && item.extras.length > 0">
-              <span *ngFor="let e of item.extras; let last = last">+ {{ e.nombre }}{{ last ? '' : ', ' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="buscar-resultado__total">
-          <span>Total</span>
-          <span>{{ pedidoEncontrado.total | crcCurrency }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal "Buscar mi pedido": componente compartido (ver BuscarPedidoModalComponent). -->
+<app-buscar-pedido-modal #buscarPedido></app-buscar-pedido-modal>

@@ -13,8 +13,7 @@ import { ResenaService } from '../core/services/resena.service';
 import { ResenaPublica, ResumenProducto } from '../core/models/resena.model';
 import { Sucursal } from '../core/models/sucursal.model';
 import { Categoria, Producto, ProductoTamano, ExtraDisponible } from '../core/models/producto.model';
-import { Pedido, PedidoPublico, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
-import { PedidoEstado, PEDIDO_ESTADO_LABEL } from '../shared/constants/pedido-estado';
+import { Pedido, CrearPedidoPayload, ItemPedidoPayload } from '../core/models/pedido.model';
 import { MODALIDAD_LABEL } from '../shared/constants/modalidad';
 import { ConfirmService } from '../core/services/confirm.service';
 
@@ -103,15 +102,6 @@ export class PedirPage implements OnInit, OnDestroy {
 
   // Confirmacion
   pedidoConfirmado: Pedido | null = null;
-
-  // Buscar mi pedido (modal). Logueado -> endpoint autenticado (detalle completo);
-  // invitado -> endpoint publico por codigo (solo estado/sucursal/fecha).
-  buscarModalAbierto = false;
-  codigoBusqueda = '';
-  buscandoPedido = false;
-  buscarError: string | null = null;
-  pedidoBuscado: Pedido | null = null;
-  pedidoBuscadoPublico: PedidoPublico | null = null;
 
   // Etiquetas compartidas para el template
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
@@ -576,107 +566,6 @@ export class PedirPage implements OnInit, OnDestroy {
     this.vista = 'menu';
     this.notasPedido = '';
     void this.router.navigateByUrl('/tabs/home');
-  }
-
-  // ── Buscar mi pedido (endpoint autenticado) ──
-
-  abrirBuscarPedido(): void {
-    this.buscarModalAbierto = true;
-    this.codigoBusqueda = '';
-    this.buscarError = null;
-    this.pedidoBuscado = null;
-    this.pedidoBuscadoPublico = null;
-    document.body.classList.add('buscar-modal-open');
-  }
-
-  cerrarBuscarPedido(): void {
-    this.buscarModalAbierto = false;
-    document.body.classList.remove('buscar-modal-open');
-  }
-
-  /** Pega el codigo desde el portapapeles al input (un toque, sin escribir). */
-  async pegarCodigo(): Promise<void> {
-    try {
-      const texto = (await navigator.clipboard.readText()).trim();
-      if (!texto) {
-        const t = await this.toast.create({ message: 'El portapapeles está vacío', duration: 1500, position: 'bottom', color: 'medium' });
-        await t.present();
-        return;
-      }
-      this.codigoBusqueda = texto;
-    } catch {
-      const t = await this.toast.create({ message: 'No pudimos leer el portapapeles', duration: 1800, position: 'bottom', color: 'medium' });
-      await t.present();
-    }
-  }
-
-  buscarMiPedido(): void {
-    const codigo = this.codigoBusqueda.trim();
-    if (!codigo) {
-      return;
-    }
-
-    this.buscandoPedido = true;
-    this.buscarError = null;
-    this.pedidoBuscado = null;
-    this.pedidoBuscadoPublico = null;
-
-    // Invitado (sin sesion) no puede usar el endpoint autenticado (401): usa la
-    // busqueda publica por codigo, que devuelve estado/sucursal/fecha del pedido.
-    if (this.esInvitado) {
-      this.pedidoService.buscarPorCodigo(codigo)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (pedido) => {
-            this.pedidoBuscadoPublico = pedido;
-            this.buscandoPedido = false;
-          },
-          error: (err) => {
-            this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código.';
-            this.buscandoPedido = false;
-          },
-        });
-      return;
-    }
-
-    this.pedidoService.buscarPropioPorCodigo(codigo)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (pedido) => {
-          this.pedidoBuscado = pedido;
-          this.buscandoPedido = false;
-        },
-        error: (err) => {
-          this.buscarError = err?.error?.message || 'No encontramos un pedido con ese código a tu nombre.';
-          this.buscandoPedido = false;
-        },
-      });
-  }
-
-  getEstadoLabel(estado: PedidoEstado): string {
-    return PEDIDO_ESTADO_LABEL[estado] || estado;
-  }
-
-  getEstadoClass(estado: PedidoEstado): string {
-    const clases: Record<PedidoEstado, string> = {
-      pendiente: 'estado--pendiente',
-      en_proceso: 'estado--proceso',
-      listo: 'estado--listo',
-      entregado: 'estado--entregado',
-      cancelado: 'estado--cancelado',
-    };
-    return clases[estado] || '';
-  }
-
-  formatFecha(fecha: string): string {
-    const d = new Date(fecha);
-    return d.toLocaleDateString('es-CR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   }
 
   // ── Helpers ──
