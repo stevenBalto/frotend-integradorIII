@@ -60,8 +60,16 @@
 
   <p *ngIf="error" class="home-section__error" style="padding: 0 20px;">{{ error }}</p>
 
+  <!-- Skeleton de promos: solo antes de la 1ra respuesta (evita el salto de layout
+       cuando Ofertas/Cupones se insertan tarde y empujan Destacados hacia abajo). -->
+  <div class="home-section home-section--tight" *ngIf="!promosListas">
+    <div class="promo-scroll promo-scroll--skeleton">
+      <div class="promo-card promo-card--skeleton rooster-skeleton" *ngFor="let s of [1,2]"></div>
+    </div>
+  </div>
+
   <!-- Ofertas vigentes -->
-  <div class="home-section home-section--promo" *ngIf="!cargando && ofertas.length > 0">
+  <div class="home-section home-section--promo" *ngIf="promosListas && ofertas.length > 0">
     <div class="home-section__row">
       <span class="home-section__label">Ofertas</span>
     </div>
@@ -80,7 +88,7 @@
   </div>
 
   <!-- Cupones vigentes -->
-  <div class="home-section home-section--promo" *ngIf="!cargando && cupones.length > 0">
+  <div class="home-section home-section--promo" *ngIf="promosListas && cupones.length > 0">
     <div class="home-section__row">
       <span class="home-section__label">Cupones para ti</span>
     </div>

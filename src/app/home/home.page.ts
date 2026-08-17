@@ -48,6 +48,14 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   cargando = false;
   error: string | null = null;
 
+  /** true en cuanto ofertas y cupones respondieron por primera vez. Antes de eso
+      se muestra un skeleton del mismo alto que las tarjetas de promo, para que
+      no aparezcan "de golpe" empujando Destacados hacia abajo (CLS). Se queda
+      en true para siempre: en re-entradas al tab (ionViewWillEnter) las promos
+      viejas se ven hasta que llegan las nuevas, sin volver a parpadear. */
+  promosListas = false;
+  private promosCargadas = 0;
+
   /** Carrusel continuo de Destacados / Populares / Nuevos. En vez de animar por
       CSS (que bloquea el scroll manual), se usa SCROLL NATIVO manejado por JS:
       un loop rAF avanza `scrollLeft` a velocidad constante y va envolviendo en la
@@ -611,12 +619,21 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
       los productos haria parpadear el skeleton cada vez que volves al Home,
       y el menu no cambia con la frecuencia que cambian las promos. */
   private cargarPromos(): void {
+    const marcarListas = () => {
+      this.promosCargadas++;
+      if (this.promosCargadas >= 2) {
+        this.promosListas = true;
+      }
+    };
+
     this.ofertaService.listarPublicas().subscribe({
-      next: (ofertas) => (this.ofertas = ofertas),
+      next: (ofertas) => { this.ofertas = ofertas; marcarListas(); },
+      error: marcarListas,
     });
 
     this.cuponService.listarPublicos().subscribe({
-      next: (cupones) => (this.cupones = cupones),
+      next: (cupones) => { this.cupones = cupones; marcarListas(); },
+      error: marcarListas,
     });
   }
 }
