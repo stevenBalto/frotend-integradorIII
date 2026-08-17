@@ -1,82 +1,40 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { ToastController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
-import { Usuario } from '../../core/models/usuario.model';
+import { CuentaService } from '../../core/services/cuenta.service';
+import { ActualizarPerfilBody, Usuario } from '../../core/models/usuario.model';
 
-/** "Mi cuenta": muestra los datos con los que el usuario se registró. */
+/** "Mi cuenta": muestra y edita los datos del usuario logueado. */
 @Component({
   selector: 'app-perfil',
   standalone: false,
-  styleUrls: ['./sub-page.scss'],
-  styles: [`
-    .perfil-top { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 18px; }
-    .perfil-avatar {
-      width: 82px; height: 82px; border-radius: 26px; background: #fff1f2;
-      display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
-      ion-icon { font-size: 44px; color: var(--client-red); }
-    }
-    .perfil-nombre { font-family: var(--client-font-display); font-size: 21px; font-weight: 700; color: var(--client-text); margin: 0; }
-    .perfil-rol { font-family: var(--client-font-body); font-size: 12px; color: var(--client-text-muted); margin: 4px 0 0; text-transform: capitalize; }
-    .dato {
-      display: flex; align-items: center; gap: 12px; padding: 14px 4px;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      &:last-child { border-bottom: none; }
-    }
-    .dato__icon { width: 36px; height: 36px; border-radius: 11px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; ion-icon { font-size: 17px; color: var(--client-text-muted); } }
-    .dato__label { font-family: var(--client-font-body); font-size: 11px; color: var(--client-text-muted); margin: 0; }
-    .dato__value { font-family: var(--client-font-body); font-size: 14px; font-weight: 600; color: var(--client-text); margin: 1px 0 0; }
-    .perfil-action {
-      display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px;
-      background: #fff; border: none; border-radius: 14px; margin-top: 14px; cursor: pointer;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      ion-icon:first-child { font-size: 18px; color: var(--client-red); }
-      &:active { transform: scale(0.99); }
-    }
-    .perfil-action__label { flex: 1; text-align: left; font-family: var(--client-font-body); font-size: 14px; font-weight: 600; color: var(--client-text); }
-    .perfil-action__arrow { font-size: 16px; color: var(--client-text-muted); }
-  `],
-  template: `
-    <ion-content [fullscreen]="true" class="sub-content">
-      <div class="sub-header">
-        <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
-        <h2 class="sub-title">Mi cuenta</h2>
-      </div>
-
-      <div class="sub-body" *ngIf="(usuario$ | async) as u">
-        <div class="perfil-top">
-          <div class="perfil-avatar"><ion-icon name="person-circle-outline"></ion-icon></div>
-          <p class="perfil-nombre">{{ u.nombre }}</p>
-          <p class="perfil-rol">{{ u.rol }}</p>
-        </div>
-
-        <div class="sub-card">
-          <div class="dato">
-            <div class="dato__icon"><ion-icon name="mail-outline"></ion-icon></div>
-            <div><p class="dato__label">Correo</p><p class="dato__value">{{ u.email }}</p></div>
-          </div>
-          <div class="dato">
-            <div class="dato__icon"><ion-icon name="call-outline"></ion-icon></div>
-            <div><p class="dato__label">Teléfono</p><p class="dato__value">{{ u.telefono || 'Sin teléfono' }}</p></div>
-          </div>
-          <div class="dato">
-            <div class="dato__icon"><ion-icon name="ribbon-outline"></ion-icon></div>
-            <div><p class="dato__label">Roosters</p><p class="dato__value">{{ u.puntos_balance | crcCurrency }}</p></div>
-          </div>
-        </div>
-
-        <button class="perfil-action" routerLink="/cambiar-password">
-          <ion-icon name="lock-closed-outline"></ion-icon>
-          <span class="perfil-action__label">Cambiar contraseña</span>
-          <ion-icon name="chevron-forward-outline" class="perfil-action__arrow"></ion-icon>
-        </button>
-      </div>
-    </ion-content>
-  `,
+  styleUrls: ['./sub-page.scss', './perfil.page.scss'],
+  templateUrl: './perfil.page.html',
 })
-export class PerfilPage implements OnInit {
+export class PerfilPage implements OnInit, OnDestroy {
   private auth = inject(AuthService);
+  private cuenta = inject(CuentaService);
+  private toast = inject(ToastController);
+
+  /** Input de archivo oculto: el botón de la cámara lo dispara por código. */
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   readonly usuario$: Observable<Usuario | null>;
+
+  /** Object URL de la foto (null = todavía no hay o no cargó). */
+  fotoUrl: string | null = null;
+  subiendoFoto = false;
+
+  // ── Edición ──
+  editando = false;
+  guardando = false;
+  form: { nombre: string; telefono: string; email: string } = { nombre: '', telefono: '', email: '' };
+  errores: Record<string, string> = {};
+
+  /** Modal de confirmación de contraseña (solo si cambia el correo). */
+  pidiendoPassword = false;
+  passwordActual = '';
 
   constructor() {
     this.usuario$ = this.auth.usuarioActual$;
@@ -84,6 +42,188 @@ export class PerfilPage implements OnInit {
 
   ngOnInit(): void {
     // Refresca datos por si cambiaron (ej. saldo de Roosters tras un pedido).
-    this.auth.refrescarPerfil().subscribe({ error: () => {} });
+    this.auth.refrescarPerfil().subscribe({
+      next: (u) => this.cargarFotoSiHay(u),
+      error: () => this.cargarFotoSiHay(this.auth.usuario),
+    });
+  }
+
+  ngOnDestroy(): void {
+    // El object URL vive hasta que se revoca: sin esto el blob queda en memoria.
+    this.cuenta.revocarFoto();
+  }
+
+  // ── Foto ────────────────────────────────────────────────────────────────
+
+  private cargarFotoSiHay(usuario: Usuario | null): void {
+    if (!usuario?.tiene_foto) {
+      this.fotoUrl = null;
+      return;
+    }
+
+    this.cuenta.obtenerFotoUrl().subscribe({
+      next: (url) => (this.fotoUrl = url),
+      error: () => (this.fotoUrl = null),
+    });
+  }
+
+  /**
+   * Abre el selector nativo. Con accept="image/*" y capture ausente, Android e
+   * iOS muestran el menú de siempre (Cámara / Galería / Archivos), así que no
+   * hace falta ningún plugin extra.
+   */
+  elegirFoto(): void {
+    this.fileInput?.nativeElement.click();
+  }
+
+  onFotoElegida(ev: Event): void {
+    const input = ev.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+
+    if (!archivo) {
+      return;
+    }
+
+    this.subiendoFoto = true;
+
+    this.cuenta.subirFoto(archivo).subscribe({
+      next: () => {
+        // Se re-lee el perfil para que tiene_foto quede en true y luego se baja
+        // la imagen ya normalizada por el backend (cuadrada, 512px).
+        this.auth.refrescarPerfil().subscribe({
+          next: (u) => {
+            this.cargarFotoSiHay(u);
+            this.subiendoFoto = false;
+            void this.avisar('Foto actualizada');
+          },
+          error: () => (this.subiendoFoto = false),
+        });
+      },
+      error: (err) => {
+        this.subiendoFoto = false;
+        void this.avisar(this.primerError(err) ?? 'No pudimos subir la foto', 'danger');
+      },
+    });
+
+    // Permite volver a elegir el mismo archivo (si no, el change no dispara).
+    input.value = '';
+  }
+
+  quitarFoto(): void {
+    this.subiendoFoto = true;
+
+    this.cuenta.eliminarFoto().subscribe({
+      next: () => {
+        this.cuenta.revocarFoto();
+        this.fotoUrl = null;
+        this.auth.refrescarPerfil().subscribe({ error: () => {} });
+        this.subiendoFoto = false;
+        void this.avisar('Foto eliminada');
+      },
+      error: () => {
+        this.subiendoFoto = false;
+        void this.avisar('No pudimos eliminar la foto', 'danger');
+      },
+    });
+  }
+
+  // ── Edición de datos ────────────────────────────────────────────────────
+
+  empezarEdicion(u: Usuario): void {
+    this.form = { nombre: u.nombre, telefono: u.telefono ?? '', email: u.email };
+    this.errores = {};
+    this.editando = true;
+  }
+
+  cancelarEdicion(): void {
+    this.editando = false;
+    this.errores = {};
+    this.pidiendoPassword = false;
+    this.passwordActual = '';
+  }
+
+  /**
+   * Al guardar: si el correo cambió hay que confirmar con la contraseña actual
+   * (el backend la exige porque el correo es el login). Si no cambió, va directo.
+   */
+  guardar(u: Usuario): void {
+    const emailCambio = this.form.email.trim().toLowerCase() !== u.email.toLowerCase();
+
+    if (emailCambio && !u.es_google) {
+      this.pidiendoPassword = true;
+      return;
+    }
+
+    this.enviar(u, undefined);
+  }
+
+  confirmarConPassword(u: Usuario): void {
+    if (!this.passwordActual) {
+      return;
+    }
+
+    this.enviar(u, this.passwordActual);
+  }
+
+  private enviar(u: Usuario, passwordActual?: string): void {
+    const body: ActualizarPerfilBody = {
+      nombre: this.form.nombre.trim(),
+      telefono: this.form.telefono.trim() || null,
+    };
+
+    // El correo solo se manda si de verdad cambió y la cuenta no es de Google:
+    // así una cuenta de Google nunca dispara el 422 del backend.
+    if (!u.es_google && this.form.email.trim().toLowerCase() !== u.email.toLowerCase()) {
+      body.email = this.form.email.trim();
+      body.password_actual = passwordActual;
+    }
+
+    this.guardando = true;
+    this.errores = {};
+
+    this.cuenta.actualizarPerfil(body).subscribe({
+      next: () => {
+        this.guardando = false;
+        this.editando = false;
+        this.pidiendoPassword = false;
+        this.passwordActual = '';
+        void this.avisar('Datos actualizados');
+      },
+      error: (err) => {
+        this.guardando = false;
+        this.errores = this.erroresDe(err);
+        // Si falló la contraseña, se deja el modal abierto para reintentar.
+        this.pidiendoPassword = !!this.errores['password_actual'];
+        void this.avisar(this.primerError(err) ?? 'No pudimos guardar los cambios', 'danger');
+      },
+    });
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  /** Aplana los errores 422 de Laravel a { campo: 'primer mensaje' }. */
+  private erroresDe(err: any): Record<string, string> {
+    const bag = err?.error?.errors;
+
+    if (!bag) {
+      return {};
+    }
+
+    return Object.keys(bag).reduce<Record<string, string>>((acc, campo) => {
+      acc[campo] = Array.isArray(bag[campo]) ? bag[campo][0] : String(bag[campo]);
+      return acc;
+    }, {});
+  }
+
+  private primerError(err: any): string | null {
+    const errores = this.erroresDe(err);
+    const claves = Object.keys(errores);
+
+    return claves.length ? errores[claves[0]] : (err?.error?.message ?? null);
+  }
+
+  private async avisar(mensaje: string, color: 'success' | 'danger' = 'success'): Promise<void> {
+    const t = await this.toast.create({ message: mensaje, duration: 1900, position: 'bottom', color });
+    await t.present();
   }
 }

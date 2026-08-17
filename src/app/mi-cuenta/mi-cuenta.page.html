@@ -1,4 +1,5 @@
-<ion-content [fullscreen]="true" class="cuenta-content">
+<ion-content [fullscreen]="true" class="cuenta-content"
+  [class.cuenta-content--invitado]="(usuario$ | async) === null">
 
   <ng-container *ngIf="(usuario$ | async) as usuario; else invitado">
 

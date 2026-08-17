@@ -1,14 +1,17 @@
 .cuenta-content {
   --background: var(--client-bg);
+}
 
-  /* Scroll como flex column: permite que la pantalla de invitado (mas abajo)
-     se centre verticalmente con flex:1 + min-height:100%, sin afectar el
-     flujo normal de la lista cuando hay sesion (sus filas no usan flex:1,
-     siguen apiladas igual que antes). */
-  &::part(scroll) {
-    display: flex;
-    flex-direction: column;
-  }
+/* Flex column SOLO en la pantalla de invitado (para centrarla vertical).
+   No puede ir en .cuenta-content a secas: al volver flex-item a cada bloque
+   de la lista logueada, los `margin: 0 auto` de .cuenta-perfil/.cuenta-section
+   (margen auto en el eje cruzado) dejan de estirar y pasan a shrink-to-fit,
+   asi que cada tarjeta terminaba con el ancho de su propio contenido -- el
+   perfil por el nombre, cada grupo por su label mas largo -- y .rooster-card
+   quedaba mas ancha que todas por su `width: 100%`. De ahi el desalineado. */
+.cuenta-content--invitado::part(scroll) {
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Perfil (sin header arriba — "Mi cuenta" era redundante con el tab activo) ── */

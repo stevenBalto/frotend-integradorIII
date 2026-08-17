@@ -1,0 +1,385 @@
+/* Perfil del cliente: avatar editable + datos editables. */
+
+/* Lleva .sub-card en el HTML (fondo blanco, radio, sombra); acá solo se
+   centra el contenido y se le da algo más de aire vertical que a las tarjetas
+   de datos, porque es la cabecera de la pantalla. */
+.perfil-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 26px 18px 22px;
+}
+
+/* Wrapper relativo para colgar el botón de la cámara sobre el avatar. */
+.perfil-avatar-wrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.perfil-avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 30px;
+  background: #fff1f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: var(--rooster-shadow-sm);
+
+  ion-icon { font-size: 52px; color: var(--client-red); }
+
+  img {
+    width: 100%;
+    height: 100%;
+    /* La imagen ya viene cuadrada del backend; cover cubre cualquier borde. */
+    object-fit: cover;
+    display: block;
+  }
+
+  &--foto { background: var(--client-surface); }
+
+  &__cargando {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.72);
+
+    ion-spinner { color: var(--client-red); }
+  }
+}
+
+/* Badge de cámara: marca que el avatar es tocable para cambiar la foto. */
+.perfil-avatar__edit {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid var(--client-bg);
+  background: var(--client-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 6px 14px -4px rgba(var(--client-red-rgb), 0.7);
+  transition: transform var(--rooster-ease-fast);
+
+  ion-icon { font-size: 16px; color: #fff; }
+
+  &:active { transform: scale(0.9); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.perfil-nombre {
+  font-family: var(--client-font-display);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--client-text);
+  margin: 0;
+}
+
+.perfil-rol {
+  font-family: var(--client-font-body);
+  font-size: 12px;
+  color: var(--client-text-muted);
+  margin: 4px 0 0;
+  text-transform: capitalize;
+}
+
+.perfil-quitar-foto {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  font-family: var(--client-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--client-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:active { opacity: 0.6; }
+}
+
+/* ── Filas de datos ── */
+.dato {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  &:last-child { border-bottom: none; }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: var(--client-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon { font-size: 17px; color: var(--client-text-muted); }
+
+    &--rooster {
+      background: #fff1f2;
+      ion-icon { color: var(--client-red); }
+    }
+  }
+
+  &__cuerpo { min-width: 0; }
+
+  &__label {
+    font-family: var(--client-font-body);
+    font-size: 11px;
+    color: var(--client-text-muted);
+    margin: 0;
+  }
+
+  &__value {
+    font-family: var(--client-font-body);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--client-text);
+    margin: 1px 0 0;
+    word-break: break-word;
+  }
+
+  /* Marca visible de por qué el correo no se puede editar. */
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    padding: 3px 9px;
+    border-radius: var(--rooster-radius-pill);
+    background: var(--client-surface);
+    font-family: var(--client-font-body);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--client-text-muted);
+
+    ion-icon { font-size: 12px; }
+  }
+
+  &__nota {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--client-font-body);
+    font-size: 11px;
+    color: var(--client-text-muted);
+  }
+}
+
+/* ── Campos de formulario ── */
+.campo {
+  display: block;
+  margin-bottom: 14px;
+
+  &:last-child { margin-bottom: 0; }
+
+  &__label {
+    display: block;
+    font-family: var(--client-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--client-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border-radius: var(--rooster-radius-sm);
+    border: 1.5px solid var(--client-border);
+    background: #fff;
+    font-family: var(--client-font-body);
+    /* 16px: por debajo de eso iOS hace zoom al enfocar el input. */
+    font-size: 16px;
+    color: var(--client-text);
+    transition: border-color var(--rooster-ease-fast), box-shadow var(--rooster-ease-fast);
+
+    &:focus {
+      outline: none;
+      border-color: var(--client-red);
+      box-shadow: 0 0 0 4px rgba(var(--client-red-rgb), 0.1);
+    }
+
+    &:disabled {
+      background: var(--client-surface);
+      color: var(--client-text-muted);
+      cursor: not-allowed;
+    }
+
+    &--error { border-color: var(--client-red); }
+  }
+
+  &__error {
+    display: block;
+    margin-top: 5px;
+    font-family: var(--client-font-body);
+    font-size: 12px;
+    color: var(--client-red);
+  }
+
+  &__ayuda {
+    display: block;
+    margin-top: 5px;
+    font-family: var(--client-font-body);
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--client-text-muted);
+  }
+}
+
+/* ── Botones ── */
+.perfil-botones {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.perfil-btn {
+  flex: 1;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--rooster-radius-pill);
+  font-family: var(--client-font-body);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--rooster-ease-fast), filter var(--rooster-ease-fast);
+
+  ion-spinner { width: 20px; height: 20px; }
+
+  &:not(:disabled):active { transform: scale(0.97); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  &--primary {
+    border: none;
+    background: var(--client-ink);
+    color: #fff;
+    box-shadow: 0 14px 28px -12px rgba(11, 11, 12, 0.6);
+
+    ion-spinner { color: #fff; }
+  }
+
+  &--ghost {
+    background: #fff;
+    color: var(--client-ink);
+    border: 1.5px solid var(--client-border);
+  }
+}
+
+.perfil-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: #fff;
+  border: none;
+  border-radius: 14px;
+  margin-top: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  ion-icon:first-child { font-size: 18px; color: var(--client-red); }
+  &:active { transform: scale(0.99); }
+
+  &__label {
+    flex: 1;
+    text-align: left;
+    font-family: var(--client-font-body);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--client-text);
+  }
+
+  &__arrow { font-size: 16px; color: var(--client-text-muted); }
+}
+
+/* ── Modal de confirmación por contraseña ── */
+.pw-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: rooster-fade var(--rooster-ease-fast) both;
+
+  @media (min-width: 768px) {
+    align-items: center;
+    padding: 16px;
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 17, 15, 0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  &__panel {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--rooster-radius-lg) var(--rooster-radius-lg) 0 0;
+    background: #fff;
+    box-shadow: var(--rooster-shadow-xl);
+    animation: rooster-rise var(--rooster-ease-med) both;
+
+    @media (min-width: 768px) {
+      border-radius: var(--rooster-radius-lg);
+      padding-bottom: 24px;
+    }
+  }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--rooster-radius-lg);
+    background: #fff1f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+
+    ion-icon { font-size: 28px; color: var(--client-red); }
+  }
+
+  &__title {
+    font-family: var(--client-font-display);
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--client-ink);
+    text-align: center;
+    margin: 0 0 8px;
+  }
+
+  &__text {
+    font-family: var(--client-font-body);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--client-text-muted);
+    text-align: center;
+    margin: 0 0 16px;
+  }
+}

@@ -11,7 +11,25 @@ export interface Usuario {
   rol: string;
   /** Módulos del panel con su nivel de acceso (solo lo trae GET /me para staff). */
   modulos?: { id: number; clave: string; nombre: string; permiso: 'lectura' | 'editor' }[];
+  /**
+   * La cuenta entró con Google. Si es true el correo NO se puede editar: es la
+   * llave con la que Google identifica al usuario, así que cambiarlo de este
+   * lado lo dejaría sin poder entrar. El backend expone solo este booleano,
+   * nunca el google_id.
+   */
+  es_google?: boolean;
+  /** Tiene foto de perfil guardada. La imagen se pide aparte (CuentaService). */
+  tiene_foto?: boolean;
   must_change_password?: boolean;
+}
+
+/** Campos editables del propio perfil. El saldo de Roosters NO es editable. */
+export interface ActualizarPerfilBody {
+  nombre?: string;
+  telefono?: string | null;
+  email?: string;
+  /** Obligatoria solo si cambia el correo (el backend la exige en ese caso). */
+  password_actual?: string;
 }
 
 export interface AuthResponse {

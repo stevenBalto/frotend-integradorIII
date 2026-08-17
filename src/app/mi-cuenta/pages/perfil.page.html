@@ -1,0 +1,153 @@
+<ion-content [fullscreen]="true" class="sub-content">
+  <div class="sub-header">
+    <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
+    <h2 class="sub-title">Mi cuenta</h2>
+  </div>
+
+  <div class="sub-body" *ngIf="(usuario$ | async) as u">
+
+    <!-- Cabecera: avatar + identidad, en su propia tarjeta como el resto -->
+    <div class="sub-card perfil-top">
+      <div class="perfil-avatar-wrap">
+        <div class="perfil-avatar" [class.perfil-avatar--foto]="fotoUrl">
+          <img *ngIf="fotoUrl; else iconoDefecto" [src]="fotoUrl" alt="Tu foto de perfil" />
+          <ng-template #iconoDefecto><ion-icon name="person-circle-outline"></ion-icon></ng-template>
+
+          <div class="perfil-avatar__cargando" *ngIf="subiendoFoto">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        </div>
+
+        <button type="button" class="perfil-avatar__edit" (click)="elegirFoto()"
+          [disabled]="subiendoFoto" aria-label="Cambiar foto de perfil">
+          <ion-icon name="camera"></ion-icon>
+        </button>
+      </div>
+
+      <!-- accept="image/*" sin capture: Android/iOS abren el menú normal
+           (Cámara / Galería / Archivos) sin necesidad de plugins. -->
+      <input #fileInput type="file" accept="image/*" hidden (change)="onFotoElegida($event)" />
+
+      <p class="perfil-nombre">{{ u.nombre }}</p>
+      <p class="perfil-rol">{{ u.rol }}</p>
+
+      <button type="button" class="perfil-quitar-foto" *ngIf="fotoUrl && !subiendoFoto" (click)="quitarFoto()">
+        Quitar foto
+      </button>
+    </div>
+
+    <!-- ── Vista de solo lectura ── -->
+    <ng-container *ngIf="!editando">
+      <div class="sub-card">
+        <div class="dato">
+          <div class="dato__icon"><ion-icon name="person-outline"></ion-icon></div>
+          <div><p class="dato__label">Nombre</p><p class="dato__value">{{ u.nombre }}</p></div>
+        </div>
+        <div class="dato">
+          <div class="dato__icon"><ion-icon name="mail-outline"></ion-icon></div>
+          <div class="dato__cuerpo">
+            <p class="dato__label">Correo</p>
+            <p class="dato__value">{{ u.email }}</p>
+            <span class="dato__chip" *ngIf="u.es_google">
+              <ion-icon name="logo-google"></ion-icon> Cuenta de Google
+            </span>
+          </div>
+        </div>
+        <div class="dato">
+          <div class="dato__icon"><ion-icon name="call-outline"></ion-icon></div>
+          <div><p class="dato__label">Teléfono</p><p class="dato__value">{{ u.telefono || 'Sin teléfono' }}</p></div>
+        </div>
+        <div class="dato">
+          <div class="dato__icon dato__icon--rooster"><ion-icon name="ribbon-outline"></ion-icon></div>
+          <div class="dato__cuerpo">
+            <p class="dato__label">Roosters</p>
+            <p class="dato__value">{{ u.puntos_balance | crcCurrency }}</p>
+            <span class="dato__nota">Se acumulan con tus compras, no se editan.</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="perfil-action perfil-action--primary" (click)="empezarEdicion(u)">
+        <ion-icon name="create-outline"></ion-icon>
+        <span class="perfil-action__label">Editar mis datos</span>
+        <ion-icon name="chevron-forward-outline" class="perfil-action__arrow"></ion-icon>
+      </button>
+
+      <button class="perfil-action" routerLink="/cambiar-password">
+        <ion-icon name="lock-closed-outline"></ion-icon>
+        <span class="perfil-action__label">Cambiar contraseña</span>
+        <ion-icon name="chevron-forward-outline" class="perfil-action__arrow"></ion-icon>
+      </button>
+    </ng-container>
+
+    <!-- ── Formulario de edición ── -->
+    <ng-container *ngIf="editando">
+      <div class="sub-card">
+        <label class="campo">
+          <span class="campo__label">Nombre</span>
+          <input class="campo__input" type="text" [(ngModel)]="form.nombre" maxlength="120"
+            [class.campo__input--error]="errores['nombre']" />
+          <span class="campo__error" *ngIf="errores['nombre']">{{ errores['nombre'] }}</span>
+        </label>
+
+        <label class="campo">
+          <span class="campo__label">Teléfono</span>
+          <input class="campo__input" type="tel" [(ngModel)]="form.telefono" maxlength="20"
+            placeholder="8888-8888" [class.campo__input--error]="errores['telefono']" />
+          <span class="campo__error" *ngIf="errores['telefono']">{{ errores['telefono'] }}</span>
+        </label>
+
+        <label class="campo">
+          <span class="campo__label">Correo</span>
+          <input class="campo__input" type="email" [(ngModel)]="form.email" maxlength="150"
+            [disabled]="!!u.es_google" [class.campo__input--error]="errores['email']" />
+          <span class="campo__error" *ngIf="errores['email']">{{ errores['email'] }}</span>
+          <span class="campo__ayuda" *ngIf="u.es_google">
+            Entraste con Google, así que tu correo lo administra Google y no se puede cambiar aquí.
+          </span>
+          <span class="campo__ayuda" *ngIf="!u.es_google">
+            Si lo cambiás te vamos a pedir tu contraseña: con este correo iniciás sesión.
+          </span>
+        </label>
+      </div>
+
+      <div class="perfil-botones">
+        <button type="button" class="perfil-btn perfil-btn--ghost" (click)="cancelarEdicion()" [disabled]="guardando">
+          Cancelar
+        </button>
+        <button type="button" class="perfil-btn perfil-btn--primary" (click)="guardar(u)" [disabled]="guardando">
+          <ion-spinner *ngIf="guardando" name="crescent"></ion-spinner>
+          <span *ngIf="!guardando">Guardar</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ── Confirmación por contraseña (solo al cambiar el correo) ── -->
+    <div class="pw-modal" *ngIf="pidiendoPassword">
+      <div class="pw-modal__backdrop" (click)="pidiendoPassword = false"></div>
+      <div class="pw-modal__panel">
+        <div class="pw-modal__icon"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
+        <h3 class="pw-modal__title">Confirmá tu contraseña</h3>
+        <p class="pw-modal__text">
+          Vas a cambiar el correo con el que iniciás sesión. Por seguridad, escribí tu contraseña actual.
+        </p>
+
+        <input class="campo__input" type="password" [(ngModel)]="passwordActual"
+          placeholder="Tu contraseña actual" (keyup.enter)="confirmarConPassword(u)"
+          [class.campo__input--error]="errores['password_actual']" />
+        <span class="campo__error" *ngIf="errores['password_actual']">{{ errores['password_actual'] }}</span>
+
+        <div class="perfil-botones">
+          <button type="button" class="perfil-btn perfil-btn--ghost"
+            (click)="pidiendoPassword = false" [disabled]="guardando">Cancelar</button>
+          <button type="button" class="perfil-btn perfil-btn--primary"
+            (click)="confirmarConPassword(u)" [disabled]="guardando || !passwordActual">
+            <ion-spinner *ngIf="guardando" name="crescent"></ion-spinner>
+            <span *ngIf="!guardando">Confirmar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
