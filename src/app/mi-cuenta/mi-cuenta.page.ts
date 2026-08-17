@@ -41,6 +41,9 @@ export class MiCuentaPage {
       (pop del icono -> se esconde el texto -> el icono sale corriendo). */
   authBtnLaunching: 'login' | 'register' | null = null;
 
+  /** Misma animacion que authBtnLaunching, aplicada a la tarjeta de Roosters. */
+  roostersBtnLaunching = false;
+
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
   constructor() {
@@ -53,6 +56,7 @@ export class MiCuentaPage {
       el usuario entra a Mi cuenta por otro camino con el flag pegado. */
   ionViewWillEnter(): void {
     this.authBtnLaunching = null;
+    this.roostersBtnLaunching = false;
   }
 
   get estaAutenticado(): boolean {
@@ -96,6 +100,21 @@ export class MiCuentaPage {
     setTimeout(() => {
       this.authBtnLaunching = null;
       void this.router.navigateByUrl(destino === 'login' ? '/login' : '/register');
+    }, 650);
+  }
+
+  /** Misma secuencia que irAAuth() (ver ahi el detalle), aplicada al logo de
+      la tarjeta de Roosters: pop -> se esconde el texto -> el logo sale
+      corriendo a la derecha, y ahi recien navega. El reset va en el propio
+      setTimeout (no en un lifecycle hook) por la misma razon que irAAuth(). */
+  irARoosters(): void {
+    if (this.roostersBtnLaunching) {
+      return;
+    }
+    this.roostersBtnLaunching = true;
+    setTimeout(() => {
+      this.roostersBtnLaunching = false;
+      void this.router.navigateByUrl('/tabs/mi-cuenta/roosters');
     }, 650);
   }
 

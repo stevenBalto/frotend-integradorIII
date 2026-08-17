@@ -88,7 +88,19 @@ ion-content::part(scroll)::-webkit-scrollbar { display: none; }
    invitado). Movimiento minimo, roosters brillantes sobre #0E0E0E. */
 .pedir-rooster-bg {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* NO "bottom:0"/"inset:0": ion-page tiene `contain:layout`, que vuelve a
+     este fixed un "casi-absolute" anclado al alto de la pagina (el area de
+     contenido, que termina ANTES del tab bar) en vez del viewport real -- el
+     fondo se cortaba justo ahi (visible en movil, donde el tab bar flota con
+     margen y deja ver el corte; en desktop no se nota porque el tab bar es
+     opaco y llega hasta el borde). `height:100vh/100dvh` no sufre ese
+     recorte porque las unidades vh se miden contra el viewport real, no
+     contra el contenedor -- mismo arreglo que .buscar-modal__backdrop. */
+  height: 100vh;
+  height: 100dvh;
   z-index: 0;
   pointer-events: none;
   background-color: #0E0E0E;

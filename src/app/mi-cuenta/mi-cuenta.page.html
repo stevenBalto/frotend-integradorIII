@@ -3,7 +3,10 @@
 
   <ng-container *ngIf="(usuario$ | async) as usuario; else invitado">
 
+    <div class="pedir-rooster-bg" aria-hidden="true"></div>
+
     <!-- Perfil -->
+    <div class="cuenta-logueado">
     <div class="cuenta-perfil">
       <div class="cuenta-perfil__avatar">
         <ion-icon name="person-circle-outline"></ion-icon>
@@ -15,16 +18,23 @@
       <button class="cuenta-perfil__edit" routerLink="/tabs/mi-cuenta/perfil">Editar</button>
     </div>
 
-    <!-- Roosters (destacado) -->
-    <button class="rooster-card" routerLink="/tabs/mi-cuenta/roosters">
-      <div class="rooster-card__left">
-        <div class="rooster-card__icon"><ion-icon name="ribbon-outline"></ion-icon></div>
-        <div>
+    <!-- Roosters (destacado): diseño "cupón de canje", elegido de los 15
+         prototipos. El logo es el isotipo real (assets/logo/rooster-logo.png,
+         sin filtros de color) en el talón izquierdo, como si fuera el sello
+         del cupón. -->
+    <button type="button" class="rooster-card" [class.rooster-card--launching]="roostersBtnLaunching" (click)="irARoosters()">
+      <div class="rooster-card__stub">
+        <span class="rooster-card__logo-crop">
+          <img class="rooster-card__logo" src="/assets/logo/rooster-logo.png" alt="" aria-hidden="true">
+        </span>
+      </div>
+      <div class="rooster-card__main">
+        <div class="rooster-card__text">
           <p class="rooster-card__label">Roosters acumulados</p>
           <p class="rooster-card__balance">{{ usuario.puntos_balance | crcCurrency }}</p>
         </div>
+        <ion-icon name="chevron-forward-outline" class="rooster-card__arrow"></ion-icon>
       </div>
-      <ion-icon name="chevron-forward-outline" class="rooster-card__arrow"></ion-icon>
     </button>
 
     <!-- Seccion: Tus pedidos -->
@@ -136,6 +146,7 @@
     </div>
 
     <p class="cuenta-version">Rooster App · versión 1.0.0</p>
+    </div>
   </ng-container>
 
   <!-- ===== INVITADO (sin sesion) ===== -->

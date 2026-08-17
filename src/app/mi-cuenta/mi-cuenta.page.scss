@@ -14,6 +14,17 @@
   flex-direction: column;
 }
 
+/* Wrapper de TODO el contenido logueado (perfil, roosters, secciones...).
+   Hace falta para que quede arriba del .pedir-rooster-bg: ese fondo es
+   `position:fixed`, y un elemento posicionado SIEMPRE pinta por encima de
+   uno estatico sin importar el orden en el DOM ni z-index:0 — sin este
+   wrapper con position:relative + z-index:1, el fondo taparia toda la
+   lista (mismo patron que .cuenta-invitado-shell para el invitado). */
+.cuenta-logueado {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Perfil (sin header arriba — "Mi cuenta" era redundante con el tab activo) ── */
 .cuenta-perfil {
   display: flex;
@@ -108,7 +119,9 @@
     font-family: var(--client-font-body);
     font-size: 11px;
     font-weight: 800;
-    color: var(--client-text-muted);
+    /* Blanco: el fondo detras es .pedir-rooster-bg (oscuro), no la card
+       blanca de abajo -- var(--client-text-muted) quedaba casi invisible. */
+    color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     margin: 0 0 10px 4px;
@@ -185,31 +198,61 @@
   &:hover &__arrow { transform: translateX(2px); }
 }
 
-/* ── Roosters (tarjeta destacada) ───────────────────────────────────────────── */
+/* ── Roosters (tarjeta destacada, diseño "cupon de canje") ─────────────────────
+   Elegido de una vitrina de 15 prototipos: talon perforado (como un ticket de
+   verdad) con el isotipo real de la marca -- sin recolorear, tal cual el PNG
+   de assets/logo -- en vez del icono generico que tenia antes. Refuerza que
+   los Roosters se CANJEAN, no solo se acumulan.
+
+   Dos tonos de blanco (no rojo): mismo tratamiento que .cuenta-group/.cuenta-perfil
+   -- talon en var(--client-surface) (#f7f7f8, gris-blanco) y cuerpo en
+   blanco puro (#fff), con la MISMA sombra+borde sutil que las demas
+   tarjetas de la seccion (antes tenia un
+   filter:drop-shadow de blur 20px, mucho mas fuerte que el box-shadow de 2-6px
+   de sus vecinas -- por eso se veia "mas ancha" aunque el ancho en CSS ya era
+   identico, medido: 350px/728px/728px en 390/900/1440, pixel por pixel igual
+   a .cuenta-perfil y .cuenta-group). */
 .rooster-card {
-  position: relative;
+  /* Posicion horizontal y radio de las perforaciones del ticket. Se usan
+     tanto para la mascara de abajo como para el borde punteado del talon,
+     asi los tres siempre caen en la misma X. */
+  --notch-x: 76px;
+  --notch-r: 11px;
+
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
   width: calc(100% - 40px);
   margin: 0 20px 16px;
-  padding: 14px 16px;
-  border: none;
+  border: 1px solid rgba(20, 17, 15, 0.05);
   border-radius: var(--rooster-radius-md);
-  cursor: pointer;
   overflow: hidden;
-  background: var(--client-red);
-  box-shadow: var(--client-shadow-red), var(--rooster-shadow-md);
-  transition: transform var(--rooster-ease-fast);
+  padding: 0;
+  cursor: pointer;
+  background: #ffffff;
+  box-shadow: var(--rooster-shadow-sm);
   animation: rooster-rise var(--rooster-ease-med) 0.05s both;
+  transition: transform var(--rooster-ease-fast);
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at 90% -10%, rgba(var(--client-amber-rgb), 0.16), transparent 55%);
-    pointer-events: none;
-  }
+  /* HUECOS REALES, no circulos pintados encima.
+     Antes los dibujaba como <span> negros posicionados sobre la tarjeta: por
+     mas que se alinearan al filo, seguian siendo pintura ENCIMA del blanco,
+     asi que alrededor del semicirculo siempre quedaba borde blanco visible y
+     nunca se leia como perforacion.
+     Con mask-image la tarjeta se RECORTA de verdad: esos pixeles dejan de
+     existir y por el agujero se ve el fondo real (el mosaico animado de
+     roosters), que es exactamente lo que hace un troquel en un ticket.
+     `mask-composite: intersect` = se quitan AMBOS circulos (con el default
+     add/source-over solo aplicaria el ultimo gradiente). */
+  --notch-mask:
+    radial-gradient(circle var(--notch-r) at var(--notch-x) 0,
+      transparent calc(var(--notch-r) - 0.5px), #000 var(--notch-r)),
+    radial-gradient(circle var(--notch-r) at var(--notch-x) 100%,
+      transparent calc(var(--notch-r) - 0.5px), #000 var(--notch-r));
+
+  -webkit-mask-image: var(--notch-mask);
+  mask-image: var(--notch-mask);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 
   &:hover { transform: translateY(-2px); }
   &:active { transform: scale(0.98); }
@@ -220,26 +263,79 @@
     width: 100%;
   }
 
-  &__left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+  /* Talon: donde va el logo, como el sello de un cupon real. La ALTURA de
+     toda la tarjeta la define __main (su padding + texto, igual que las
+     demas tarjetas de la seccion); el talon no debe aportar altura propia,
+     solo estirarse (align-items:stretch del padre) hasta esa altura. */
+  &__stub {
+    position: relative;
+    z-index: 2; /* encima de __main mientras el logo "sale corriendo" al click */
+    width: 76px;
+    flex-shrink: 0;
+    /* var(--client-bg) es #ffffff -- IDENTICO al blanco del cuerpo, asi que
+       no sirve como "segundo tono" (mismo bug que .cuenta-row__icon-wrap en
+       esta misma sesion). var(--client-surface) (#f7f7f8) si es un blanco
+       realmente distinto. */
+    background: var(--client-surface);
+  }
 
-  &__icon {
-    width: 38px;
-    height: 38px;
-    border-radius: var(--rooster-radius-sm);
-    background: rgba(255, 255, 255, 0.16);
+  /* El recorte en si: EL que tiene overflow:hidden, del tamano exacto del
+     talon. `position:absolute; inset:0` (no width/height:100% en flujo) a
+     proposito: asi NO aporta alto propio al talon -- si fuera 100% width/
+     height en flujo normal, su alto quedaria indefinido (el talon no tiene
+     alto fijo) y el <img> de adentro, al no poder resolver su height:200%
+     contra un alto indefinido, caia al fallback de mantener su proporcion
+     NATURAL (903x922, casi cuadrada) sobre su ancho ya resuelto (152px) ->
+     ~155px de alto, y ESE alto se propagaba hacia arriba y estiraba toda la
+     fila (el bug del "mucho alto"). Al sacarlo del flujo con absolute, el
+     talon queda con alto real 0 en su contenido -> el alto de la fila lo
+     pone solo __main, como el resto de las tarjetas -- y el <img> de adentro
+     ya resuelve su height:200% contra el alto DEFINIDO de este recorte. */
+  &__logo-crop {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-
-    ion-icon { font-size: 20px; color: #ffd76a; }
+    overflow: hidden;
   }
+
+  /* El PNG trae bastante margen transparente alrededor del isotipo (para
+     usarse como watermark tileado en otras pantallas); se escala para que
+     la figura llene el talon, sin tocar el archivo ni su color original. */
+  &__logo {
+    width: 160%;
+    height: 160%;
+    max-width: none;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  /* Linea de troquel entre talon y cuerpo, alineada a los huecos de la
+     mascara (misma --notch-x). Se corta antes de llegar a los extremos para
+     que arranque y termine justo donde empiezan las perforaciones. */
+  &__stub {
+    border-right: 2px dashed rgba(20, 17, 15, 0.14);
+  }
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px 14px 20px;
+    background: #ffffff;
+  }
+
+  &__text { min-width: 0; }
 
   &__label {
     font-family: var(--client-font-body);
     font-size: 12px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--client-text-muted);
     margin: 0 0 2px;
   }
 
@@ -247,11 +343,29 @@
     font-family: var(--client-font-display);
     font-size: 19px;
     font-weight: 800;
-    color: #fff;
+    color: var(--client-text);
     margin: 0;
   }
 
-  &__arrow { position: relative; z-index: 1; font-size: 18px; color: rgba(255, 255, 255, 0.8); flex-shrink: 0; }
+  &__arrow { font-size: 18px; color: var(--client-text-muted); flex-shrink: 0; }
+
+  /* Click: misma secuencia que los botones de Iniciar sesion/Crear cuenta de
+     la pantalla de invitado (irAAuth()) -- reusa esos mismos @keyframes,
+     definidos mas abajo, sin duplicarlos. */
+  &--launching {
+    pointer-events: none;
+
+    /* Anima __logo-crop (el chip ya recortado), no __logo (la imagen cruda
+       de adentro) -- ver el comentario en __logo-crop. */
+    .rooster-card__logo-crop { animation: cuenta-btn-icon-launch 0.6s ease-in-out both; }
+    .rooster-card__text { animation: cuenta-btn-label-vanish 0.2s ease-out both; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rooster-card--launching {
+    .rooster-card__logo-crop,
+    .rooster-card__text { animation: none; }
+  }
 }
 
 /* ── Invitado (sin sesion) ─────────────────────────────────────────────────────
@@ -451,7 +565,9 @@
 .cuenta-version {
   font-family: var(--client-font-body);
   font-size: 12px;
-  color: var(--client-text-muted);
+  /* Blanco por la misma razon que .cuenta-section__title: el fondo detras es
+     .pedir-rooster-bg (oscuro), var(--client-text-muted) casi no se veia. */
+  color: #ffffff;
   text-align: center;
   padding: 8px 0 32px;
   margin: 0;
