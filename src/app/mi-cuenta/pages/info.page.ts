@@ -9,6 +9,22 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
   standalone: false,
   styleUrls: ['./sub-page.scss'],
   styles: [`
+    .sub-title { color: #ffffff; }
+    .sub-status, .sub-empty { color: rgba(255, 255, 255, 0.75); }
+    ion-header { position: relative; z-index: 1; }
+    /* min-height + flex centra el bloque cuando la prosa es corta (Quienes
+       somos); en Terminos/Privacidad, que son largos, el contenido desborda y
+       justify-content:center deja de tener efecto -- se lee normal desde arriba. */
+    .info-page-body {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .info-page-body > .sub-body { width: 100%; }
+
     .info-parrafo {
       font-family: var(--client-font-body);
       font-size: 14px;
@@ -54,12 +70,16 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
     .info-meta { font-family: var(--client-font-body); font-size: 12px; color: var(--client-text-muted); text-align: center; margin: 10px 0 0; line-height: 1.6; }
   `],
   template: `
-    <ion-content [fullscreen]="true" class="sub-content">
+    <ion-header class="ion-no-border">
       <div class="sub-header">
         <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
         <h2 class="sub-title">{{ seccion?.titulo || 'Información' }}</h2>
       </div>
+    </ion-header>
 
+    <ion-content class="sub-content">
+      <div class="pedir-rooster-bg" aria-hidden="true"></div>
+      <div class="info-page-body">
       <div class="sub-body" *ngIf="seccion; else noData">
         <div class="sub-card">
           <p class="info-parrafo" *ngFor="let p of seccion.parrafos">{{ p }}</p>
@@ -92,6 +112,7 @@ import { NEGOCIO, DESARROLLADORES, Desarrollador } from '../../shared/constants/
       <ng-template #noData>
         <p class="sub-empty">No encontramos esta sección.</p>
       </ng-template>
+      </div>
     </ion-content>
   `,
 })

@@ -7,6 +7,11 @@ import { FAQ, PreguntaFrecuente } from '../../shared/constants/mi-cuenta-conteni
   standalone: false,
   styleUrls: ['./sub-page.scss'],
   styles: [`
+    .sub-title { color: #ffffff; }
+    .sub-status, .sub-empty { color: rgba(255, 255, 255, 0.75); }
+    ion-header { position: relative; z-index: 1; }
+    .faq-page-body { position: relative; z-index: 1; }
+
     .faq-item {
       background: #fff;
       border-radius: 14px;
@@ -45,12 +50,16 @@ import { FAQ, PreguntaFrecuente } from '../../shared/constants/mi-cuenta-conteni
     }
   `],
   template: `
-    <ion-content [fullscreen]="true" class="sub-content">
+    <ion-header class="ion-no-border">
       <div class="sub-header">
         <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
         <h2 class="sub-title">Preguntas frecuentes</h2>
       </div>
+    </ion-header>
 
+    <ion-content class="sub-content">
+      <div class="pedir-rooster-bg" aria-hidden="true"></div>
+      <div class="faq-page-body">
       <div class="sub-body">
         <div class="faq-item" *ngFor="let f of faqs; let i = index">
           <button class="faq-q" (click)="toggle(i)">
@@ -60,6 +69,7 @@ import { FAQ, PreguntaFrecuente } from '../../shared/constants/mi-cuenta-conteni
           </button>
           <p class="faq-a" *ngIf="abierta === i">{{ f.respuesta }}</p>
         </div>
+      </div>
       </div>
     </ion-content>
   `,

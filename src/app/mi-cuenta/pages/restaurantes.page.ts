@@ -13,6 +13,11 @@ import { ConfiguracionService, Restaurante } from '../../core/services/configura
   standalone: false,
   styleUrls: ['./sub-page.scss'],
   styles: [`
+    .sub-title { color: #ffffff; }
+    .sub-status, .sub-empty { color: rgba(255, 255, 255, 0.75); }
+    ion-header { position: relative; z-index: 1; }
+    .rest-page-body { position: relative; z-index: 1; }
+
     .rest-card { display: flex; flex-direction: column; gap: 10px; }
     .rest-name {
       font-family: var(--client-font-display);
@@ -51,12 +56,16 @@ import { ConfiguracionService, Restaurante } from '../../core/services/configura
     }
   `],
   template: `
-    <ion-content [fullscreen]="true" class="sub-content">
+    <ion-header class="ion-no-border">
       <div class="sub-header">
         <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
         <h2 class="sub-title">Restaurantes</h2>
       </div>
+    </ion-header>
 
+    <ion-content class="sub-content">
+      <div class="pedir-rooster-bg" aria-hidden="true"></div>
+      <div class="rest-page-body">
       <div class="sub-body">
         <p class="sub-status" *ngIf="cargando">Cargando restaurantes...</p>
         <p class="sub-status" *ngIf="error">{{ error }}</p>
@@ -83,6 +92,7 @@ import { ConfiguracionService, Restaurante } from '../../core/services/configura
         <p class="sub-empty" *ngIf="!cargando && !error && restaurantes.length === 0">
           No hay restaurantes para mostrar.
         </p>
+      </div>
       </div>
     </ion-content>
   `,
