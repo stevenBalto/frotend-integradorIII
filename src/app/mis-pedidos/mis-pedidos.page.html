@@ -1,12 +1,16 @@
-<ion-content [fullscreen]="true" class="mispedidos-content">
-
-  <!-- Header -->
+<ion-header class="ion-no-border">
   <div class="mispedidos-header">
     <button type="button" class="mispedidos-header__back" routerLink="/tabs/mi-cuenta">
       <ion-icon name="arrow-back-outline"></ion-icon>
     </button>
     <h2 class="mispedidos-header__title">Mis pedidos</h2>
   </div>
+</ion-header>
+
+<ion-content class="mispedidos-content">
+
+  <div class="pedir-rooster-bg" aria-hidden="true"></div>
+  <div class="mispedidos-body">
 
   <!-- Estados -->
   <p *ngIf="cargando" class="mispedidos-status">Cargando pedidos...</p>
@@ -14,7 +18,7 @@
 
   <!-- Lista de pedidos -->
   <div class="mispedidos-list" *ngIf="!cargando && !error">
-    <div class="pedido-card" *ngFor="let p of pedidos" (click)="toggleDetalle(p.id)">
+    <div class="pedido-card" [class.pedido-card--expanded]="pedidoExpandido === p.id" *ngFor="let p of pedidos" (click)="toggleDetalle(p.id)">
       <div class="pedido-card__header">
         <div class="pedido-card__info">
           <div class="pedido-card__codigo-row">
@@ -34,7 +38,7 @@
       <div class="pedido-card__row">
         <span class="pedido-card__sucursal">
           <ion-icon name="location-outline"></ion-icon>
-          {{ p.sucursal.nombre }}
+          <span class="pedido-card__sucursal-text">{{ p.sucursal.nombre }}</span>
         </span>
         <span class="pedido-card__modalidad">
           {{ MODALIDAD_LABEL[p.modalidad] }}
@@ -96,4 +100,5 @@
     </p>
   </div>
 
+  </div>
 </ion-content>

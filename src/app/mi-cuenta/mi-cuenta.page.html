@@ -31,7 +31,7 @@
       <div class="rooster-card__main">
         <div class="rooster-card__text">
           <p class="rooster-card__label">Roosters acumulados</p>
-          <p class="rooster-card__balance">{{ usuario.puntos_balance | crcCurrency }}</p>
+          <p class="rooster-card__balance">{{ formatRoosters(usuario.puntos_balance) }} <span class="rooster-card__unit">Roosters</span></p>
         </div>
         <ion-icon name="chevron-forward-outline" class="rooster-card__arrow"></ion-icon>
       </div>

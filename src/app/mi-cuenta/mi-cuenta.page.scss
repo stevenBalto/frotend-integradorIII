@@ -142,7 +142,14 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 15px 16px;
+  /* Alto fijo (no solo padding): con labels largos ("Privacidad y proteccion
+     de datos") el texto envolvia a 2 lineas y esa fila quedaba mas alta que
+     las demas -- el alto total de la lista variaba segun el ancho de
+     pantalla y el scroll se activaba en un punto distinto cada vez. Con
+     height fijo + label en una sola linea (ellipsis abajo) todas las filas
+     miden igual, sin importar el texto. */
+  height: 66px;
+  padding: 0 16px;
   background: none;
   border: none;
   border-bottom: 1px solid rgba(20, 17, 15, 0.05);
@@ -179,11 +186,15 @@
 
   &__label {
     flex: 1;
+    min-width: 0;
     font-family: var(--client-font-body);
     font-size: 14px;
     font-weight: 600;
     color: var(--client-text);
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &--danger { color: var(--client-red); }
   }
@@ -221,6 +232,10 @@
 
   display: flex;
   align-items: stretch;
+  /* Mismo alto fijo que .cuenta-row (66px): antes lo definia el padding
+     vertical de __main, variable segun el contenido. Fijo ademas evita que
+     esta tarjeta destacada quede desalineada con el resto de la lista. */
+  height: 66px;
   width: calc(100% - 40px);
   margin: 0 20px 16px;
   border: 1px solid rgba(20, 17, 15, 0.05);
@@ -325,26 +340,44 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 14px 16px 14px 20px;
+    padding: 0 16px 0 20px;
     background: #ffffff;
   }
 
   &__text { min-width: 0; }
 
+  /* Mayusculas + letter-spacing: mismo tratamiento tipografico que
+     .cuenta-section__title, para que el "tono formal" sea coherente con el
+     resto de la pantalla y no un estilo aparte solo de esta tarjeta. */
   &__label {
     font-family: var(--client-font-body);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 800;
     color: var(--client-text-muted);
-    margin: 0 0 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 3px;
   }
 
+  /* Cantidad de Roosters, no un monto en colones: antes usaba crcCurrency
+     (formato "₡453") y eso se leia como dinero en el monedero, no como
+     puntos acumulados -- aunque 1 Rooster equivalga a ₡1 al canjear, mezclar
+     el simbolo de colon en el saldo confundia el dato. Numero simple +
+     unidad "Roosters" explicita. */
   &__balance {
     font-family: var(--client-font-display);
     font-size: 19px;
     font-weight: 800;
     color: var(--client-text);
     margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__unit {
+    font-family: var(--client-font-body);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--client-text-muted);
   }
 
   &__arrow { font-size: 18px; color: var(--client-text-muted); flex-shrink: 0; }

@@ -2,6 +2,26 @@
   --background: var(--client-bg);
 }
 
+/* Wrapper de todo el contenido: tiene que quedar arriba del .pedir-rooster-bg
+   (position:fixed), que si no lo taparia -- mismo patron que .cuenta-logueado
+   en Mi cuenta. */
+.mispedidos-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* ion-header (fuera de ion-content, arriba): Ionic ya lo saca del area
+   scrolleable -- no hace falta position:sticky ni fondo de ningun tipo para
+   que el titulo/boton queden fijos, eso lo resuelve la estructura ion-header
+   + ion-content sola. Position+z-index aca es SOLO para que pinte encima de
+   .pedir-rooster-bg (fixed, z-index:0): sin esto, el patron animado
+   (positioned) pintaria por ENCIMA del header (estatico) sin importar el
+   orden en el DOM, tapando el titulo. */
+ion-header {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Header ──────────────────────────────────────────────────────────────────── */
 .mispedidos-header {
   display: flex;
@@ -45,7 +65,8 @@
     font-family: var(--client-font-display);
     font-size: 22px;
     font-weight: 700;
-    color: var(--client-ink);
+    /* Blanco: el fondo detras es .pedir-rooster-bg (oscuro). */
+    color: #ffffff;
     margin: 0;
     letter-spacing: -0.01em;
 
@@ -61,7 +82,7 @@
   text-align: center;
   font-family: var(--client-font-body);
   font-size: 14px;
-  color: var(--client-text-muted);
+  color: rgba(255, 255, 255, 0.75);
 
   &--error {
     color: var(--client-red);
@@ -73,7 +94,7 @@
   text-align: center;
   font-family: var(--client-font-body);
   font-size: 14px;
-  color: var(--client-text-muted);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* ── Lista de pedidos ────────────────────────────────────────────────────────── */
@@ -100,6 +121,20 @@
   cursor: pointer;
   transition: box-shadow var(--rooster-ease-fast), transform var(--rooster-ease-fast);
   animation: rooster-rise var(--rooster-ease-med) both;
+
+  /* Alto fijo mientras esta colapsada (mismo criterio que .cuenta-row en Mi
+     cuenta): sin esto, un nombre de sucursal largo hacia esa fila mas alta
+     que las demas y la lista quedaba dispareja. Al expandir (tap, ver
+     --expanded abajo) el alto vuelve a auto para mostrar el detalle completo
+     -- eso es una accion explicita del usuario, no parte del listado en
+     reposo, asi que no tiene que quedar fijo. */
+  height: 132px;
+  overflow: hidden;
+
+  &--expanded {
+    height: auto;
+    overflow: visible;
+  }
 
   &:hover { box-shadow: var(--rooster-shadow-md); }
   &:active {
@@ -176,6 +211,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    min-width: 0;
+    flex: 1;
     font-family: var(--client-font-body);
     font-size: 12px;
     color: var(--client-text);
@@ -183,7 +220,14 @@
     ion-icon {
       font-size: 14px;
       color: var(--client-text-muted);
+      flex-shrink: 0;
     }
+  }
+
+  &__sucursal-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__modalidad {
@@ -193,6 +237,7 @@
     padding: 3px 8px;
     border-radius: 6px;
     background: var(--client-bg);
+    flex-shrink: 0;
   }
 
   &__footer {

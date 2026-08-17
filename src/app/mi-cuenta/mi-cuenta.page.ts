@@ -46,6 +46,10 @@ export class MiCuentaPage {
 
   readonly MODALIDAD_LABEL = MODALIDAD_LABEL;
 
+  /** Roosters se muestran como cantidad (no como colones, aunque 1 Rooster = ₡1
+      al canjear): usar crcCurrency ahi confundia el saldo de puntos con dinero. */
+  private readonly roostersFormatter = new Intl.NumberFormat('es-CR');
+
   constructor() {
     this.usuario$ = this.auth.usuarioActual$;
   }
@@ -71,6 +75,10 @@ export class MiCuentaPage {
   /** Saldo de Roosters del usuario logueado. */
   get roostersBalance(): number {
     return this.auth.usuario?.puntos_balance ?? 0;
+  }
+
+  formatRoosters(valor: number | null | undefined): string {
+    return this.roostersFormatter.format(valor ?? 0);
   }
 
   // ── Metodos de pago (modal) ──
