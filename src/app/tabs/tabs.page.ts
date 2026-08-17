@@ -38,6 +38,11 @@ export class TabsPage implements AfterViewInit, OnDestroy {
   /** Índice cuyo ícono/label muestra la cápsula (cambia en vivo mientras se arrastra). */
   displayIndex = 0;
   dragging = false;
+  /** true en las sub-páginas de Mi cuenta (Roosters, Perfil, Historial, Productos,
+      Restaurantes, FAQ, Info): tienen su propio botón de volver, así que el tab
+      bar (y su cápsula overlay) no pintan ahí. Se recalcula solo con la navegación
+      real (esas páginas vuelven a /tabs/mi-cuenta), no con un toggle manual. */
+  ocultarTabBar = false;
   /** Cantidad de productos en el carrito (badge del tab Carrito). Vale para todo
    *  usuario: depende solo de lo que haya en el carrito (persistido en storage). */
   cartCount = 0;
@@ -177,6 +182,9 @@ export class TabsPage implements AfterViewInit, OnDestroy {
     const key = seg[1] ?? 'home';
     const idx = this.tabs.findIndex((t) => t.key === key);
     this.activeIndex = idx >= 0 ? idx : 0;
+    // Sub-página de Mi cuenta = hay un 3er segmento (ej. 'roosters', 'info').
+    // La raíz '/tabs/mi-cuenta' (el menú) sí conserva el tab bar.
+    this.ocultarTabBar = key === 'mi-cuenta' && seg.length > 2;
     if (!this.dragging) {
       this.displayIndex = this.activeIndex;
       // Re-medir con el layout ya asentado de la ruta destino (evita quedar con

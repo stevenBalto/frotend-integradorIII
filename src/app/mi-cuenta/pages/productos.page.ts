@@ -8,7 +8,26 @@ import { Producto } from '../../core/models/producto.model';
   standalone: false,
   styleUrls: ['./sub-page.scss'],
   styles: [`
-    .prod-intro { font-family: var(--client-font-body); font-size: 14px; line-height: 1.5; color: var(--client-text-muted); text-align: center; margin: 0 0 18px; }
+    .sub-title { color: #ffffff; }
+    .sub-status, .sub-empty { color: rgba(255, 255, 255, 0.75); }
+    ion-header { position: relative; z-index: 1; }
+    /* min-height:100% + flex centra el bloque (marquee + boton) en el alto
+       disponible de ion-content -- el header (arriba, fuera de este wrapper)
+       no se toca. Sin esto el contenido queda pegado arriba con todo el
+       fondo animado vacio debajo. */
+    .prod-page-body {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    /* Sin esto, el stretch de flexbox calcula el ancho del hijo a partir del
+       contenido (el marquee, muy ancho) en vez del viewport, y .sub-body queda
+       fijo en su max-width (768px) aunque la pantalla sea angosta. */
+    .prod-page-body > .sub-body { width: 100%; }
+
     .mq { overflow: hidden; margin: 0 -16px 18px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
     .mq-track { display: flex; gap: 14px; width: max-content; padding: 0 7px; animation: mq-left 48s linear infinite; }
     .mq-track--rev { animation: mq-right 60s linear infinite; }
@@ -35,14 +54,17 @@ import { Producto } from '../../core/models/producto.model';
     }
   `],
   template: `
-    <ion-content [fullscreen]="true" class="sub-content">
+    <ion-header class="ion-no-border">
       <div class="sub-header">
         <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
         <h2 class="sub-title">Productos</h2>
       </div>
+    </ion-header>
 
+    <ion-content class="sub-content">
+      <div class="pedir-rooster-bg" aria-hidden="true"></div>
+      <div class="prod-page-body">
       <div class="sub-body">
-        <p class="prod-intro">Un vistazo a lo que preparamos con gusto en Rooster. 🍕🔥</p>
         <p class="sub-status" *ngIf="cargando">Cargando productos...</p>
 
         <ng-container *ngIf="!cargando && productos.length > 0">
@@ -76,6 +98,7 @@ import { Producto } from '../../core/models/producto.model';
             <ion-icon name="cart-outline"></ion-icon> Ver el menú completo
           </button>
         </ng-container>
+      </div>
       </div>
     </ion-content>
   `,

@@ -1,9 +1,13 @@
-<ion-content [fullscreen]="true" class="sub-content">
+<ion-header class="ion-no-border">
   <div class="sub-header">
     <button class="sub-back" routerLink="/tabs/mi-cuenta"><ion-icon name="arrow-back-outline"></ion-icon></button>
     <h2 class="sub-title">Mi cuenta</h2>
   </div>
+</ion-header>
 
+<ion-content class="sub-content">
+  <div class="pedir-rooster-bg" aria-hidden="true"></div>
+  <div class="perfil-page-body">
   <div class="sub-body" *ngIf="(usuario$ | async) as u">
 
     <!-- Cabecera: avatar + identidad, en su propia tarjeta como el resto -->
@@ -149,5 +153,6 @@
       </div>
     </div>
 
+  </div>
   </div>
 </ion-content>

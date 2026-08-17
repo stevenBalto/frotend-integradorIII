@@ -2,6 +2,13 @@
    DESKTOP (>=768px): barra plana de ancho completo — una capsula chica
    flotando en medio de una pantalla ancha se ve como resto de app movil,
    no como parte del layout web. Mismo componente, dos tratamientos. */
+/* Ionic define display:flex en el propio :host del componente (mas prioridad
+   que el atributo hidden nativo, que es solo estilo de user-agent) -- por eso
+   esto necesita !important y no un simple [hidden]. */
+ion-tab-bar.tabbar-hidden {
+  display: none !important;
+}
+
 ion-tab-bar {
   --background: #ffffff;
   --border: none;

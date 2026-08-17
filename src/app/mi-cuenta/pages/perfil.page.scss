@@ -1,5 +1,19 @@
 /* Perfil del cliente: avatar editable + datos editables. */
 
+/* Fondo mosaico de roosters (mismo que Roosters acumulados/Mis pedidos/Historial):
+   .sub-title/.sub-status/.sub-empty son oscuros en sub-page.scss para las sub-paginas
+   claras, aca se pisan a blanco porque el fondo de esta pagina es oscuro. */
+.sub-title { color: #ffffff; }
+.sub-status, .sub-empty { color: rgba(255, 255, 255, 0.75); }
+
+/* ion-header ya queda fuera del area scrolleable (estructura ion-header +
+   ion-content), sin fondo. Position+z-index es solo para pintar encima del
+   .pedir-rooster-bg (fixed, z-index:0). */
+ion-header { position: relative; z-index: 1; }
+
+/* Igual que .roo-page-body/.cuenta-logueado: arriba del fondo fijo. */
+.perfil-page-body { position: relative; z-index: 1; }
+
 /* Lleva .sub-card en el HTML (fondo blanco, radio, sombra); acá solo se
    centra el contenido y se le da algo más de aire vertical que a las tarjetas
    de datos, porque es la cabecera de la pantalla. */

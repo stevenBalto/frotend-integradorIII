@@ -1,6 +1,6 @@
 <ion-tabs>
 
-  <ion-tab-bar slot="bottom" #tabBar
+  <ion-tab-bar slot="bottom" #tabBar [class.tabbar-hidden]="ocultarTabBar"
     [class.hidx-0]="dragging && displayIndex === 0"
     [class.hidx-1]="dragging && displayIndex === 1"
     [class.hidx-2]="dragging && displayIndex === 2"
@@ -31,7 +31,7 @@
 
 <!-- Cápsula neumórfica que marca la opción activa y se puede ARRASTRAR de una a
      otra (estilo segmented control iOS). Overlay alineado al tab bar real por JS. -->
-<div class="tabfx" [class.tabfx--ready]="barWidth > 0"
+<div class="tabfx" *ngIf="!ocultarTabBar" [class.tabfx--ready]="barWidth > 0"
      [style.top.px]="barTop" [style.left.px]="barLeft"
      [style.width.px]="barWidth" [style.height.px]="barHeight">
   <div class="tabfx__cell" [class.tabfx__cell--dragging]="dragging"
